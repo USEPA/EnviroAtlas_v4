@@ -1,0 +1,11 @@
+@import "https://js.arcgis.com/calcite-components/1.3.1/calcite.css";
+@import "https://js.arcgis.com/4.26/esri/themes/light/main.css";
+
+html,
+body,
+#app {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
