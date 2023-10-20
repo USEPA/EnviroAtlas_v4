@@ -5,21 +5,15 @@
     import "@esri/calcite-components/dist/components/calcite-action";
     import "@esri/calcite-components/dist/components/calcite-action-bar";
     import "@esri/calcite-components/dist/components/calcite-panel";
-    import "@esri/calcite-components/dist/components/calcite-label";
-    import "@esri/calcite-components/dist/components/calcite-button";
-    import "@esri/calcite-components/dist/components/calcite-dropdown";
-    import "@esri/calcite-components/dist/components/calcite-dropdown-item";
-    import "@esri/calcite-components/dist/components/calcite-dropdown-group";
   
     // arcgis js api
     import Bookmarks from "@arcgis/core/widgets/Bookmarks";
     import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
     import LayerList from "@arcgis/core/widgets/LayerList";
     import Legend from "@arcgis/core/widgets/Legend";
-    import Print from "@arcgis/core/widgets/Print";
-
   
-    import { state } from "../store";
+    // Import components and store
+    import { viewState } from "../store";
     import SummarizeMyArea from "./SummarizeMyArea.svelte";
     import MultidimTest from "./MultidimTest.svelte";
   
@@ -27,13 +21,12 @@
     let bmgContainer;
     let layerListContainer;
     let legendContainer;
-    let printContainer;
   
     let item = {};
     let view;
     let loaded = true;
   
-    state.subscribe((value) => {
+    viewState.subscribe((value) => {
       view = value.view;
       console.log(view)
       if (view && loaded) {
@@ -65,10 +58,6 @@
         container: legendContainer,
       });
   
-      const print = new Print({
-        view,
-        container: printContainer,
-      });
     };
   
     let activeWidget;
@@ -82,6 +71,8 @@
           // active and hidden aren't recognized as typed correctly...could use typescript to fix the errors
           document.querySelector(`[data-action-id=${activeWidget}]`).active = false;
           document.querySelector(`[data-panel-id=${activeWidget}]`).hidden = true;
+          document.querySelector(`[component-id="shell-panel"]`).collapsed = true;
+          console.log(activeWidget);
         }
   
         const nextWidget = target.dataset.actionId;
@@ -90,7 +81,9 @@
           // give the widgets their own varibale
           document.querySelector(`[data-action-id=${nextWidget}]`).active = true;
           document.querySelector(`[data-panel-id=${nextWidget}]`).hidden = false;
+          document.querySelector(`[component-id="shell-panel"]`).collapsed = false;
           activeWidget = nextWidget;
+          console.log(activeWidget)
         } else {
           activeWidget = null;
         }

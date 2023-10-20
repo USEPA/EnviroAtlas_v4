@@ -9,15 +9,16 @@
     import "@esri/calcite-components/dist/components/calcite-segmented-control";
     import "@esri/calcite-components/dist/components/calcite-segmented-control-item";
     import "@esri/calcite-components/dist/components/calcite-list";
-    import "@esri/calcite-components/dist/components/calcite-list-item"
+    import "@esri/calcite-components/dist/components/calcite-list-item";
 
+    // Import from arcgis js api
     import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
     import DimensionalDefinition from "@arcgis/core/layers/support/DimensionalDefinition";
     import MosaicRule from "@arcgis/core/layers/support/MosaicRule";
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
 
-
-    import { state, ecat } from "../store";  
+    // Import components and store
+    import { viewState, mapState, ecat } from "../store";  
 
     const server = 'https://awseastaging.epa.gov' 
     const mdURL = "/arcgis/rest/services/test_services/precipMultiDim/ImageServer";
@@ -48,9 +49,8 @@
     initSlider();
 
     async function addMultidim() {
-        console.log('addMultidim ran...year Val is ', $ecat.yearThresholds)
 
-        $state.map.removeAll();
+        $mapState.map.removeAll();
         // set initial year value
         const yearDefinition = new DimensionalDefinition({
         dimensionName: 'Year',
@@ -106,10 +106,10 @@
             },
         });
 
-        console.log($state.map);
-        $state.map.add(layer);
+        console.log($mapState.map);
+        $mapState.map.add(layer);
 
-        $state.view.whenLayerView(layer).then(() => {
+        $viewState.view.whenLayerView(layer).then(() => {
         const multidimInfo = layer.multidimensionalInfo;
         console.log('layer: ', multidimInfo);
         });
