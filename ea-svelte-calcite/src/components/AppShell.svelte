@@ -95,7 +95,7 @@
     <h2 id="header-title" slot="header">
       {item.title || "EnviroAtlas TEST"}
     </h2>
-    <calcite-shell-panel slot="panel-start" display-mode="overlay" detached>
+    <calcite-shell-panel component-id="shell-panel" slot="panel-start" display-mode="overlay" collapsed width-scale="m">
       <calcite-action-bar slot="action-bar" on:click={handleActionBarClick}>
         <calcite-action data-action-id="layers" icon="layers" text="Layers" />
         <calcite-action
@@ -173,6 +173,10 @@
   
   
   <style>
+    calcite-shell-panel {
+      --calcite-shell-panel-min-width: 340px;
+    }
+    
     #header-title {
       margin-left: 1rem;
       margin-right: 1rem;

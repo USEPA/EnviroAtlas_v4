@@ -117,7 +117,7 @@
 
 </script>
 
-<calcite-panel width-scale='l' heading="Multidim Test" data-panel-id="multidim-test" hidden>
+<calcite-panel heading="Multidim Test" data-panel-id="multidim-test" hidden>
     <calcite-tile-select-group
     id="bandTileSelectGroup"
     layout="vertical"
@@ -204,12 +204,6 @@
 </calcite-panel>
 
 <style>
-    calcite-panel {
-        width: 370px;
-        height: 95%;
-        position: absolute;
-        z-index: 60;
-    }
     calcite-combobox {
         margin-left: 38px;
     }
