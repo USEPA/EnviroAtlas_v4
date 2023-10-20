@@ -22,31 +22,30 @@
 
     const server = 'https://awseastaging.epa.gov' 
     const mdURL = "/arcgis/rest/services/test_services/precipMultiDim/ImageServer";
-    let yearRange = [2006, 2099];
     let yearVal = [2040];
 
-    async function initSlider() {
-        await customElements.whenDefined("calcite-slider");
-        const yearSlider = document.getElementById("yearSlider");
-        $ecat.yearThresholds = [
-            yearSlider.value
-            // yearSlider.minValue,
-            // yearSlider.maxValue
-        ]
-        console.log(yearSlider);
-        console.log($ecat.yearThresholds);
+    // async function initSlider() {
+    //     await customElements.whenDefined("calcite-slider");
+    //     const yearSlider = document.getElementById("yearSlider");
+    //     $ecat.yearThresholds = [
+    //         yearSlider.value
+    //         // yearSlider.minValue,
+    //         // yearSlider.maxValue
+    //     ]
+    //     console.log(yearSlider);
+    //     console.log($ecat.yearThresholds);
 
-        yearSlider.addEventListener("calciteSliderChange", () => {
-            $ecat.yearThresholds = [
-                yearSlider.value
-                // yearSlider.minValue,
-                // yearSlider.maxValue
-            ];
-            console.log("update: ", $ecat.yearThresholds);
-        });
-    }
+    //     yearSlider.addEventListener("calciteSliderChange", () => {
+    //         $ecat.yearThresholds = [
+    //             yearSlider.value
+    //             // yearSlider.minValue,
+    //             // yearSlider.maxValue
+    //         ];
+    //         console.log("update: ", $ecat.yearThresholds);
+    //     });
+    // }
 
-    initSlider();
+    // initSlider();
 
     async function addMultidim() {
 
@@ -54,7 +53,7 @@
         // set initial year value
         const yearDefinition = new DimensionalDefinition({
         dimensionName: 'Year',
-        values: $ecat.yearThresholds,
+        values: yearVal,
         isSlice: true
         })
 
@@ -154,19 +153,11 @@
     </calcite-block>
     <calcite-block
         open
-        heading="Year"
-        description="This is a description for the baseline input range of years that will be analyzed. "
+        heading="Time Range"
+        description="This is a description for five types of inputs available. "
         data-layerId="multidim-year"
         >
         <calcite-icon scale="m" slot="icon" icon="calendar"></calcite-icon>            
-        <calcite-slider
-            name="yearSlider"
-            id="yearSlider"
-            label-handles
-            min="2006"
-            max="2099"
-            value={yearVal[0]}>
-        </calcite-slider>
     </calcite-block>
     <calcite-block
     open
@@ -212,13 +203,13 @@
         margin-right: 9px;
         margin-bottom: 0px;
     }
-    calcite-slider {
+    /* calcite-slider {
         padding-left: 7px;
         padding-right: 7px;
         height: auto;
         display: block;
         position: relative;
         --calcite-ui-foreground-1: white;
-    }
+    } */
     
 </style>
