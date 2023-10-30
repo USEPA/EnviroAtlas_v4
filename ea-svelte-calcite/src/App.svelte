@@ -1,11 +1,10 @@
 <script>
+  // Import arcgis js api
   import config from "@arcgis/core/config";
   import Map from "@arcgis/core/Map";
   import MapView from "@arcgis/core/views/MapView";
   import LayerList from "@arcgis/core/widgets/LayerList";
   import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
-
-
 
   import { onMount } from "svelte";
   import AppShell from "./components/AppShell.svelte";
@@ -37,8 +36,8 @@
     view.ui.move("zoom", "top-right");  // Map widget
 
     $viewState.view = view;
-    $mapState.map = map
-    console.log(map)
+    $mapState.map = map;
+    console.log(map);
 
     // view.whenLayerView(layer).then(() => {
     //   const multidimInfo = layer.multidimensionalInfo;

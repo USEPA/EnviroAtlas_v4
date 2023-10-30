@@ -5,8 +5,10 @@
     import "@esri/calcite-components/dist/components/calcite-action";
     import "@esri/calcite-components/dist/components/calcite-action-bar";
     import "@esri/calcite-components/dist/components/calcite-panel";
+    import "@esri/calcite-components/dist/components/calcite-navigation";
+    import "@esri/calcite-components/dist/components/calcite-navigation-logo";
   
-    // arcgis js api
+    // Import arcgis js api
     import Bookmarks from "@arcgis/core/widgets/Bookmarks";
     import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
     import LayerList from "@arcgis/core/widgets/LayerList";
@@ -22,6 +24,7 @@
     let layerListContainer;
     let legendContainer;
   
+    let src = '/images/logo.png';
     let item = {};
     let view;
     let loaded = true;
@@ -92,9 +95,9 @@
   </script>
   
   <calcite-shell content-behind>
-    <h2 id="header-title" slot="header">
-      {item.title || "EnviroAtlas TEST"}
-    </h2>
+    <calcite-navigation id="header" slot='header' style="block-size: 3rem">
+      <calcite-navigation-logo slot='logo' heading='v4' thumbnail={src}></calcite-navigation-logo>
+    </calcite-navigation>
     <calcite-shell-panel component-id="shell-panel" slot="panel-start" display-mode="overlay" collapsed width-scale="m">
       <calcite-action-bar slot="action-bar" on:click={handleActionBarClick}>
         <calcite-action data-action-id="layers" icon="layers" text="Layers" />
@@ -177,11 +180,11 @@
       --calcite-shell-panel-min-width: 340px;
     }
     
-    #header-title {
-      margin-left: 1rem;
-      margin-right: 1rem;
+    calcite-navigation {
+      --calcite-navigation-background: #005ea2;
+      --calcite-ui-text-1: white;
     }
-  
+
     #info-content {
       padding: 0.75rem;
     }
