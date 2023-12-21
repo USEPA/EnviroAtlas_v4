@@ -24,7 +24,6 @@
     let layerListContainer;
     let legendContainer;
   
-    let src = '/images/logo.png';
     let item = {};
     let view;
     let loaded = true;
@@ -96,7 +95,7 @@
   
   <calcite-shell content-behind>
     <calcite-navigation id="header" slot='header' style="block-size: 3rem">
-      <calcite-navigation-logo slot='logo' heading='v4' thumbnail={src}></calcite-navigation-logo>
+      <calcite-navigation-logo slot='content-start' heading='v4' thumbnail='/ea/images/logo.png'></calcite-navigation-logo>
     </calcite-navigation>
     <calcite-shell-panel component-id="shell-panel" slot="panel-start" display-mode="overlay" collapsed width-scale="m">
       <calcite-action-bar slot="action-bar" on:click={handleActionBarClick}>
@@ -163,7 +162,7 @@
       </calcite-panel>
       <calcite-panel heading="Details" data-panel-id="information" hidden>
         <div id="info-content">
-          <h1>Hello {name}!</h1>
+          <h1>Hello!</h1>
           <p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
           <calcite-icon icon="banana" />
         </div>
@@ -183,6 +182,7 @@
     calcite-navigation {
       --calcite-navigation-background: #005ea2;
       --calcite-ui-text-1: white;
+      --calcite-ui-foreground-2: none;
     }
 
     #info-content {
