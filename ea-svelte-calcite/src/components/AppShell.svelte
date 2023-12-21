@@ -122,7 +122,7 @@
         text="Summarize My Area"
         />
         <calcite-action
-        data-action-id="multidim-test"
+        data-action-id="climate-data-viewer"
         icon="multidimensional-raster"
         text="Multidim Test"
         />

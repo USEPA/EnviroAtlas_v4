@@ -1,15 +1,14 @@
 <script>
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
-    import "@esri/calcite-components/dist/components/calcite-tile-select-group";
-    import "@esri/calcite-components/dist/components/calcite-tile-select";
-    import "@esri/calcite-components/dist/components/calcite-slider";
-    import "@esri/calcite-components/dist/components/calcite-fab";
     import "@esri/calcite-components/dist/components/calcite-button";
     import "@esri/calcite-components/dist/components/calcite-segmented-control";
     import "@esri/calcite-components/dist/components/calcite-segmented-control-item";
     import "@esri/calcite-components/dist/components/calcite-list";
     import "@esri/calcite-components/dist/components/calcite-list-item";
+    import "@esri/calcite-components/dist/components/calcite-stepper";
+    import "@esri/calcite-components/dist/components/calcite-stepper-item";
+    import "@esri/calcite-components/dist/components/calcite-notice";
 
     // Import from arcgis js api
     import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
@@ -116,16 +115,34 @@
 
 </script>
 
-<calcite-panel heading="Climate Change Data Viewer" data-panel-id="multidim-test" hidden>
-    <calcite-tile-select-group
-    id="bandTileSelectGroup"
-    layout="vertical"
-    >
-    <calcite-block
-    open
-    heading="Climate Variable"
-    description="Pick a climate variable to be analyzed."
-    data-layerId="multidim-climate-var"
+<calcite-panel heading="Climate Change Data Viewer" data-panel-id="climate-data-viewer" hidden>
+    <calcite-stepper numbered layout="vertical">
+        <calcite-stepper-item heading="Climate Variable" selected>
+            <calcite-notice width="full" open>
+                <div slot="title">Step 1 content</div>
+            </calcite-notice>
+        </calcite-stepper-item>
+        <calcite-stepper-item heading="Seasonal Interval">
+            <calcite-notice width="full" open>
+                <div slot="title">Step 2 content</div>
+            </calcite-notice>
+        </calcite-stepper-item>
+        <calcite-stepper-item heading="Time Range">
+            <calcite-notice width="full" open>
+                <div slot="title">Step 3 content</div>
+            </calcite-notice>
+        </calcite-stepper-item>
+        <calcite-stepper-item heading="Climate Scenario">
+            <calcite-notice width="full" open>
+                <div slot="title">Step 4 content</div>
+            </calcite-notice>
+        </calcite-stepper-item>
+    </calcite-stepper>
+    <!-- <calcite-block
+        open
+        heading="Climate Variable"
+        description="Pick a climate variable to be analyzed."
+        data-layerId="multidim-climate-var"
     >
     <calcite-icon scale="m" slot="icon" icon="partly-cloudy"></calcite-icon>         
         <calcite-combobox id='climateVarSelect' scale='s' placeholder=" Select one" selection-mode="single" max-items="0"
@@ -161,10 +178,10 @@
     <calcite-icon scale="m" slot="icon" icon="calendar"></calcite-icon>            
     </calcite-block>
     <calcite-block
-    open
-    heading="Climate Scenario"
-    description="Pick a climate scenario to be analyzed."
-    data-layerId="multidim-climate-scenario"
+        open
+        heading="Climate Scenario"
+        description="Pick a climate scenario to be analyzed."
+        data-layerId="multidim-climate-scenario"
     >
     <calcite-icon scale="m" slot="icon" icon="globe"></calcite-icon>         
         <calcite-combobox scale='s' placeholder=" Select one" selection-mode="single" max-items="0"
@@ -175,13 +192,12 @@
             <calcite-combobox-item value="RCP85" text-label="RCP 8.5"></calcite-combobox-item>
         </calcite-combobox>
     </calcite-block>
-   
     <calcite-block
-    open
-    heading="Results"
-    description="This is a description for the results shown on the map."
-    data-layerId="analysis"
-    width="full"
+        open
+        heading="Results"
+        description="This is a description for the results shown on the map."
+        data-layerId="analysis"
+        width="full"
     >
         <calcite-icon scale="m" slot="icon" icon="analysis"></calcite-icon>
         <div id='buttonDiv' style="float:center; text-align:center;">
@@ -191,8 +207,7 @@
             on:click={addMultidim}
         >Map it!</calcite-button>
     </div>           
-    </calcite-block>
-    </calcite-tile-select-group>
+    </calcite-block> -->
 </calcite-panel>
 
 <style>
@@ -204,13 +219,4 @@
         margin-right: 9px;
         margin-bottom: 0px;
     }
-    /* calcite-slider {
-        padding-left: 7px;
-        padding-right: 7px;
-        height: auto;
-        display: block;
-        position: relative;
-        --calcite-ui-foreground-1: white;
-    } */
-    
 </style>
