@@ -10,6 +10,6 @@ export const mapState = writable({
     map: null
 })
 
-export const ecat = writable({
-    yearThresholds: [],
+export const climate = writable({
+    climateVar: [],
 })

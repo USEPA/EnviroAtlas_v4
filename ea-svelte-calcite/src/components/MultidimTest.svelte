@@ -18,34 +18,34 @@
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
 
     // Import components and store
-    import { viewState, mapState, ecat } from "../store";  
+    import { viewState, mapState, climate } from "../store";  
 
     const server = 'https://awseastaging.epa.gov' 
     const mdURL = "/arcgis/rest/services/test_services/precipMultiDim/ImageServer";
     let yearVal = [2040];
 
-    // async function initSlider() {
-    //     await customElements.whenDefined("calcite-slider");
-    //     const yearSlider = document.getElementById("yearSlider");
-    //     $ecat.yearThresholds = [
-    //         yearSlider.value
+    async function initSelections() {
+        //await customElements.whenDefined("calcite-combobox");
+        const climateVarSelection = document.getElementById("climateVarSelect");
+        $climate.climateVar = [
+            //climateVarSelection.value
     //         // yearSlider.minValue,
     //         // yearSlider.maxValue
-    //     ]
-    //     console.log(yearSlider);
-    //     console.log($ecat.yearThresholds);
+        ]
+        console.log(climateVarSelection);
+        console.log($climate.climateVar);
 
-    //     yearSlider.addEventListener("calciteSliderChange", () => {
-    //         $ecat.yearThresholds = [
-    //             yearSlider.value
+        climateVarSelection.addEventListener("calciteComboboxChange", () => {
+            $climate.climateVar = [
+                //climateVarSelection.value
     //             // yearSlider.minValue,
     //             // yearSlider.maxValue
-    //         ];
+            ];
     //         console.log("update: ", $ecat.yearThresholds);
-    //     });
-    // }
+         });
+    }
 
-    // initSlider();
+    initSelections();
 
     async function addMultidim() {
 
@@ -92,7 +92,7 @@
         renderingRule: colorFunction,
         mosaicRule: mosaicRule,
         opacity: 0.9,
-        title: "RCP26AnnualTempMax2Dim" + $ecat.yearThresholds,
+        title: "RCP26AnnualTempMax2Dim" + yearVal,
         popupTemplate: {
                 title: 'Max Temp value: {Raster.ItemPixelValue}',
                 fieldInfos: [{
@@ -116,7 +116,7 @@
 
 </script>
 
-<calcite-panel heading="Multidim Test" data-panel-id="multidim-test" hidden>
+<calcite-panel heading="Climate Change Data Viewer" data-panel-id="multidim-test" hidden>
     <calcite-tile-select-group
     id="bandTileSelectGroup"
     layout="vertical"
@@ -128,36 +128,13 @@
     data-layerId="multidim-climate-var"
     >
     <calcite-icon scale="m" slot="icon" icon="partly-cloudy"></calcite-icon>         
-        <calcite-combobox scale='s' placeholder=" Select one" selection-mode="single" max-items="0"
+        <calcite-combobox id='climateVarSelect' scale='s' placeholder=" Select one" selection-mode="single" max-items="0"
             overlay-positioning="absolute">
             <calcite-combobox-item value="Precip" text-label="Precipitation"></calcite-combobox-item>
             <calcite-combobox-item value="PET" text-label="PET"></calcite-combobox-item>
             <calcite-combobox-item value="Max Temp" text-label="Maximum Temperature"></calcite-combobox-item>
             <calcite-combobox-item value="Min Temp" text-label="Minimum Temperature"></calcite-combobox-item>
         </calcite-combobox>
-    </calcite-block>
-    <calcite-block
-    open
-    heading="Climate Scenario"
-    description="Pick a climate scenario to be analyzed."
-    data-layerId="multidim-climate-scenario"
-    >
-    <calcite-icon scale="m" slot="icon" icon="globe"></calcite-icon>         
-        <calcite-combobox scale='s' placeholder=" Select one" selection-mode="single" max-items="0"
-            overlay-positioning="absolute">
-            <calcite-combobox-item value="RCP26" text-label="RCP 2.6"></calcite-combobox-item>
-            <calcite-combobox-item value="RCP45" text-label="RCP 4.5"></calcite-combobox-item>
-            <calcite-combobox-item value="RCP60" text-label="RCP 6.0"></calcite-combobox-item>
-            <calcite-combobox-item value="RCP85" text-label="RCP 8.5"></calcite-combobox-item>
-        </calcite-combobox>
-    </calcite-block>
-    <calcite-block
-        open
-        heading="Time Range"
-        description="This is a description for five types of inputs available. "
-        data-layerId="multidim-year"
-        >
-        <calcite-icon scale="m" slot="icon" icon="calendar"></calcite-icon>            
     </calcite-block>
     <calcite-block
     open
@@ -175,6 +152,30 @@
             <calcite-combobox-item value="Annual" text-label="Annual"></calcite-combobox-item>
         </calcite-combobox>
     </calcite-block>
+    <calcite-block
+    open
+    heading="Time Range"
+    description="This is a description for five types of inputs available. "
+    data-layerId="multidim-year"
+    >
+    <calcite-icon scale="m" slot="icon" icon="calendar"></calcite-icon>            
+    </calcite-block>
+    <calcite-block
+    open
+    heading="Climate Scenario"
+    description="Pick a climate scenario to be analyzed."
+    data-layerId="multidim-climate-scenario"
+    >
+    <calcite-icon scale="m" slot="icon" icon="globe"></calcite-icon>         
+        <calcite-combobox scale='s' placeholder=" Select one" selection-mode="single" max-items="0"
+            overlay-positioning="absolute">
+            <calcite-combobox-item value="RCP26" text-label="RCP 2.6"></calcite-combobox-item>
+            <calcite-combobox-item value="RCP45" text-label="RCP 4.5"></calcite-combobox-item>
+            <calcite-combobox-item value="RCP60" text-label="RCP 6.0"></calcite-combobox-item>
+            <calcite-combobox-item value="RCP85" text-label="RCP 8.5"></calcite-combobox-item>
+        </calcite-combobox>
+    </calcite-block>
+   
     <calcite-block
     open
     heading="Results"
