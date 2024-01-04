@@ -18,6 +18,7 @@
     import { viewState } from "../store";
     import SummarizeMyArea from "./SummarizeMyArea.svelte";
     import MultidimTest from "./MultidimTest.svelte";
+    import Modal from "./Modal.svelte";
   
     let bookmarksContainer;
     let bmgContainer;
@@ -91,11 +92,35 @@
         }
       };
 
+    const openModal = function () {
+      const button = document.getElementById("example-button");
+      const modal = document.getElementById("example-modal");
+
+      button?.addEventListener("click", function() {
+        modal.open = !modal.open;
+        console.log(modal)
+      });
+    };
+
   </script>
   
   <calcite-shell content-behind>
     <calcite-navigation id="header" slot='header' style="block-size: 3rem">
       <calcite-navigation-logo slot='content-start' heading='v4' thumbnail='/ea/images/logo.png'></calcite-navigation-logo>
+      <calcite-button slot="content-end"
+        appearance='solid'
+        scale="s"
+        width="full"
+        kind="brand"
+        role="button"
+        tabindex="-1"
+        target="_blank" 
+        label="Open Apps" 
+        icon-start="collection"
+        id="example-button"
+        on:click={openModal}>
+        Explore EnviroAtlas
+      </calcite-button> 
     </calcite-navigation>
     <calcite-shell-panel component-id="shell-panel" slot="panel-start" display-mode="overlay" collapsed width-scale="m">
       <calcite-action-bar slot="action-bar" on:click={handleActionBarClick}>
@@ -160,17 +185,15 @@
       >
         <div id="bookmarks-container" bind:this={bookmarksContainer} />
       </calcite-panel>
-      <calcite-panel heading="Details" data-panel-id="information" hidden>
+      <calcite-panel heading="Information" data-panel-id="information" hidden>
         <div id="info-content">
-          <h1>Hello!</h1>
-          <p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
-          <calcite-icon icon="banana" />
         </div>
       </calcite-panel>
       <SummarizeMyArea />
       <MultidimTest />
     </calcite-shell-panel>
     <slot></slot>
+    <Modal />
   </calcite-shell>
   
   
@@ -183,6 +206,7 @@
       --calcite-navigation-background: #005ea2;
       --calcite-ui-text-1: white;
       --calcite-ui-foreground-2: none;
+      --calcite-ui-foreground-3: none;
     }
 
     #info-content {
