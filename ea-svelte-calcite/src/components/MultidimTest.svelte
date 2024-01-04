@@ -9,6 +9,8 @@
     import "@esri/calcite-components/dist/components/calcite-stepper";
     import "@esri/calcite-components/dist/components/calcite-stepper-item";
     import "@esri/calcite-components/dist/components/calcite-notice";
+    import '@esri/calcite-components/dist/components/calcite-chip-group';
+    import '@esri/calcite-components/dist/components/calcite-chip';    
 
     // Import from arcgis js api
     import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
@@ -116,27 +118,65 @@
 </script>
 
 <calcite-panel heading="Climate Change Data Viewer" data-panel-id="climate-data-viewer" hidden>
-    <calcite-stepper numbered layout="vertical">
-        <calcite-stepper-item heading="Climate Variable" selected>
-            <calcite-notice width="full" open>
-                <div slot="title">Step 1 content</div>
-            </calcite-notice>
+    <calcite-action-bar slot="action-bar" expand-disabled>
+        <calcite-chip-group slot='actions-end' selection-mode="single" label="custom-criteria-chip-group">
+            <calcite-chip class='simple-or-adv' selected scale='s' value='global' kind='brand' appearance='solid'>Simple</calcite-chip>
+            <calcite-chip class='simple-or-adv' scale='s' value='advanced' kind='neutral'>Advanced</calcite-chip>
+        </calcite-chip-group> 
+    </calcite-action-bar>
+    <calcite-button width="half" slot="footer" appearance="outline">
+        Reset
+    </calcite-button>
+    <calcite-button width="half" slot="footer" icon-start="add-layer">
+        Add Data
+    </calcite-button>
+    <calcite-stepper numbered layout="vertical" scale='s'>
+        <calcite-stepper-item scale='s' heading="Climate Variable" selected>
+            <calcite-combobox id='climateVarSelect' scale='m' placeholder=" Select one" selection-mode="single" max-items="0"
+            overlay-positioning="absolute" validation-icon='information' validation-message='Note...'>
+                <calcite-combobox-item value="Precip" text-label="Precipitation"></calcite-combobox-item>
+                <calcite-combobox-item value="PET" text-label="PET"></calcite-combobox-item>
+                <calcite-combobox-item selected value="Max Temp" text-label="Maximum Temperature"></calcite-combobox-item>
+                <calcite-combobox-item value="Min Temp" text-label="Minimum Temperature"></calcite-combobox-item>
+            </calcite-combobox>
         </calcite-stepper-item>
-        <calcite-stepper-item heading="Seasonal Interval">
-            <calcite-notice width="full" open>
-                <div slot="title">Step 2 content</div>
-            </calcite-notice>
+        <calcite-stepper-item scale='s' heading="Seasonal Interval">
+            <calcite-segmented-control layout='vertical' width="full" scale='s'>
+                <calcite-segmented-control-item checked value="Annual" ></calcite-segmented-control-item>
+                <calcite-segmented-control-item value="Spring"></calcite-segmented-control-item>
+                <calcite-segmented-control-item value="Summer"></calcite-segmented-control-item>
+                <calcite-segmented-control-item value="Fall"></calcite-segmented-control-item>
+                <calcite-segmented-control-item value="Winter"></calcite-segmented-control-item>
+            </calcite-segmented-control>
         </calcite-stepper-item>
-        <calcite-stepper-item heading="Time Range">
-            <calcite-notice width="full" open>
-                <div slot="title">Step 3 content</div>
-            </calcite-notice>
+        <calcite-stepper-item scale='s' heading="Time Range">
+            <calcite-chip-group scale='s' selection-mode="single" label="time-range-chip-group">
+                <calcite-chip selected value='near-term' kind='brand' appearance='solid'>Near Term</calcite-chip>
+                <calcite-chip value='m-term' kind='neutral'>Medium Term</calcite-chip>
+                <calcite-chip value='l-term' kind='neutral'>Long Term</calcite-chip>
+                <calcite-chip value='25/54-45/74' kind='neutral'>XXI 2025-2054 to 2045-2074</calcite-chip>
+                <calcite-chip value='25/54-70/100' kind='neutral'>XXI 2025-2054 to 2070-2100</calcite-chip>
+            </calcite-chip-group> 
         </calcite-stepper-item>
-        <calcite-stepper-item heading="Climate Scenario">
-            <calcite-notice width="full" open>
-                <div slot="title">Step 4 content</div>
-            </calcite-notice>
+        <calcite-stepper-item scale='s' heading="Climate Scenario">
+            <calcite-list selection-mode="single">
+                <calcite-list-item selected label="RCP 2.6" value="RCP2.6">
+                </calcite-list-item>
+                <calcite-list-item label="RCP 4.5" value="RCP4.5">
+                </calcite-list-item>
+                <calcite-list-item label="RCP 6.0" value="RCP6.0">
+                </calcite-list-item>
+                <calcite-list-item label="RCP 8.5" value="RCP8.5">
+                </calcite-list-item>
+            </calcite-list>
         </calcite-stepper-item>
+        <calcite-notice kind='success' open>
+            <div slot="title">Your selections:</div>
+            <div slot='message'>Maximum Temperature</div>
+            <div slot='message'>Annual</div>
+            <div slot='message'>Near Term</div>
+            <div slot='message'>RCP 2.6</div>
+        </calcite-notice>
     </calcite-stepper>
     <!-- <calcite-block
         open
@@ -211,12 +251,35 @@
 </calcite-panel>
 
 <style>
-    calcite-combobox {
+    /* calcite-combobox {
         margin-left: 38px;
+    } */
+    calcite-segmented-control {
+        width: 60%
+    }
+
+    calcite-notice {
+        width: 80%
     }
     calcite-block {
         margin-left: 9px;
         margin-right: 9px;
         margin-bottom: 0px;
+    }
+    
+    .simple-or-adv {
+        margin-top: 9px;
+        margin-bottom: 9px;
+        margin-right: 5px;
+    }
+
+    calcite-stepper-item {
+        width: 90%;
+        padding-right: 15px;
+        --calcite-ui-focus-color: none !important;
+    }
+
+    calcite-stepper {
+        flex: none !important
     }
 </style>
