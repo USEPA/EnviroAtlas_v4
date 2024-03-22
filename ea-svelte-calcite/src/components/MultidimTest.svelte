@@ -46,7 +46,9 @@
          });
     }
 
-    initSelections();
+//Not sure what was going on with this function but not doing anything right now but causing errors
+//If we are trying to initialize dropdowns we can set most of the stuff in the markup
+//    initSelections();
 
     async function addMultidim() {
 
