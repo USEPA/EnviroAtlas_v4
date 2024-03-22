@@ -19,7 +19,7 @@
   import "@esri/calcite-components/dist/components/calcite-tab-title";
 
 
-    import { state } from "../store";
+    import { mapState } from "../store";
 
     let url;
     let searchTerm;
@@ -34,7 +34,7 @@
 
     function addUrl() {
         if (layers.url[url]) {
-            $state.map.remove(layers.url[url]);
+            $mapState.map.remove(layers.url[url]);
         };
 
         const feature = new FeatureLayer({
@@ -42,7 +42,7 @@
 //          title: url
         });
         layers.url[url] = feature;
-        $state.map.add(feature);  // adds the layer to the map
+        $mapState.map.add(feature);  // adds the layer to the map
     }
 
     function search() {
