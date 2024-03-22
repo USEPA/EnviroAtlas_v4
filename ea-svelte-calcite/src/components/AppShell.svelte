@@ -18,6 +18,7 @@
     import { viewState } from "../store";
     import SummarizeMyArea from "./SummarizeMyArea.svelte";
     import MultidimTest from "./MultidimTest.svelte";
+    import AddData from "./AddData.svelte";
     import Modal from "./Modal.svelte";
   
     let bookmarksContainer;
@@ -151,6 +152,11 @@
         icon="multidimensional-raster"
         text="Multidim Test"
         />
+        <calcite-action
+        data-action-id="add-data"
+        icon="plus-square"
+        text="Add Data"
+        />
       </calcite-action-bar>
   
       <calcite-panel
@@ -191,6 +197,7 @@
       </calcite-panel>
       <SummarizeMyArea />
       <MultidimTest />
+      <AddData />
     </calcite-shell-panel>
     <slot></slot>
     <Modal />
