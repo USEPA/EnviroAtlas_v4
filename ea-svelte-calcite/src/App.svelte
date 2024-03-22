@@ -9,6 +9,7 @@
 
   import { onMount } from "svelte";
   import AppShell from "./components/AppShell.svelte";
+  import TestChild from "src/components/TestChild/index.svelte";
 
   import { state } from "./store";  
 
@@ -57,11 +58,16 @@
 
     // points to the states layer in a service storing U.S. census data
     const fl = new FeatureLayer({
-      url: "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/Maximumcommonbirdspeciesinsteepdecline/FeatureServer/0",
-      title: "Maximum common bird species in steep decline"
+      url: "https://blt.epa.gov/arcgis/rest/services/BLT/PesticideUsageLimitationAreas/MapServer/0",
+      title: "BLT Public"
+//      url: "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/Maximumcommonbirdspeciesinsteepdecline/FeatureServer/0",
+//      title: "Maximum common bird species in steep decline"
     });
-    //map.add(fl);  // adds the layer to the map
-    
+//    map.add(fl);  // adds the layer to the map
+
+    window.ea.fl = fl;
+    window.ea.map = map;
+
     // map.when(() => {
 
     //   $state.item = map
@@ -75,6 +81,7 @@
 
 <AppShell>
   <div class="viewDiv" bind:this={viewContainer} />
+  <TestChild></TestChild> 
 </AppShell>
 
 <style>

@@ -22,7 +22,8 @@
     import { state } from "../store";
     import SummarizeMyArea from "./SummarizeMyArea.svelte";
     import MultidimTest from "./MultidimTest.svelte";
-  
+    import AddData from "./AddData.svelte";
+
     let bookmarksContainer;
     let bmgContainer;
     let layerListContainer;
@@ -100,7 +101,7 @@
   
   <calcite-shell content-behind>
     <h2 id="header-title" slot="header">
-      {item.title || "EnviroAtlas TEST"}
+      {item.title || "EnviroAtlas 4"}
     </h2>
     <calcite-shell-panel slot="panel-start" display-mode="overlay" detached>
       <calcite-action-bar slot="action-bar" on:click={handleActionBarClick}>
@@ -130,6 +131,11 @@
         data-action-id="multidim-test"
         icon="multidimensional-raster"
         text="Multidim Test"
+        />
+        <calcite-action
+        data-action-id="add-data"
+        icon="plus-square"
+        text="Add Data"
         />
       </calcite-action-bar>
   
@@ -174,6 +180,7 @@
       </calcite-panel>
       <SummarizeMyArea />
       <MultidimTest />
+      <AddData />
     </calcite-shell-panel>
     <slot></slot>
   </calcite-shell>
