@@ -1,17 +1,16 @@
 <script>
+  // Import arcgis js api
   import config from "@arcgis/core/config";
   import Map from "@arcgis/core/Map";
   import MapView from "@arcgis/core/views/MapView";
   import LayerList from "@arcgis/core/widgets/LayerList";
   import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 
-
-
   import { onMount } from "svelte";
   import AppShell from "./components/AppShell.svelte";
   import TestChild from "src/components/TestChild/index.svelte";
 
-  import { state } from "./store";  
+  import { viewState, mapState } from "./store";  
 
   config.apiKey = import.meta.env.VITE_API_KEY;
 
@@ -35,20 +34,11 @@
       }
     });
 
-    view.ui.move("zoom", "bottom-right");
+    view.ui.move("zoom", "top-right");  // Map widget
 
-    view.when(() => {
-      const layerList = new LayerList({
-        view: view
-      });
-
-      // Add widget to the top right corner of the view
-      view.ui.add(layerList, "top-right");
-    });
-
-    $state.view = view;
-    $state.map = map
-    console.log(map)
+    $viewState.view = view;
+    $mapState.map = map;
+    console.log(map);
 
     // view.whenLayerView(layer).then(() => {
     //   const multidimInfo = layer.multidimensionalInfo;

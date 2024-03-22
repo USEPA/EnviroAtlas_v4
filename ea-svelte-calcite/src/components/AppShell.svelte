@@ -5,36 +5,32 @@
     import "@esri/calcite-components/dist/components/calcite-action";
     import "@esri/calcite-components/dist/components/calcite-action-bar";
     import "@esri/calcite-components/dist/components/calcite-panel";
-    import "@esri/calcite-components/dist/components/calcite-label";
-    import "@esri/calcite-components/dist/components/calcite-button";
-    import "@esri/calcite-components/dist/components/calcite-dropdown";
-    import "@esri/calcite-components/dist/components/calcite-dropdown-item";
-    import "@esri/calcite-components/dist/components/calcite-dropdown-group";
+    import "@esri/calcite-components/dist/components/calcite-navigation";
+    import "@esri/calcite-components/dist/components/calcite-navigation-logo";
   
-    // arcgis js api
+    // Import arcgis js api
     import Bookmarks from "@arcgis/core/widgets/Bookmarks";
     import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
     import LayerList from "@arcgis/core/widgets/LayerList";
     import Legend from "@arcgis/core/widgets/Legend";
-    import Print from "@arcgis/core/widgets/Print";
-
   
-    import { state } from "../store";
+    // Import components and store
+    import { viewState } from "../store";
     import SummarizeMyArea from "./SummarizeMyArea.svelte";
     import MultidimTest from "./MultidimTest.svelte";
     import AddData from "./AddData.svelte";
-
+    import Modal from "./Modal.svelte";
+  
     let bookmarksContainer;
     let bmgContainer;
     let layerListContainer;
     let legendContainer;
-    let printContainer;
   
     let item = {};
     let view;
     let loaded = true;
   
-    state.subscribe((value) => {
+    viewState.subscribe((value) => {
       view = value.view;
       console.log(view)
       if (view && loaded) {
@@ -66,10 +62,6 @@
         container: legendContainer,
       });
   
-      const print = new Print({
-        view,
-        container: printContainer,
-      });
     };
   
     let activeWidget;
@@ -83,6 +75,8 @@
           // active and hidden aren't recognized as typed correctly...could use typescript to fix the errors
           document.querySelector(`[data-action-id=${activeWidget}]`).active = false;
           document.querySelector(`[data-panel-id=${activeWidget}]`).hidden = true;
+          document.querySelector(`[component-id="shell-panel"]`).collapsed = true;
+          console.log(activeWidget);
         }
   
         const nextWidget = target.dataset.actionId;
@@ -91,19 +85,45 @@
           // give the widgets their own varibale
           document.querySelector(`[data-action-id=${nextWidget}]`).active = true;
           document.querySelector(`[data-panel-id=${nextWidget}]`).hidden = false;
+          document.querySelector(`[component-id="shell-panel"]`).collapsed = false;
           activeWidget = nextWidget;
+          console.log(activeWidget)
         } else {
           activeWidget = null;
         }
       };
 
+    const openModal = function () {
+      const button = document.getElementById("example-button");
+      const modal = document.getElementById("example-modal");
+
+      button?.addEventListener("click", function() {
+        modal.open = !modal.open;
+        console.log(modal)
+      });
+    };
+
   </script>
   
   <calcite-shell content-behind>
-    <h2 id="header-title" slot="header">
-      {item.title || "EnviroAtlas 4"}
-    </h2>
-    <calcite-shell-panel slot="panel-start" display-mode="overlay" detached>
+    <calcite-navigation id="header" slot='header' style="block-size: 3rem">
+      <calcite-navigation-logo slot='content-start' heading='v4' thumbnail='/ea/images/logo.png'></calcite-navigation-logo>
+      <calcite-button slot="content-end"
+        appearance='solid'
+        scale="s"
+        width="full"
+        kind="brand"
+        role="button"
+        tabindex="-1"
+        target="_blank" 
+        label="Open Apps" 
+        icon-start="collection"
+        id="example-button"
+        on:click={openModal}>
+        Explore EnviroAtlas
+      </calcite-button> 
+    </calcite-navigation>
+    <calcite-shell-panel component-id="shell-panel" slot="panel-start" display-mode="overlay" collapsed width-scale="m">
       <calcite-action-bar slot="action-bar" on:click={handleActionBarClick}>
         <calcite-action data-action-id="layers" icon="layers" text="Layers" />
         <calcite-action
@@ -128,7 +148,7 @@
         text="Summarize My Area"
         />
         <calcite-action
-        data-action-id="multidim-test"
+        data-action-id="climate-data-viewer"
         icon="multidimensional-raster"
         text="Multidim Test"
         />
@@ -171,11 +191,8 @@
       >
         <div id="bookmarks-container" bind:this={bookmarksContainer} />
       </calcite-panel>
-      <calcite-panel heading="Details" data-panel-id="information" hidden>
+      <calcite-panel heading="Information" data-panel-id="information" hidden>
         <div id="info-content">
-          <h1>Hello {name}!</h1>
-          <p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
-          <calcite-icon icon="banana" />
         </div>
       </calcite-panel>
       <SummarizeMyArea />
@@ -183,15 +200,22 @@
       <AddData />
     </calcite-shell-panel>
     <slot></slot>
+    <Modal />
   </calcite-shell>
   
   
   <style>
-    #header-title {
-      margin-left: 1rem;
-      margin-right: 1rem;
+    calcite-shell-panel {
+      --calcite-shell-panel-min-width: 340px;
     }
-  
+    
+    calcite-navigation {
+      --calcite-navigation-background: #005ea2;
+      --calcite-ui-text-1: white;
+      --calcite-ui-foreground-2: none;
+      --calcite-ui-foreground-3: none;
+    }
+
     #info-content {
       padding: 0.75rem;
     }
