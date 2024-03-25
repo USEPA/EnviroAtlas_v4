@@ -15,10 +15,10 @@
     import Legend from "@arcgis/core/widgets/Legend";
   
     // Import components and store
-    import { viewState } from "../store";
+    import { viewState, mapState } from "../store";
     import SummarizeMyArea from "./SummarizeMyArea.svelte";
     import MultidimTest from "./MultidimTest.svelte";
-    import AddData from "./AddData.svelte";
+    import AddData from "./AddData/index.svelte";
     import Modal from "./Modal.svelte";
   
     let bookmarksContainer;
@@ -197,10 +197,11 @@
       </calcite-panel>
       <SummarizeMyArea />
       <MultidimTest />
-      <AddData />
+      <AddData map={$mapState.map} />
     </calcite-shell-panel>
     <slot></slot>
     <Modal />
+
   </calcite-shell>
   
   
