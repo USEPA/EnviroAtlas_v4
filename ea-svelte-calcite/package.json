@@ -6,10 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "devLink": "usepa-ngst-dev-link npmLink"
+  },
+  "dependencies": {
+    "@arcgis/core": "^4.28.2",
+    "@usepa-ngst/calcite-components": "^0.0.1"
   },
   "devDependencies": {
-    "@arcgis/core": "^4.28.2",
     "@sveltejs/vite-plugin-svelte": "^2.4.6",
     "svelte": "^3.59.2",
     "vite": "^4.5.0"

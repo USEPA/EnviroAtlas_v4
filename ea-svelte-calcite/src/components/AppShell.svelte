@@ -18,7 +18,9 @@
     import { viewState, mapState } from "../store";
     import SummarizeMyArea from "./SummarizeMyArea.svelte";
     import MultidimTest from "./MultidimTest.svelte";
-    import AddData from "./AddData/index.svelte";
+//    import AddData from "./AddData/index.svelte";
+//use npm published version now (in development used linked version via devLink utility
+    import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
     import Modal from "./Modal.svelte";
   
     let bookmarksContainer;
