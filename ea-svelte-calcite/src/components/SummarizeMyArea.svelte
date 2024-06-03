@@ -18,26 +18,27 @@
 
     // Import from arcgis js api
     import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
+    import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+    import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
+    import SimpleLineSymbol from "@arcgis/core/symbols/SimpleLineSymbol";
     import DimensionalDefinition from "@arcgis/core/layers/support/DimensionalDefinition";
     import MosaicRule from "@arcgis/core/layers/support/MosaicRule";
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
 
     // Import store and configuration
-    import { smaViewModel, smaInputs, viewState } from "src/store";
+    import { smaViewModel, smaInputs, viewState, resetSMA } from "src/store";
     import { smaConfig } from "../shared/smaConfig";
 
     // Store indicator inputs as view model values
     const updateIndicator = (e) => {
-        console.log("event is: ", e);
-        if (e.target.value == "nlcd") {
-            $smaViewModel.indicator = "nlcd";
-        } else {
-            $smaViewModel.indicator = "nlcd-change";
-        }
-        console.log("view model indicator value is: ", $smaViewModel.indicator);
+        //console.log("event is: ", e);
+        e.target.value == "nlcd"
+            ? ($smaViewModel.indicator = "nlcd")
+            : ($smaViewModel.indicator = "nlcd-change");
+        //console.log("view model indicator value is: ", $smaViewModel.indicator);
     };
 
-    // Store indicator inputs as view model values and add the appropriate raster to the map 
+    // Store indicator year as view model value and add the appropriate raster to the map
     const updateLCYear = (e) => {
         console.log("event is: ", e);
         $smaViewModel.landcoverYear = e.target.value;
@@ -48,33 +49,57 @@
                 $smaViewModel.landcoverYear,
             );
             // load the imagery on the map
-            _initLayers($smaViewModel.indicator);
+            _initIndicatorLayer($smaViewModel.indicator);
         }
     };
 
-    // TO DO: update LC Change inputs and _initLayers to add the year to map  
+    // Update LC Change inputs and add NLCD Year 2 to map
+    const updateLCChangeYears = (e) => {
+        console.log("event is: ", e);
+        if (e.target.id == "nlcd-change-year-1") {
+            $smaViewModel.nlcdChange1Combobox = e.target.value;
+        }
+        if (e.target.id == "nlcd-change-year-2") {
+            $smaViewModel.nlcdChange2Combobox = e.target.value;
+            _initIndicatorLayer($smaViewModel.indicator);
+        }
+        console.log("year1: ", $smaViewModel.nlcdChange1Combobox);
+        console.log("year2: ", $smaViewModel.nlcdChange2Combobox);
+    };
 
     // Add the appropriate raster to the map
-    const _initLayers = (indicator) => {
-
-        // remove existing indicator from map and set values to null
+    const _initIndicatorLayer = (indicator) => {
+        // Remove existing indicator from map and set values to null
         let toRemove = $viewState.view.map.layers.items?.filter(
             function (item) {
-                return item.title.includes("Summarize My Area:");
+                return item.title.includes("Summarize My Area Indicator:");
             },
         );
-        console.log(toRemove);
+
         $viewState.view.map.removeMany(toRemove);
 
+        // Make mosaic rule work for land cover and land cover change variables
         let mosaicRule = new MosaicRule({
             method: "lock-raster",
-            lockRasterIds: [
-                smaConfig.nlcd.OBJECTIDS[$smaViewModel.landcoverYear],
-            ],
         });
 
-        let indicatorUrl = smaConfig.nlcd.layer;
+        let indicatorUrl;
 
+        switch (indicator) {
+            case "nlcd":
+                mosaicRule.lockRasterIds =
+                    smaConfig.nlcd.OBJECTIDS[$smaViewModel.landcoverYear];
+                indicatorUrl = smaConfig.nlcd.layer;
+                break;
+            case "nlcd-change":
+                mosaicRule.lockRasterIds = [
+                    smaConfig.nlcd.OBJECTIDS[$smaViewModel.nlcdChange1Combobox],
+                    smaConfig.nlcd.OBJECTIDS[$smaViewModel.nlcdChange2Combobox],
+                ];
+                indicatorUrl = smaConfig.nlcd.layer;
+        }
+
+        //TODO: Fix legend appearance
         const indicatorLayer = new ImageryLayer({
             url: indicatorUrl,
             blendMode: "multiply",
@@ -84,11 +109,12 @@
             noData: 0, // set no data params
             opacity: 0.5,
             title:
-                "Summarize My Area: " +
+                "Summarize My Area Indicator: " +
                 $smaViewModel.indicator + // TO DO: format
                 " , " +
                 $smaViewModel.landcoverYear,
             popupTemplate: {
+                // TODO: Classify popup by color / name
                 title: "{Raster.ItemPixelValue}",
                 fieldInfos: [
                     {
@@ -105,6 +131,70 @@
         $viewState.view.map.add(indicatorLayer);
     };
 
+    // Store summary unit input as view model value
+    const updateSumUnit = (e) => {
+        // Remove existing summary unit geometry from map
+        let toRemove = $viewState.view.map.layers.items?.filter(
+            function (item) {
+                return item.title.includes("Summarize My Area Unit:");
+            },
+        );
+
+        $viewState.view.map.removeMany(toRemove);
+
+        console.log("event is: ", e);
+        $smaViewModel.sumUnit = e.target.value;
+        console.log("Input sumUnit: ", $smaInputs.summaryUnitCombobox);
+        console.log("VM sumUnit: ", $smaViewModel.sumUnit);
+
+        //TODO: Add Draw functionality
+
+        _initGeometryLayer($smaViewModel.sumUnit);
+    };
+
+    // Add summary unit geometry to the map based on configurations
+    const _initGeometryLayer = (sumUnit) => {
+        let unitMinScale = smaConfig.sum_units[`${sumUnit}`].minScale;
+        let url = smaConfig.sum_units[`${sumUnit}`].url;
+
+        let unitSymbol = new SimpleLineSymbol({
+            color: [0, 0, 0],
+            width: 1,
+            style: "solid",
+        });
+
+        let unitRenderer = new SimpleRenderer({
+            symbol: unitSymbol,
+            label: `${sumUnit}`,
+        });
+
+        let geometryLayer = new FeatureLayer({
+            url: url,
+            opacity: 0.5,
+            id: `${sumUnit}Layer`, //TODO: name id and title similar to indicator layer
+            minScale: unitMinScale,
+            title:
+                "Summarize My Area Unit: " + smaConfig.sum_units[`${sumUnit}`].name,
+            outFields: smaConfig.sum_units[`${sumUnit}`].outfields,
+            renderer: unitRenderer,
+        });
+
+        console.log(geometryLayer);
+        $viewState.view.map.add(geometryLayer);
+
+        //TODO: Create zoom service message based on scale of layer...see lines 1250-1259 of old widget code
+
+        console.log("initiate geometry: ", sumUnit);
+        console.log("initiate geometry unitMinScale: ", unitMinScale);
+        console.log("initiate geometry url: ", url);
+    };
+
+    //TODO: Add mapClickEvent functionality
+
+    //TODO: Add buffer functionality
+
+    //TODO: ClipLayer to Geometry
+
     export const handlePanelClose = function (e) {
         const target = e.target;
         const shellElement = target.parentElement;
@@ -113,9 +203,10 @@
             false;
     };
 
-    // TO DO: handle resets
-
-    // TO DO: build out "Select a summary unit UI behavior and functionality"
+    // TODO: handle resets
+    const resetSMAInputs = () => {
+        resetSMA();
+    };
 </script>
 
 <calcite-panel
@@ -128,7 +219,13 @@
 >
     <calcite-action icon="information" text="Favorite" slot="header-actions-end"
     ></calcite-action>
-    <calcite-button round width="half" slot="footer">
+    <calcite-button
+        round
+        width="half"
+        slot="footer"
+        on:click={resetSMAInputs}
+        on:keypress={resetSMAInputs}
+    >
         Calculate
     </calcite-button>
     <calcite-tabs layout="center">
@@ -173,6 +270,7 @@
                             selection-mode="single"
                             max-items="0"
                             overlay-positioning="absolute"
+                            bind:this={$smaInputs.nlcdYearCombobox}
                             on:calciteComboboxChange={updateLCYear}
                         >
                             {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcYear}
@@ -193,6 +291,9 @@
                             selection-mode="single"
                             max-items="0"
                             overlay-positioning="absolute"
+                            id="nlcd-change-year-1"
+                            bind:this={$smaInputs.nlcdChange1Combobox}
+                            on:calciteComboboxChange={updateLCChangeYears}
                         >
                             {#each ["2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc1Year}
                                 <calcite-combobox-item
@@ -211,6 +312,9 @@
                             selection-mode="single"
                             max-items="0"
                             overlay-positioning="absolute"
+                            id="nlcd-change-year-2"
+                            bind:this={$smaInputs.nlcdChange2Combobox}
+                            on:calciteComboboxChange={updateLCChangeYears}
                         >
                             {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc2Year}
                                 <calcite-combobox-item
@@ -233,45 +337,29 @@
                         selection-mode="single"
                         max-items="0"
                         overlay-positioning="absolute"
+                        bind:this={$smaInputs.summaryUnitCombobox}
+                        on:calciteComboboxChange={updateSumUnit}
                     >
-                        <calcite-combobox-item
-                            value="County"
-                            text-label="County"
-                        ></calcite-combobox-item>
-                        <calcite-combobox-item
-                            value="Congressional District"
-                            text-label="Congressional District"
-                        ></calcite-combobox-item>
-                        <calcite-combobox-item value="HUC-8" text-label="HUC-8"
-                        ></calcite-combobox-item>
-                        <calcite-combobox-item
-                            value="HUC-12"
-                            text-label="HUC-12"
-                        ></calcite-combobox-item>
-                        <calcite-combobox-item
-                            value="Draw a point"
-                            text-label="Draw a point"
-                        ></calcite-combobox-item>
-                        <calcite-combobox-item
-                            value="Draw a line"
-                            text-label="Draw a line"
-                        ></calcite-combobox-item>
-                        <calcite-combobox-item
-                            value="Draw an area"
-                            text-label="Draw an area"
-                        ></calcite-combobox-item>
+                        {#each ["County", "Congressional District", "HUC-8", "HUC-12", "Draw a point", "Draw a line", "Draw an area"] as sumUnit}
+                            <calcite-combobox-item
+                                value={sumUnit}
+                                text-label={sumUnit}
+                            ></calcite-combobox-item>
+                        {/each}
                     </calcite-combobox>
                 </calcite-label>
-                <calcite-label layout="inline" scale="s"
-                    >Buffer distance:
-                    <calcite-input-number
-                        min="0"
-                        placeholder="0.5"
-                        step="1"
-                        scale="s"
-                        number-button-type="vertical"
-                    ></calcite-input-number>
-                </calcite-label>
+                {#if $smaViewModel.sumUnit == "Draw a point" || $smaViewModel.sumUnit == "Draw a line" || $smaViewModel.sumUnit == "Draw an area"}
+                    <calcite-label layout="inline" scale="s"
+                        >Buffer distance:
+                        <calcite-input-number
+                            min="0"
+                            placeholder="0.5"
+                            step="1"
+                            scale="s"
+                            number-button-type="vertical"
+                        ></calcite-input-number>
+                    </calcite-label>
+                {/if}
             </calcite-block>
             <calcite-block open heading="Select your geography">
                 <calcite-icon scale="m" slot="icon" icon="number-circle-3"
