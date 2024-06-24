@@ -129,7 +129,6 @@ export const smaConfig = {
       "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_States_Non_Generalized/FeatureServer/0',
       "minScale": '300000000',
       "name": 'State',
-      "label": 'results.STATE_NAME',
       "outfields": ['STATE_NAME', 'POPULATION'],
       "outdesc": {
         'Geometry Type': 'US State',
@@ -140,7 +139,6 @@ export const smaConfig = {
       "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Counties/FeatureServer/0',
       "minScale": '300000000',
       "name": "County",
-      "label": "results.NAME + ', ' + results.STATE_NAME",
       "outfields": ['STATE_NAME', 'NAME'],
       "outdesc": {
         'Geometry Type': 'US County',
@@ -151,7 +149,6 @@ export const smaConfig = {
       "url": 'https://ejscreen.epa.gov/arcgis/rest/services/ejscreen/census2020acs/MapServer/0',
       "minScale": '2000000',
       "name": "Blockgroup X",
-      "label": "'Census Block Group: ' + results.STCNTRBG",
       "outfields": ['STCNTRBG', 'COUNTY', 'STATE', 'TOTALPOP'],
       "outdesc": {
         'Geometry Type': '2020 US Census Block Groups',
@@ -163,7 +160,6 @@ export const smaConfig = {
       "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_118th_Congressional_Districts/FeatureServer/0',
       "minScale": "300000000",
       "name": "118th Congressional Districts",
-      "label": "'Congressional District ' + results.STATE_ABBR + results.DISTRICTID",
       "outfields": ['DISTRICTID', 'NAME', 'PARTY', 'STATE_ABBR'],
       "outdesc": {
         'Geometry Type': '118th US Congressional Districts',
@@ -175,7 +171,6 @@ export const smaConfig = {
       "url": 'https://enviroatlas.epa.gov/arcgis/rest/services/Other/HydrologicUnits/MapServer/4',
       "minScale": "2000000",
       "name": "HUC-12",
-      "label": "results.HU_12_Name + ' (' + results.HUC_12 + ')'",
       "outfields": ['HUC_12', 'HU_12_Name'],
       "outdesc": {
         'Geometry Type': 'Sub-watershed (HUC-12)',
@@ -187,7 +182,6 @@ export const smaConfig = {
       "url": 'https://enviroatlas.epa.gov/arcgis/rest/services/Other/HydrologicUnits/MapServer/2',
       "minScale": "2000000",
       "name": "HUC-8",
-      "label": "results.HU_8_Name + ' (' + results.HUC8 + ')'",
       "outfields": ['HUC8', 'HU_8_Name'],
       "outdesc": {
         'Geometry Type': 'Subbasin (HUC-8)',

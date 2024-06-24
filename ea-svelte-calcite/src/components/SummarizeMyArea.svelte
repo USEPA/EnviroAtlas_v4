@@ -20,7 +20,8 @@
     import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
     import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
     import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
-    import SimpleLineSymbol from "@arcgis/core/symbols/SimpleLineSymbol";
+    import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol";
+    import Graphic from "@arcgis/core/Graphic";
     import DimensionalDefinition from "@arcgis/core/layers/support/DimensionalDefinition";
     import MosaicRule from "@arcgis/core/layers/support/MosaicRule";
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
@@ -113,19 +114,7 @@
                 $smaViewModel.indicator + // TO DO: format
                 " , " +
                 $smaViewModel.landcoverYear,
-            popupTemplate: {
-                // TODO: Classify popup by color / name
-                title: "{Raster.ItemPixelValue}",
-                fieldInfos: [
-                    {
-                        fieldName: "Raster.ItemPixelValue",
-                        format: {
-                            places: 2,
-                            digitSeparator: true,
-                        },
-                    },
-                ],
-            },
+            popupEnabled: false,
         });
 
         $viewState.view.map.add(indicatorLayer);
@@ -154,13 +143,18 @@
 
     // Add summary unit geometry to the map based on configurations
     const _initGeometryLayer = (sumUnit) => {
+        // Get unitMinScale, url, outfields from the smaConfig
         let unitMinScale = smaConfig.sum_units[`${sumUnit}`].minScale;
         let url = smaConfig.sum_units[`${sumUnit}`].url;
+        let outfields = smaConfig.sum_units[`${sumUnit}`].outfields;
 
-        let unitSymbol = new SimpleLineSymbol({
-            color: [0, 0, 0],
-            width: 1,
-            style: "solid",
+        let unitSymbol = new SimpleFillSymbol({
+            color: [0, 0, 0, 0],
+            outline: {
+                color: [0, 0, 0],
+                width: 1,
+            },
+            style: "none",
         });
 
         let unitRenderer = new SimpleRenderer({
@@ -174,7 +168,8 @@
             id: `${sumUnit}Layer`, //TODO: name id and title similar to indicator layer
             minScale: unitMinScale,
             title:
-                "Summarize My Area Unit: " + smaConfig.sum_units[`${sumUnit}`].name,
+                "Summarize My Area Unit: " +
+                smaConfig.sum_units[`${sumUnit}`].name,
             outFields: smaConfig.sum_units[`${sumUnit}`].outfields,
             renderer: unitRenderer,
         });
@@ -184,16 +179,126 @@
 
         //TODO: Create zoom service message based on scale of layer...see lines 1250-1259 of old widget code
 
-        console.log("initiate geometry: ", sumUnit);
-        console.log("initiate geometry unitMinScale: ", unitMinScale);
-        console.log("initiate geometry url: ", url);
-    };
+        // Add mapClickEvent functionality
+        // Only propogate event when geometry layer is added
+        $viewState.view.whenLayerView(geometryLayer).then((layerView) => {
+            $viewState.view.on("click", eventHandler);
 
-    //TODO: Add mapClickEvent functionality
+            function eventHandler(e) {
+                const eMapPoint = e.mapPoint;
+                // Invoke option to only include graphics from geometryLayer in the hitTest
+                const opts = {
+                    include: geometryLayer,
+                };
+
+                // The hitTest() checks to see if any graphics from the geometryLayer
+                $viewState.view.hitTest(e, opts).then((response) => {
+                    if (response.results.length) {
+                        let query = geometryLayer.createQuery();
+                        query.geometry = eMapPoint;
+                        query.outFields = outfields;
+                        query.returnGeometry = true;
+                        geometryLayer
+                            .queryFeatures(query)
+                            .then((result) => {
+                                let geometry = result.features[0].geometry;
+                                let geographyAttributes =
+                                    result.features[0].attributes;
+                                buildGeographyLabel(geographyAttributes);
+                                const symbol = new SimpleFillSymbol();
+                                symbol.style = "none";
+                                _addGraphicToMap(symbol, geometry);
+                            })
+                            .catch((error) => {
+                                console.log(error);
+                            });
+                    }
+                });
+            }
+
+            // Build string that displays attributes of the summary unit selection geography
+            function buildGeographyLabel(geographyAttributes) {
+                switch ($smaViewModel.sumUnit) {
+                    case "County":
+                        $smaViewModel.geographyLabel =
+                            geographyAttributes.NAME +
+                            ", " +
+                            geographyAttributes.STATE_NAME;
+                        break;
+                    case "Congressional District":
+                        $smaViewModel.geographyLabel =
+                            "Congressional District " +
+                            geographyAttributes.STATE_ABBR +
+                            geographyAttributes.DISTRICTID;
+                        break;
+                    case "HUC-12":
+                        $smaViewModel.geographyLabel =
+                            geographyAttributes.HU_12_Name +
+                            " (" +
+                            geographyAttributes.HUC_12 +
+                            ")";
+                        break;
+                    case "HUC-8":
+                        $smaViewModel.geographyLabel =
+                            geographyAttributes.HU_8_Name +
+                            " (" +
+                            geographyAttributes.HUC8 +
+                            ")";
+                        break;
+                }
+            }
+        });
+    };
 
     //TODO: Add buffer functionality
 
     //TODO: ClipLayer to Geometry
+    // const _clipLayerToGeometry = (indicatorLayer, geometry) => {
+    //     let renderingrule;
+
+    //     const clipFunction = new RasterFunction();
+    //     clipFunction.functionName = "Clip";
+    //     clipFunction.outputPixelType = "U8";
+    //     clipFunction.functionArguments = {
+    //         ClippingGeometry: geometry,
+    //         ClippingType: 1,
+    //     };
+
+    //     switch (this.indicator) {
+    //         case "nlcd":
+    //         case "nlcd-change":
+    //         default:
+    //             renderingrule = clipFunction;
+    //             clipFunction.functionArguments.Raster = "$$";
+    //             break;
+    //     }
+
+    //     indicatorLayer.setRenderingRule(renderingrule);
+    //     var extent = geometry.getExtent();
+    //     //this._customZoomExtent(extent);
+    //     this.map.setExtent(extent, true);
+    //     this.calculateButton.disabled = false;
+    //     this.areaSelected = true;
+    // };
+
+    //TODO: Clear graphic from the map if a new one is clicked, or if the sum unit changes.
+
+    const _addGraphicToMap = (symbol, geometry, isBuffer = false) => {
+        const graphic = new Graphic({ geometry, symbol });
+        // if (this.drawLayer.graphics.length > 0 && !isBuffer) {
+        //     this.drawLayer.clear(); //clear graphic if needs be, so only 1 on map at a time
+        // }
+
+        $viewState.view.graphics.add(graphic);
+
+        // if (this.indicatorLayer) {
+        //     this._clipLayerToGeometry(this.indicatorLayer, geometry);
+        // }
+
+        // if (this.layer) {
+        //     this._clipLayer(geometry);
+        // }
+    };
 
     export const handlePanelClose = function (e) {
         const target = e.target;
@@ -364,13 +469,20 @@
             <calcite-block open heading="Select your geography">
                 <calcite-icon scale="m" slot="icon" icon="number-circle-3"
                 ></calcite-icon>
-                <calcite-notice
-                    open
-                    icon="exclamation-mark-triangle"
-                    kind="danger"
-                >
-                    <div slot="message">Zoom in to see HUC boundaries</div>
-                </calcite-notice>
+                {#if $smaViewModel.sumUnit == "HUC-8" || $smaViewModel.sumUnit == "HUC-12"}
+                    <calcite-notice
+                        open
+                        icon="exclamation-mark-triangle"
+                        kind="danger"
+                    >
+                        <div slot="message">Zoom in to see HUC boundaries</div>
+                    </calcite-notice>
+                {/if}
+                {#if $smaViewModel.geographyLabel}
+                    <calcite-notice open kind="success">
+                        <div slot="message">{$smaViewModel.geographyLabel}</div>
+                    </calcite-notice>
+                {/if}
             </calcite-block>
         </calcite-tab>
         <calcite-tab tab="resultsTab">

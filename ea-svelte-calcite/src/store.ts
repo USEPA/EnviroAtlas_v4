@@ -18,12 +18,14 @@ type SmaViewModel = {
     indicator: string;
     landcoverYear: number;
     sumUnit: string;
+    geographyLabel: string;
 }
 
 export const smaViewModel = writable<SmaViewModel>({
     indicator: "nlcd",
     landcoverYear: null,
     sumUnit: '',
+    geographyLabel: '',
 });
 
 export const smaInputs = writable({
