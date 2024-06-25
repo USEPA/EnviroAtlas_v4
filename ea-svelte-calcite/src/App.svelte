@@ -28,7 +28,7 @@
       container: viewContainer,
       map, 
       center: [ -97, 38 ],          // The center of the map as lon/lat
-      zoom: 5,                      // Sets the zoom level of detail (LOD) to 13
+      zoom: 5,                      // Sets the zoom level of detail (LOD) to 5
       padding: {
         left: 49
       }
