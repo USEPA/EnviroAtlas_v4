@@ -226,13 +226,13 @@
             max-items="0"
             overlay-positioning="absolute"
         >
-            <calcite-combobox-item value="RCP26" text-label="RCP 2.6"
-            ></calcite-combobox-item>
             <calcite-combobox-item value="RCP45" text-label="RCP 4.5"
             ></calcite-combobox-item>
-            <calcite-combobox-item value="RCP60" text-label="RCP 6.0"
-            ></calcite-combobox-item>
             <calcite-combobox-item value="RCP85" text-label="RCP 8.5"
+            ></calcite-combobox-item>
+            <calcite-combobox-item value="SSP1" text-label="SSP Option 1"
+            ></calcite-combobox-item>
+            <calcite-combobox-item value="SSP2" text-label="SSP Option 2"
             ></calcite-combobox-item>
         </calcite-combobox>
     </calcite-block>
