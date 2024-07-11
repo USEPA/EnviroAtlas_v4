@@ -1,224 +1,244 @@
 <script>
-    // Import calcite components
-    import "@esri/calcite-components/dist/components/calcite-shell";
-    import "@esri/calcite-components/dist/components/calcite-shell-panel";
-    import "@esri/calcite-components/dist/components/calcite-action";
-    import "@esri/calcite-components/dist/components/calcite-action-bar";
-    import "@esri/calcite-components/dist/components/calcite-panel";
-    import "@esri/calcite-components/dist/components/calcite-navigation";
-    import "@esri/calcite-components/dist/components/calcite-navigation-logo";
-  
-    // Import arcgis js api
-    import Bookmarks from "@arcgis/core/widgets/Bookmarks";
-    import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
-    import LayerList from "@arcgis/core/widgets/LayerList";
-    import Legend from "@arcgis/core/widgets/Legend";
-  
-    // Import components and store
-    import { viewState, mapState } from "../store";
-    import SummarizeMyArea from "./SummarizeMyArea.svelte";
-    import MultidimTest from "./MultidimTest.svelte";
-    import AddData from "./AddData/index.svelte";
-    import Modal from "./Modal.svelte";
-  
-    let bookmarksContainer;
-    let bmgContainer;
-    let layerListContainer;
-    let legendContainer;
-  
-    let item = {};
-    let view;
-    let loaded = true;
-  
-    viewState.subscribe((value) => {
-      view = value.view;
-      console.log(view)
-      if (view && loaded) {
-        // do something
-        initWidgets();
-      }
+  // Import calcite components
+  import "@esri/calcite-components/dist/components/calcite-shell";
+  import "@esri/calcite-components/dist/components/calcite-shell-panel";
+  import "@esri/calcite-components/dist/components/calcite-action";
+  import "@esri/calcite-components/dist/components/calcite-action-bar";
+  import "@esri/calcite-components/dist/components/calcite-panel";
+  import "@esri/calcite-components/dist/components/calcite-navigation";
+  import "@esri/calcite-components/dist/components/calcite-navigation-logo";
+
+  // Import arcgis js api
+  import Bookmarks from "@arcgis/core/widgets/Bookmarks";
+  import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
+  import LayerList from "@arcgis/core/widgets/LayerList";
+  import Legend from "@arcgis/core/widgets/Legend";
+
+  // Import components and store
+  import { viewState, mapState } from "../store";
+  import SummarizeMyArea from "./SummarizeMyArea.svelte";
+  import ClimateChangeViewer from "./ClimateChangeViewer.svelte";
+  //    import AddData from "./AddData/index.svelte";
+  //use npm published version now (in development used linked version via devLink utility
+  import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
+  import Modal from "./Modal.svelte";
+
+  let bookmarksContainer;
+  let bmgContainer;
+  let layerListContainer;
+  let legendContainer;
+
+  let item = {};
+  let view;
+  let loaded = true;
+
+  viewState.subscribe((value) => {
+    view = value.view;
+    console.log(view);
+    if (view && loaded) {
+      // do something
+      initWidgets();
+    }
+  });
+
+  function initWidgets() {
+    console.log("widgets initialized");
+    const basemaps = new BasemapGallery({
+      view,
+      container: bmgContainer,
     });
 
-    function initWidgets() {
-      console.log("widgets initialized")
-      const basemaps = new BasemapGallery({
-        view,
-        container: bmgContainer,
-      });
-  
-      const bookmarks = new Bookmarks({
-        view,
-        container: bookmarksContainer,
-      });
-  
-      const layerList = new LayerList({
-        view,
-        selectionEnabled: true,
-        container: layerListContainer,
-      });
-  
-      const legend = new Legend({
-        view,
-        container: legendContainer,
-      });
-  
+    const bookmarks = new Bookmarks({
+      view,
+      container: bookmarksContainer,
+    });
+
+    const layerList = new LayerList({
+      view,
+      selectionEnabled: true,
+      container: layerListContainer,
+    });
+
+    const legend = new Legend({
+      view,
+      container: legendContainer,
+    });
+  }
+
+  let activeWidget;
+
+  const handleActionBarClick = ({ target }) => {
+    if (target.tagName !== "CALCITE-ACTION") {
+      return;
+    }
+
+    if (activeWidget) {
+      document.querySelector(`[data-action-id=${activeWidget}]`).active = false;
+      document.querySelector(`[data-panel-id=${activeWidget}]`).hidden = true;
+      document.querySelector(`[data-panel-id=${activeWidget}]`).closed = true;
+      document.querySelector(`[component-id="shell-panel"]`).collapsed = true;
+      console.log(activeWidget);
+    }
+
+    const nextWidget = target.dataset.actionId;
+    if (nextWidget !== activeWidget) {
+      // these need to reference calcite components
+      // give the widgets their own varibale
+      document.querySelector(`[data-action-id=${nextWidget}]`).active = true;
+      document.querySelector(`[data-panel-id=${nextWidget}]`).hidden = false;
+      document.querySelector(`[data-panel-id=${nextWidget}]`).closed = false;
+      document.querySelector(`[component-id="shell-panel"]`).collapsed = false;
+      activeWidget = nextWidget;
+      console.log(activeWidget);
+    } else {
+      activeWidget = null;
+    }
+  };
+
+  const openModal = function () {
+    const button = document.getElementById("example-button");
+    const modal = document.getElementById("example-modal");
+
+    button?.addEventListener("click", function () {
+      modal.open = !modal.open;
+      console.log(modal);
+    });
+  };
+
+  export const handleBasemapPanelClose = function (ev) {
+        const target = ev.target;
+        const shellElement = target.parentElement;
+        shellElement.collapsed = !shellElement.collapsed;
+        document.querySelector('[data-action-id="basemaps"]').active = false;
+        console.log(activeWidget);
     };
-  
-    let activeWidget;
-  
-      const handleActionBarClick = ({ target }) => {
-        if (target.tagName !== "CALCITE-ACTION") {
-          return;
-        }
-  
-        if (activeWidget) {
-          // active and hidden aren't recognized as typed correctly...could use typescript to fix the errors
-          document.querySelector(`[data-action-id=${activeWidget}]`).active = false;
-          document.querySelector(`[data-panel-id=${activeWidget}]`).hidden = true;
-          document.querySelector(`[component-id="shell-panel"]`).collapsed = true;
-          console.log(activeWidget);
-        }
-  
-        const nextWidget = target.dataset.actionId;
-        if (nextWidget !== activeWidget) {
-          // these need to reference calcite components
-          // give the widgets their own varibale
-          document.querySelector(`[data-action-id=${nextWidget}]`).active = true;
-          document.querySelector(`[data-panel-id=${nextWidget}]`).hidden = false;
-          document.querySelector(`[component-id="shell-panel"]`).collapsed = false;
-          activeWidget = nextWidget;
-          console.log(activeWidget)
-        } else {
-          activeWidget = null;
-        }
-      };
+</script>
 
-    const openModal = function () {
-      const button = document.getElementById("example-button");
-      const modal = document.getElementById("example-modal");
-
-      button?.addEventListener("click", function() {
-        modal.open = !modal.open;
-        console.log(modal)
-      });
-    };
-
-  </script>
-  
-  <calcite-shell content-behind>
-    <calcite-navigation id="header" slot='header' style="block-size: 3rem">
-      <calcite-navigation-logo slot='content-start' heading='v4' thumbnail='/ea/images/logo.png'></calcite-navigation-logo>
-      <calcite-button slot="content-end"
-        appearance='solid'
-        scale="s"
-        width="full"
-        kind="brand"
-        role="button"
-        tabindex="-1"
-        target="_blank" 
-        label="Open Apps" 
-        icon-start="collection"
-        id="example-button"
-        on:click={openModal}>
-        Explore EnviroAtlas
-      </calcite-button> 
-    </calcite-navigation>
-    <calcite-shell-panel component-id="shell-panel" slot="panel-start" display-mode="overlay" collapsed width-scale="m">
-      <calcite-action-bar slot="action-bar" on:click={handleActionBarClick}>
-        <calcite-action data-action-id="layers" icon="layers" text="Layers" />
-        <calcite-action
-          data-action-id="basemaps"
-          icon="basemap"
-          text="Basemaps"
-        />
-        <calcite-action data-action-id="legend" icon="legend" text="Legend" />
-        <calcite-action
-          data-action-id="bookmarks"
-          icon="bookmark"
-          text="Bookmarks"
-        />
-        <calcite-action
-          data-action-id="information"
-          icon="information"
-          text="Information"
-        />
-        <calcite-action
+<calcite-shell content-behind>
+  <calcite-navigation id="header" slot="header" style="block-size: 3rem">
+    <calcite-navigation-logo
+      slot="content-start"
+      heading="v4"
+      thumbnail="/ea/images/logo.png"
+    ></calcite-navigation-logo>
+    <calcite-button
+      slot="content-end"
+      appearance="solid"
+      scale="s"
+      width="full"
+      kind="brand"
+      role="button"
+      tabindex="-1"
+      target="_blank"
+      label="Open Apps"
+      icon-start="collection"
+      id="example-button"
+      on:click={openModal}
+      on:keypress={openModal}
+    >
+      Explore EnviroAtlas
+    </calcite-button>
+  </calcite-navigation>
+  <calcite-shell-panel
+    component-id="shell-panel"
+    slot="panel-start"
+    display-mode="docked"
+    collapsed
+    width-scale="m"
+  >
+    <calcite-action-bar slot="action-bar" on:click={handleActionBarClick} on:keypress={handleActionBarClick}>
+      <calcite-action data-action-id="layers" icon="layers" text="Layers" />
+      <calcite-action
+        data-action-id="basemaps"
+        icon="basemap"
+        text="Basemaps"
+      />
+      <calcite-action data-action-id="legend" icon="legend" text="Legend" />
+      <calcite-action
+        data-action-id="bookmarks"
+        icon="bookmark"
+        text="Bookmarks"
+      />
+      <calcite-action
+        data-action-id="information"
+        icon="information"
+        text="Information"
+      />
+      <calcite-action
         data-action-id="summarize-my-area"
         icon="sigma"
         text="Summarize My Area"
-        />
-        <calcite-action
+      />
+      <calcite-action
         data-action-id="climate-data-viewer"
         icon="multidimensional-raster"
         text="Multidim Test"
-        />
-        <calcite-action
+      />
+      <calcite-action
         data-action-id="add-data"
         icon="plus-square"
         text="Add Data"
-        />
-      </calcite-action-bar>
-  
-      <calcite-panel
-        heading="Layers"
-        height-scale="l"
-        data-panel-id="layers"
-        hidden
-      >
-        <div id="layers-container" bind:this={layerListContainer} />
-      </calcite-panel>
-      <calcite-panel
-        heading="Basemaps"
-        height-scale="l"
-        data-panel-id="basemaps"
-        hidden
-      >
-        <div id="basemaps-container" bind:this={bmgContainer} />
-      </calcite-panel>
-      <calcite-panel
-        heading="Legend"
-        height-scale="l"
-        data-panel-id="legend"
-        hidden
-      >
-        <div id="legend-container" bind:this={legendContainer} />
-      </calcite-panel>
-      <calcite-panel
-        heading="Bookmarks"
-        height-scale="l"
-        data-panel-id="bookmarks"
-        hidden
-      >
-        <div id="bookmarks-container" bind:this={bookmarksContainer} />
-      </calcite-panel>
-      <calcite-panel heading="Information" data-panel-id="information" hidden>
-        <div id="info-content">
-        </div>
-      </calcite-panel>
-      <SummarizeMyArea />
-      <MultidimTest />
-      <AddData map={$mapState.map} />
-    </calcite-shell-panel>
-    <slot></slot>
-    <Modal />
+      />
+    </calcite-action-bar>
 
-  </calcite-shell>
-  
-  
-  <style>
-    calcite-shell-panel {
-      --calcite-shell-panel-min-width: 340px;
-    }
-    
-    calcite-navigation {
-      --calcite-navigation-background: #005ea2;
-      --calcite-ui-text-1: white;
-      --calcite-ui-foreground-2: none;
-      --calcite-ui-foreground-3: none;
-    }
+    <calcite-panel
+      heading="Layers"
+      height-scale="l"
+      data-panel-id="layers"
+      hidden
+    >
+      <div id="layers-container" bind:this={layerListContainer} />
+    </calcite-panel>
+    <calcite-panel
+      heading="Basemaps"
+      height-scale="l"
+      data-panel-id="basemaps"
+      hidden
+      closable
+      on:calcitePanelClose={handleBasemapPanelClose}
+    >
+      <div id="basemaps-container" bind:this={bmgContainer} />
+    </calcite-panel>
+    <calcite-panel
+      heading="Legend"
+      height-scale="l"
+      data-panel-id="legend"
+      hidden
+    >
+      <div id="legend-container" bind:this={legendContainer} />
+    </calcite-panel>
+    <calcite-panel
+      heading="Bookmarks"
+      height-scale="l"
+      data-panel-id="bookmarks"
+      hidden
+    >
+      <div id="bookmarks-container" bind:this={bookmarksContainer} />
+    </calcite-panel>
+    <calcite-panel heading="Information" data-panel-id="information" hidden>
+      <div id="info-content"></div>
+    </calcite-panel>
+    <SummarizeMyArea />
+    <ClimateChangeViewer />
+    <AddData map={$mapState.map} />
+  </calcite-shell-panel>
+  <slot></slot>
+  <Modal />
+</calcite-shell>
 
-    #info-content {
-      padding: 0.75rem;
-    }
-  </style>
-  
+<style>
+  calcite-shell-panel {
+    --calcite-shell-panel-min-width: 340px;
+  }
+
+  calcite-navigation {
+    --calcite-navigation-background: #005ea2;
+    --calcite-ui-text-1: white;
+    --calcite-ui-foreground-2: none;
+    --calcite-ui-foreground-3: none;
+  }
+
+  #info-content {
+    padding: 0.75rem;
+  }
+</style>
