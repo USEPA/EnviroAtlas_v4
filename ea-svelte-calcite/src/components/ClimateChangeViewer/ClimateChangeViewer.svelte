@@ -22,7 +22,7 @@
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
 
     // Import components and store
-    import { viewState, mapState, climate } from "../../store";
+    import { viewState, mapState, climate } from "src/store";
     import Bookmark from "./Bookmark.svelte";
 
     export let view;
