@@ -17,7 +17,7 @@
   // Import components and store
   import { viewState, mapState } from "../store";
   import SummarizeMyArea from "./SummarizeMyArea.svelte";
-  import ClimateChangeViewer from "./ClimateChangeViewer.svelte";
+  import ClimateChangeViewer from "./ClimateChangeViewer/ClimateChangeViewer.svelte";
   //    import AddData from "./AddData/index.svelte";
   //use npm published version now (in development used linked version via devLink utility
   import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
@@ -171,8 +171,8 @@
       />
       <calcite-action
         data-action-id="climate-data-viewer"
-        icon="multidimensional-raster"
-        text="Multidim Test"
+        icon="clock-forward"
+        text="Climate Change Data Viewer"
       />
       <calcite-action
         data-action-id="add-data"
@@ -219,7 +219,7 @@
       <div id="info-content"></div>
     </calcite-panel>
     <SummarizeMyArea />
-    <ClimateChangeViewer />
+    <ClimateChangeViewer view={$viewState.view}/>
     <AddData map={$mapState.map} />
   </calcite-shell-panel>
   <slot></slot>

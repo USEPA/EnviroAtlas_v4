@@ -57,6 +57,7 @@
 
     window.ea.fl = fl;
     window.ea.map = map;
+    window.ea.view = view;
 
     // map.when(() => {
 
