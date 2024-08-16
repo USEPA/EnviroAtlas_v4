@@ -1,0 +1,298 @@
+name,eaBC,eaCA,eaCPW,eaCS,eaFFM,eaNHM,eaRCA,eaID,title
+Carbon sequestered by tree cover,,,,True,,,,72,Total (mt/yr)
+Carbon sequestered by tree cover,,,,True,,,,79,Value ($/yr)
+Carbon stored by tree cover,,,,True,,,,73,Total (mt)
+Carbon stored by tree cover,,,,True,,,,80,Value ($)
+Cotton Crops,,,,,True,,,115,Yields
+Cotton Crops,,,,,True,,,121,Hectares
+Cotton Crops,,,,,True,,,251,Value
+Fruit Crops,,,,,True,,,119,Yields
+Fruit Crops,,,,,True,,,122,Hectares
+Fruit Crops,,,,,True,,,186,Number
+Grain Crops,,,,,True,,,120,Yields
+Grain Crops,,,,,True,,,123,Hectares
+Grain Crops,,,,,True,,,187,Number
+Grain Crops,,,,,True,,,252,Value
+Vegetable Crops,,,,,True,,,253,Yields
+Vegetable Crops,,,,,True,,,124,Hectares
+Vegetable Crops,,,,,True,,,190,Number
+Residential population not within 500m of a park entrance  ,,,,,,,True,63,Total
+Residential population not within 500m of a park entrance  ,,,,,,,True,30,Percent
+Residential population with minimal views of trees,,,,,,,True,64,Total
+Residential population with minimal views of trees,,,,,,,True,31,Percent
+Residential population with  views of water,,,,,,,True,65,Total
+Residential population with  views of water,,,,,,,True,32,Percent
+Residential population within 500m of a park entrance  ,,,,,,,True,69,Total
+Residential population within 500m of a park entrance  ,,,,,,,True,34,Percent
+Asthma exacerbation avoided due to nitrogen dioxide removed by tree cover,,True,,,,,,4,Total (cases/yr)
+Asthma exacerbation avoided due to nitrogen dioxide removed by tree cover,,True,,,,,,77,Value ($/yr)
+Asthma exacerbation avoided due to sulfur dioxide removed by tree cover,,True,,,,,,5,Total (cases/yr)
+Asthma exacerbation avoided due to sulfur dioxide removed by tree cover,,True,,,,,,78,Value ($/yr)
+School days not lost to illness due to ozone removed by tree cover,,True,,,,,,70,Total (days/yr)
+School days not lost to illness due to ozone removed by tree cover,,True,,,,,,85,Value ($/yr)
+Percent impervious area in stream and lake buffer ,True,,True,,,True,True,23,15m buffer
+Percent impervious area in stream and lake buffer ,True,,True,,,True,True,24,50m buffer
+Percent land area in stream and lake buffer ,True,,True,,,True,True,25,15m buffer
+Percent land area in stream and lake buffer ,True,,True,,,True,True,26,50m buffer
+Percent tree cover in stream and lake buffer ,True,,True,,,True,True,41,15m buffer
+Percent tree cover in stream and lake buffer ,True,,True,,,True,True,42,50m buffer
+Percent vegetated cover in stream and lake buffer ,True,,True,,,True,True,43,15m buffer
+Percent vegetated cover in stream and lake buffer ,True,,True,,,True,True,44,50m buffer
+Total land area in stream and lake buffer,True,,True,,,True,True,74,15m buffer
+Total land area in stream and lake buffer,True,,True,,,True,True,75,50m buffer
+Estimated tree cover in stream and lake buffer (percent),True,,True,,,True,True,89,15m buffer
+Estimated tree cover in stream and lake buffer (percent),True,,True,,,True,True,90,50m buffer
+Estimated vegetated cover in stream and lake buffer (percent),True,,True,,,True,True,91,15m buffer
+Estimated vegetated cover in stream and lake buffer (percent),True,,True,,,True,True,92,50m buffer
+Percent of stream and shoreline with &#119987  percent or more impervious cover within 30 meters,,,True,,,True,True,220,&#119987 = 5%
+Percent of stream and shoreline with &#119987  percent or more impervious cover within 30 meters,,,True,,,True,True,219,&#119987 = 15%
+Rare ecosystem forms,True,,,,,,True,224,Percent
+Rare ecosystem forms,True,,,,,,True,218,Percent Protected
+Carbon monoxide removed annually by tree cover,,True,,True,,,,8,Total (kg/yr)
+Carbon monoxide removed annually by tree cover,,True,,True,,,,20,Percent
+Nitrogen dioxide removed annually by tree cover,,True,True,True,,,,14,Total (kg/yr)
+Nitrogen dioxide removed annually by tree cover,,True,True,True,,,,27,Percent
+Ozone removed annually by tree cover,,True,,True,,,,16,Total (kg/yr)
+Ozone removed annually by tree cover,,True,,True,,,,35,Percent
+Particulate matter [PM10] removed annually by tree cover,,True,,True,,,,17,Total (kg/yr)
+Particulate matter [PM10] removed annually by tree cover,,True,,True,,,,36,Percent
+Particulate matter [PM2.5] removed annually by tree cover,,True,,True,,,,18,Total (kg/yr)
+Particulate matter [PM2.5] removed annually by tree cover,,True,,True,,,,37,Percent
+Sulfur dioxide removed annually by tree cover,,True,True,True,,,,71,Total (kg/yr)
+Sulfur dioxide removed annually by tree cover,,True,True,True,,,,39,Percent
+Reduction in biochemical oxygen demand [BOD5] due to tree cover (kg/yr) ,,,True,,,,,47,Mean
+Reduction in biochemical oxygen demand [BOD5] due to tree cover (kg/yr) ,,,True,,,,,55,Median
+Reduction in chemical oxygen demand [COD] due to tree cover (kg/yr) ,,,True,,,,,48,Mean
+Reduction in chemical oxygen demand [COD] due to tree cover (kg/yr) ,,,True,,,,,56,Median
+Reduction in load of copper due to tree cover (kg/yr) ,,,True,,,,,49,Mean
+Reduction in load of copper due to tree cover (kg/yr) ,,,True,,,,,57,Median
+Reduction in load of nitrites and nitrates due to tree cover (kg/yr) ,,,True,,,,,50,Mean
+Reduction in load of nitrites and nitrates due to tree cover (kg/yr) ,,,True,,,,,58,Median
+Reduction in load of soluble phosphorus due to tree cover (kg/yr) ,,,True,,,,,51,Mean
+Reduction in load of soluble phosphorus due to tree cover (kg/yr) ,,,True,,,,,59,Median
+Reduction in load of total Kjeldahl nitrogen [TKN] due to tree cover (kg/yr) ,,,True,,,,,52,Mean
+Reduction in load of total Kjeldahl nitrogen [TKN] due to tree cover (kg/yr) ,,,True,,,,,60,Median
+Reduction in load of total phosphorus due to tree cover (kg/yr) ,,,True,,,,,53,Mean
+Reduction in load of total phosphorus due to tree cover (kg/yr) ,,,True,,,,,61,Median
+Reduction in load of total suspended solids [TSS] due to tree cover (kg/yr) ,,,True,,,True,,54,Mean
+Reduction in load of total suspended solids [TSS] due to tree cover (kg/yr) ,,,True,,,True,,62,Median
+Biological nitrogen fixation (kg N/ha/yr),,True,,True,,,,162,Natural
+Biological nitrogen fixation (kg N/ha/yr),,True,,True,,,,116,Cultivated
+Annual oxidized nitrogen deposition (kg/ha),True,True,True,,,,,102,Wet
+Annual oxidized nitrogen deposition (kg/ha),True,True,True,,,,,101,Dry
+Annual oxidized nitrogen deposition (kg/ha),True,True,True,,,,,245,Total
+Annual reduced nitrogen deposition (kg/ha),True,True,True,,,,,104,Wet
+Annual reduced nitrogen deposition (kg/ha),True,True,True,,,,,103,Dry
+Annual reduced nitrogen deposition (kg/ha),True,True,True,,,,,246,Total
+Annual sulfur deposition (kg/ha),True,True,True,,,,,106,Wet
+Annual sulfur deposition (kg/ha),True,True,True,,,,,105,Dry
+Annual sulfur deposition (kg/ha),True,True,True,,,,,247,Total
+Modeled Partners in Flight Watch List bird species,True,,,,,,True,134,Maximum
+Modeled Partners in Flight Watch List bird species,True,,,,,,True,151,Mean
+Modeled Partners in Flight Watch List bird species,True,,,,,,True,170,NIB
+Modeled State of the Birds species of conservation concern,True,,,,,,True,135,Maximum
+Modeled State of the Birds species of conservation concern,True,,,,,,True,152,Mean
+Modeled State of the Birds species of conservation concern,True,,,,,,True,171,NIB
+Modeled threatened and endangered vertebrate species,True,,,,,,True,136,Maximum
+Modeled threatened and endangered vertebrate species,True,,,,,,True,153,Mean
+Modeled threatened and endangered vertebrate species,True,,,,,,True,172,NIB
+Number of bird species vulnerable to range loss due to climate change by 2050,True,,,,,,True,137,Maximum
+Number of bird species vulnerable to range loss due to climate change by 2050,True,,,,,,True,154,Mean
+Number of bird species vulnerable to range loss due to climate change by 2050,True,,,,,,True,173,NIB
+Number of bird species vulnerable to range loss due to climate change by 2080,True,,,,,,True,138,Maximum
+Number of bird species vulnerable to range loss due to climate change by 2080,True,,,,,,True,155,Mean
+Number of bird species vulnerable to range loss due to climate change by 2080,True,,,,,,True,174,NIB
+Number of observed at-risk aquatic species,True,,True,,,,True,180,Animal
+Number of observed at-risk aquatic species,True,,True,,,,True,181,Plant
+Number of observed at-risk aquatic species,True,,True,,,,True,248,Total
+Number of observed at-risk terrestrial species,True,,,,,,True,182,Animal
+Number of observed at-risk terrestrial species,True,,,,,,True,183,Plant
+Number of observed at-risk terrestrial species,True,,,,,,True,249,Total
+Number of observed at-risk wetland species,True,,True,,,,True,184,Animal
+Number of observed at-risk wetland species,True,,True,,,,True,185,Plant
+Number of observed at-risk wetland species,True,,True,,,,True,250,Total
+Amphibian species richness,True,,,,,,,127,Maximum
+Amphibian species richness,True,,,,,,,144,Mean
+Amphibian species richness,True,,,,,,,163,NIB
+Bird species richness,True,,,,,,True,130,Maximum
+Bird species richness,True,,,,,,True,147,Mean
+Bird species richness,True,,,,,,True,166,NIB
+Mammal species richness,True,,,,,,,133,Maximum
+Mammal species richness,True,,,,,,,150,Mean
+Mammal species richness,True,,,,,,,169,NIB
+Total vertebrate species richness,True,,,,,,True,142,Maximum
+Total vertebrate species richness,True,,,,,,True,159,Mean
+Total vertebrate species richness,True,,,,,,True,178,NIB
+Big game species richness,,,,,True,,True,129,Maximum
+Big game species richness,,,,,True,,True,146,Mean
+Big game species richness,,,,,True,,True,165,NIB
+Fur bearer species richness,,,,,True,,True,131,Maximum
+Fur bearer species richness,,,,,True,,True,148,Mean
+Fur bearer species richness,,,,,True,,True,167,NIB
+Small game species richness,,,,,True,,True,140,Maximum
+Small game species richness,,,,,True,,True,157,Mean
+Small game species richness,,,,,True,,True,176,NIB
+Total harvestable species richness,,,,,True,,True,141,Maximum
+Total harvestable species richness,,,,,True,,True,158,Mean
+Total harvestable species richness,,,,,True,,True,177,NIB
+Waterfowl species richness,,,,,True,,True,143,Maximum
+Waterfowl species richness,,,,,True,,True,160,Mean
+Waterfowl species richness,,,,,True,,True,179,NIB
+Average reduction in ambient temperature (Celsius) ,,,,True,,True,,6,Daytime
+Average reduction in ambient temperature (Celsius) ,,,,True,,True,,7,Nighttime
+Residential population within 300m of busy roadway,,True,,,,,,66,Total
+Residential population within 300m of busy roadway,,True,,,,,,33,Percent
+Residential population within 300m of busy roadway with &#119987 percent tree buffer ,,True,,,,,,67,&#119987 < 25%
+Residential population within 300m of busy roadway with &#119987 percent tree buffer ,,True,,,,,,68,&#119987 > 25%
+Percent of busy roadway bordered by &#119987 percent tree buffer ,True,True,,,,,,28,&#119987 < 25%
+Percent of busy roadway bordered by &#119987 percent tree buffer ,True,True,,,,,,29,&#119987 > 25%
+Reduction in annual runoff due to tree cover,,,True,,,True,,46,Total (m3/yr)
+Reduction in annual runoff due to tree cover,,,True,,,True,,38,Percent
+"Mean rental rate per acre for farm land, 2008-2016",,,,,True,,,281,Irrigated
+"Mean rental rate per acre for farm land, 2008-2016",,,,,True,,,282,Non-irrigated
+"Mean rental rate per acre for farm land, 2008-2016",,,,,True,,,283,Pasture
+Percent pasture on slopes,,,True,,,True,,290,Slopes >=3 %
+Percent pasture on slopes,,,True,,,True,,291,Slopes >=9 %
+Percent cropland on slopes,,,True,,,True,,292,Slopes >=3 %
+Percent cropland on slopes,,,True,,,True,,293,Slopes >=9 %
+Dissolved nutrients in surface runoff from agricultural fields (tons),True,,True,,,,True,294,Nitrogen
+Dissolved nutrients in surface runoff from agricultural fields (tons),True,,True,,,,True,295,Phosphorus
+Dissolved nutrients in tile drain subsurface flow from agricultural fields (tons),True,,True,,,,True,297,Nitrogen
+Dissolved nutrients in tile drain subsurface flow from agricultural fields (tons),True,,True,,,,True,298,Phosphorus
+Nutrients attached to eroding surface soil from agricultural fields (tons),True,,True,,,,True,299,Nitrogen
+Nutrients attached to eroding surface soil from agricultural fields (tons),True,,True,,,,True,300,Phosphorus
+Dissolved nutrients in leachate from agricultural fields (tons),,,True,,,,,301,Nitrogen
+Dissolved nutrients in leachate from agricultural fields (tons),,,True,,,,,302,Phosphorus
+Thermoelectric water use,,,True,,,,,308,Withdrawal
+Thermoelectric water use,,,True,,,,,309,Consumption
+Land area in 1% Annual Chance Flood Hazard area ,,,True,,True,True,,310,Area (m2)
+Land area in 1% Annual Chance Flood Hazard area ,,,True,,True,True,,311,Percent
+Land area in 0.2% Annual Chance Flood Hazard area,,,True,,True,True,,312,Area (m2)
+Land area in 0.2% Annual Chance Flood Hazard area,,,True,,True,True,,313,Percent
+Impervious surface in 1% Annual Chance Flood Hazard area,,,True,,True,True,,314,Area (m2)
+Impervious surface in 1% Annual Chance Flood Hazard area,,,True,,True,True,,315,Percent
+Impervious surface in 0.2% Annual Chance Flood Hazard area,,,True,,True,True,,316,Area (m2)
+Impervious surface in 0.2% Annual Chance Flood Hazard area,,,True,,True,True,,317,Percent
+Population in 1% Annual Chance Flood Hazard area,,,True,,,True,,318,Total
+Population in 1% Annual Chance Flood Hazard area,,,True,,,True,,319,Percent
+Population in 0.2% Annual Chance Flood Hazard area,,,True,,,True,,320,Total
+Population in 0.2% Annual Chance Flood Hazard area,,,True,,,True,,321,Percent
+Waterscape,,,,,,,,910,Surface water
+Waterscape,,,,,,,,912,Riparian Zone
+Waterscape,,,,,,,,911,Hydrologically connected zone
+Roads Crossing Streams,,,True,,,True,,324,Count
+Roads Crossing Streams,,,True,,,True,,325,Density
+Rare amphibian species richness,True,,,,,,,332,Maximum
+Rare amphibian species richness,True,,,,,,,343,Mean
+Rare amphibian species richness,True,,,,,,,354,NIB
+Rare bird species richness,True,,,,,,True,333,Maximum
+Rare bird species richness,True,,,,,,True,344,Mean
+Rare bird species richness,True,,,,,,True,355,NIB
+Summer bird species richness,True,,,,,,True,337,Maximum
+Summer bird species richness,True,,,,,,True,348,Mean
+Summer bird species richness,True,,,,,,True,359,NIB
+"Modeled G1, G2, G3 terestrial vertebrate species",True,,,,,,True,329,Maximum
+"Modeled G1, G2, G3 terestrial vertebrate species",True,,,,,,True,340,Mean
+"Modeled G1, G2, G3 terestrial vertebrate species",True,,,,,,True,351,NIB
+Modeled IUCN threatened terrestrial vertebrate species,True,,,,,,True,330,Maximum
+Modeled IUCN threatened terrestrial vertebrate species,True,,,,,,True,341,Mean
+Modeled IUCN threatened terrestrial vertebrate species,True,,,,,,True,352,NIB
+Rare mammal species richness,True,,,,,,,334,Maximum
+Rare mammal species richness,True,,,,,,,345,Mean
+Rare mammal species richness,True,,,,,,,356,NIB
+Modeled Partners in Amphibian and Reptile Conservation (PARC) species ,True,,,,,,True,331,Maximum
+Modeled Partners in Amphibian and Reptile Conservation (PARC) species ,True,,,,,,True,342,Mean
+Modeled Partners in Amphibian and Reptile Conservation (PARC) species ,True,,,,,,True,353,NIB
+Common bird species in steep decline,True,,,,,,True,328,Maximum
+Common bird species in steep decline,True,,,,,,True,339,Mean
+Common bird species in steep decline,True,,,,,,True,350,NIB
+Rare reptile species richness,True,,,,,,,335,Maximum
+Rare reptile species richness,True,,,,,,,346,Mean
+Rare reptile species richness,True,,,,,,,357,NIB
+Rare vertebrate species richness,True,,,,,,,336,Maximum
+Rare vertebrate species richness,True,,,,,,,347,Mean
+Rare vertebrate species richness,True,,,,,,,358,NIB
+Winter bird species richness,True,,,,,,True,338,Maximum
+Winter bird species richness,True,,,,,,True,349,Mean
+Winter bird species richness,True,,,,,,True,360,NIB
+Total permitted discharges,,,,,,,,362,Pounds/year
+Total permitted discharges,,,,,,,,363,Toxic-weighted pound-equivalents
+Permitted metals discharges,,,,,,,,364,Pounds/year
+Permitted metals discharges,,,,,,,,365,Toxic-weighted pound-equivalents
+Permitted priority pollutant discharges,,,,,,,,366,Pounds/year
+Permitted priority pollutant discharges,,,,,,,,367,Toxic-weighted pound-equivalents
+Permitted nitrogen discharges (pounds per year),,,,,,,,370,Total
+Permitted nitrogen discharges (pounds per year),,,,,,,,371,from POTW
+Permitted nitrogen discharges (pounds per year),,,,,,,,372,from non POTW
+Permitted phosphorus discharges (pounds per year),,,,,,,,373,Total
+Permitted phosphorus discharges (pounds per year),,,,,,,,374,from POTW
+Permitted phosphorus discharges (pounds per year),,,,,,,,375,from non POTW
+Permitted pathogen indicator discharges (colony-forming units / 100 ml),,,,,,,,376,Average
+Permitted pathogen indicator discharges (colony-forming units / 100 ml),,,,,,,,377,Maximum
+Wastewater flow discharges ,,,,,,,,378,Daily average (mgd)
+Wastewater flow discharges ,,,,,,,,379,Annual total (mgy)
+Non-native aquatic species richness,True,,True,,,,True,395,plants
+Non-native aquatic species richness,True,,True,,,,True,396,animals
+Non-native aquatic species richness,True,,True,,,,True,397,plants and animals
+Acetaldehyde air toxics,,True,,,,,,786,Concentration (&#181g/m3)
+Acetaldehyde air toxics,,True,,,,,,787,Respiratory risk
+Acetaldehyde air toxics,,True,,,,,,788,Cancer risk
+Acrolein air toxics,,True,,,,,,789,Concentration (&#181g/m3)
+Acrolein air toxics,,True,,,,,,790,Respiratory risk
+Arsenic air toxics,,True,,,,,,791,Concentration (&#181g/m3)
+Arsenic air toxics,,True,,,,,,792,Cancer risk
+Benzene air toxics,,True,,,,,,793,Concentration (&#181g/m3)
+Benzene air toxics,,True,,,,,,794,Cancer risk
+Butadiene air toxics,,True,,,,,,795,Concentration (&#181g/m3)
+Butadiene air toxics,,True,,,,,,796,Cancer risk
+Chromium air toxics,,True,,,,,,797,Concentration (&#181g/m3)
+Chromium air toxics,,True,,,,,,798,Respiratory risk
+Chromium air toxics,,True,,,,,,799,Cancer risk
+Diesel PM air toxics,,True,,,,,,800,Concentration (&#181g/m3)
+Diesel PM air toxics,,True,,,,,,801,Respiratory risk
+Formaldehyde air toxics,,True,,,,,,802,Concentration (&#181g/m3)
+Formaldehyde air toxics,,True,,,,,,803,Respiratory risk
+Formaldehyde air toxics,,True,,,,,,804,Cancer risk
+Naphthalene air toxics,,True,,,,,,805,Concentration (&#181g/m3)
+Naphthalene air toxics,,True,,,,,,806,Respiratory risk
+Naphthalene air toxics,,True,,,,,,807,Cancer risk
+PAH / POM air toxics,,True,,,,,,808,Concentration (&#181g/m3)
+PAH / POM air toxics,,True,,,,,,809,Cancer risk
+Lead air toxics,,True,,,,,,810,Concentration (&#181g/m3)
+Lead air toxics,,True,,,,,,811,Neurological risk
+Nitrate violation index,,,,,,,,403,Groundwater
+Nitrate violation index,,,,,,,,404,Surface water
+Soil loss (tonnes),,,,True,True,True,,405,Existing land cover
+Soil loss (tonnes),,,,True,True,True,,406,Natural vegetation removed
+Soil loss (tonnes),,,,True,True,True,,407,Avoided due to natural vegetation
+Sediment yield (tonnes),True,,True,,,True,True,408,Existing land cover
+Sediment yield (tonnes),True,,True,,,True,True,409,Natural vegetation removed
+Sediment yield (tonnes),True,,True,,,True,True,410,Avoided due to natural vegetation
+All cattle,True,True,True,True,True,,True,414,Number of operations
+All cattle,True,True,True,True,True,,True,415,Number of heads
+Beef cattle,True,True,True,True,True,,True,416,Number of operations
+Beef cattle,True,True,True,True,True,,True,417,Number of heads
+Broiler chickens,True,True,True,True,True,,True,418,Number of operations
+Broiler chickens,True,True,True,True,True,,True,419,Number of heads
+Dairy cattle,True,True,True,True,True,,True,420,Number of operations
+Dairy cattle,True,True,True,True,True,,True,421,Number of heads
+Ducks,True,True,True,True,True,,True,422,Number of operations
+Ducks,True,True,True,True,True,,True,423,Number of heads
+Horses,True,True,True,True,,,True,424,Number of operations
+Horses,True,True,True,True,,,True,425,Number of heads
+Laying hens,True,True,True,True,True,,True,426,Number of operations
+Laying hens,True,True,True,True,True,,True,427,Number of heads
+Sheep,True,True,True,True,True,,True,428,Number of operations
+Sheep,True,True,True,True,True,,True,429,Number of heads
+Swine,True,True,True,True,True,,True,430,Number of operations
+Swine,True,True,True,True,True,,True,431,Number of heads
+Turkeys,True,True,True,True,True,,True,432,Number of operations
+Turkeys,True,True,True,True,True,,True,433,Number of heads
+Calves,True,True,True,True,True,,True,434,Number of operations
+Calves,True,True,True,True,True,,True,435,Number of heads
+Assessed and Impaired Waters,True,,True,,,,True,270,Points
+Assessed and Impaired Waters,True,,True,,,,True,271,Lines
+Assessed and Impaired Waters,True,,True,,,,True,447,Areas
+Assessed and Impaired Waters,True,,True,,,,True,448,Catchment Associations
+Dasymetric Population,,,,,,,,714,COUNUS 2010
+Dasymetric Population,,,,,,,,815,CONUS 2020
