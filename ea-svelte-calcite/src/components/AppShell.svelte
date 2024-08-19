@@ -9,6 +9,7 @@
   import "@esri/calcite-components/dist/components/calcite-navigation-logo";
 
   // Import arcgis js api
+  import Bookmarks from "@arcgis/core/widgets/Bookmarks";
   import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
   import LayerList from "@arcgis/core/widgets/LayerList";
   import Legend from "@arcgis/core/widgets/Legend";
@@ -17,12 +18,12 @@
   import { viewState, mapState } from "../store";
   import SummarizeMyArea from "./SummarizeMyArea.svelte";
   import ClimateChangeViewer from "./ClimateChangeViewer/ClimateChangeViewer.svelte";
-  import DataCatalog from "./DataCatalog/DataList.svelte";
   //    import AddData from "./AddData/index.svelte";
   //use npm published version now (in development used linked version via devLink utility
   import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
   import Modal from "./Modal.svelte";
 
+  let bookmarksContainer;
   let bmgContainer;
   let layerListContainer;
   let legendContainer;
@@ -45,6 +46,11 @@
     const basemaps = new BasemapGallery({
       view,
       container: bmgContainer,
+    });
+
+    const bookmarks = new Bookmarks({
+      view,
+      container: bookmarksContainer,
     });
 
     const layerList = new LayerList({
@@ -149,9 +155,9 @@
       />
       <calcite-action data-action-id="legend" icon="legend" text="Legend" />
       <calcite-action
-        data-action-id="data-catalog"
-        icon="layers"
-        text="EnviroAtlas Data Catalog"
+        data-action-id="bookmarks"
+        icon="bookmark"
+        text="Bookmarks"
       />
       <calcite-action
         data-action-id="information"
@@ -201,7 +207,14 @@
     >
       <div id="legend-container" bind:this={legendContainer} />
     </calcite-panel>
-    <DataCatalog />
+    <calcite-panel
+      heading="Bookmarks"
+      height-scale="l"
+      data-panel-id="bookmarks"
+      hidden
+    >
+      <div id="bookmarks-container" bind:this={bookmarksContainer} />
+    </calcite-panel>
     <calcite-panel heading="Information" data-panel-id="information" hidden>
       <div id="info-content"></div>
     </calcite-panel>
