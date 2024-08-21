@@ -1,0 +1,44 @@
+# https://github.com/github/gitignore/blob/master/Node.gitignore
+# Don't show the log files
+logs/*
+#gitignore just in here as placeholder so that log folder created when cloning
+!logs/.gitignore
+#allows swagger log folder created when cloning
+!logs/swagger/
+logs/swagger/*
+!logs/swagger/.gitignore
+#allows pm2 log folder created when cloning
+!logs/pm2/
+logs/pm2/*
+!logs/pm2/.gitignore
+
+# Dependency directory
+# https://docs.npmjs.com/misc/faq#should-i-check-my-node-modules-folder-into-git
+node_modules
+
+#Web Storm Settings
+.idea
+
+#Don't check in any config files except default.js which doesn't have any sensitive information just placeholders
+config/env/local.js
+config/env/staging.js
+config/env/production.js
+config/nodeEnv.js
+
+#config file for node-inspector
+.node-inspectorrc
+
+#temp directory
+/tmp/
+
+#this is npm run log file that gets created on error
+npm-debug.log
+
+#this is where pm2 files are stored
+.pm2/
+
+#ignore Thumbs.db that windows creates
+Thumbs.db
+
+#ignore script output sent to scripts/out
+scripts/out/*
