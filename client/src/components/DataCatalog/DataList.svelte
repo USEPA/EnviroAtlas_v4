@@ -5,9 +5,7 @@
 
     // Import components and store
     import eatopics from "src/shared/dataCatalog_initialize.json";
-    import layers from "src/shared/dataCatalog_config.json";
 
-    console.log(eatopics)
 </script>
 
 <calcite-panel
