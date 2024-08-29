@@ -49,7 +49,6 @@
 
     const layerList = new LayerList({
       view,
-      selectionEnabled: true,
       container: layerListContainer,
     });
 
@@ -220,9 +219,9 @@
 
   calcite-navigation {
     --calcite-navigation-background: #005ea2;
-    --calcite-ui-text-1: white;
-    --calcite-ui-foreground-2: none;
-    --calcite-ui-foreground-3: none;
+    --calcite-color-text-1: white;
+    --calcite-color-foreground-2: none;
+    --calcite-color-foreground-3: none;
   }
 
   #info-content {

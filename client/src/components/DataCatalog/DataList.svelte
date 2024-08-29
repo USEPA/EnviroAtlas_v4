@@ -5,7 +5,6 @@
 
     // Import components and store
     import eatopics from "src/shared/dataCatalog_initialize.json";
-    import layers from "src/shared/dataCatalog_config.json";
 
     console.log(eatopics)
 </script>
@@ -150,23 +149,23 @@
 
 <style>
     .ESB {
-        --calcite-ui-foreground-1: #adbb9a;
+        --calcite-color-foreground-1: #adbb9a;
     }
 
     .PSI {
-        --calcite-ui-foreground-1: #bb9aad;
+        --calcite-color-foreground-1: #bb9aad;
     }
 
     .PBS {
-        --calcite-ui-foreground-1: #9aadbb;
+        --calcite-color-foreground-1: #9aadbb;
     }
 
     .BNF {
-        --calcite-ui-foreground-1: #aeaba2;
+        --calcite-color-foreground-1: #aeaba2;
     }
 
     #not-header {
-        --calcite-ui-foreground-1: #fff;
+        --calcite-color-foreground-1: #fff;
     }
 
     #listItemHeader {
@@ -183,7 +182,7 @@
     }
 
     calcite-list-item {
-        --calcite-ui-focus-color: none !important;
+        --calcite-color-focus-color: none !important;
     }
 
 </style>
