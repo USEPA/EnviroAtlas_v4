@@ -50,7 +50,7 @@
         "category": "ESB",
         "subtopic": [
             {
-                "name": "Cotton Crops",
+                "name": "Crops",
                 "eaBC": null,
                 "eaCA": null,
                 "eaCPW": null,
@@ -60,68 +60,56 @@
                 "eaRCA": null,
                 "layers": [
                     {
-                        "title": "Yields",
+                        "title": "Cotton Crops - Yields",
                         "eaID": 115
                     },
                     {
-                        "title": "Hectares",
+                        "title": "Cotton Crops - Hectares",
                         "eaID": 121
                     },
                     {
-                        "title": "Value",
+                        "title": "Cotton Crops - Value",
                         "eaID": 251
-                    }
-                ]
-            },
-            {
-                "name": "Fruit Crops",
-                "eaBC": null,
-                "eaCA": null,
-                "eaCPW": null,
-                "eaCS": null,
-                "eaFFM": true,
-                "eaNHM": null,
-                "eaRCA": null,
-                "layers": [
+                    },
                     {
-                        "title": "Yields",
+                        "title": "Fruit Crops - Yields",
                         "eaID": 119
                     },
                     {
-                        "title": "Hectares",
+                        "title": "Fruit Crops - Hectares",
                         "eaID": 122
                     },
                     {
-                        "title": "Number",
+                        "title": "Fruit Crops - Number",
                         "eaID": 186
-                    }
-                ]
-            },
-            {
-                "name": "Grain Crops",
-                "eaBC": null,
-                "eaCA": null,
-                "eaCPW": null,
-                "eaCS": null,
-                "eaFFM": true,
-                "eaNHM": null,
-                "eaRCA": null,
-                "layers": [
+                    },
                     {
-                        "title": "Yields",
+                        "title": "Grain Crops - Yields",
                         "eaID": 120
                     },
                     {
-                        "title": "Hectares",
+                        "title": "Grain Crops - Hectares",
                         "eaID": 123
                     },
                     {
-                        "title": "Number",
+                        "title": "Grain Crops - Number",
                         "eaID": 187
                     },
                     {
-                        "title": "Value",
+                        "title": "Grain Crops - Value",
                         "eaID": 252
+                    },
+                    {
+                        "title": "Vegetable Crops - Yields",
+                        "eaID": 253
+                    },
+                    {
+                        "title": "Vegetable Crops - Hectares",
+                        "eaID": 124
+                    },
+                    {
+                        "title": "Vegetable Crops - Number",
+                        "eaID": 190
                     }
                 ]
             },
@@ -150,8 +138,8 @@
                 ]
             },
             {
-                "name": "Vegetable Crops",
-                "eaBC": null,
+                "name": "Acres of pollinated crops with no nearby pollinator habitat",
+                "eaBC": true,
                 "eaCA": null,
                 "eaCPW": null,
                 "eaCS": null,
@@ -160,16 +148,8 @@
                 "eaRCA": null,
                 "layers": [
                     {
-                        "title": "Yields",
-                        "eaID": 253
-                    },
-                    {
-                        "title": "Hectares",
-                        "eaID": 124
-                    },
-                    {
-                        "title": "Number",
-                        "eaID": 190
+                        "title": "Acres of pollinated crops with no nearby pollinator habitat",
+                        "eaID": 99
                     }
                 ]
             }
@@ -180,12 +160,84 @@
         "category": "ESB",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
-                "layers": []
+                "name": "Enabling Conditions",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Enabling Conditions",
+                        "eaID": 277
+                    }
+                ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "Forest Carbon - Projects and Markets",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Forest Carbon - Projects and Markets",
+                        "eaID": 276
+                    }
+                ]
+            },
+            {
+                "name": "Imperiled Species and Habitats - Projects and Markets",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Imperiled Species and Habitats - Projects and Markets",
+                        "eaID": 274
+                    }
+                ]
+            },
+            {
+                "name": "Watersheds - Projects and Markets",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Watersheds - Projects and Markets",
+                        "eaID": 273
+                    }
+                ]
+            },
+            {
+                "name": "Wetlands and Streams - Projects and Markets",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Wetlands and Streams - Projects and Markets",
+                        "eaID": 275
+                    }
+                ]
             }
         ]
     },
@@ -194,12 +246,52 @@
         "category": "ESB",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
-                "layers": []
+                "name": "Area of solar energy (km2)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Area of solar energy (km2)",
+                        "eaID": 107
+                    }
+                ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "Average annual daily potential solar energy (kWh/m2/day)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Average annual daily potential solar energy (kWh/m2/day)",
+                        "eaID": 108
+                    }
+                ]
+            },
+            {
+                "name": "Average annual daily potential wind energy (kWh/m2/day)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Average annual daily potential wind energy (kWh/m2/day)",
+                        "eaID": 109
+                    }
+                ]
             }
         ]
     },
@@ -286,6 +378,150 @@
                         "eaID": 34
                     }
                 ]
+            },
+            {
+                "name": "Big game hunting recreation demand (day trips per year)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Big game hunting recreation demand (day trips per year)",
+                        "eaID": 111
+                    }
+                ]
+            },
+            {
+                "name": "Bird watching recreation demand (day trips per year)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Bird watching recreation demand (day trips per year)",
+                        "eaID": 112
+                    }
+                ]
+            },
+            {
+                "name": "Day care centers with < 25 percent green space in viewshed\u00a0",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Day care centers with < 25 percent green space in viewshed\u00a0",
+                        "eaID": 10
+                    }
+                ]
+            },
+            {
+                "name": "Estimated walking distance to a park entrance (m)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Estimated walking distance to a park entrance (m)",
+                        "eaID": 93
+                    }
+                ]
+            },
+            {
+                "name": "Freshwater fishing recreation demand (day trips per year)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Freshwater fishing recreation demand (day trips per year)",
+                        "eaID": 118
+                    }
+                ]
+            },
+            {
+                "name": "K-12 schools with < 25 percent green space in viewshed\u00a0",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "K-12 schools with < 25 percent green space in viewshed\u00a0",
+                        "eaID": 13
+                    }
+                ]
+            },
+            {
+                "name": "Migratory bird hunting recreation demand (day trips per year)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Migratory bird hunting recreation demand (day trips per year)",
+                        "eaID": 161
+                    }
+                ]
+            },
+            {
+                "name": "Number of historic places",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Number of historic places",
+                        "eaID": 189
+                    }
+                ]
+            },
+            {
+                "name": "Number of historic places [census block group]",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Number of historic places [census block group]",
+                        "eaID": 15
+                    }
+                ]
             }
         ]
     },
@@ -350,6 +586,102 @@
                     {
                         "title": "Value ($/yr)",
                         "eaID": 85
+                    }
+                ]
+            },
+            {
+                "name": "Acute respiratory symptoms avoided due to ozone removed by tree cover (cases/yr)",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Acute respiratory symptoms avoided due to ozone removed by tree cover (cases/yr)",
+                        "eaID": 1
+                    }
+                ]
+            },
+            {
+                "name": "Acute respiratory symptoms avoided due to particulate matter [PM2.5] removed by tree cover (cases/yr)\u00a0",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Acute respiratory symptoms avoided due to particulate matter [PM2.5] removed by tree cover (cases/yr)\u00a0",
+                        "eaID": 2
+                    }
+                ]
+            },
+            {
+                "name": "Value of health, ecosystem, and materials damage avoided due to carbon monoxide removed by tree cover ($/yr)\u00a0",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Value of health, ecosystem, and materials damage avoided due to carbon monoxide removed by tree cover ($/yr)\u00a0",
+                        "eaID": 81
+                    }
+                ]
+            },
+            {
+                "name": "Value of health, ecosystem, and materials damage avoided due to particulate matter [PM10] removed by tree cover ($/yr)\u00a0",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Value of health, ecosystem, and materials damage avoided due to particulate matter [PM10] removed by tree cover ($/yr)\u00a0",
+                        "eaID": 82
+                    }
+                ]
+            },
+            {
+                "name": "Value of hospital admissions avoided due to nitrogen dioxide removed by tree cover ($/yr)\u00a0",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Value of hospital admissions avoided due to nitrogen dioxide removed by tree cover ($/yr)\u00a0",
+                        "eaID": 83
+                    }
+                ]
+            },
+            {
+                "name": "Value of hospital admissions avoided due to sulfur dioxide removed by tree cover ($/yr)\u00a0",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Value of hospital admissions avoided due to sulfur dioxide removed by tree cover ($/yr)\u00a0",
+                        "eaID": 84
                     }
                 ]
             }
@@ -538,6 +870,278 @@
                         "eaID": 75
                     }
                 ]
+            },
+            {
+                "name": "Area in square meters of estimated floodplain classified as water",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Area in square meters of estimated floodplain classified as water",
+                        "eaID": 389
+                    }
+                ]
+            },
+            {
+                "name": "Area of estimated floodplain classified as land (m2)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Area of estimated floodplain classified as land (m2)",
+                        "eaID": 388
+                    }
+                ]
+            },
+            {
+                "name": "Average width of stream buffers downstream from agriculture (meters) ",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Average width of stream buffers downstream from agriculture (meters) ",
+                        "eaID": 280
+                    }
+                ]
+            },
+            {
+                "name": "Percent forest and woody wetlands in stream buffer",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent forest and woody wetlands in stream buffer",
+                        "eaID": 199
+                    }
+                ]
+            },
+            {
+                "name": "Percent forest land in stream buffer",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent forest land in stream buffer",
+                        "eaID": 201
+                    }
+                ]
+            },
+            {
+                "name": "Percent natural land cover in stream buffer",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent natural land cover in stream buffer",
+                        "eaID": 217
+                    }
+                ]
+            },
+            {
+                "name": "Percent tree canopy in stream buffers",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent tree canopy in stream buffers",
+                        "eaID": 327
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of area that is both land and floodplain",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of area that is both land and floodplain",
+                        "eaID": 390
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of land area in estimated floodplains classified as agriculture",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of land area in estimated floodplains classified as agriculture",
+                        "eaID": 386
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of land area in estimated floodplains classified as agriculture - cropland",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of land area in estimated floodplains classified as agriculture - cropland",
+                        "eaID": 387
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of land area in estimated floodplains classified as developed",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of land area in estimated floodplains classified as developed",
+                        "eaID": 385
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of land area in estimated floodplains classified as forest",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of land area in estimated floodplains classified as forest",
+                        "eaID": 382
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of land area in estimated floodplains classified as natural",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of land area in estimated floodplains classified as natural",
+                        "eaID": 381
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of land area in estimated floodplains classified as rangeland",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of land area in estimated floodplains classified as rangeland",
+                        "eaID": 402
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of land area in estimated floodplains classified as shrubland",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of land area in estimated floodplains classified as shrubland",
+                        "eaID": 383
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of land area in estimated floodplains classified as wetland",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of land area in estimated floodplains classified as wetland",
+                        "eaID": 384
+                    }
+                ]
+            },
+            {
+                "name": "Roads near streams (km/km)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Roads near streams (km/km)",
+                        "eaID": 322
+                    }
+                ]
             }
         ]
     },
@@ -584,6 +1188,438 @@
                         "eaID": 291
                     }
                 ]
+            },
+            {
+                "name": "Agricultural land per capita (m2/person)\u00a0",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Agricultural land per capita (m2/person)\u00a0",
+                        "eaID": 3
+                    }
+                ]
+            },
+            {
+                "name": "Green space per capita (m2/person)\u00a0",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Green space per capita (m2/person)\u00a0",
+                        "eaID": 11
+                    }
+                ]
+            },
+            {
+                "name": "Impervious area per capita (m2/person)\u00a0",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Impervious area per capita (m2/person)\u00a0",
+                        "eaID": 12
+                    }
+                ]
+            },
+            {
+                "name": "Land cover (Community)",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Land cover (Community)",
+                        "eaID": 86
+                    }
+                ]
+            },
+            {
+                "name": "National Land Cover Database (NLCD 2019 Conterminous US Only)",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "National Land Cover Database (NLCD 2019 Conterminous US Only)",
+                        "eaID": 268
+                    }
+                ]
+            },
+            {
+                "name": "Percent agriculture\u00a0",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent agriculture\u00a0",
+                        "eaID": 19
+                    }
+                ]
+            },
+            {
+                "name": "Percent cropland",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent cropland",
+                        "eaID": 193
+                    }
+                ]
+            },
+            {
+                "name": "Percent developed area",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent developed area",
+                        "eaID": 194
+                    }
+                ]
+            },
+            {
+                "name": "Percent emergent herbaceous wetlands",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent emergent herbaceous wetlands",
+                        "eaID": 196
+                    }
+                ]
+            },
+            {
+                "name": "Percent forest",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent forest",
+                        "eaID": 197
+                    }
+                ]
+            },
+            {
+                "name": "Percent forest and woody wetlands",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent forest and woody wetlands",
+                        "eaID": 198
+                    }
+                ]
+            },
+            {
+                "name": "Percent grassland or herbaceous",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent grassland or herbaceous",
+                        "eaID": 400
+                    }
+                ]
+            },
+            {
+                "name": "Percent green space within 1/4 square kilometer",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent green space within 1/4 square kilometer",
+                        "eaID": 95
+                    }
+                ]
+            },
+            {
+                "name": "Percent green space\u00a0",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent green space\u00a0",
+                        "eaID": 21
+                    }
+                ]
+            },
+            {
+                "name": "Percent impervious area",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent impervious area",
+                        "eaID": 205
+                    }
+                ]
+            },
+            {
+                "name": "Percent impervious area [census block group]",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent impervious area [census block group]",
+                        "eaID": 22
+                    }
+                ]
+            },
+            {
+                "name": "Percent impervious area within 1 square kilometer",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent impervious area within 1 square kilometer",
+                        "eaID": 96
+                    }
+                ]
+            },
+            {
+                "name": "Percent natural land cover",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent natural land cover",
+                        "eaID": 216
+                    }
+                ]
+            },
+            {
+                "name": "Percent pasture",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent pasture",
+                        "eaID": 221
+                    }
+                ]
+            },
+            {
+                "name": "Percent perennial ice or snow",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent perennial ice or snow",
+                        "eaID": 401
+                    }
+                ]
+            },
+            {
+                "name": "Percent shrubland",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent shrubland",
+                        "eaID": 399
+                    }
+                ]
+            },
+            {
+                "name": "Percent tree canopy",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent tree canopy",
+                        "eaID": 326
+                    }
+                ]
+            },
+            {
+                "name": "Percent tree cover",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent tree cover",
+                        "eaID": 40
+                    }
+                ]
+            },
+            {
+                "name": "Percent tundra",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent tundra",
+                        "eaID": 398
+                    }
+                ]
+            },
+            {
+                "name": "Percent wetlands",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent wetlands",
+                        "eaID": 226
+                    }
+                ]
+            },
+            {
+                "name": "Percent wetlands\u00a0",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent wetlands\u00a0",
+                        "eaID": 45
+                    }
+                ]
+            },
+            {
+                "name": "Tree cover per capita (m2/person)\u00a0",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Tree cover per capita (m2/person)\u00a0",
+                        "eaID": 76
+                    }
+                ]
             }
         ]
     },
@@ -608,6 +1644,214 @@
                     {
                         "title": "Percent Protected",
                         "eaID": 218
+                    }
+                ]
+            },
+            {
+                "name": "Candidate Ecological Restoration Areas",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Candidate Ecological Restoration Areas",
+                        "eaID": 289
+                    }
+                ]
+            },
+            {
+                "name": "Candidate Ecological Restoration Areas per square kilometer",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Candidate Ecological Restoration Areas per square kilometer",
+                        "eaID": 288
+                    }
+                ]
+            },
+            {
+                "name": "MSPA connectivity with water as background and 30-meter edge width for the conterminous United States",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "MSPA connectivity with water as background and 30-meter edge width for the conterminous United States",
+                        "eaID": 259
+                    }
+                ]
+            },
+            {
+                "name": "MSPA connectivity with water as background and 90-meter edge width for the conterminous United States",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "MSPA connectivity with water as background and 90-meter edge width for the conterminous United States",
+                        "eaID": 260
+                    }
+                ]
+            },
+            {
+                "name": "MSPA connectivity with water as foreground and 30-meter edge width for the conterminous United States",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "MSPA connectivity with water as foreground and 30-meter edge width for the conterminous United States",
+                        "eaID": 261
+                    }
+                ]
+            },
+            {
+                "name": "MSPA connectivity with water as foreground and 90-meter edge width for the conterminous United States",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "MSPA connectivity with water as foreground and 90-meter edge width for the conterminous United States",
+                        "eaID": 262
+                    }
+                ]
+            },
+            {
+                "name": "MSPA connectivity with water as missing and 30-meter edge width for the conterminous United States",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "MSPA connectivity with water as missing and 30-meter edge width for the conterminous United States",
+                        "eaID": 263
+                    }
+                ]
+            },
+            {
+                "name": "MSPA connectivity with water as missing and 90-meter edge width for the conterminous United States",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "MSPA connectivity with water as missing and 90-meter edge width for the conterminous United States",
+                        "eaID": 264
+                    }
+                ]
+            },
+            {
+                "name": "Percent large size patches of natural land cover",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent large size patches of natural land cover",
+                        "eaID": 214
+                    }
+                ]
+            },
+            {
+                "name": "Percent medium size patches of natural land cover",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent medium size patches of natural land cover",
+                        "eaID": 215
+                    }
+                ]
+            },
+            {
+                "name": "Percent small size patches of natural land cover",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent small size patches of natural land cover",
+                        "eaID": 225
+                    }
+                ]
+            },
+            {
+                "name": "Rare Ecosystems",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Rare Ecosystems",
+                        "eaID": 258
+                    }
+                ]
+            },
+            {
+                "name": "Tree cover configuration and connectivity (Community)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Tree cover configuration and connectivity (Community)",
+                        "eaID": 87
                     }
                 ]
             }
@@ -900,6 +2144,86 @@
                     {
                         "title": "&#119987 > 25%",
                         "eaID": 68
+                    }
+                ]
+            },
+            {
+                "name": "Estimated percent of tree cover within 26m of a road edge",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Estimated percent of tree cover within 26m of a road edge",
+                        "eaID": 88
+                    }
+                ]
+            },
+            {
+                "name": "Percent green space along walkable roads",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent green space along walkable roads",
+                        "eaID": 94
+                    }
+                ]
+            },
+            {
+                "name": "Percent tree cover along walkable roads",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent tree cover along walkable roads",
+                        "eaID": 97
+                    }
+                ]
+            },
+            {
+                "name": "Population near major roadway with little to no tree buffer",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Population near major roadway with little to no tree buffer",
+                        "eaID": 228
+                    }
+                ]
+            },
+            {
+                "name": "Road Density (km/km2)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Road Density (km/km2)",
+                        "eaID": 323
                     }
                 ]
             }
@@ -1214,6 +2538,54 @@
                         "eaID": 62
                     }
                 ]
+            },
+            {
+                "name": "Crop phosphorus removal (kg P/ha/yr)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Crop phosphorus removal (kg P/ha/yr)",
+                        "eaID": 285
+                    }
+                ]
+            },
+            {
+                "name": "Net agricultural phosphorus balance (kg P/ha/yr)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Net agricultural phosphorus balance (kg P/ha/yr)",
+                        "eaID": 284
+                    }
+                ]
+            },
+            {
+                "name": "Percent of agriculture that is buffered",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent of agriculture that is buffered",
+                        "eaID": 279
+                    }
+                ]
             }
         ]
     },
@@ -1222,12 +2594,244 @@
         "category": "ESB",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
-                "layers": []
+                "name": "Acres of land enrolled in CRP",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Acres of land enrolled in CRP",
+                        "eaID": 98
+                    }
+                ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "GAP Status Code (Land Protection Status (GAP))",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "GAP Status Code (Land Protection Status (GAP))",
+                        "eaID": 266
+                    }
+                ]
+            },
+            {
+                "name": "General Land Ownership (PADUS)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "General Land Ownership (PADUS)",
+                        "eaID": 267
+                    }
+                ]
+            },
+            {
+                "name": "IUCN Category (Land Protection Status (IUCN))",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "IUCN Category (Land Protection Status (IUCN))",
+                        "eaID": 265
+                    }
+                ]
+            },
+            {
+                "name": "Percent GAP status 1 and 2",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent GAP status 1 and 2",
+                        "eaID": 202
+                    }
+                ]
+            },
+            {
+                "name": "Percent GAP status 1, 2, and 3",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent GAP status 1, 2, and 3",
+                        "eaID": 203
+                    }
+                ]
+            },
+            {
+                "name": "Percent GAP status 3",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent GAP status 3",
+                        "eaID": 204
+                    }
+                ]
+            },
+            {
+                "name": "Percent IUCN status IA",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent IUCN status IA",
+                        "eaID": 206
+                    }
+                ]
+            },
+            {
+                "name": "Percent IUCN status IB",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent IUCN status IB",
+                        "eaID": 207
+                    }
+                ]
+            },
+            {
+                "name": "Percent IUCN status II",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent IUCN status II",
+                        "eaID": 208
+                    }
+                ]
+            },
+            {
+                "name": "Percent IUCN status III",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent IUCN status III",
+                        "eaID": 209
+                    }
+                ]
+            },
+            {
+                "name": "Percent IUCN status IV",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent IUCN status IV",
+                        "eaID": 210
+                    }
+                ]
+            },
+            {
+                "name": "Percent IUCN status V",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent IUCN status V",
+                        "eaID": 211
+                    }
+                ]
+            },
+            {
+                "name": "Percent IUCN status VI",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent IUCN status VI",
+                        "eaID": 212
+                    }
+                ]
+            },
+            {
+                "name": "Percent land with any IUCN status",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent land with any IUCN status",
+                        "eaID": 213
+                    }
+                ]
             }
         ]
     },
@@ -1280,6 +2884,38 @@
                     {
                         "title": "Avoided due to natural vegetation",
                         "eaID": 407
+                    }
+                ]
+            },
+            {
+                "name": "Soils Drainage Class - dominant condition",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Soils Drainage Class - dominant condition",
+                        "eaID": 269
+                    }
+                ]
+            },
+            {
+                "name": "Surface sediment erosion from agricultural lands (tons)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Surface sediment erosion from agricultural lands (tons)",
+                        "eaID": 307
                     }
                 ]
             }
@@ -1696,6 +3332,54 @@
                         "eaID": 358
                     }
                 ]
+            },
+            {
+                "name": "Native aquatic species rarity index",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Native aquatic species rarity index",
+                        "eaID": 392
+                    }
+                ]
+            },
+            {
+                "name": "Native aquatic species vulnerability index",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Native aquatic species vulnerability index",
+                        "eaID": 393
+                    }
+                ]
+            },
+            {
+                "name": "Number of vulnerable native aquatic species based on IUCN range",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Number of vulnerable native aquatic species based on IUCN range",
+                        "eaID": 391
+                    }
+                ]
             }
         ]
     },
@@ -1990,6 +3674,22 @@
                         "eaID": 360
                     }
                 ]
+            },
+            {
+                "name": "Native aquatic species richness",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Native aquatic species richness",
+                        "eaID": 394
+                    }
+                ]
             }
         ]
     },
@@ -2014,6 +3714,246 @@
                     {
                         "title": "Percent",
                         "eaID": 38
+                    }
+                ]
+            },
+            {
+                "name": "Ecological integrity of stream confluence catchments and watersheds ",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Ecological integrity of stream confluence catchments and watersheds ",
+                        "eaID": 411
+                    }
+                ]
+            },
+            {
+                "name": "Groundwater recharge (m/yr)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Groundwater recharge (m/yr)",
+                        "eaID": 436
+                    }
+                ]
+            },
+            {
+                "name": "Non-tile drainage system subsurface water flow from agricultural lands (mm)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Non-tile drainage system subsurface water flow from agricultural lands (mm)",
+                        "eaID": 304
+                    }
+                ]
+            },
+            {
+                "name": "Number of high hazard potential dams ",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Number of high hazard potential dams ",
+                        "eaID": 188
+                    }
+                ]
+            },
+            {
+                "name": "Percolation from agricultural lands (mm)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percolation from agricultural lands (mm)",
+                        "eaID": 305
+                    }
+                ]
+            },
+            {
+                "name": "Simulated depth to water table (m)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Simulated depth to water table (m)",
+                        "eaID": 439
+                    }
+                ]
+            },
+            {
+                "name": "Stream density (km/km2)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream density (km/km2)",
+                        "eaID": 229
+                    }
+                ]
+            },
+            {
+                "name": "Stream length (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length (km)",
+                        "eaID": 230
+                    }
+                ]
+            },
+            {
+                "name": "Subsurface water flow through agricultural tile drainage systems (mm)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Subsurface water flow through agricultural tile drainage systems (mm)",
+                        "eaID": 303
+                    }
+                ]
+            },
+            {
+                "name": "Surface runoff - (Quick flow ) (m/yr)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Surface runoff - (Quick flow ) (m/yr)",
+                        "eaID": 438
+                    }
+                ]
+            },
+            {
+                "name": "Surface runoff from agricultural land (mm)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Surface runoff from agricultural land (mm)",
+                        "eaID": 306
+                    }
+                ]
+            },
+            {
+                "name": "Total Evapotranspiration (m/yr)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Total Evapotranspiration (m/yr)",
+                        "eaID": 437
+                    }
+                ]
+            },
+            {
+                "name": "Unsaturated zone water transit time (yrs)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Unsaturated zone water transit time (yrs)",
+                        "eaID": 440
+                    }
+                ]
+            },
+            {
+                "name": "Water supply from NID reservoirs (million gallons)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Water supply from NID reservoirs (million gallons)",
+                        "eaID": 254
+                    }
+                ]
+            },
+            {
+                "name": "Waterbody area (km2)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Waterbody area (km2)",
+                        "eaID": 255
                     }
                 ]
             }
@@ -2042,6 +3982,70 @@
                         "eaID": 309
                     }
                 ]
+            },
+            {
+                "name": "Agricultural water use (million gallons/day)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Agricultural water use (million gallons/day)",
+                        "eaID": 100
+                    }
+                ]
+            },
+            {
+                "name": "Daily domestic water use (x1000 gal/day)\u00a0",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Daily domestic water use (x1000 gal/day)\u00a0",
+                        "eaID": 9
+                    }
+                ]
+            },
+            {
+                "name": "Domestic water use (million gallons/day)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Domestic water use (million gallons/day)",
+                        "eaID": 117
+                    }
+                ]
+            },
+            {
+                "name": "Industrial water use (million gallons/day)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Industrial water use (million gallons/day)",
+                        "eaID": 125
+                    }
+                ]
             }
         ]
     },
@@ -2066,6 +4070,22 @@
                     {
                         "title": "Nighttime",
                         "eaID": 7
+                    }
+                ]
+            },
+            {
+                "name": "Average annual precipitation (inches/yr)",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Average annual precipitation (inches/yr)",
+                        "eaID": 110
                     }
                 ]
             }
@@ -2194,6 +4214,102 @@
                         "eaID": 319
                     }
                 ]
+            },
+            {
+                "name": "Estimated floodplains",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Estimated floodplains",
+                        "eaID": 361
+                    }
+                ]
+            },
+            {
+                "name": "Percent agriculture on hydric soil",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent agriculture on hydric soil",
+                        "eaID": 192
+                    }
+                ]
+            },
+            {
+                "name": "Percent potentially restorable wetlands on agricultural land",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Percent potentially restorable wetlands on agricultural land",
+                        "eaID": 222
+                    }
+                ]
+            },
+            {
+                "name": "Potential Wetland Area",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Potential Wetland Area",
+                        "eaID": 256
+                    }
+                ]
+            },
+            {
+                "name": "Potentially Restorable Wetlands on Agricultural Land",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Potentially Restorable Wetlands on Agricultural Land",
+                        "eaID": 257
+                    }
+                ]
+            },
+            {
+                "name": "Wetlands (National Wetlands Inventory)",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": true,
+                "eaFFM": true,
+                "eaNHM": true,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Wetlands (National Wetlands Inventory)",
+                        "eaID": 272
+                    }
+                ]
             }
         ]
     },
@@ -2202,12 +4318,36 @@
         "category": "PSI",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
-                "layers": []
+                "name": "Cyanobacteria Index - Extent",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Cyanobacteria Index - Extent",
+                        "eaID": 413
+                    }
+                ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "Cyanobacteria Index - Frequency",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Cyanobacteria Index - Frequency",
+                        "eaID": 412
+                    }
+                ]
             }
         ]
     },
@@ -2242,6 +4382,198 @@
                         "eaID": 448
                     }
                 ]
+            },
+            {
+                "name": "Stream length impaired by mercury (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length impaired by mercury (km)",
+                        "eaID": 231
+                    }
+                ]
+            },
+            {
+                "name": "Stream length impaired by metals other than mercury (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length impaired by metals other than mercury (km)",
+                        "eaID": 232
+                    }
+                ]
+            },
+            {
+                "name": "Stream length impaired by nuisance species (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length impaired by nuisance species (km)",
+                        "eaID": 233
+                    }
+                ]
+            },
+            {
+                "name": "Stream length impaired by nutrients (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length impaired by nutrients (km)",
+                        "eaID": 234
+                    }
+                ]
+            },
+            {
+                "name": "Stream length impaired by organic enrichment or oxygen depletion (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length impaired by organic enrichment or oxygen depletion (km)",
+                        "eaID": 235
+                    }
+                ]
+            },
+            {
+                "name": "Stream length impaired by pH, acidity, or caustic conditions (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length impaired by pH, acidity, or caustic conditions (km)",
+                        "eaID": 238
+                    }
+                ]
+            },
+            {
+                "name": "Stream length impaired by pathogens (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length impaired by pathogens (km)",
+                        "eaID": 236
+                    }
+                ]
+            },
+            {
+                "name": "Stream length impaired by pesticides (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length impaired by pesticides (km)",
+                        "eaID": 237
+                    }
+                ]
+            },
+            {
+                "name": "Stream length impaired by sediment or turbidity (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length impaired by sediment or turbidity (km)",
+                        "eaID": 239
+                    }
+                ]
+            },
+            {
+                "name": "Stream length impaired for temperature (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length impaired for temperature (km)",
+                        "eaID": 240
+                    }
+                ]
+            },
+            {
+                "name": "Stream length with any other impairment (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length with any other impairment (km)",
+                        "eaID": 241
+                    }
+                ]
+            },
+            {
+                "name": "Stream length with impaired biota (km)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Stream length with impaired biota (km)",
+                        "eaID": 242
+                    }
+                ]
             }
         ]
     },
@@ -2250,12 +4582,288 @@
         "category": "PSI",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
-                "layers": []
+                "name": "Acetaldehyde air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                  {
+                    "title": "Concentration (&#181g/m3)",
+                    "eaID": 786
+                  },
+                  {
+                    "title": "Respiratory risk",
+                    "eaID": 787
+                  },
+                  {
+                    "title": "Cancer risk",
+                    "eaID": 788
+                  }
+                ]
+              },
+              {
+                "name": "Acrolein air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                  {
+                    "title": "Concentration (&#181g/m3)",
+                    "eaID": 789
+                  },
+                  {
+                    "title": "Respiratory risk",
+                    "eaID": 790
+                  }
+                ]
+              },
+              {
+                "name": "Arsenic air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                  {
+                    "title": "Concentration (&#181g/m3)",
+                    "eaID": 791
+                  },
+                  {
+                    "title": "Cancer risk",
+                    "eaID": 792
+                  }
+                ]
+              },
+              {
+                "name": "Benzene air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                  {
+                    "title": "Concentration (&#181g/m3)",
+                    "eaID": 793
+                  },
+                  {
+                    "title": "Cancer risk",
+                    "eaID": 794
+                  }
+                ]
+              },
+              {
+                "name": "Butadiene air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                  {
+                    "title": "Concentration (&#181g/m3)",
+                    "eaID": 795
+                  },
+                  {
+                    "title": "Cancer risk",
+                    "eaID": 796
+                  }
+                ]
+              },
+              {
+                "name": "Chromium air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                  {
+                    "title": "Concentration (&#181g/m3)",
+                    "eaID": 797
+                  },
+                  {
+                    "title": "Respiratory risk",
+                    "eaID": 798
+                  },
+                  {
+                    "title": "Cancer risk",
+                    "eaID": 799
+                  }
+                ]
+              },
+              {
+                "name": "Diesel PM air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                  {
+                    "title": "Concentration (&#181g/m3)",
+                    "eaID": 800
+                  },
+                  {
+                    "title": "Respiratory risk",
+                    "eaID": 801
+                  }
+                ]
+              },
+              {
+                "name": "Formaldehyde air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                  {
+                    "title": "Concentration (&#181g/m3)",
+                    "eaID": 802
+                  },
+                  {
+                    "title": "Respiratory risk",
+                    "eaID": 803
+                  },
+                  {
+                    "title": "Cancer risk",
+                    "eaID": 804
+                  }
+                ]
+              },
+              {
+                "name": "Lead air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                  {
+                    "title": "Concentration (&#181g/m3)",
+                    "eaID": 810
+                  },
+                  {
+                    "title": "Neurological risk",
+                    "eaID": 811
+                  }
+                ]
+              },
+              {
+                "name": "Naphthalene air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                  {
+                    "title": "Concentration (&#181g/m3)",
+                    "eaID": 805
+                  },
+                  {
+                    "title": "Respiratory risk",
+                    "eaID": 806
+                  },
+                  {
+                    "title": "Cancer risk",
+                    "eaID": 807
+                  }
+                ]
+              },
+              {
+                "name": "PAH / POM air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                  {
+                    "title": "Concentration (&#181g/m3)",
+                    "eaID": 808
+                  },
+                  {
+                    "title": "Cancer risk",
+                    "eaID": 809
+                  }
+                ]
+              },
+              {
+                "name": "Cancer risk per million due to cumulative air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Cancer risk per million due to cumulative air toxics",
+                        "eaID": 814
+                    }
+                ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "Non-cancer neurological risk (hazard index) due to cumulative air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Non-cancer neurological risk (hazard index) due to cumulative air toxics",
+                        "eaID": 813
+                    }
+                ]
+            },
+            {
+                "name": "Respiratory risk (hazard index) due to cumulative air toxics",
+                "eaBC": null,
+                "eaCA": true,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Respiratory risk (hazard index) due to cumulative air toxics",
+                        "eaID": 812
+                    }
+                ]
             }
         ]
     },
@@ -2458,6 +5066,118 @@
                         "eaID": 375
                     }
                 ]
+            },
+            {
+                "name": "Dissolved nitrogen in non-tile drain subsurface flow from agricultural fields (tons)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Dissolved nitrogen in non-tile drain subsurface flow from agricultural fields (tons)",
+                        "eaID": 296
+                    }
+                ]
+            },
+            {
+                "name": "Manure application (kg N/ha/yr)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Manure application (kg N/ha/yr)",
+                        "eaID": 126
+                    }
+                ]
+            },
+            {
+                "name": "Percent nonbuffered agriculture",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": true,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent nonbuffered agriculture",
+                        "eaID": 278
+                    }
+                ]
+            },
+            {
+                "name": "Phosphorus application as manure (kg P/ha/yr)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Phosphorus application as manure (kg P/ha/yr)",
+                        "eaID": 287
+                    }
+                ]
+            },
+            {
+                "name": "Phosphorus fertilizer application (kg P/ha/yr)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Phosphorus fertilizer application (kg P/ha/yr)",
+                        "eaID": 286
+                    }
+                ]
+            },
+            {
+                "name": "Synthetic nitrogen fertilizer application (kg N/ha/yr)",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Synthetic nitrogen fertilizer application (kg N/ha/yr)",
+                        "eaID": 243
+                    }
+                ]
+            },
+            {
+                "name": "Total annual nitrogen deposition (kg/ha)",
+                "eaBC": true,
+                "eaCA": true,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Total annual nitrogen deposition (kg/ha)",
+                        "eaID": 244
+                    }
+                ]
             }
         ]
     },
@@ -2588,6 +5308,54 @@
                         "eaID": 379
                     }
                 ]
+            },
+            {
+                "name": "Number of combined sewer overflow events",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Number of combined sewer overflow events",
+                        "eaID": 380
+                    }
+                ]
+            },
+            {
+                "name": "Permitted organic enrichment discharges - total pounds per year",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Permitted organic enrichment discharges - total pounds per year",
+                        "eaID": 369
+                    }
+                ]
+            },
+            {
+                "name": "Permitted solids discharges - total pounds per year",
+                "eaBC": true,
+                "eaCA": null,
+                "eaCPW": true,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Permitted solids discharges - total pounds per year",
+                        "eaID": 368
+                    }
+                ]
             }
         ]
     },
@@ -2596,12 +5364,244 @@
         "category": "PSI",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
-                "layers": []
+                "name": "Air Quality System (AIRS AQS)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Air Quality System (AIRS AQS)",
+                        "eaID": 772
+                    }
+                ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "Brownfield Properties (ACRES)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Brownfield Properties (ACRES)",
+                        "eaID": 769
+                    }
+                ]
+            },
+            {
+                "name": "Hazardous Waste Sites (RCRA)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Hazardous Waste Sites (RCRA)",
+                        "eaID": 775
+                    }
+                ]
+            },
+            {
+                "name": "Hazardous Waste Sites (RCRA) - Active",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Hazardous Waste Sites (RCRA) - Active",
+                        "eaID": 776
+                    }
+                ]
+            },
+            {
+                "name": "Hazardous Waste Sites (RCRA) - Inactive",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Hazardous Waste Sites (RCRA) - Inactive",
+                        "eaID": 777
+                    }
+                ]
+            },
+            {
+                "name": "Hazardous Waste Sites (RCRA) - Large Quantity Generators (LQG)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Hazardous Waste Sites (RCRA) - Large Quantity Generators (LQG)",
+                        "eaID": 778
+                    }
+                ]
+            },
+            {
+                "name": "Hazardous Waste Sites (RCRA) - Transporters",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Hazardous Waste Sites (RCRA) - Transporters",
+                        "eaID": 779
+                    }
+                ]
+            },
+            {
+                "name": "Hazardous Waste Sites (RCRA) - Treaters, Storers, and Disposers (TSD)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Hazardous Waste Sites (RCRA) - Treaters, Storers, and Disposers (TSD)",
+                        "eaID": 780
+                    }
+                ]
+            },
+            {
+                "name": "Integrated Compliance Information System-Air\u00a0(ICIS-Air)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Integrated Compliance Information System-Air\u00a0(ICIS-Air)",
+                        "eaID": 770
+                    }
+                ]
+            },
+            {
+                "name": "Integrated Compliance Information System-Air\u00a0Major (ICIS-Air Major)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Integrated Compliance Information System-Air\u00a0Major (ICIS-Air Major)",
+                        "eaID": 771
+                    }
+                ]
+            },
+            {
+                "name": "Permitted Water Dischargers (NPDES)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Permitted Water Dischargers (NPDES)",
+                        "eaID": 773
+                    }
+                ]
+            },
+            {
+                "name": "Permitted Water Dischargers - Major (NPDES)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Permitted Water Dischargers - Major (NPDES)",
+                        "eaID": 774
+                    }
+                ]
+            },
+            {
+                "name": "Superfund Sites (SEMS)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Superfund Sites (SEMS)",
+                        "eaID": 781
+                    }
+                ]
+            },
+            {
+                "name": "Superfund Sites - National Priorities List (NPL)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Superfund Sites - National Priorities List (NPL)",
+                        "eaID": 782
+                    }
+                ]
+            },
+            {
+                "name": "Toxic Release Inventory (TRI)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Toxic Release Inventory (TRI)",
+                        "eaID": 783
+                    }
+                ]
             }
         ]
     },
@@ -2610,12 +5610,228 @@
         "category": "PBS",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
-                "layers": []
+                "name": "Estimated intersection density of walkable roads per km2",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Estimated intersection density of walkable roads per km2",
+                        "eaID": 700
+                    }
+                ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "Pedestrian-oriented street intersection density (intersections per square mile)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Pedestrian-oriented street intersection density (intersections per square mile)",
+                        "eaID": 726
+                    }
+                ]
+            },
+            {
+                "name": "Percent of households with zero vehicles",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent of households with zero vehicles",
+                        "eaID": 736
+                    }
+                ]
+            },
+            {
+                "name": "Percent of workers who bike or walk to work",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent of workers who bike or walk to work",
+                        "eaID": 738
+                    }
+                ]
+            },
+            {
+                "name": "Percent of workers who carpool to work",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent of workers who carpool to work",
+                        "eaID": 739
+                    }
+                ]
+            },
+            {
+                "name": "Percent of workers who commute to work by public transportation",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent of workers who commute to work by public transportation",
+                        "eaID": 740
+                    }
+                ]
+            },
+            {
+                "name": "Percent of workers who drive to work alone",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent of workers who drive to work alone",
+                        "eaID": 741
+                    }
+                ]
+            },
+            {
+                "name": "Percent of workers who work from home",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent of workers who work from home",
+                        "eaID": 742
+                    }
+                ]
+            },
+            {
+                "name": "Percent of workers with 30 - 60 minutes travel time to work",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent of workers with 30 - 60 minutes travel time to work",
+                        "eaID": 743
+                    }
+                ]
+            },
+            {
+                "name": "Percent of workers with 60 - 90 minutes travel time to work",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent of workers with 60 - 90 minutes travel time to work",
+                        "eaID": 744
+                    }
+                ]
+            },
+            {
+                "name": "Percent of workers with greater than 90 minutes travel time to work",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent of workers with greater than 90 minutes travel time to work",
+                        "eaID": 745
+                    }
+                ]
+            },
+            {
+                "name": "Percent of workers with less than 30 minutes travel time to work",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent of workers with less than 30 minutes travel time to work",
+                        "eaID": 746
+                    }
+                ]
+            },
+            {
+                "name": "Transit service per hour during evening peak",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Transit service per hour during evening peak",
+                        "eaID": 755
+                    }
+                ]
+            },
+            {
+                "name": "Working age population within a 45-minute drive, weighted",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": " ",
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Working age population within a 45-minute drive, weighted",
+                        "eaID": 757
+                    }
+                ]
             }
         ]
     },
@@ -2624,12 +5840,228 @@
         "category": "PBS",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
-                "layers": []
+                "name": "Employment Rate (percent)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Employment Rate (percent)",
+                        "eaID": 716
+                    }
+                ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "Employment density (jobs/ac)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Employment density (jobs/ac)",
+                        "eaID": 758
+                    }
+                ]
+            },
+            {
+                "name": "Employment diversity",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Employment diversity",
+                        "eaID": 715
+                    }
+                ]
+            },
+            {
+                "name": "Employment:housing ratio",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Employment:housing ratio",
+                        "eaID": 717
+                    }
+                ]
+            },
+            {
+                "name": "Jobs within a 45-minute drive, weighted",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Jobs within a 45-minute drive, weighted",
+                        "eaID": 718
+                    }
+                ]
+            },
+            {
+                "name": "Number of high-wage workers [work location]",
+                "eaBC": " ",
+                "eaCA": " ",
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Number of high-wage workers [work location]",
+                        "eaID": 719
+                    }
+                ]
+            },
+            {
+                "name": "Number of households with zero vehicles",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Number of households with zero vehicles",
+                        "eaID": 721
+                    }
+                ]
+            },
+            {
+                "name": "Number of low-wage workers [home location]",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Number of low-wage workers [home location]",
+                        "eaID": 722
+                    }
+                ]
+            },
+            {
+                "name": "Number of low-wage workers [work location]",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Number of low-wage workers [work location]",
+                        "eaID": 723
+                    }
+                ]
+            },
+            {
+                "name": "Number of middle-wage workers [work location]",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Number of middle-wage workers [work location]",
+                        "eaID": 724
+                    }
+                ]
+            },
+            {
+                "name": "Number of workers [home location]",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Number of workers [home location]",
+                        "eaID": 725
+                    }
+                ]
+            },
+            {
+                "name": "Percent low-wage workers [work location]",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent low-wage workers [work location]",
+                        "eaID": 737
+                    }
+                ]
+            },
+            {
+                "name": "Total employment",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Total employment",
+                        "eaID": 752
+                    }
+                ]
+            },
+            {
+                "name": "Workers per job  - Equilibrium Index",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Workers per job  - Equilibrium Index",
+                        "eaID": 756
+                    }
+                ]
             }
         ]
     },
@@ -2638,12 +6070,100 @@
         "category": "PBS",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
-                "layers": []
+                "name": "Number of day care centers",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Number of day care centers",
+                        "eaID": 701
+                    }
+                ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "Number of households",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Number of households",
+                        "eaID": 720
+                    }
+                ]
+            },
+            {
+                "name": "Number of schools (K-12)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Number of schools (K-12)",
+                        "eaID": 702
+                    }
+                ]
+            },
+            {
+                "name": "Percent Housing Units Built Before 1950",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percent Housing Units Built Before 1950",
+                        "eaID": 732
+                    }
+                ]
+            },
+            {
+                "name": "Residential density (hu/ac)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Residential density (hu/ac)",
+                        "eaID": 751
+                    }
+                ]
+            },
+            {
+                "name": "Total housing units",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Total housing units",
+                        "eaID": 753
+                    }
+                ]
             }
         ]
     },
@@ -2670,6 +6190,22 @@
                         "eaID": 815
                     }
                 ]
+            },
+            {
+                "name": "Population [12-digit HUC]",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Population [12-digit HUC]",
+                        "eaID": 768
+                    }
+                ]
             }
         ]
     },
@@ -2678,12 +6214,116 @@
         "category": "PBS",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
-                "layers": []
+                "name": "Number of farmers markets [12-digit HUC]",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Number of farmers markets [12-digit HUC]",
+                        "eaID": 784
+                    }
+                ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "Number of farmers markets [census block group]",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": true,
+                "eaNHM": null,
+                "eaRCA": true,
+                "layers": [
+                    {
+                        "title": "Number of farmers markets [census block group]",
+                        "eaID": 785
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of households below the quality of life threshold income",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of households below the quality of life threshold income",
+                        "eaID": 766
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of households with incomes above $200,000.",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of households with incomes above $200,000.",
+                        "eaID": 765
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of households with incomes above $75,000 and below $200,000",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of households with incomes above $75,000 and below $200,000",
+                        "eaID": 764
+                    }
+                ]
+            },
+            {
+                "name": "Percentage of households with incomes above twice the poverty line and below $75,000",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Percentage of households with incomes above twice the poverty line and below $75,000",
+                        "eaID": 763
+                    }
+                ]
+            },
+            {
+                "name": "Threshold income for quality of life (Household $ per year)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Threshold income for quality of life (Household $ per year)",
+                        "eaID": 767
+                    }
+                ]
             }
         ]
     },
@@ -2692,12 +6332,68 @@
         "category": "PBS",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
-                "layers": []
+                "name": "Business address vacancy rate for 2014",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Business address vacancy rate for 2014",
+                        "eaID": 759
+                    }
+                ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "Change in business vacancy rate from 2010-2014, in percentage points",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Change in business vacancy rate from 2010-2014, in percentage points",
+                        "eaID": 760
+                    }
+                ]
+            },
+            {
+                "name": "Change in residential vacancy rate from 2010-2014, in percentage points",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Change in residential vacancy rate from 2010-2014, in percentage points",
+                        "eaID": 762
+                    }
+                ]
+            },
+            {
+                "name": "Residential address vacancy rate for 2014",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Residential address vacancy rate for 2014",
+                        "eaID": 761
+                    }
+                ]
             }
         ]
     },
@@ -2706,12 +6402,36 @@
         "category": "BNF",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
-                "layers": []
+                "name": "GAP Ecological Systems",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "GAP Ecological Systems",
+                        "eaID": 909
+                    }
+                ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "USEPA Ecoregions (Omernik)",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "USEPA Ecoregions (Omernik)",
+                        "eaID": 908
+                    }
+                ]
             }
         ]
     },
@@ -2742,6 +6462,38 @@
                         "eaID": 911
                     }
                 ]
+            },
+            {
+                "name": "Hydrologic Unit Code (HUC) Boundaries and labels",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Hydrologic Unit Code (HUC) Boundaries and labels",
+                        "eaID": 905
+                    }
+                ]
+            },
+            {
+                "name": "NHDPlus V2 features",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "NHDPlus V2 features",
+                        "eaID": 906
+                    }
+                ]
             }
         ]
     },
@@ -2750,19 +6502,196 @@
         "category": "BNF",
         "subtopic": [
             {
-                "name": "Carbon sequestered by tree cover",
+                "name": "Congressional District boundaries and labels",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
                 "layers": [
                     {
-                        "title": "Total (mt/yr)"
-                    },
-                    {
-                        "title": "Value ($/yr)"
+                        "title": "Congressional District boundaries and labels",
+                        "eaID": 904
                     }
                 ]
             },
             {
-                "name": "Carbon stored by tree cover",
-                "layers": []
+                "name": "EPA and BLM Tribal Areas - Alaska Native Allotments",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "EPA and BLM Tribal Areas - Alaska Native Allotments",
+                        "eaID": 917
+                    }
+                ]
+            },
+            {
+                "name": "EPA and BLM Tribal Areas - Alaska Native Villages",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "EPA and BLM Tribal Areas - Alaska Native Villages",
+                        "eaID": 915
+                    }
+                ]
+            },
+            {
+                "name": "EPA and USCB Tribal Areas - American Indian Off-Reservation Trust Lands",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "EPA and USCB Tribal Areas - American Indian Off-Reservation Trust Lands",
+                        "eaID": 916
+                    }
+                ]
+            },
+            {
+                "name": "EPA and USCB Tribal Areas - American Indian Reservations",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "EPA and USCB Tribal Areas - American Indian Reservations",
+                        "eaID": 913
+                    }
+                ]
+            },
+            {
+                "name": "EPA and USCB Tribal Areas - Oklahoma Tribal Statistical Areas",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "EPA and USCB Tribal Areas - Oklahoma Tribal Statistical Areas",
+                        "eaID": 918
+                    }
+                ]
+            },
+            {
+                "name": "EPA and USCB Tribal Areas - Virginia Federally Recognized Tribes",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "EPA and USCB Tribal Areas - Virginia Federally Recognized Tribes",
+                        "eaID": 919
+                    }
+                ]
+            },
+            {
+                "name": "EnviroAtlas Community Boundaries",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "EnviroAtlas Community Boundaries",
+                        "eaID": 901
+                    }
+                ]
+            },
+            {
+                "name": "Landscape Conservation Cooperatives\u00a0",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Landscape Conservation Cooperatives\u00a0",
+                        "eaID": 907
+                    }
+                ]
+            },
+            {
+                "name": "Qualified Opportunity Zones",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "Qualified Opportunity Zones",
+                        "eaID": 914
+                    }
+                ]
+            },
+            {
+                "name": "States, County, and Census Block Group boundaries",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "States, County, and Census Block Group boundaries",
+                        "eaID": 902
+                    }
+                ]
+            },
+            {
+                "name": "USEPA Regions",
+                "eaBC": null,
+                "eaCA": null,
+                "eaCPW": null,
+                "eaCS": null,
+                "eaFFM": null,
+                "eaNHM": null,
+                "eaRCA": null,
+                "layers": [
+                    {
+                        "title": "USEPA Regions",
+                        "eaID": 903
+                    }
+                ]
             }
         ]
     }
