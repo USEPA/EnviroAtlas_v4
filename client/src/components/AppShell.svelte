@@ -9,7 +9,6 @@
   import "@esri/calcite-components/dist/components/calcite-navigation-logo";
 
   // Import arcgis js api
-  import Bookmarks from "@arcgis/core/widgets/Bookmarks";
   import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
   import LayerList from "@arcgis/core/widgets/LayerList";
   import Legend from "@arcgis/core/widgets/Legend";
@@ -17,13 +16,13 @@
   // Import components and store
   import { viewState, mapState } from "../store";
   import SummarizeMyArea from "./SummarizeMyArea.svelte";
-  import ClimateChangeViewer from "./ClimateChangeViewer.svelte";
+  import ClimateChangeViewer from "./ClimateChangeViewer/ClimateChangeViewer.svelte";
+  import DataCatalog from "./DataCatalog/DataList.svelte";
   //    import AddData from "./AddData/index.svelte";
   //use npm published version now (in development used linked version via devLink utility
   import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
   import Modal from "./Modal.svelte";
 
-  let bookmarksContainer;
   let bmgContainer;
   let layerListContainer;
   let legendContainer;
@@ -48,14 +47,8 @@
       container: bmgContainer,
     });
 
-    const bookmarks = new Bookmarks({
-      view,
-      container: bookmarksContainer,
-    });
-
     const layerList = new LayerList({
       view,
-      selectionEnabled: true,
       container: layerListContainer,
     });
 
@@ -155,9 +148,9 @@
       />
       <calcite-action data-action-id="legend" icon="legend" text="Legend" />
       <calcite-action
-        data-action-id="bookmarks"
-        icon="bookmark"
-        text="Bookmarks"
+        data-action-id="data-catalog"
+        icon="layers"
+        text="EnviroAtlas Data Catalog"
       />
       <calcite-action
         data-action-id="information"
@@ -171,8 +164,8 @@
       />
       <calcite-action
         data-action-id="climate-data-viewer"
-        icon="multidimensional-raster"
-        text="Multidim Test"
+        icon="clock-forward"
+        text="Climate Change Data Viewer"
       />
       <calcite-action
         data-action-id="add-data"
@@ -207,19 +200,12 @@
     >
       <div id="legend-container" bind:this={legendContainer} />
     </calcite-panel>
-    <calcite-panel
-      heading="Bookmarks"
-      height-scale="l"
-      data-panel-id="bookmarks"
-      hidden
-    >
-      <div id="bookmarks-container" bind:this={bookmarksContainer} />
-    </calcite-panel>
+    <DataCatalog />
     <calcite-panel heading="Information" data-panel-id="information" hidden>
       <div id="info-content"></div>
     </calcite-panel>
     <SummarizeMyArea />
-    <ClimateChangeViewer />
+    <ClimateChangeViewer view={$viewState.view}/>
     <AddData map={$mapState.map} />
   </calcite-shell-panel>
   <slot></slot>
@@ -233,9 +219,9 @@
 
   calcite-navigation {
     --calcite-navigation-background: #005ea2;
-    --calcite-ui-text-1: white;
-    --calcite-ui-foreground-2: none;
-    --calcite-ui-foreground-3: none;
+    --calcite-color-text-1: white;
+    --calcite-color-foreground-2: none;
+    --calcite-color-foreground-3: none;
   }
 
   #info-content {

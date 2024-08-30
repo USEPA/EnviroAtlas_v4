@@ -11,6 +11,9 @@
     import "@esri/calcite-components/dist/components/calcite-notice";
     import "@esri/calcite-components/dist/components/calcite-chip-group";
     import "@esri/calcite-components/dist/components/calcite-chip";
+    import "@esri/calcite-components/dist/components/calcite-action";
+    import "@esri/calcite-components/dist/components/calcite-action-group";
+    import "@esri/calcite-components/dist/components/calcite-tooltip";
 
     // Import from arcgis js api
     import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
@@ -19,7 +22,15 @@
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
 
     // Import components and store
-    import { viewState, mapState, climate } from "../store";
+    import { viewState, mapState, climate } from "src/store";
+    import Bookmark from "./Bookmark.svelte";
+
+    export let view;
+
+    window.ea.climateChangeViewer = {};
+    window.ea.climateChangeViewer.view = () => {
+        return view;
+    };
 
     const server = "https://awseastaging.epa.gov";
     const mdURL =
@@ -118,12 +129,23 @@
             console.log("layer: ", multidimInfo);
         });
     }
+
+    export const handlePanelClose = function (e) {
+        const target = e.target;
+        const shellElement = target.parentElement;
+        shellElement.collapsed = !shellElement.collapsed;
+        document.querySelector(
+            '[data-action-id="climate-data-viewer"]',
+        ).active = false;
+    };
 </script>
 
 <calcite-panel
     heading="Climate Change Data Viewer"
     data-panel-id="climate-data-viewer"
     hidden
+    closable
+    on:calcitePanelClose={handlePanelClose}
 >
     <calcite-action-bar slot="action-bar" expand-disabled>
         <calcite-chip-group
@@ -146,6 +168,13 @@
                 kind="neutral">Advanced</calcite-chip
             >
         </calcite-chip-group>
+        <calcite-action
+            icon="extent-filter"
+            text-enabled
+            text="Filter options"
+            slot="actions-end"
+            id="popover-button"
+        ></calcite-action>
     </calcite-action-bar>
     <calcite-button width="half" slot="footer" appearance="outline">
         Reset
@@ -153,6 +182,7 @@
     <calcite-button width="half" slot="footer" icon-start="add-layer">
         Add Data
     </calcite-button>
+    <Bookmark view={view}/>
     <calcite-block
         open
         heading="Climate Variable"
@@ -242,9 +272,9 @@
     /* calcite-combobox {
         margin-left: 38px;
     } */
-    calcite-segmented-control {
+    /* calcite-segmented-control {
         width: 60%;
-    }
+    } */
 
     calcite-block {
         margin-left: 2px;
@@ -256,7 +286,7 @@
         margin-bottom: 9px;
         margin-right: 5px;
     }
-
+    /* 
     calcite-stepper-item {
         width: 90%;
         padding-right: 15px;
@@ -265,5 +295,5 @@
 
     calcite-stepper {
         flex: none !important;
-    }
+    } */
 </style>

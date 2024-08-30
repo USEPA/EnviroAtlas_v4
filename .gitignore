@@ -1,0 +1,14 @@
+# https://github.com/github/gitignore/blob/master/Node.gitignore
+# Don't show the log files
+
+#Web Storm Settings
+.idea
+
+#temp directory
+/tmp/
+
+#this is where pm2 files are stored
+.pm2/
+
+#ignore Thumbs.db that windows creates
+Thumbs.db

@@ -10,7 +10,8 @@
     "devLink": "usepa-ngst-dev-link npmLink"
   },
   "dependencies": {
-    "@arcgis/core": "^4.28.2",
+    "@arcgis/core": "4.29.0",
+    "@esri/calcite-components": "2.8.5",
     "@usepa-ngst/calcite-components": "^0.0.1"
   },
   "devDependencies": {
