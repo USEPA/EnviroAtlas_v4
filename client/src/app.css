@@ -1,18 +1,18 @@
-@import "https://js.arcgis.com/calcite-components/1.9.2/calcite.css";
-@import "https://js.arcgis.com/4.28/esri/themes/light/main.css";
+@import "https://js.arcgis.com/calcite-components/2.8.5/calcite.css";
+@import "https://js.arcgis.com/4.29/esri/themes/light/main.css";
 
 html,
 body {
-  --calcite-ui-brand: #005ea2;
-  --calcite-ui-brand-hover: #1a4480;
-  --calcite-ui-brand-press: #162e51;
-  --calcite-ui-text-link: #1a4480;
-  --calcite-ui-info: #1a4480;
-  --calcite-ui-success: #00a91c;
-  --calcite-ui-warning: #ffbe2e;
-  --calcite-ui-danger: #d54309;
-  --calcite-ui-danger-hover: #b50909;
-  --calcite-ui-danger-press: #6f3331;
+  --calcite-color-brand: #005ea2;
+  --calcite-color-brand-hover: #1a4480;
+  --calcite-color-brand-press: #162e51;
+  --calcite-color-text-link: #1a4480;
+  --calcite-color-info: #1a4480;
+  --calcite-color-success: #00a91c;
+  --calcite-color-warning: #ffbe2e;
+  --calcite-color-danger: #d54309;
+  --calcite-color-danger-hover: #b50909;
+  --calcite-color-danger-press: #6f3331;
 }
 
 #app {
