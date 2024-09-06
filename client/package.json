@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --force",
     "build": "vite build",
     "preview": "vite preview",
     "devLink": "usepa-ngst-dev-link npmLink"
@@ -12,7 +12,9 @@
   "dependencies": {
     "@arcgis/core": "4.29.0",
     "@esri/calcite-components": "2.8.5",
-    "@usepa-ngst/calcite-components": "^0.0.1"
+    "@usepa-ngst/calcite-components": "^0.0.1",
+    "@usepa-ngst/utilities": "^0.0.4",
+    "page": "^1.11.6"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.4.6",
