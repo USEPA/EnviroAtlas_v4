@@ -112,7 +112,7 @@
     <calcite-navigation-logo
       slot="content-start"
       heading="v4"
-      thumbnail="/ea/images/logo.png"
+      thumbnail="/ea/client/images/logo.png"
     ></calcite-navigation-logo>
     <calcite-button
       slot="content-end"
