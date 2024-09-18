@@ -42,8 +42,5 @@
     page.start();
 
 </script>
-<style>
-</style>
-
 
 <svelte:component this={current} />
