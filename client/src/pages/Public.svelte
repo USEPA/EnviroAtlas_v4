@@ -72,7 +72,7 @@
 
 <AppShell>
   <div class="viewDiv" bind:this={viewContainer} />
-  <TestChild></TestChild> 
+  <!-- <TestChild></TestChild>  -->
 </AppShell>
 
 <style>
