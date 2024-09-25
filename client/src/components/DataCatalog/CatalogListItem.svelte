@@ -1,12 +1,17 @@
 <script>
+    import { getEALayerObject, addLayer } from "src/shared/addtoMap.js";
+
     export let subtopic;
+    export let view;
     export let layerID = null;
 
-    function getEALayer() {
+    function getEALayerId() {
         if (subtopic.layers.length < 2) {
             layerID = subtopic.layers[0].eaID
         }
         console.log('EA Layer: ', layerID)
+        let lObject = getEALayerObject(layerID);
+        addLayer(lObject, view);
     }
 
     function subtopicSelected(event) {
@@ -150,8 +155,8 @@
             round
             label="Add to map"
             slot="actions-end"
-            on:click={getEALayer}
-            on:keypress={getEALayer}
+            on:click={getEALayerId}
+            on:keypress={getEALayerId}
             >Add to map</calcite-button
         >
         <calcite-button

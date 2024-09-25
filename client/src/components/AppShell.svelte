@@ -198,7 +198,7 @@
       />
     </calcite-action-bar>
 
-    <DataCatalog />
+    <DataCatalog view={$viewState.view}/>
     <calcite-panel heading="Information" data-panel-id="information" hidden>
       <div id="info-content"></div>
     </calcite-panel>

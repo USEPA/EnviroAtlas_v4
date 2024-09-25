@@ -9,6 +9,13 @@
     // Import components and store
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import eatopics from "src/shared/dataCatalog_initialize.json";
+
+    export let view;
+
+    window.ea.climateChangeViewer = {};
+    window.ea.climateChangeViewer.view = () => {
+        return view;
+    };
 </script>
 
 <calcite-flow data-panel-id="data-catalog" hidden>
@@ -47,7 +54,7 @@
                             selection-mode="none"
                         >
                             {#each eatopic.subtopic as subtopic}
-                                <CatalogListItem {subtopic} />
+                                <CatalogListItem {subtopic} view={view}/>
                             {/each}
                         </calcite-list>
                     </calcite-list-item>
