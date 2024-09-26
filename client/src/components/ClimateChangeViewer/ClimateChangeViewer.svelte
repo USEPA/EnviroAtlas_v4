@@ -23,7 +23,6 @@
 
     // Import components and store
     import { viewState, mapState, climate } from "src/store";
-    import Bookmark from "./Bookmark.svelte";
 
     export let view;
 
@@ -129,60 +128,15 @@
             console.log("layer: ", multidimInfo);
         });
     }
-
-    export const handlePanelClose = function (e) {
-        const target = e.target;
-        const shellElement = target.parentElement;
-        shellElement.collapsed = !shellElement.collapsed;
-        document.querySelector(
-            '[data-action-id="climate-data-viewer"]',
-        ).active = false;
-    };
 </script>
 
-<calcite-panel
-    heading="Climate Change Data Viewer"
-    data-panel-id="climate-data-viewer"
-    hidden
-    closable
-    on:calcitePanelClose={handlePanelClose}
->
-    <calcite-action-bar slot="action-bar" expand-disabled>
-        <calcite-chip-group
-            slot="actions-end"
-            selection-mode="single"
-            label="custom-criteria-chip-group"
-        >
-            <calcite-chip
-                class="simple-or-adv"
-                selected
-                scale="s"
-                value="global"
-                kind="brand"
-                appearance="solid">Simple</calcite-chip
-            >
-            <calcite-chip
-                class="simple-or-adv"
-                scale="s"
-                value="advanced"
-                kind="neutral">Advanced</calcite-chip
-            >
-        </calcite-chip-group>
-        <calcite-action
-            icon="extent-filter"
-            text-enabled
-            text="Filter options"
-            slot="actions-end"
-            id="popover-button"
-        ></calcite-action>
-    </calcite-action-bar>
+<calcite-panel data-panel-id="climate-data-viewer-2" hidden open>
     <calcite-button width="half" slot="footer" appearance="outline">
         Reset
     </calcite-button>
     <calcite-button width="half" slot="footer" icon-start="add-layer">
         Add Data
     </calcite-button>
-    <Bookmark view={view}/>
     <calcite-block
         open
         heading="Climate Variable"
@@ -281,11 +235,6 @@
         margin-right: 2px;
     }
 
-    .simple-or-adv {
-        margin-top: 9px;
-        margin-bottom: 9px;
-        margin-right: 5px;
-    }
     /* 
     calcite-stepper-item {
         width: 90%;

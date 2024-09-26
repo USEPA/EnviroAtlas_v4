@@ -18,9 +18,9 @@
   import SummarizeMyArea from "./SummarizeMyArea.svelte";
   import ClimateChangeViewer from "./ClimateChangeViewer/ClimateChangeViewer.svelte";
   import DataCatalog from "./DataCatalog/DataList.svelte";
-  //    import AddData from "./AddData/index.svelte";
+  import AddData from "./AddData/index.svelte";
   //use npm published version now (in development used linked version via devLink utility
-  import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
+  // import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
   import Modal from "./Modal.svelte";
 
   let bmgContainer;
@@ -177,34 +177,26 @@
         text="EnviroAtlas Data Catalog"
       />
       <calcite-action
-        data-action-id="information"
-        icon="information"
-        text="Information"
-      />
-      <calcite-action
         data-action-id="summarize-my-area"
         icon="sigma"
         text="Summarize My Area"
       />
-      <calcite-action
+      <!-- <calcite-action
         data-action-id="climate-data-viewer"
         icon="clock-forward"
         text="Climate Change Data Viewer"
-      />
+      /> 
       <calcite-action
         data-action-id="add-data"
         icon="plus-square"
         text="Add Data"
-      />
+      /> -->
     </calcite-action-bar>
 
     <DataCatalog view={$viewState.view}/>
-    <calcite-panel heading="Information" data-panel-id="information" hidden>
-      <div id="info-content"></div>
-    </calcite-panel>
     <SummarizeMyArea />
-    <ClimateChangeViewer view={$viewState.view}/>
-    <AddData map={$mapState.map} />
+    <!-- <ClimateChangeViewer view={$viewState.view}/> -->
+    <!-- <AddData map={$mapState.map} /> -->
   </calcite-shell-panel>
   <slot></slot>
   <Modal />
@@ -268,7 +260,7 @@
     --calcite-color-foreground-3: none;
   }
 
-  #info-content {
-    padding: 0.75rem;
+  calcite-action-bar {
+    --calcite-ui-focus-color: none !important;
   }
 </style>

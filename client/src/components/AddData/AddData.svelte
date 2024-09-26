@@ -57,7 +57,7 @@
 
 
 
-<calcite-panel width-scale='l' heading="Add Data" data-panel-id="add-data" hidden>
+<calcite-panel width-scale='l' data-panel-id="add-data-2" hidden>
     <calcite-tabs layout='center'>
       <calcite-tab-nav slot="title-group">
           <calcite-tab-title selected tab='url'>

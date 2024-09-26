@@ -2,19 +2,51 @@
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
     import "@esri/calcite-components/dist/components/calcite-avatar";
-    import "@esri/calcite-components/dist/components/calcite-filter";
     import "@esri/calcite-components/dist/components/calcite-flow";
     import "@esri/calcite-components/dist/components/calcite-flow-item";
 
     // Import components and store
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
+    import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
     import eatopics from "src/shared/dataCatalog_initialize.json";
+    import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
+    import Bookmark from "src/components/ClimateChangeViewer/Bookmark.svelte";
+    import AddData from "../AddData/AddData.svelte";
 
     export let view;
+    export let map;
 
-    window.ea.climateChangeViewer = {};
-    window.ea.climateChangeViewer.view = () => {
+    window.ea.dataCatalog = {};
+    window.ea.dataCatalog.view = () => {
         return view;
+    };
+
+    window.ea.dataCatalog.map = () => {
+        return map;
+    };
+
+    let activeDataCatalog = "national";
+
+    const handleCatalogActionClick = ({ target }) => {
+        if (target.tagName !== "CALCITE-ACTION") {
+            return;
+        }
+
+        if (activeDataCatalog) {
+            document.querySelector(`[data-action-id=${activeDataCatalog}]`).active = false;
+            document.querySelector(`[data-panel-id=${activeDataCatalog}]`).hidden = true;
+            console.log(activeDataCatalog);
+        }
+
+        const nextDataCatalog = target.dataset.actionId;
+        if (nextDataCatalog !== activeDataCatalog) {
+            document.querySelector(`[data-action-id=${nextDataCatalog}]`).active = true;
+            document.querySelector(`[data-panel-id=${nextDataCatalog}]`).hidden = false;
+            activeDataCatalog = nextDataCatalog;
+            console.log(activeDataCatalog);
+        } else {
+            activeDataCatalog = null;
+        }
     };
 </script>
 
@@ -24,23 +56,47 @@
             slot="action-bar"
             layout="horizontal"
             expand-disabled
+            on:click={handleCatalogActionClick}
+            on:keypress={handleCatalogActionClick}
         >
-            <calcite-action-group slot="actions-end">
-                <calcite-action icon="globe" scale="l" />
-                <calcite-action icon="urban-model" scale="l"></calcite-action>
-                <calcite-action icon="clock-forward" scale="l"></calcite-action>
-                <calcite-action icon="add-layer" scale="l"></calcite-action>
-            </calcite-action-group>
-        </calcite-action-bar>
-        <calcite-action-bar layout="horizontal" expand-disabled>
-            <calcite-filter placeholder="Try searching"></calcite-filter>
             <calcite-action
+                data-action-id="national"
+                text="national"
+                icon="globe"
+                scale="l"
+                active
                 slot="actions-end"
-                icon="extent-filter"
-                text="Filter options"
-            />
+            ></calcite-action>
+            <calcite-action
+                data-action-id="subnational"
+                text="subnational"
+                icon="urban-model"
+                scale="l"
+                active="false"
+                slot="actions-end"
+            ></calcite-action>
+            <calcite-action
+                data-action-id="climate-data-viewer-2"
+                text="climate-data-viewer"
+                icon="clock-forward"
+                scale="l"
+                active="false"
+                slot="actions-end"
+            ></calcite-action>
+            <calcite-action
+                data-action-id="add-data-2"
+                text="add-data"
+                icon="add-layer"
+                scale="l"
+                active="false"
+                slot="actions-end"
+            ></calcite-action>
         </calcite-action-bar>
-        <calcite-block open>
+        <CatalogActionBar type={activeDataCatalog}/>
+        <ClimateChangeViewer view={view} />
+        <Bookmark view={view}/>
+        <AddData map={map} />
+        <calcite-block data-panel-id="national" open>
             <calcite-list selection-mode="none">
                 {#each eatopics as eatopic}
                     <calcite-list-item
@@ -54,12 +110,14 @@
                             selection-mode="none"
                         >
                             {#each eatopic.subtopic as subtopic}
-                                <CatalogListItem {subtopic} view={view}/>
+                                <CatalogListItem {subtopic} {view} />
                             {/each}
                         </calcite-list>
                     </calcite-list-item>
                 {/each}
             </calcite-list>
+        </calcite-block>
+        <calcite-block data-panel-id="subnational" open>
         </calcite-block>
     </calcite-flow-item>
 </calcite-flow>
@@ -95,5 +153,11 @@
 
     calcite-list-item {
         --calcite-list-item-spacing-indent: 0rem;
+        --calcite-ui-focus-color: none !important;
+    }
+
+    calcite-action-bar {
+        --calcite-action-bar-items-space: 20px;
+        --calcite-ui-focus-color: none !important;
     }
 </style>
