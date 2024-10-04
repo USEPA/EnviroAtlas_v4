@@ -2,7 +2,6 @@
     import "@esri/calcite-components/dist/components/calcite-filter";
 
     export let type;
-
 </script>
 
 <calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>

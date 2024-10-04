@@ -54,7 +54,7 @@
     
 </script>
 
-<calcite-flow data-panel-id="data-catalog" open collapsed="False">
+<calcite-flow data-panel-id="data-catalog" open>
     <calcite-flow-item height-scale="l">
         <calcite-action-bar
             slot="action-bar"
