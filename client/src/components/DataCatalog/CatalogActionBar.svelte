@@ -2,10 +2,11 @@
     import "@esri/calcite-components/dist/components/calcite-filter";
 
     export let type;
+
 </script>
 
-<calcite-action-bar layout="horizontal" expand-disabled>
-    {#if type=='national' || type=='subnational' || type=='add-data'}
+<calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>
+    {#if type=='national' || type=='subnational'}
     <calcite-filter placeholder="Try searching"></calcite-filter>
     {/if}
     {#if type=='climate-data-viewer-2'}

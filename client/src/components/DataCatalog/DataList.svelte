@@ -11,7 +11,7 @@
     import eatopics from "src/shared/dataCatalog_initialize.json";
     import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
     import Bookmark from "src/components/ClimateChangeViewer/Bookmark.svelte";
-    import AddData from "../AddData/AddData.svelte";
+    import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
 
     export let view;
     export let map;
@@ -32,26 +32,30 @@
             return;
         }
 
-        if (activeDataCatalog) {
+        const nextDataCatalog = target.dataset.actionId;
+
+        if (nextDataCatalog !== activeDataCatalog) {
             document.querySelector(`[data-action-id=${activeDataCatalog}]`).active = false;
             document.querySelector(`[data-panel-id=${activeDataCatalog}]`).hidden = true;
-            console.log(activeDataCatalog);
-        }
-
-        const nextDataCatalog = target.dataset.actionId;
-        if (nextDataCatalog !== activeDataCatalog) {
             document.querySelector(`[data-action-id=${nextDataCatalog}]`).active = true;
             document.querySelector(`[data-panel-id=${nextDataCatalog}]`).hidden = false;
             activeDataCatalog = nextDataCatalog;
             console.log(activeDataCatalog);
-        } else {
-            activeDataCatalog = null;
-        }
+        } 
+
+        nextDataCatalog == 'add-data' 
+            ? document.querySelector(`[id=catalog-search-filter]`).hidden 
+                = true 
+            : document.querySelector(`[id=catalog-search-filter]`).hidden 
+                = false;
+        
     };
+
+    
 </script>
 
-<calcite-flow data-panel-id="data-catalog" hidden>
-    <calcite-flow-item heading="EnviroAtlas Data Catalog" height-scale="l">
+<calcite-flow data-panel-id="data-catalog" open collapsed="False">
+    <calcite-flow-item height-scale="l">
         <calcite-action-bar
             slot="action-bar"
             layout="horizontal"
@@ -84,7 +88,7 @@
                 slot="actions-end"
             ></calcite-action>
             <calcite-action
-                data-action-id="add-data-2"
+                data-action-id="add-data"
                 text="add-data"
                 icon="add-layer"
                 scale="l"
@@ -92,11 +96,11 @@
                 slot="actions-end"
             ></calcite-action>
         </calcite-action-bar>
-        <CatalogActionBar type={activeDataCatalog}/>
+        <CatalogActionBar type={activeDataCatalog} />
         <ClimateChangeViewer view={view} />
         <Bookmark view={view}/>
         <AddData map={map} />
-        <calcite-block data-panel-id="national" open>
+        <calcite-block data-panel-id="national" heading="National Catalog" open>
             <calcite-list selection-mode="none">
                 {#each eatopics as eatopic}
                     <calcite-list-item
@@ -117,7 +121,7 @@
                 {/each}
             </calcite-list>
         </calcite-block>
-        <calcite-block data-panel-id="subnational" open>
+        <calcite-block data-panel-id="subnational" heading="Subnational Catalog" open hidden>
         </calcite-block>
     </calcite-flow-item>
 </calcite-flow>
