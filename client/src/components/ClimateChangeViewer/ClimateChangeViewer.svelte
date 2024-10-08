@@ -130,7 +130,7 @@
     }
 </script>
 
-<calcite-panel data-panel-id="climate-data-viewer-2" hidden open>
+<calcite-panel data-panel-id="climate-data-viewer-2" heading="Climate Data Viewer" open hidden>
     <calcite-button width="half" slot="footer" appearance="outline">
         Reset
     </calcite-button>
@@ -234,15 +234,4 @@
         margin-left: 2px;
         margin-right: 2px;
     }
-
-    /* 
-    calcite-stepper-item {
-        width: 90%;
-        padding-right: 15px;
-        --calcite-ui-focus-color: none !important;
-    }
-
-    calcite-stepper {
-        flex: none !important;
-    } */
 </style>

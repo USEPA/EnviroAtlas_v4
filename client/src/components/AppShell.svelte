@@ -18,9 +18,9 @@
   import SummarizeMyArea from "./SummarizeMyArea.svelte";
   import ClimateChangeViewer from "./ClimateChangeViewer/ClimateChangeViewer.svelte";
   import DataCatalog from "./DataCatalog/DataList.svelte";
-  import AddData from "./AddData/index.svelte";
+  //import AddData from "./AddData/index.svelte";
   //use npm published version now (in development used linked version via devLink utility
-  // import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
+  import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
   import Modal from "./Modal.svelte";
 
   let bmgContainer;
@@ -58,7 +58,7 @@
     });
   }
 
-  let activeWidgetLeft;
+  let activeWidgetLeft = 'data-catalog';
 
   const handleActionBarClick = ({ target }) => {
     if (target.tagName !== "CALCITE-ACTION") {
@@ -166,13 +166,13 @@
     component-id="shell-panel-start"
     slot="panel-start"
     display-mode="docked"
-    collapsed
     position='start'
     width-scale="m"
   >
     <calcite-action-bar slot="action-bar" on:click={handleActionBarClick} on:keypress={handleActionBarClick}>
       <calcite-action
         data-action-id="data-catalog"
+        active
         icon="layers"
         text="EnviroAtlas Data Catalog"
       />
