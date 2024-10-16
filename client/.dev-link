@@ -3,7 +3,8 @@ let monorepoRoot = 'C:/AaronEvans/Projects/EPA CAM/NGST NPM Publishing/ngst-js-l
 let config = {
     monorepoRoot,
     devLinks: {
-        '@usepa-ngst/calcite-components':{disabled:false}
+        '@usepa-ngst/calcite-components':{disabled:false,copy:true},
+        '@usepa-ngst/utilities':{disabled:false}
     }
 };
 module.exports = config;

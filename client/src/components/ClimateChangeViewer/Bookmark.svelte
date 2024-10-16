@@ -98,6 +98,7 @@
             text="Continental US"
             text-enabled
             on:click={_onConusClick(view)}
+            on:keypress={_onConusClick(view)}
         ></calcite-action>
         <calcite-action
             id="climate-filter-alaska"
@@ -105,6 +106,7 @@
             text="Alaska"
             text-enabled
             on:click={_onAlaskaClick(view)}
+            on:keypress={_onAlaskaClick(view)}
         ></calcite-action>
         <calcite-action
             id="climate-filter-hawaii"
@@ -112,6 +114,7 @@
             text="Hawaii"
             text-enabled
             on:click={_onHawaiiClick(view)}
+            on:keypress={_onHawaiiClick(view)}
         ></calcite-action>
         <calcite-action
             id="climate-filter-prvi"
@@ -119,6 +122,7 @@
             text="Puerto Rico & Virgin Islands"
             text-enabled
             on:click={_onPrViClick(view)}
+            on:keypress={_onPrViClick(view)}
         ></calcite-action>
         <calcite-action scale="s" text="Pacific Islands" text-enabled
         ></calcite-action>

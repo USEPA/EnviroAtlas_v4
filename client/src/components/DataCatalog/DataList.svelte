@@ -2,186 +2,166 @@
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
     import "@esri/calcite-components/dist/components/calcite-avatar";
+    import "@esri/calcite-components/dist/components/calcite-flow";
+    import "@esri/calcite-components/dist/components/calcite-flow-item";
 
     // Import components and store
+    import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
+    import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
     import eatopics from "src/shared/dataCatalog_initialize.json";
+    import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
+    import Bookmark from "src/components/ClimateChangeViewer/Bookmark.svelte";
+    import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
 
+    export let view;
+    export let map;
+
+    window.ea.dataCatalog = {};
+    window.ea.dataCatalog.view = () => {
+        return view;
+    };
+
+    window.ea.dataCatalog.map = () => {
+        return map;
+    };
+
+    let activeDataCatalog = "national";
+
+    const handleCatalogActionClick = ({ target }) => {
+        if (target.tagName !== "CALCITE-ACTION") {
+            return;
+        }
+
+        const nextDataCatalog = target.dataset.actionId;
+
+        if (nextDataCatalog !== activeDataCatalog) {
+            document.querySelector(`[data-action-id=${activeDataCatalog}]`).active = false;
+            document.querySelector(`[data-panel-id=${activeDataCatalog}]`).hidden = true;
+            document.querySelector(`[data-action-id=${nextDataCatalog}]`).active = true;
+            document.querySelector(`[data-panel-id=${nextDataCatalog}]`).hidden = false;
+            activeDataCatalog = nextDataCatalog;
+            console.log(activeDataCatalog);
+        } 
+
+        nextDataCatalog == 'add-data' 
+            ? document.querySelector(`[id=catalog-search-filter]`).hidden 
+                = true 
+            : document.querySelector(`[id=catalog-search-filter]`).hidden 
+                = false;
+        
+    };
+
+    
 </script>
 
-<calcite-panel
-    heading="EnviroAtlas Data Catalog"
-    height-scale="l"
-    data-panel-id="data-catalog"
-    hidden
->
-    <calcite-block open>
-        <calcite-list filter-enabled selection-mode="none">
+<calcite-flow data-panel-id="data-catalog" open>
+    <calcite-flow-item height-scale="l">
+        <calcite-action-bar
+            slot="action-bar"
+            layout="horizontal"
+            expand-disabled
+            on:click={handleCatalogActionClick}
+            on:keypress={handleCatalogActionClick}
+        >
             <calcite-action
-                slot="filter-actions-end"
-                icon="extent-filter"
-                text="Filter options"
-            />
-            {#each eatopics as eatopic}
-            <calcite-list-item class={eatopic.category} label={eatopic.title} value={eatopic.title}>
-                <calcite-list
-                    id="not-header"
-                    group="trails"
-                    selection-mode="none"
-                >
-                    {#each eatopic.subtopic as subtopic}
-                    <calcite-list-item>
-                        <calcite-label
-                            scale="s"
-                            id="listItemHeader"
-                            slot="content">{subtopic.name}
-                        </calcite-label>
-                        {#if subtopic.layers.length > 1}
-                        <calcite-combobox 
-                            scale="s" 
-                            slot="content" 
-                            selection-mode="single-persist" 
-                            label={subtopic.name}
-                            name={subtopic.name}
-                            required
-                            placeholder="Select a layer"
+                data-action-id="national"
+                text="national"
+                icon="globe"
+                scale="l"
+                active
+                slot="actions-end"
+            ></calcite-action>
+            <calcite-action
+                data-action-id="subnational"
+                text="subnational"
+                icon="urban-model"
+                scale="l"
+                active="false"
+                slot="actions-end"
+            ></calcite-action>
+            <calcite-action
+                data-action-id="climate-data-viewer-2"
+                text="climate-data-viewer"
+                icon="clock-forward"
+                scale="l"
+                active="false"
+                slot="actions-end"
+            ></calcite-action>
+            <calcite-action
+                data-action-id="add-data"
+                text="add-data"
+                icon="add-layer"
+                scale="l"
+                active="false"
+                slot="actions-end"
+            ></calcite-action>
+        </calcite-action-bar>
+        <CatalogActionBar type={activeDataCatalog} />
+        <ClimateChangeViewer view={view} />
+        <Bookmark view={view}/>
+        <AddData map={map} />
+        <calcite-block data-panel-id="national" heading="National Catalog" open>
+            <calcite-list selection-mode="none">
+                {#each eatopics as eatopic}
+                    <calcite-list-item
+                        class={eatopic.category}
+                        label={eatopic.title}
+                        value={eatopic.title}
+                    >
+                        <calcite-list
+                            id="not-header"
+                            group="trails"
+                            selection-mode="none"
                         >
-                            {#each subtopic.layers as layer}
-                            <calcite-combobox-item
-                                value={layer.title}
-                                text-label={layer.title}
-                            ></calcite-combobox-item>
+                            {#each eatopic.subtopic as subtopic}
+                                <CatalogListItem {subtopic} {view} />
                             {/each}
-                        </calcite-combobox>
-                        {/if}
-                        <calcite-action-bar slot="content" layout="horizontal" expand-disabled>
-                            <calcite-chip-group
-                                id="ea-chip-group"
-                                scale="s"
-                                selection-mode="none"
-                                label="ea-chip-group"
-                            >
-                            {#if subtopic.eaCA}
-                                <calcite-chip scale="s" value="eaCA">
-                                    <calcite-avatar
-                                        slot="image"
-                                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/air.png"
-                                    >
-                                    </calcite-avatar>
-                                </calcite-chip>
-                            {/if}
-                            {#if subtopic.eaCPW}
-                                <calcite-chip scale="s" value="eaCPW">
-                                    <calcite-avatar
-                                        slot="image"
-                                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/water.png"
-                                    >
-                                    </calcite-avatar>
-                                </calcite-chip>
-                            {/if}
-                            {#if subtopic.eaCS}
-                                <calcite-chip scale="s" value="eaCS">
-                                    <calcite-avatar
-                                        slot="image"
-                                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/clim.png"
-                                    >
-                                    </calcite-avatar>
-                                </calcite-chip>
-                            {/if}
-                            {#if subtopic.eaNHM}
-                                <calcite-chip scale="s" value="eaNHM">
-                                    <calcite-avatar
-                                        slot="image"
-                                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/haz.png"
-                                    >
-                                    </calcite-avatar>
-                                </calcite-chip>
-                            {/if}
-                            {#if subtopic.eaRCA}
-                                <calcite-chip scale="s" value="eaRCA">
-                                    <calcite-avatar
-                                        slot="image"
-                                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/rec.png"
-                                    >
-                                    </calcite-avatar>
-                                </calcite-chip>
-                            {/if}
-                            {#if subtopic.eaFFM}
-                                <calcite-chip scale="s" value="eaFFM">
-                                    <calcite-avatar
-                                        slot="image"
-                                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/food.png"
-                                    >
-                                    </calcite-avatar>
-                                </calcite-chip>
-                            {/if}
-                            {#if subtopic.eaBC}
-                                <calcite-chip scale="s" value="eaBC">
-                                    <calcite-avatar
-                                        slot="image"
-                                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/bio.png"
-                                    >
-                                    </calcite-avatar>
-                                </calcite-chip>
-                            {/if}
-                            </calcite-chip-group>
-                            <calcite-button
-                                scale="s"
-                                round
-                                label="Add to map"
-                                slot="actions-end"
-                            >Add to map</calcite-button>
-                            <calcite-button
-                                scale="s"
-                                round
-                                label="Details"
-                                slot="actions-end"
-                            >Details</calcite-button>
-                        </calcite-action-bar>
+                        </calcite-list>
                     </calcite-list-item>
-                    {/each}
-                </calcite-list>
-            </calcite-list-item>
-            {/each}
-        </calcite-list>
-    </calcite-block>
-</calcite-panel>
+                {/each}
+            </calcite-list>
+        </calcite-block>
+        <calcite-block data-panel-id="subnational" heading="Subnational Catalog" open hidden>
+        </calcite-block>
+    </calcite-flow-item>
+</calcite-flow>
 
 <style>
     .ESB {
         --calcite-color-foreground-1: #adbb9a;
+        --calcite-color-foreground-2: #cdd6c2;
     }
 
     .PSI {
         --calcite-color-foreground-1: #bb9aad;
+        --calcite-color-foreground-2: #d6c2cd;
     }
 
     .PBS {
         --calcite-color-foreground-1: #9aadbb;
+        --calcite-color-foreground-2: #c2cdd6;
     }
 
     .BNF {
         --calcite-color-foreground-1: #aeaba2;
+        --calcite-color-foreground-2: #ceccc7;
     }
 
     #not-header {
         --calcite-color-foreground-1: #fff;
     }
 
-    #listItemHeader {
-        font-weight: bold;
-    }
-
     calcite-list {
         padding-top: 0px;
     }
 
-    calcite-chip {
-        margin-right: 5px;
-        margin-bottom: 5px;
-    }
-
     calcite-list-item {
-        --calcite-color-focus-color: none !important;
+        --calcite-list-item-spacing-indent: 0rem;
+        --calcite-ui-focus-color: none !important;
     }
 
+    calcite-action-bar {
+        --calcite-action-bar-items-space: 20px;
+        --calcite-ui-focus-color: none !important;
+    }
 </style>

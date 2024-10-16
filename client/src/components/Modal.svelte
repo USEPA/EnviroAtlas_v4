@@ -15,7 +15,7 @@
     </div>
     <div id='modal-content' slot="content">
       <calcite-card>
-        <img slot="thumbnail" alt="Sample image alt" src='/ea/images/EACommunities.png'>
+        <img slot="thumbnail" alt="EA Communities" src='/ea/client/images/EACommunities.png'>
         <span slot="title">EnviroAtlas Communities</span>
         <span slot="subtitle">This tool focuses the interactive map display on an EnviroAtlas community selected by the user. The tool zooms the map to the community and tailors community-level map layers to represent only the selected community.
         </span>
@@ -28,7 +28,7 @@
         </div>
       </calcite-card>
       <calcite-card>
-        <img slot="thumbnail" alt="Sample image alt" src='/ea/images/EAClimate.png'>
+        <img slot="thumbnail" alt="EA Climate" src='/ea/client/images/EAClimate.png'>
         <span slot="title">EnviroAtlas Climate Viewer</span>
         <span slot="subtitle">This tool allows for exploration of modeled future climate scenarios. User selections for each variable control the climate scenario displayed.
         </span>
@@ -41,7 +41,7 @@
         </div>
       </calcite-card>
       <calcite-card>
-        <img slot="thumbnail" alt="Sample image alt" src='/ea/images/EACompareMyArea.png'>
+        <img slot="thumbnail" alt="EA Compare My Area" src='/ea/client/images/EACompareMyArea.png'>
         <span slot="title">EnviroAtlas Compare My Area</span>
         <span slot="subtitle">This tool allows users to obtain a report that details characteristics about a location selected in the EnviroAtlas interactive map.
         </span>
@@ -56,7 +56,7 @@
         <calcite-tooltip reference-element="badge-1">Information</calcite-tooltip>
         <calcite-tooltip reference-element="badge-2">Launch</calcite-tooltip>
       <calcite-card>
-        <img slot="thumbnail" alt="Sample image alt" src='/ea/images/EAHuc12Nav.png'>
+        <img slot="thumbnail" alt="EA Huc 12 Nav" src='/ea/client/images/EAHuc12Nav.png'>
         <span slot="title">EnviroAtlas HUC 12 Navigator</span>
         <span slot="subtitle"></span>
         <calcite-chip slot="footer-start" value="calcite chip" kind="brand" icon="information">
@@ -67,7 +67,7 @@
         </calcite-chip>
       </calcite-card>
       <calcite-card>
-        <img slot="thumbnail" alt="Sample image alt" src='/ea/images/EARaindrop.png'>
+        <img slot="thumbnail" alt="EA Raindrop" src='/ea/client/images/EARaindrop.png'>
         <span slot="title">EnviroAtlas Raindrop</span>
         <span slot="subtitle"></span>
         <calcite-chip slot="footer-start" value="calcite chip" kind="brand" icon="information">
@@ -78,7 +78,7 @@
         </calcite-chip>
       </calcite-card>
       <calcite-card>
-        <img slot="thumbnail" alt="Sample image alt" src='/ea/images/EASummMyArea.png'>
+        <img slot="thumbnail" alt="EA Summarize My Area" src='/ea/client/images/EASummMyArea.png'>
         <span slot="title">EnviroAtlas Summarize My Area</span>
         <span slot="subtitle"></span>
         <calcite-chip slot="footer-start" value="calcite chip" kind="brand" icon="information">
