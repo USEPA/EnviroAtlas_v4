@@ -5,4 +5,7 @@ The United States Environmental Protection Agency (EPA) GitHub project code is p
 ## To install
 
 npm install
-npm run dev OR npm run build
+
+npm run dev 
+OR 
+npm run build
