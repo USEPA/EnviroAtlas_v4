@@ -21,17 +21,12 @@
 </script>
 
 
-<calcite-list-item>
-    <calcite-label
-        scale="s"
-        id="listItemHeader"
-        slot="content"
-    >{subtopic.name}
-    </calcite-label>
+<calcite-list-item label={subtopic.name}>
+    <calcite-action text="Details" icon="information" scale="s" slot="actions-end"></calcite-action>
     {#if subtopic.layers.length > 1}
         <calcite-combobox
             scale="s"
-            slot="content"
+            slot="content-bottom"
             selection-mode="single-persist"
             label={subtopic.name}
             name={subtopic.name}
@@ -49,7 +44,7 @@
     {/if}
 
     <calcite-action-bar
-        slot="content"
+        slot="content-bottom"
         layout="horizontal"
         expand-disabled
     >
@@ -172,9 +167,4 @@
         --calcite-color-focus-color: none !important;
         --calcite-color-foreground-2: none !important;
     }
-
-    #listItemHeader {
-        font-weight: bold;
-    }
-    
 </style>
