@@ -28,12 +28,32 @@
         slot="content"
     >{subtopic.name}
     </calcite-label>
+    {#if subtopic.layers.length > 1}
+        <calcite-combobox
+            scale="s"
+            slot="content"
+            selection-mode="single-persist"
+            label={subtopic.name}
+            name={subtopic.name}
+            required
+            placeholder="Select a layer"
+            on:calciteComboboxChange={subtopicSelected}
+        >
+            {#each subtopic.layers as layer}
+                <calcite-combobox-item
+                    value={layer.eaID}
+                    text-label={layer.title}
+                ></calcite-combobox-item>
+            {/each}
+        </calcite-combobox>
+    {/if}
+
     <calcite-action-bar
         slot="content"
         layout="horizontal"
         expand-disabled
     >
-        <calcite-chip-group
+    <calcite-chip-group
             id="ea-chip-group"
             scale="s"
             selection-mode="none"
@@ -124,32 +144,6 @@
                 </calcite-chip>
             {/if}
         </calcite-chip-group>
-    </calcite-action-bar>
-    {#if subtopic.layers.length > 1}
-        <calcite-combobox
-            scale="s"
-            slot="content"
-            selection-mode="single-persist"
-            label={subtopic.name}
-            name={subtopic.name}
-            required
-            placeholder="Select a layer"
-            on:calciteComboboxChange={subtopicSelected}
-        >
-            {#each subtopic.layers as layer}
-                <calcite-combobox-item
-                    value={layer.eaID}
-                    text-label={layer.title}
-                ></calcite-combobox-item>
-            {/each}
-        </calcite-combobox>
-    {/if}
-
-    <calcite-action-bar
-        slot="content"
-        layout="horizontal"
-        expand-disabled
-    >
         <calcite-button
             scale="s"
             round
