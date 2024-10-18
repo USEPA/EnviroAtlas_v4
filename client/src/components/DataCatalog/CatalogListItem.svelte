@@ -159,13 +159,6 @@
             on:keypress={getEALayerId}
             >Add to map</calcite-button
         >
-        <calcite-button
-            scale="s"
-            round
-            label="Details"
-            slot="actions-end"
-            >Details</calcite-button
-        >
     </calcite-action-bar>
 </calcite-list-item>
 
