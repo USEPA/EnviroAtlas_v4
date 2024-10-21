@@ -1,5 +1,6 @@
 <script>
     import { getEALayerObject, addLayer } from "src/shared/addtoMap.js";
+    import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
 
     export let subtopic;
     export let view;
@@ -18,11 +19,27 @@
         layerID = event.target.value;
         console.log(layerID);
     }
+
+    function getSubtopicDetails(){
+        console.log(subtopic);
+        // TODO: add subtopic id to get subtopic details from DetailConfig.
+        // TODO: create mock object DetailConfig and import. 
+        // var filtered = DetailConfig.filter(subtopic => subtopic.id == id)
+        return subtopic
+    }
+
 </script>
 
-
 <calcite-list-item label={subtopic.name}>
-    <calcite-action text="Details" icon="information" scale="s" slot="actions-end"></calcite-action>
+    <SubtopicDetails subtopic={subtopic} />
+    <calcite-action 
+        text="Details" 
+        icon="information" 
+        scale="s" 
+        slot="actions-end" 
+        id="{subtopic}-details-popover-button"
+        on:click={getSubtopicDetails}
+        on:keypress={getSubtopicDetails}></calcite-action>
     {#if subtopic.layers.length > 1}
         <calcite-combobox
             scale="s"
