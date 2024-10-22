@@ -1,10 +1,12 @@
 <script>
     import { getEALayerObject, addLayer } from "src/shared/addtoMap.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
+    import config from "src/shared/dataCatalog_config.json";
 
     export let subtopic;
     export let view;
     export let layerID = null;
+    export let filtered_name = null;
 
     function getEALayerId() {
         if (subtopic.layers.length < 2) {
@@ -12,6 +14,7 @@
         }
         console.log('EA Layer: ', layerID)
         let lObject = getEALayerObject(layerID);
+        // TODO: error handle if lObject is empty 
         addLayer(lObject, view);
     }
 
@@ -20,26 +23,26 @@
         console.log(layerID);
     }
 
-    function getSubtopicDetails(){
-        console.log(subtopic);
-        // TODO: add subtopic id to get subtopic details from DetailConfig.
+    function getSubtopicDetails(sortId){
         // TODO: create mock object DetailConfig and import. 
-        // var filtered = DetailConfig.filter(subtopic => subtopic.id == id)
-        return subtopic
+        // Placeholders for getting the object and passing to the SubtopicDetails component
+        let filtered = config.filter(lyr => lyr.eaID == sortId);
+        let filtered_name = filtered[0]['name'];
+        console.log(filtered_name);
     }
 
 </script>
 
 <calcite-list-item label={subtopic.name}>
-    <SubtopicDetails subtopic={subtopic} />
+    <SubtopicDetails subtopic={subtopic} filtered_name={filtered_name}/>
     <calcite-action 
         text="Details" 
         icon="information" 
         scale="s" 
         slot="actions-end" 
-        id="{subtopic}-details-popover-button"
-        on:click={getSubtopicDetails}
-        on:keypress={getSubtopicDetails}></calcite-action>
+        id="{subtopic.sortId}-details-popover-button"
+        on:click={() => getSubtopicDetails(subtopic.sortId)}
+        on:keypress={() => getSubtopicDetails(subtopic.sortId)}></calcite-action>
     {#if subtopic.layers.length > 1}
         <calcite-combobox
             scale="s"

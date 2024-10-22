@@ -1,5 +1,6 @@
 <script>
     export let subtopic;
+    export let filtered_name;
 
 </script>
 
@@ -8,9 +9,14 @@
     overlay-positioning="fixed"
     scale="s"
     heading="Details"
-    label="Details"
-    reference-element="{subtopic}-details-popover-button"
-    closable
+    label="{subtopic.sortId}-details-popover-button"
+    reference-element="{subtopic.sortId}-details-popover-button"
+    auto-close
+    on:calcitePopoverBeforeOpen={console.log({subtopic})}
+    on:calcitePopoverOpen{console.log({subtopic})}
 >
-    <calcite-card>{subtopic}</calcite-card>
+    <calcite-card>
+        <span slot="heading">{subtopic.name}</span>
+        <span slot="description">City of AcmeCo</span>
+    </calcite-card>
 </calcite-popover>
