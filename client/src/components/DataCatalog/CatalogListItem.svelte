@@ -155,6 +155,54 @@
                     </calcite-avatar>
                 </calcite-chip>
             {/if}
+            {#if subtopic.sourceType == "cbg"}
+                <calcite-chip
+                scale="s"
+                value="cbg"
+            >
+                <calcite-avatar
+                    slot="image"
+                    thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/cbg.png"
+                >
+                </calcite-avatar>
+            </calcite-chip>
+            {/if}
+            {#if subtopic.sourceType == "plp"}
+                <calcite-chip
+                scale="s"
+                value="plp"
+            >
+                <calcite-avatar
+                    slot="image"
+                    thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/plp.png"
+                >
+                </calcite-avatar>
+            </calcite-chip>
+            {/if}
+            {#if subtopic.sourceType == "grid"}
+                <calcite-chip
+                scale="s"
+                value="grid"
+            >
+                <calcite-avatar
+                    slot="image"
+                    thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/grid.png"
+                >
+                </calcite-avatar>
+            </calcite-chip>
+            {/if}
+            {#if subtopic.sourceType == "huc12"}
+                <calcite-chip
+                scale="s"
+                value="huc12"
+            >
+                <calcite-avatar
+                    slot="image"
+                    thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/huc12.png"
+                >
+                </calcite-avatar>
+            </calcite-chip>
+            {/if}
         </calcite-chip-group>
         <calcite-button
             scale="s"
@@ -184,4 +232,11 @@
         --calcite-color-focus-color: none !important;
         --calcite-color-foreground-2: none !important;
     }
+
+    /* This won't work until upgrading to calcite 2.13 
+    https://github.com/Esri/calcite-design-system/commit/f8f881b9bb164d482cb2a77b1f7b1ba3125e1719
+    calcite-avatar {
+        --calcite-avatar-background-color: blue;
+    }
+    */
 </style>
