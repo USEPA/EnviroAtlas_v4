@@ -12,11 +12,20 @@
     label="{subtopic.sortId}-details-popover-button"
     reference-element="{subtopic.sortId}-details-popover-button"
     auto-close
-    on:calcitePopoverBeforeOpen={console.log({subtopic})}
-    on:calcitePopoverOpen{console.log({subtopic})}
 >
     <calcite-card>
         <span slot="heading">{subtopic.name}</span>
-        <span slot="description">City of AcmeCo</span>
+        <span slot="description">{filtered_name.eaDescription}</span>
+        <div slot="footer-start">
+            <calcite-button icon-start='file' round scale='s'>Fact Sheet</calcite-button>
+            <calcite-button icon-start='file-code' round scale='s'>Metadata</calcite-button>
+            <calcite-button icon-start='download-to' round scale='s'>Download</calcite-button>
+        </div>
     </calcite-card>
 </calcite-popover>
+
+<style>
+    calcite-card {
+        width: 310px;
+    }
+</style>

@@ -1,12 +1,22 @@
 <script>
     import { getEALayerObject, addLayer } from "src/shared/addtoMap.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
-    import config from "src/shared/dataCatalog_config.json";
+    import detailConfig from "src/shared/dataCatalog_details_1layer.json";
+    import { onMount } from "svelte";
 
     export let subtopic;
     export let view;
     export let layerID = null;
-    export let filtered_name = null;
+    let details_filtered = false;
+    let filtered_name = {};
+
+    // TODO: Should these be destroyed too?
+    onMount(() => {
+        new SubtopicDetails({
+            target: document.body,
+            props: { subtopic, filtered_name },
+        });
+    });
 
     function getEALayerId() {
         if (subtopic.layers.length < 2) {
@@ -23,26 +33,27 @@
         console.log(layerID);
     }
 
-    function getSubtopicDetails(sortId){
-        // TODO: create mock object DetailConfig and import. 
+    export const getSubtopicDetails = (sortId) => {
         // Placeholders for getting the object and passing to the SubtopicDetails component
-        let filtered = config.filter(lyr => lyr.eaID == sortId);
-        let filtered_name = filtered[0]['name'];
-        console.log(filtered_name);
+        filtered_name = detailConfig.filter(lyr => lyr.eaID == sortId)[0];
+        details_filtered = true;
+        return filtered_name
     }
 
 </script>
 
 <calcite-list-item label={subtopic.name}>
-    <SubtopicDetails subtopic={subtopic} filtered_name={filtered_name}/>
+    {#key filtered_name}
+        <SubtopicDetails {subtopic} {filtered_name}/>
+    {/key}
     <calcite-action 
         text="Details" 
         icon="information" 
         scale="s" 
         slot="actions-end" 
         id="{subtopic.sortId}-details-popover-button"
-        on:click={() => getSubtopicDetails(subtopic.sortId)}
-        on:keypress={() => getSubtopicDetails(subtopic.sortId)}></calcite-action>
+        on:click={filtered_name = () => getSubtopicDetails(subtopic.sortId)}
+        on:keypress={filtered_name = () => getSubtopicDetails(subtopic.sortId)}></calcite-action>
     {#if subtopic.layers.length > 1}
         <calcite-combobox
             scale="s"
@@ -212,6 +223,7 @@
             round
             label="Add to map"
             slot="actions-end"
+            appearance='transparent'
             on:click={getEALayerId}
             on:keypress={getEALayerId}
             >Add to map</calcite-button
