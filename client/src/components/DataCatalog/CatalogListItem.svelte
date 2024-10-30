@@ -36,7 +36,7 @@
     export const getSubtopicDetails = (sortId) => {
         // Get the object and pass to the SubtopicDetails component
         //TODO: Use api to get detailsObj
-        detailsObj = detailConfig.filter(lyr => lyr.eaID == sortId)[0];
+        detailsObj = detailConfig.filter(lyr => lyr.sortId == sortId)[0];
         detailsFiltered = true;
         return detailsObj
     }
