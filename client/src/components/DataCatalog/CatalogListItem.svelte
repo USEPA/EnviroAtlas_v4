@@ -7,14 +7,14 @@
     export let subtopic;
     export let view;
     export let layerID = null;
-    let details_filtered = false;
-    let filtered_name = {};
+    let detailsFiltered = false;
+    let detailsObj = {};
 
     // TODO: Should these be destroyed too?
     onMount(() => {
         new SubtopicDetails({
             target: document.body,
-            props: { subtopic, filtered_name },
+            props: { subtopic, detailsObj },
         });
     });
 
@@ -34,17 +34,18 @@
     }
 
     export const getSubtopicDetails = (sortId) => {
-        // Placeholders for getting the object and passing to the SubtopicDetails component
-        filtered_name = detailConfig.filter(lyr => lyr.eaID == sortId)[0];
-        details_filtered = true;
-        return filtered_name
+        // Get the object and pass to the SubtopicDetails component
+        //TODO: Use api to get detailsObj
+        detailsObj = detailConfig.filter(lyr => lyr.eaID == sortId)[0];
+        detailsFiltered = true;
+        return detailsObj
     }
 
 </script>
 
 <calcite-list-item label={subtopic.name}>
-    {#key filtered_name}
-        <SubtopicDetails {subtopic} {filtered_name}/>
+    {#key detailsObj}
+        <SubtopicDetails {subtopic} {detailsObj}/>
     {/key}
     <calcite-action 
         text="Details" 
@@ -52,8 +53,8 @@
         scale="s" 
         slot="actions-end" 
         id="{subtopic.sortId}-details-popover-button"
-        on:click={filtered_name = () => getSubtopicDetails(subtopic.sortId)}
-        on:keypress={filtered_name = () => getSubtopicDetails(subtopic.sortId)}></calcite-action>
+        on:click={detailsObj = () => getSubtopicDetails(subtopic.sortId)}
+        on:keypress={detailsObj = () => getSubtopicDetails(subtopic.sortId)}></calcite-action>
     {#if subtopic.layers.length > 1}
         <calcite-combobox
             scale="s"
