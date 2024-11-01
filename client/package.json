@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@arcgis/core": "4.29.0",
-    "@esri/calcite-components": "2.8.5",
+    "@esri/calcite-components": "2.9.0",
     "@usepa-ngst/calcite-components": "^0.0.1",
     "@usepa-ngst/utilities": "^0.0.4",
     "page": "^1.11.6"
@@ -19,6 +19,6 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.4.6",
     "svelte": "^3.59.2",
-    "vite": "^4.5.3"
+    "vite": "4.5.5"
   }
 }
