@@ -105,8 +105,8 @@
                 {#each eatopics as eatopic}
                     <calcite-list-item
                         class={eatopic.category}
-                        label={eatopic.title}
-                        value={eatopic.title}
+                        label={eatopic.topic}
+                        value={eatopic.topic}
                     >
                         <calcite-list
                             id="not-header"
