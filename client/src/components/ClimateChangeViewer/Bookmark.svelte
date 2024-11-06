@@ -93,6 +93,8 @@
     <calcite-tooltip>Filter data and zoom to extent</calcite-tooltip>
     <calcite-action-group id="climate-filter-action-group" scale="s">
         <calcite-action
+            tabindex="0"
+            role="button"
             id="climate-filter-conus"
             scale="s"
             text="Continental US"
@@ -101,6 +103,8 @@
             on:keypress={_onConusClick(view)}
         ></calcite-action>
         <calcite-action
+            tabindex="0"
+            role="button"
             id="climate-filter-alaska"
             scale="s"
             text="Alaska"
@@ -109,6 +113,8 @@
             on:keypress={_onAlaskaClick(view)}
         ></calcite-action>
         <calcite-action
+            tabindex="0"
+            role="button"
             id="climate-filter-hawaii"
             scale="s"
             text="Hawaii"
@@ -117,6 +123,8 @@
             on:keypress={_onHawaiiClick(view)}
         ></calcite-action>
         <calcite-action
+            tabindex="0"
+            role="button"    
             id="climate-filter-prvi"
             scale="s"
             text="Puerto Rico & Virgin Islands"

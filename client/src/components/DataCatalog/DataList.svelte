@@ -57,6 +57,8 @@
 <calcite-flow data-panel-id="data-catalog" open>
     <calcite-flow-item height-scale="l">
         <calcite-action-bar
+            role="menu" 
+            tabindex="-1"
             slot="action-bar"
             layout="horizontal"
             expand-disabled

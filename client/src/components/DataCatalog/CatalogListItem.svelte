@@ -48,6 +48,8 @@
         <SubtopicDetails {subtopic} {detailsObj}/>
     {/key}
     <calcite-action 
+        tabindex="-1"
+        role="button"
         text="Details" 
         icon="information" 
         scale="s" 
@@ -186,6 +188,8 @@
             {/each}
         </calcite-chip-group>
         <calcite-button
+            role="button"
+            tabindex="0"
             scale="s"
             round
             label="Add to map"

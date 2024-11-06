@@ -24,6 +24,9 @@
         <div slot="footer-start">
             <calcite-button 
                 icon-start='file' 
+                label="{subtopic.sortId}-pdf"
+                tabindex="0"
+                role="button"
                 round 
                 scale='s' 
                 on:click={openFactSheet(detailsObj.eaDfsLink)}
