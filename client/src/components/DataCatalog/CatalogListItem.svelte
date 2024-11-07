@@ -209,6 +209,7 @@
     
     calcite-combobox {
         margin-top: 5px;
+        --calcite-color-brand: #005ea2;
     }
 
     calcite-list-item {
