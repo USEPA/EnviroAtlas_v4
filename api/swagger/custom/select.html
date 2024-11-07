@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Query String Field</title>
+    <style>
+        body {font-family: sans-serif}
+        pre{
+/*            white-space: pre-line; */
+        }
+    </style>
+
+</head>
+<body style="margin:0">
+    <div style="background-color:#0066CC;padding:.6em 1em .3em" >
+        <img height="50" src="/ea/swagger/custom/header.png" />
+    </div>
+    <h2 style="margin:.5em .5em .25em 1em">Select Query String Field</h2>
+    <div style="padding:.5em 1.5em 1.5em">
+        By default all standard fields are returned from search endpoints.<br/>
+        <em>Note: Usually joined keys on joined tables are not shown by default as a "standard" field. They can be shown by setting an option on <a target="_blank" href='/blt/swagger/custom/options.html'>options</a> query string field.</em><br/><br/>
+        The fields return can be limited using the <strong>select</strong> query string field as JSON in the form:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+        <pre style='margin:0;'>
+select={"field1":1,"field2":1}
+        </pre>
+        </td></tr></table>
+        The above would only return field1 and field2. It is also possible to supply a black list so that all fields are included except for those blacklisted with a zero:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+        <pre style='margin:0;'>
+select={"field1":0,"field2":0}</pre>
+        </td></tr></table>
+        This will all fields except for return field1 and field2.<br/><br/>
+
+        In the case that query contains fields with same name on different tables, by default the field applies to first field in select list.
+        To query on subsequent fields add table alias to search like:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+            <pre style='margin:0;'>
+select={"field1":1,"table2.field1":1}</pre>
+        </td></tr></table>
+        to be more explicit could write as:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+            <pre style='margin:0;'>
+where={"table1.field1":1,"table2.field1":1}</pre>
+        </td></tr></table><br/>
+
+        It is also possible to white list complete tables like:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+            <pre style='margin:0;'>
+select={"table1.*":1,"table2.*":1}</pre>
+        </td></tr></table>
+        or to black list complete table like:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+            <pre style='margin:0;'>
+select={"table1.*":0,"table2.*":0}</pre>
+        </td></tr></table>
+        it is even possible to black list field in white listed table like:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+            <pre style='margin:0;'>
+select={"table1.*":1,"table1.field1":0,,"table1.field2":0}</pre>
+        </td></tr></table>
+        This would show all fields in table1 except for field1 and field2
+
+    </div>
+</body>
+</html>

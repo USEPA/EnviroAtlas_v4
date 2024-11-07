@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Where Query String Field</title>
+    <style>
+        body {font-family: sans-serif}
+        pre{
+/*            white-space: pre-line; */
+        }
+    </style>
+
+</head>
+<body style="margin:0">
+
+    <div style="background-color:#0066CC;padding:.6em 1em .3em" >
+        <img height="50" src="/ea/swagger/custom/header.png" />
+    </div>
+    <h2 style="margin:.5em .5em .25em 1em">Where Query String Field</h2>
+    <div style="padding:.5em 1.5em 1.5em">
+        Search endpoints can be queried using the <strong>where</strong> query string field as JSON in the form:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+        <pre style='margin:0;'>
+where={"field1":value1,"field2":value2,"array1":{"field3":value3,"field4":value4},etc}</pre>
+        </td></tr></table>
+        where field{n} is a table field and array{n} is an array field. The above expression creates
+        an AND statement based on equality between field{n} and value{n}. value{n} can be a string, number, or date-time string.
+        date-time string can be like <br/>
+        <ul>
+            <li>
+                1/1/2000: time defaults to 12 AM Eastern time zone (Standard or DST depending on month/day)
+            </li>
+            <li>
+                1/1/2000 13:10:00: time zone defaults Eastern (Standard or DST depending on month/day)
+            </li>
+            <li>
+                1/1/2000 1:10:00 PM: time zone defaults Eastern (Standard or DST depending on month/day)
+            </li>
+            <li>
+                1/1/2000 12:10:00 PM CDT: if time zone set then user needs to provide Standard or DST depending on month/day
+            </li>
+            <li>
+                2000-01-01T17:10:00.000Z: Standard ISO string format in UTC timezone
+            </li>
+        </ul>
+        <p>
+            In the case that query contains fields with same name on different tables, by default the field applies to first field in select list.
+            To query on subsequent fields add table alias to search like:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+            <pre style='margin:0;'>
+where={"field1":value1,"table2.field1":value2}</pre>
+        </td></tr></table>
+        to be more explicit could write as:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+            <pre style='margin:0;'>
+where={"table1.field1":value1,"table2.field1":value2}</pre>
+        </td></tr></table>
+        </p>
+        Operators in addition to equality are also available.
+        There are 2 operators that can be prepended to string value:
+        <ul>
+            <li>
+                !{string value}: find records NOT matching string value
+            </li>
+            <li>
+                ~{string value}: performs regex search where string value is regex search string<br/>
+                Note: can also prepend !~ to find records not matching regex search
+            </li>
+        </ul>
+        Other operators are available by setting value equal to an object where fields are the operator name:
+        <ul>
+            <li>
+                {not:value}: find records <strong>NOT</strong> matching value.
+                Note: value can be string, number, null, or another object with operator to negate
+            </li>
+            <li>
+                {>,<,>=, or <=:value}: use one of the 4 comparison operators on value
+            </li>
+            <li>
+                {between:[lower,upper]}: use <strong>between</strong> to find where field between lower and upper
+            </li>
+            <li>
+                {in:[val1,val2,val3]}: use <strong>in</strong> to find where field is equal values in array
+            </li>
+        </ul>
+        Array fields also can be searched for existence using:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+            <pre style='margin:0;'>
+{arrayName:"exists"}</pre>
+        </td></tr></table>
+        or absence using:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+            <pre style='margin:0;'>
+{arrayName:null}</pre>
+        </td></tr></table>
+    </div>
+</body>
+</html>

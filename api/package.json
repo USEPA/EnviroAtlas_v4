@@ -1,0 +1,22 @@
+{
+  "name": "ea",
+  "version": "4.0.0",
+  "private": true,
+  "engines": {
+    "node": "=20.9.0"
+  },
+  "scripts": {
+    "start": "node ./bin/www",
+    "debug": "node --inspect-brk./bin/www",
+    "install-local": "npm install -g mocha & npm install",
+    "test": "mocha",
+    "devLink": "usepa-ngst-dev-link npmLink"
+  },
+  "dependencies": {
+    "@usepa-ngst/db-api": "^0.0.2",
+    "app-root-path": "^3.0.0",
+    "merge": "^1.2.1"
+  },
+  "dependenciesComment": {
+  }
+}

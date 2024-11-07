@@ -1,0 +1,7 @@
+To install better-sqlite3 I had to use newer version of node:
+
+20.9.0
+
+When I used older versions, the prebuilt binaries weren't available and npm was looking for python and visual studio compiler. I pointed npm to arc pro python but didn't have VS and was easier to just upgrade node.
+
+Before for EA client builds we were using 16.20.0 but 20.9.0 also works for client builds
