@@ -162,6 +162,7 @@
     calcite-list-item {
         --calcite-list-item-spacing-indent: 0rem;
         --calcite-ui-focus-color: none !important;
+        --calcite-color-brand: none !important;
     }
 
     calcite-action-bar {
