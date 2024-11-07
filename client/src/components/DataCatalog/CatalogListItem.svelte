@@ -7,16 +7,8 @@
     export let subtopic;
     export let view;
     export let layerID = null;
-    let detailsFiltered = false;
     let detailsObj = {};
 
-    // TODO: Should these be destroyed too?
-    onMount(() => {
-        new SubtopicDetails({
-            target: document.body,
-            props: { subtopic, detailsObj },
-        });
-    });
 
     function getEALayerId() {
         if (subtopic.layers.length < 2) {
@@ -37,17 +29,25 @@
         // Get the object and pass to the SubtopicDetails component
         //TODO: Use api to get detailsObj
         detailsObj = detailConfig.filter(lyr => lyr.sortId == sortId)[0];
-        detailsFiltered = true;
+        let findPopover = document.querySelector(`[reference-element="${sortId}-details-popover-button"]`);
+        if (!findPopover) {
+            new SubtopicDetails({
+                target: document.body,
+                props: { subtopic, detailsObj },
+            });
+        }
+        // Workaround for calcite v2.9. 
+        let popover = document.querySelector(`[reference-element="${sortId}-details-popover-button"]`);
+        popover.setAttribute("open", "true");
         return detailsObj
     }
 
 </script>
 
 <calcite-list-item label={subtopic.name}>
-    {#key detailsObj}
-        <SubtopicDetails {subtopic} {detailsObj}/>
-    {/key}
     <calcite-action 
+        tabindex="-1"
+        role="button"
         text="Details" 
         icon="information" 
         scale="s" 
@@ -90,6 +90,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaCA"
+                    class="eaCA"
                 >
                     <calcite-avatar
                         slot="image"
@@ -102,6 +103,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaCPW"
+                    class="eaCPW"
                 >
                     <calcite-avatar
                         slot="image"
@@ -114,6 +116,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaCS"
+                    class="eaCS"
                 >
                     <calcite-avatar
                         slot="image"
@@ -126,6 +129,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaNHM"
+                    class="eaNHM"
                 >
                     <calcite-avatar
                         slot="image"
@@ -138,6 +142,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaRCA"
+                    class="eaRCA"
                 >
                     <calcite-avatar
                         slot="image"
@@ -150,6 +155,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaFFM"
+                    class="eaFFM"
                 >
                     <calcite-avatar
                         slot="image"
@@ -162,6 +168,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaBC"
+                    class="eaBC"
                 >
                     <calcite-avatar
                         slot="image"
@@ -175,6 +182,7 @@
                     <calcite-chip
                     scale="s"
                     value={sType}
+                    class="sType"
                 >
                     <calcite-avatar
                         slot="image"
@@ -186,6 +194,8 @@
             {/each}
         </calcite-chip-group>
         <calcite-button
+            role="button"
+            tabindex="0"
             scale="s"
             round
             label="Add to map"
@@ -207,6 +217,8 @@
     
     calcite-combobox {
         margin-top: 5px;
+        margin-bottom: 5px;
+        --calcite-color-brand: #005ea2;
     }
 
     calcite-list-item {
@@ -215,10 +227,35 @@
         --calcite-color-foreground-2: none !important;
     }
 
-    /* This won't work until upgrading to calcite 2.13 
-    https://github.com/Esri/calcite-design-system/commit/f8f881b9bb164d482cb2a77b1f7b1ba3125e1719
-    calcite-avatar {
-        --calcite-avatar-background-color: blue;
+    calcite-chip.eaCA {
+        --calcite-chip-background-color: #7F81BA;
     }
-    */
+
+    calcite-chip.eaCPW {
+        --calcite-chip-background-color: #74CCD1;
+    }
+
+    calcite-chip.eaCS {
+        --calcite-chip-background-color: #F99F1F;
+    }
+
+    calcite-chip.eaBC {
+        --calcite-chip-background-color: #2EAE4A;
+    }
+
+    calcite-chip.eaFFM {
+        --calcite-chip-background-color: #F0E024;
+    }
+
+    calcite-chip.eaNHM {
+        --calcite-chip-background-color: #D75D64;
+    }
+
+    calcite-chip.eaRCA {
+        --calcite-chip-background-color: #C770B4;
+    }
+
+    calcite-chip.sType {
+        --calcite-chip-background-color: #BACFE1;
+    }
 </style>

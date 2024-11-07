@@ -17,6 +17,7 @@
     label="{subtopic.sortId}-details-popover-button"
     reference-element="{subtopic.sortId}-details-popover-button"
     auto-close
+    trigger-disabled
 >
     <calcite-card>
         <span slot="heading">{subtopic.name}</span>
@@ -24,6 +25,9 @@
         <div slot="footer-start">
             <calcite-button 
                 icon-start='file' 
+                label="{subtopic.sortId}-pdf"
+                tabindex="0"
+                role="button"
                 round 
                 scale='s' 
                 on:click={openFactSheet(detailsObj.eaDfsLink)}
@@ -39,5 +43,6 @@
 <style>
     calcite-card {
         width: 310px;
+        --calcite-ui-focus-color: none !important;
     }
 </style>

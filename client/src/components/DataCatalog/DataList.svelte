@@ -4,6 +4,9 @@
     import "@esri/calcite-components/dist/components/calcite-avatar";
     import "@esri/calcite-components/dist/components/calcite-flow";
     import "@esri/calcite-components/dist/components/calcite-flow-item";
+    import "@esri/calcite-components/dist/components/calcite-card";
+    import "@esri/calcite-components/dist/components/calcite-popover";
+    import "@esri/calcite-components/dist/components/calcite-action-group";
 
     // Import components and store
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
@@ -57,8 +60,9 @@
 <calcite-flow data-panel-id="data-catalog" open>
     <calcite-flow-item height-scale="l">
         <calcite-action-bar
+            role="menu" 
+            tabindex="-1"
             slot="action-bar"
-            layout="horizontal"
             expand-disabled
             on:click={handleCatalogActionClick}
             on:keypress={handleCatalogActionClick}
@@ -69,31 +73,24 @@
                 icon="globe"
                 scale="l"
                 active
-                slot="actions-end"
             ></calcite-action>
             <calcite-action
                 data-action-id="subnational"
                 text="subnational"
                 icon="urban-model"
                 scale="l"
-                active="false"
-                slot="actions-end"
             ></calcite-action>
             <calcite-action
                 data-action-id="climate-data-viewer-2"
                 text="climate-data-viewer"
                 icon="clock-forward"
                 scale="l"
-                active="false"
-                slot="actions-end"
             ></calcite-action>
             <calcite-action
                 data-action-id="add-data"
                 text="add-data"
                 icon="add-layer"
                 scale="l"
-                active="false"
-                slot="actions-end"
             ></calcite-action>
         </calcite-action-bar>
         <CatalogActionBar type={activeDataCatalog} />
@@ -158,10 +155,13 @@
     calcite-list-item {
         --calcite-list-item-spacing-indent: 0rem;
         --calcite-ui-focus-color: none !important;
+        --calcite-color-brand: none !important;
+        --calcite-color-text-2: #005ea2;
     }
 
     calcite-action-bar {
-        --calcite-action-bar-items-space: 20px;
+        --calcite-action-bar-items-space: 21px;
         --calcite-ui-focus-color: none !important;
+        margin-left: 10px;
     }
 </style>

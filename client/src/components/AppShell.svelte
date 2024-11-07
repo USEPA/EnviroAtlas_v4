@@ -169,14 +169,18 @@
     position='start'
     width-scale="m"
   >
-    <calcite-action-bar slot="action-bar" on:click={handleActionBarClick} on:keypress={handleActionBarClick}>
+    <calcite-action-bar slot="action-bar" role="menu" tabindex="-1" on:click={handleActionBarClick} on:keypress={handleActionBarClick}>
       <calcite-action
+        tabindex="-1"
+        role="button"
         data-action-id="data-catalog"
         active
         icon="layers"
         text="EnviroAtlas Data Catalog"
       />
       <calcite-action
+        tabindex="-1"
+        role="button"
         data-action-id="summarize-my-area"
         icon="sigma"
         text="Summarize My Area"
@@ -208,7 +212,7 @@
     position='end'
     width-scale="m"
   >
-  <calcite-action-bar slot="action-bar" on:click={handleOtherActionBarClick} on:keypress={handleOtherActionBarClick}>
+  <calcite-action-bar role="menu" tabindex="-1" slot="action-bar" on:click={handleOtherActionBarClick} on:keypress={handleOtherActionBarClick}>
     <calcite-action data-action-id="layers" icon="layers" text="Layers" />
       <calcite-action
       data-action-id="basemaps"

@@ -325,6 +325,8 @@
     <calcite-action icon="information" text="Favorite" slot="header-actions-end"
     ></calcite-action>
     <calcite-button
+        tabindex="0"
+        role="button"
         round
         width="half"
         slot="footer"
