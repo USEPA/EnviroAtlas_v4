@@ -1,9 +1,0 @@
-let monorepoRoot = 'C:/AaronEvans/Projects/EPA CAM/NGST NPM Publishing/ngst-js-library/packages';
-
-let config = {
-    monorepoRoot,
-    devLinks: {
-        '@usepa-ngst/utilities':{disabled:false}
-    }
-};
-module.exports = config;
