@@ -90,6 +90,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaCA"
+                    class="eaCA"
                 >
                     <calcite-avatar
                         slot="image"
@@ -102,6 +103,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaCPW"
+                    class="eaCPW"
                 >
                     <calcite-avatar
                         slot="image"
@@ -114,6 +116,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaCS"
+                    class="eaCS"
                 >
                     <calcite-avatar
                         slot="image"
@@ -126,6 +129,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaNHM"
+                    class="eaNHM"
                 >
                     <calcite-avatar
                         slot="image"
@@ -138,6 +142,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaRCA"
+                    class="eaRCA"
                 >
                     <calcite-avatar
                         slot="image"
@@ -150,6 +155,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaFFM"
+                    class="eaFFM"
                 >
                     <calcite-avatar
                         slot="image"
@@ -162,6 +168,7 @@
                 <calcite-chip
                     scale="s"
                     value="eaBC"
+                    class="eaBC"
                 >
                     <calcite-avatar
                         slot="image"
@@ -175,6 +182,7 @@
                     <calcite-chip
                     scale="s"
                     value={sType}
+                    class="sType"
                 >
                     <calcite-avatar
                         slot="image"
@@ -209,6 +217,7 @@
     
     calcite-combobox {
         margin-top: 5px;
+        margin-bottom: 5px;
         --calcite-color-brand: #005ea2;
     }
 
@@ -218,10 +227,35 @@
         --calcite-color-foreground-2: none !important;
     }
 
-    /* This won't work until upgrading to calcite 2.13 
-    https://github.com/Esri/calcite-design-system/commit/f8f881b9bb164d482cb2a77b1f7b1ba3125e1719
-    calcite-avatar {
-        --calcite-avatar-background-color: blue;
+    calcite-chip.eaCA {
+        --calcite-chip-background-color: #7F81BA;
     }
-    */
+
+    calcite-chip.eaCPW {
+        --calcite-chip-background-color: #74CCD1;
+    }
+
+    calcite-chip.eaCS {
+        --calcite-chip-background-color: #F99F1F;
+    }
+
+    calcite-chip.eaBC {
+        --calcite-chip-background-color: #2EAE4A;
+    }
+
+    calcite-chip.eaFFM {
+        --calcite-chip-background-color: #F0E024;
+    }
+
+    calcite-chip.eaNHM {
+        --calcite-chip-background-color: #D75D64;
+    }
+
+    calcite-chip.eaRCA {
+        --calcite-chip-background-color: #C770B4;
+    }
+
+    calcite-chip.sType {
+        --calcite-chip-background-color: #BACFE1;
+    }
 </style>
