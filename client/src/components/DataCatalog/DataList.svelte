@@ -6,6 +6,7 @@
     import "@esri/calcite-components/dist/components/calcite-flow-item";
     import "@esri/calcite-components/dist/components/calcite-card";
     import "@esri/calcite-components/dist/components/calcite-popover";
+    import "@esri/calcite-components/dist/components/calcite-action-group";
 
     // Import components and store
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
@@ -62,7 +63,6 @@
             role="menu" 
             tabindex="-1"
             slot="action-bar"
-            layout="horizontal"
             expand-disabled
             on:click={handleCatalogActionClick}
             on:keypress={handleCatalogActionClick}
@@ -73,31 +73,24 @@
                 icon="globe"
                 scale="l"
                 active
-                slot="actions-end"
             ></calcite-action>
             <calcite-action
                 data-action-id="subnational"
                 text="subnational"
                 icon="urban-model"
                 scale="l"
-                active="false"
-                slot="actions-end"
             ></calcite-action>
             <calcite-action
                 data-action-id="climate-data-viewer-2"
                 text="climate-data-viewer"
                 icon="clock-forward"
                 scale="l"
-                active="false"
-                slot="actions-end"
             ></calcite-action>
             <calcite-action
                 data-action-id="add-data"
                 text="add-data"
                 icon="add-layer"
                 scale="l"
-                active="false"
-                slot="actions-end"
             ></calcite-action>
         </calcite-action-bar>
         <CatalogActionBar type={activeDataCatalog} />
@@ -167,7 +160,8 @@
     }
 
     calcite-action-bar {
-        --calcite-action-bar-items-space: 20px;
+        --calcite-action-bar-items-space: 21px;
         --calcite-ui-focus-color: none !important;
+        margin-left: 10px;
     }
 </style>
