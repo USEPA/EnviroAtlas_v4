@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Union Query String Field</title>
+    <style>
+        body {font-family: sans-serif}
+        pre{
+/*            white-space: pre-line; */
+        }
+    </style>
+
+</head>
+<body style="margin:0">
+
+    <div style="background-color:#0066CC;padding:.6em 1em .3em" >
+        <img height="50" src="/ea/swagger/custom/header.png" />
+    </div>
+    <h2 style="margin:.5em .5em .25em 1em">Union Query String Field</h2>
+    <div style="padding:.5em 1.5em 1.5em">
+        Search endpoints can be queried using the <strong>union</strong> query string field as JSON in the form:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+        <pre style='margin:0;'>
+union=[where1,where2,etc]</pre>
+        </td></tr></table>
+        where where{n} is a where object statement as described for where query string field. The above expression creates
+        an UNION statement combining queries using each where in union array.
+        If the where query string is also included in the API call, it is applied after the union.
+        <br/><br/>
+        The union allows OR like queries to be performed.
+        It only provides very minimal OR functionality though because it only allows one OR sequence:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+        <pre style='margin:0;'>
+union = [{A,B},{C,D}]
+where = {E,F}
+((A AND B) OR (C AND D)) AND E AND F</pre>
+        </td></tr></table>
+        In future should probably just add ability to accept a "OR" field , say ||, in where query string field like:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+        <pre style='margin:0;'>
+where = {||:[{A,B},{C,D}],E,F}
+((A AND B) OR (C AND D)) AND E AND F</pre>
+        </td></tr></table>
+        Multiple OR statements could be supported with syntax like:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+        <pre style='margin:0;'>
+where = [{||:[A,B]},{||:[C,D]},{E,F}]
+(A OR B) AND (C OR D) AND E AND F</pre>
+        </td></tr></table>
+        Basically if where is list instead of object, each item in the list is joined by AND.
+        These would be equivalent:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+        <pre style='margin:0;'>
+where = {A,B}
+where = [{A},{B}]</pre>
+        </td></tr></table>
+        Would also be possible to allow nesting of OR like:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+        <pre style='margin:0;'>
+where = {||:[{||:[A,B],C},D]}
+((A OR B) AND C) OR D</pre>
+        </td></tr></table>
+    </div>
+</body>
+</html>

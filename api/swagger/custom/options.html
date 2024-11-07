@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Options Query String Field</title>
+    <style>
+        body {font-family: sans-serif}
+        pre{
+/*            white-space: pre-line; */
+        }
+    </style>
+
+</head>
+<body style="margin:0">
+    <div style="background-color:#0066CC;padding:.6em 1em .3em" >
+        <img height="50" src="/ea/swagger/custom/header.png" />
+    </div>
+    <h2 style="margin:.5em .5em .25em 1em">Options query string field</h2>
+    <div style="padding:.5em 1.5em 1.5em">
+        Most endpoints (query, insert, update, delete) can be supplied options using the <strong>options</strong> query string field as JSON.
+        There a different types of options:
+        <ul>
+            <li>
+                select: applies to select list being returned
+            </li>
+            <li>
+                arrays: applies to arrays being returned or upserted
+            </li>
+        </ul>
+        Typically options can either be set globally or more specifically on individual elements like tables or arrays depending on option type like:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+        <pre style='margin:0;'>
+options={
+    select:{option1:value1,option2:value2,custom:{table1:{option3:value3,option4:value4}}},
+    arrays:{option5:value5,option6:value6,custom:{array1:{option7:value7,option8:value8}}},
+};</pre>
+        </td></tr></table>
+
+        <h3 style="margin:.25em 0 .5em">select</h3>
+        <em>Note: select options as shown below are applied to normal table fields and not arrays.
+            In order to apply to arrays, select objects must be set on arrays options related to to array in question (see below).</em><br/><br/>
+        select options are:
+        <li>
+            <strong>AS:</strong> 1) if true include table in field name 2) if object then explicitly change the name of fields being returned
+            <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+                <pre style='margin:0;'>
+options={
+    select:{AS:true,custom:{table1:{AS:false},table2:{AS:{field1:'fieldAlias1',field2:'fieldAlias2'}}}},
+};</pre></td></tr></table>
+            In the above example all fields will have table alias in field name like table3.field3 except for table1
+            and table2 fields field1 and field2 will be changed to fieldAlias1 and fieldAlias2 respectively.
+        </li>
+        <li>
+            <strong>distinct:</strong> if true then only return distinct records
+            <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+                <pre style='margin:0;'>
+options={
+    select:{distinct:true}},
+};</pre></td></tr></table>
+            Note: distinct can not be used if there are array fields on the select since postgres can determine json equality.
+            For now just throws an error...
+        </li>
+        <li>
+            <strong>defaults:</strong> some resources have don't include all fields by default. For example, join keys are the joined tables are usually not included by default.
+            It is possible to override this behavior by clearing out the default behavior or explicity changing the default behavior.
+            To clear out the default behaivor and show ALL fields use:
+            <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'><pre style='margin:0;'>
+options={
+    select:{defaults:null},
+};</pre></td></tr></table>
+            To explcitly exclude a field previously excluded by default use :
+            <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'><pre style='margin:0;'>
+options={
+    select:{defaults:null},
+}&select={
+    'table2.joinKey':0,
+};</pre></td></tr></table>
+            This would only exclude the table2 join key named joinKey but not all of joinKeys for other tables which are usually excluded by default.<br/><br/>
+
+            In order to explicity include field that is excluded by default use;
+            <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'><pre style='margin:0;'>
+options={
+    select:{defaults:{'table2.joinKey':null}},
+};
+                </pre></td></tr></table>
+            By setting the default value to null it removes 'table2.joinKey' from default fields being excluded.
+            This can actually be accomplished even easier without using an option at all by setting field to null in select query string:
+                <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'><pre style='margin:0;'>
+select={
+    'table2.joinKey':null
+};</pre></td></tr></table>
+
+        </li>
+
+        <h3 style="margin:.25em 0 .5em">arrays</h3>
+        array options can set options globally for all arrays, individually for specific arrays, or for individual arrays depending on where they are nested within other arrays:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+                <pre style='margin:0;'>
+options={
+    arrays: {
+        option1:true,  //for all other arrays option1 = true
+        custom: {
+             array1: {
+                 option1:false,  //for array1 (or anny array inside array1 except array2) overwrite = false
+                 arrays:{
+                      custom:{
+                           array2:{
+                                option1:true  //for array2 inside array1 overwrite = true
+                           }
+                      }
+                 }
+            },
+             array2:{option1:false}  //for array2 outside array1 overwrite = false
+        }
+    }
+};</pre></td></tr></table>
+
+
+        array options are:
+        <li>
+            <strong>overwrite:</strong> when array is update remove existing arrays values and overwrite with current array being updated
+            <em>Note: if an array item being update contains the key for that array item it will actually just be updated instead of removed</em><br/><br/>
+
+            <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+                <pre style='margin:0;'>
+options={
+    arrays:{overwrite:true,custom:{array1:{overwrite:false}}},
+};</pre></td></tr></table>
+            In the above example all arrays will be overwritten on update except for array1. Can be applied more intricately as described previously.
+        </li>
+        <li>
+            <strong>filterResults:</strong> in additon to filter main result set by array fields in where query string field, also filter the arrays returned on that result set using the same array fields from that where object.
+            <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+                <pre style='margin:0;'>
+options={
+    arrays:{filterResults:true,custom:{array1:{filterResults:false}}},
+};</pre></td></tr></table>
+            In the above example all arrays will be have results filtered on update except for array1. Can be applied more intricately as described previously.
+        </li>
+        <li>
+            <strong>select:</strong> the same select options described above and applied to table fields can also be set on array options.<br/>
+            <em>Note: It doesn't make sense to set them globally other than AS = true or distinct = true</em>
+            <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+                <pre style='margin:0;'>
+options={
+    arrays: {
+        select: {AS:true,distinct:true},
+        custom: {array1:{defaults:null,{select:{AS:false},custom:{table1:{select:{AS:true}},table2:{select:{AS:{field1:'fieldAlias1',field2:'fieldAlias2'}}}}},array2:{distinct:false}}
+    }
+};</pre></td></tr></table>
+            In the above example all arrays except array1 will be expanded to show table.field.
+            table.field will not be shown for array1 fields excpet for table1 and table2 fields field1 and field2 will be changed to fieldAlias1 and fieldAlias2 respectively.
+            Also, array1 fields will show ALL including any that are hidden by default.
+            In addition all arrays will contain distinct items except for array2
+        </li>
+
+        <h3 style="margin:.25em 0 .5em">CSV</h3>
+        If CSV option is set then REST output will be CSV format instead of JSON.
+        If CSV option set to true then default header labels and order will be used:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+                <pre style='margin:0;'>
+options={
+    csv: true
+};</pre></td></tr></table>
+
+        Otherwise specific order and labels can be set up for individually fields:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+                <pre style='margin:0;'>
+options={
+    csv: {
+        header: {
+            fields: [
+                {name:name1,label:label1},
+                {name:name3,label:label3}
+            ]
+        }
+    }
+};</pre></td></tr></table>
+
+        <em>Note: Not all fields need to be included in header.fields list.
+            Only include fields that will override the default configuration.
+            The order of the fields that are included in header.fields list will override default order.
+            If the default order in table was name1,name2,name3 and the above csv options were set,
+            then the output order would be name1,name3,name2.
+            Fields that are not in the header.fields options will just be added to end in their default order.
+        </em>
+
+        header.fields can also just be set to a list of strings:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+                <pre style='margin:0;'>
+options={
+    csv: {
+        header: {
+            fields: [name1,name3]
+        }
+    }
+};</pre></td></tr></table>
+        in this case label gets set to name and order gets set to true.<br/><br/>
+
+        csv header.fields parameters are:
+        <li>
+            <strong>name:</strong> Name of the DB field
+            In the above example all arrays will be overwritten on update except for array1. Can be applied more intricately as described previously.
+        </li>
+        <li>
+            <strong>label:</strong> label for the field that will be used in header of CSV output.<br/>
+        </li>
+        <li>
+            <strong>order:</strong> The order of the fields in the CSV corresponds to the order of field configuration in header.fields.
+            When order = false, the order of this field configuration in header.fields will be ignored and default order of field maintained.
+
+            <em>Note: order defaults to true</em>
+            <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+                <pre style='margin:0;'>
+options={
+    csv: {
+        header: {
+            fields: [
+                {name:name1,label:label1},
+                {name:name2,label:label2,order:false},
+                {name:name3,label:label3}
+            ]
+        }
+    }
+};</pre></td></tr></table>
+            In the above example assume the default order is name1,name2,name3,name4.
+            The above header.fields options will override this to produce order of name1,name3,name2,name4.
+            Since order=false for name2, it's order in header.fields list will be ignored as if it wasn't there (like name4).
+            name1 and name3 columns are added first in header.fields list order and then name2 and name4 are added on after in their default order.
+        </li>
+
+        <br/>Also, a custom file name can be set for the csv file to be downloaded using:
+        <table style="margin:.5em"><tr><td style='padding:.5em;border:1px solid #ccc;background:#f5f5f5'>
+                <pre style='margin:0;'>
+options={
+    csv: {
+        filename: 'filename1.csv'
+    }
+};</pre></td></tr></table>
+
+    </div>
+</body>
+</html>

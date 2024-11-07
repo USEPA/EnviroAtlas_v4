@@ -8,10 +8,7 @@
 //const merge  = require('merge');
 //const jwt = require('jsonwebtoken');
 
-//const utilities = require('@usepa-ngst/utilities');
 const fs = require("fs");
-
-const utilities = require('@usepa-ngst/utilities/index.cjs');
 
 const sqlite3 = require('better-sqlite3');
 
@@ -21,15 +18,14 @@ const layerFields = getFullFields([
     {name: 'layerID',type:'integer primary key',new:true},
     {name: 'subTopicID',type:'integer',new:true},
     {name:'eaID',type:'integer'},
-    'eaScale',
     'name',
     {name:'subLayerName',type:'text',new:true},
     'eaDescription',
-    'fieldName',
     'eaMetric',
     'eaDfsLink',
     'eaMetadata',
-    'URL',
+    'url',
+    'eaLyrNum',
     'eaTags',
     'tileLink',
     'tileURL',
@@ -40,17 +36,26 @@ const layerFields = getFullFields([
     'cacheLevelNat',
     'DownloadSource',
     'areaGeog',
-    'hucNavStats',
-    'hucNavStatsUnits',
     'agoID',
     'UniqueTag',
     'HUBsearch',
     'TagHubText',
-    {name:'View Name',rename:'ViewName',type:'text'}
+    {name:'View Name',rename:'ViewName',type:'text'},
+    {name:'testJoinID',type:'integer'}
 ]);
+
+/*
+const testArrayFields = getFullFields([
+    {name:'testArrayID',type:'integer primary key'},
+    {name:'testJoinID',type:'integer'},
+    {name:'name',type:'string'}
+]);
+let testArrays = [{testArrayID:1,testJoinID:1,name:'one'},{testArrayID:2,testJoinID:1,name:'two'}];
+*/
 
 const subTopicFields = getFullFields([
     {name: 'subTopicID',type:'integer primary key',new:true},
+    {name:'eaID',type:'integer'},
     'eaTopic',
     'categoryTab',
     'eaScale',
@@ -65,23 +70,25 @@ const subTopicFields = getFullFields([
     {name:'eaRCA',type:'integer'},
     {name:'eaPBS',type:'integer'},
     'eaTags',
-    'xTopicStatus',
-    'sourceType',
-    'cacheLevelNat'
+    'sourceType'
 ]);
 
 (async function () {
     try {
 //create dbfile
         let dbfile = projectDir + 'EA_v4.db';
+
         const db = sqlite3(dbfile);
         db.pragma('journal_mode = WAL');
 
         let layerArgs = {db,table:'layers',fields:layerFields};
         createTable(layerArgs);
 
-        let subTopicArgs = {db,table:'subTopics',fields:subTopicFields};
+        let subTopicArgs = {db,table:'subtopics',fields:subTopicFields};
         createTable(subTopicArgs);
+
+//        let testArrayArgs = {db,table:'testArrays',fields:testArrayFields};
+//        createTable(testArrayArgs);
 
         let config_layer = await fs.promises.readFile(projectDir +  'config_layer.json','utf-8');
         //get the real config which is in layers.layer
@@ -93,6 +100,7 @@ const subTopicFields = getFullFields([
         for (let item of config) {
             //if url exists then this is either "sub layer" or "single" layer which is layer/subtopic combo
             if (item.url) {
+                item.testJoinID = 1;
                 layers.push(item);
             }
             //if IsSubLayer is false then this is either subTopic for "sub layers" or "single" layer subTopic
@@ -103,40 +111,58 @@ const subTopicFields = getFullFields([
                     item.SubLayerIds = [item.eaID];
                     //don't need sub layer name for the singl layer subTopic so just leave empty
                     item.SubLayerNames = [null];
+                } else {
+                    if (item.SubLayerIds.length!==item.SubLayerNames.length) {
+                        console.log('sublayer mismatch for eaID=' + item.eaID);
+                        //bad form but subLayerNames sometimes is length one array with ; seperated string of SubLayerNames!!!!
+                        item.SubLayerNames = item.SubLayerNames[0].split(';')
+                    } else {
+                        console.log('sublayer match for eaID=' + item.eaID)
+                    }
+                    //this is subtopic with sublayers. just need to split by ; to get arrays
+//                    item.SubLayerIds = item.SubLayerIds.split(';');
+                    //don't need sub layer name for the singl layer subTopic so just leave empty
+//                    item.SubLayerNames = item.SubLayerNames.split(';');
                 }
             }
         }
 
-        /*
-        let statement = `INSERT INTO layers (eaID,name) values (?,?)`;
-        let insert = db.prepare(statement);
-        function test (x,y) {
-            return x+y;
+/*
+        let testArraysInsert = prepareInsert(testArrayArgs);
+//loop over layers and insert them
+        for (let testArray of testArrays) {
+            let values = getInsertValues({data:testArray,fields:testArrayFields});
+            testArraysInsert.run(values);
         }
-        console.log(test.apply(null,[1,2]));
-//        return;
-        insert.run([1,'one']);
-        insert.run([2,'two']);
-return;
 */
 
 //prepare the insert statement that will be run for each item
         let layerInsert = prepareInsert(layerArgs);
 
+        //this used to check if sourceType differs on sub layers
+        let layersByEaID = {};
+
 //loop over layers and insert them
         for (let layer of layers) {
+            layersByEaID[layer.eaID] = layer;
             let values = getInsertValues({data:layer,fields:layerFields});
             layerInsert.run(values);
         }
 
-//prepare the insert statement that will be run for each item
-    let subTopicInsert = prepareInsert(subTopicArgs);
-//prepare the update statement that will be run for each item
-    let layerUpdate = db.prepare(`UPDATE layers SET subTopicID=?,subLayerName=? WHERE eaID=?`);
+    //prepare the insert statement that will be run for each item
+        let subTopicInsert = prepareInsert(subTopicArgs);
+    //prepare the update statement that will be run for each item
+        let layerUpdate = db.prepare(`UPDATE layers SET subTopicID=?,subLayerName=? WHERE eaID=?`);
+
+        //this used to check if sourceType differs on sub layers
+        let sourceTypeDiffs = {};
 
 //loop over subTopics and insert them
 //also update layer with subTopicID
         for (let subTopic of subTopics) {
+            if (subTopic.eaID===1124) {
+                console.log();
+            }
             let values = getInsertValues({data:subTopic,fields:subTopicFields});
             let result = subTopicInsert.run(values);
             //subTopicID is the primary key which is equal to rowID
@@ -145,12 +171,18 @@ return;
             //now update subTopic ID for layers in this subTopic
             let i = 0;
             for (let eaID of subTopic.SubLayerIds) {
+                if (layersByEaID[eaID].sourceType!==subTopic.sourceType) {
+                    if (!sourceTypeDiffs[subTopic.subTopicID]) {
+                        sourceTypeDiffs[subTopic.subTopicID] = [];
+                    }
+                    sourceTypeDiffs[subTopic.subTopicID].push(layersByEaID[eaID].sourceType);
+                }
                 let subLayerName = subTopic.SubLayerNames[i];
                 layerUpdate.run([subTopicID,subLayerName,eaID]);
                 i+=1;
             }
         }
-
+        console.log(Object.keys(sourceTypeDiffs));
     } catch (ex) {
         console.error('exception: ');
         console.error(ex);
