@@ -7,16 +7,8 @@
     export let subtopic;
     export let view;
     export let layerID = null;
-    let detailsFiltered = false;
     let detailsObj = {};
 
-    // TODO: Should these be destroyed too?
-    onMount(() => {
-        new SubtopicDetails({
-            target: document.body,
-            props: { subtopic, detailsObj },
-        });
-    });
 
     function getEALayerId() {
         if (subtopic.layers.length < 2) {
@@ -37,16 +29,22 @@
         // Get the object and pass to the SubtopicDetails component
         //TODO: Use api to get detailsObj
         detailsObj = detailConfig.filter(lyr => lyr.sortId == sortId)[0];
-        detailsFiltered = true;
+        let findPopover = document.querySelector(`[reference-element="${sortId}-details-popover-button"]`);
+        if (!findPopover) {
+            new SubtopicDetails({
+                target: document.body,
+                props: { subtopic, detailsObj },
+            });
+        }
+        // Workaround for calcite v2.9. 
+        let popover = document.querySelector(`[reference-element="${sortId}-details-popover-button"]`);
+        popover.setAttribute("open", "true");
         return detailsObj
     }
 
 </script>
 
 <calcite-list-item label={subtopic.name}>
-    {#key detailsObj}
-        <SubtopicDetails {subtopic} {detailsObj}/>
-    {/key}
     <calcite-action 
         tabindex="-1"
         role="button"

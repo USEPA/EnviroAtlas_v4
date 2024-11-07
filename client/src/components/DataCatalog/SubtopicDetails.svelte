@@ -17,6 +17,7 @@
     label="{subtopic.sortId}-details-popover-button"
     reference-element="{subtopic.sortId}-details-popover-button"
     auto-close
+    trigger-disabled
 >
     <calcite-card>
         <span slot="heading">{subtopic.name}</span>
@@ -42,5 +43,6 @@
 <style>
     calcite-card {
         width: 310px;
+        --calcite-ui-focus-color: none !important;
     }
 </style>

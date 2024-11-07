@@ -4,6 +4,8 @@
     import "@esri/calcite-components/dist/components/calcite-avatar";
     import "@esri/calcite-components/dist/components/calcite-flow";
     import "@esri/calcite-components/dist/components/calcite-flow-item";
+    import "@esri/calcite-components/dist/components/calcite-card";
+    import "@esri/calcite-components/dist/components/calcite-popover";
 
     // Import components and store
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
