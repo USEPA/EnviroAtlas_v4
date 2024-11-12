@@ -1,9 +1,14 @@
 <script>
     import { getEALayerObject, addLayer } from "src/shared/addtoMap.js";
+    import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
+    import detailConfig from "src/shared/dataCatalog_details_1layer.json";
+    import { onMount } from "svelte";
 
     export let subtopic;
     export let view;
     export let layerID = null;
+    let detailsObj = {};
+
 
     function getEALayerId() {
         if (subtopic.layers.length < 2) {
@@ -11,6 +16,7 @@
         }
         console.log('EA Layer: ', layerID)
         let lObject = getEALayerObject(layerID);
+        // TODO: error handle if lObject is empty 
         addLayer(lObject, view);
     }
 
@@ -18,117 +24,41 @@
         layerID = event.target.value;
         console.log(layerID);
     }
+
+    export const getSubtopicDetails = (sortId) => {
+        // Get the object and pass to the SubtopicDetails component
+        //TODO: Use api to get detailsObj
+        detailsObj = detailConfig.filter(lyr => lyr.sortId == sortId)[0];
+        let findPopover = document.querySelector(`[reference-element="${sortId}-details-popover-button"]`);
+        if (!findPopover) {
+            new SubtopicDetails({
+                target: document.body,
+                props: { subtopic, detailsObj },
+            });
+        }
+        // Workaround for calcite v2.9. 
+        let popover = document.querySelector(`[reference-element="${sortId}-details-popover-button"]`);
+        popover.setAttribute("open", "true");
+        return detailsObj
+    }
+
 </script>
 
-
-<calcite-list-item>
-    <calcite-label
-        scale="s"
-        id="listItemHeader"
-        slot="content"
-    >{subtopic.name}
-    </calcite-label>
-    <calcite-action-bar
-        slot="content"
-        layout="horizontal"
-        expand-disabled
-    >
-        <calcite-chip-group
-            id="ea-chip-group"
-            scale="s"
-            selection-mode="none"
-            label="ea-chip-group"
-        >
-            {#if subtopic.eaCA}
-                <calcite-chip
-                    scale="s"
-                    value="eaCA"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/air.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaCPW}
-                <calcite-chip
-                    scale="s"
-                    value="eaCPW"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/water.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaCS}
-                <calcite-chip
-                    scale="s"
-                    value="eaCS"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/clim.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaNHM}
-                <calcite-chip
-                    scale="s"
-                    value="eaNHM"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/haz.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaRCA}
-                <calcite-chip
-                    scale="s"
-                    value="eaRCA"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/rec.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaFFM}
-                <calcite-chip
-                    scale="s"
-                    value="eaFFM"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/food.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaBC}
-                <calcite-chip
-                    scale="s"
-                    value="eaBC"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/bio.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-        </calcite-chip-group>
-    </calcite-action-bar>
+<calcite-list-item label={subtopic.name}>
+    <calcite-action 
+        tabindex="-1"
+        role="button"
+        text="Details" 
+        icon="information" 
+        scale="s" 
+        slot="actions-end" 
+        id="{subtopic.sortId}-details-popover-button"
+        on:click={detailsObj = () => getSubtopicDetails(subtopic.sortId)}
+        on:keypress={detailsObj = () => getSubtopicDetails(subtopic.sortId)}></calcite-action>
     {#if subtopic.layers.length > 1}
         <calcite-combobox
             scale="s"
-            slot="content"
+            slot="content-bottom"
             selection-mode="single-persist"
             label={subtopic.name}
             name={subtopic.name}
@@ -146,25 +76,134 @@
     {/if}
 
     <calcite-action-bar
-        slot="content"
+        slot="content-bottom"
         layout="horizontal"
         expand-disabled
     >
+    <calcite-chip-group
+            id="ea-chip-group"
+            scale="s"
+            selection-mode="none"
+            label="ea-chip-group"
+        >
+            {#if subtopic.eaCA}
+                <calcite-chip
+                    scale="s"
+                    value="eaCA"
+                    class="eaCA"
+                >
+                    <calcite-avatar
+                        slot="image"
+                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/air.png"
+                    >
+                    </calcite-avatar>
+                </calcite-chip>
+            {/if}
+            {#if subtopic.eaCPW}
+                <calcite-chip
+                    scale="s"
+                    value="eaCPW"
+                    class="eaCPW"
+                >
+                    <calcite-avatar
+                        slot="image"
+                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/water.png"
+                    >
+                    </calcite-avatar>
+                </calcite-chip>
+            {/if}
+            {#if subtopic.eaCS}
+                <calcite-chip
+                    scale="s"
+                    value="eaCS"
+                    class="eaCS"
+                >
+                    <calcite-avatar
+                        slot="image"
+                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/clim.png"
+                    >
+                    </calcite-avatar>
+                </calcite-chip>
+            {/if}
+            {#if subtopic.eaNHM}
+                <calcite-chip
+                    scale="s"
+                    value="eaNHM"
+                    class="eaNHM"
+                >
+                    <calcite-avatar
+                        slot="image"
+                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/haz.png"
+                    >
+                    </calcite-avatar>
+                </calcite-chip>
+            {/if}
+            {#if subtopic.eaRCA}
+                <calcite-chip
+                    scale="s"
+                    value="eaRCA"
+                    class="eaRCA"
+                >
+                    <calcite-avatar
+                        slot="image"
+                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/rec.png"
+                    >
+                    </calcite-avatar>
+                </calcite-chip>
+            {/if}
+            {#if subtopic.eaFFM}
+                <calcite-chip
+                    scale="s"
+                    value="eaFFM"
+                    class="eaFFM"
+                >
+                    <calcite-avatar
+                        slot="image"
+                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/food.png"
+                    >
+                    </calcite-avatar>
+                </calcite-chip>
+            {/if}
+            {#if subtopic.eaBC}
+                <calcite-chip
+                    scale="s"
+                    value="eaBC"
+                    class="eaBC"
+                >
+                    <calcite-avatar
+                        slot="image"
+                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/bio.png"
+                    >
+                    </calcite-avatar>
+                </calcite-chip>
+            {/if}
+            {#each ['cbg', 'plp', 'grid', 'huc12'] as sType}
+                {#if subtopic.sourceType == sType}
+                    <calcite-chip
+                    scale="s"
+                    value={sType}
+                    class="sType"
+                >
+                    <calcite-avatar
+                        slot="image"
+                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{sType}.png"
+                    >
+                    </calcite-avatar>
+                </calcite-chip>
+                {/if}
+            {/each}
+        </calcite-chip-group>
         <calcite-button
+            role="button"
+            tabindex="0"
             scale="s"
             round
             label="Add to map"
             slot="actions-end"
+            appearance='transparent'
             on:click={getEALayerId}
             on:keypress={getEALayerId}
             >Add to map</calcite-button
-        >
-        <calcite-button
-            scale="s"
-            round
-            label="Details"
-            slot="actions-end"
-            >Details</calcite-button
         >
     </calcite-action-bar>
 </calcite-list-item>
@@ -178,6 +217,8 @@
     
     calcite-combobox {
         margin-top: 5px;
+        margin-bottom: 5px;
+        --calcite-color-brand: #005ea2;
     }
 
     calcite-list-item {
@@ -186,8 +227,35 @@
         --calcite-color-foreground-2: none !important;
     }
 
-    #listItemHeader {
-        font-weight: bold;
+    calcite-chip.eaCA {
+        --calcite-chip-background-color: #7F81BA;
     }
-    
+
+    calcite-chip.eaCPW {
+        --calcite-chip-background-color: #74CCD1;
+    }
+
+    calcite-chip.eaCS {
+        --calcite-chip-background-color: #F99F1F;
+    }
+
+    calcite-chip.eaBC {
+        --calcite-chip-background-color: #2EAE4A;
+    }
+
+    calcite-chip.eaFFM {
+        --calcite-chip-background-color: #F0E024;
+    }
+
+    calcite-chip.eaNHM {
+        --calcite-chip-background-color: #D75D64;
+    }
+
+    calcite-chip.eaRCA {
+        --calcite-chip-background-color: #C770B4;
+    }
+
+    calcite-chip.sType {
+        --calcite-chip-background-color: #BACFE1;
+    }
 </style>
