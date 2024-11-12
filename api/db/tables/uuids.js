@@ -3,9 +3,9 @@ const dbApi = require('@usepa-ngst/db-api/index');
 const queryBuilder = dbApi.require('/db/queryBuilder');
 
 let table = {
-    key: 'eaMetadata',
+    key: 'metadataID',
 };
-let fields = queryBuilder.generateFieldsConfig({table,fields:'eaMetadata,scale'});
+let fields = queryBuilder.generateFieldsConfig({table,fields:'metadataID,scale'});
 
 let tableConfigs = queryBuilder.loadTableConfigs(['national_uuids','community_uuids']);
 

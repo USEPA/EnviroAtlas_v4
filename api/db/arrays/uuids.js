@@ -5,7 +5,7 @@ let array = {
     name: 'uuids',
 //resource in routes config file name where object in this array is set up eg. procedures, table, etc
     resource: 'uuids',
-    arrayKey: 'eaMetadata',
+    arrayKey: 'metadataID',
 //don't really want an array since this will always be single length. have it resolve to object
     toObject: true
 };

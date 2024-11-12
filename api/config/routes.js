@@ -42,7 +42,10 @@ let config = {
 config.resources = {
     subtopics: {
         table: 'subtopics',
-        arrays: {layers:{}},
+        arrays: {layers:{
+// Was just testing changing the nanme of layers array
+//            fieldAlias:"layers2"
+        }},
         description: 'Sub Topics describing layers',
         defaultOptions: {
         }
@@ -63,6 +66,11 @@ config.resources = {
 //            },
 // this was just to test having an array field on an array field item
 //            testArrays:{}
+        },
+        defaultOptions: {
+            select: {
+                defaults: {uuids:0}
+            }
         }
     },
     national_uuids:{

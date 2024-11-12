@@ -3,17 +3,12 @@ const queryBuilder = dbApi.require('/db/queryBuilder');
 
 let table = {
     name: 'national_uuids',
-    key: 'eaMetadata',
+    key: 'metadataID',
 };
 
-table.fields = queryBuilder.generateFieldsConfig({table,fields:'tableServiceName,eaMetadata,uuid'});
+table.fields = queryBuilder.generateFieldsConfig({table,fields:'tableServiceName,metadataID,uuid'});
 
 table.views = {
-    'national_uuids_view':{
-        fields: {
-            scale:{name:'scale',schema:{type:"string"}}
-        }
-    }
 };
 
 module.exports = table;
