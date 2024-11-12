@@ -20,13 +20,13 @@ const layerFields = getFullFields([
     {name:'eaID',type:'integer'},
     'name',
     {name:'subLayerName',type:'text',new:true},
-    'eaDescription',
-    'eaMetric',
-    'eaDfsLink',
-    'eaMetadata',
+    {name:'eaDescription',rename:'description',type:'text'},
+    {name:'eaMetric',rename:'metric',type:'text'},
+    {name:'eaDfsLink',rename:'dfsLink',type:'text'},
+    {name:'eaMetadata',rename:'metadataID',type:'text'},
     'url',
-    'eaLyrNum',
-    'eaTags',
+    {name:'eaLyrNum',rename:'lyrNum',type:'text'},
+    {name:'eaTags',rename:'tags',type:'text'},
     'tileLink',
     'tileURL',
     'serviceType',
@@ -41,7 +41,6 @@ const layerFields = getFullFields([
     'HUBsearch',
     'TagHubText',
     {name:'View Name',rename:'ViewName',type:'text'},
-    {name:'testJoinID',type:'integer'}
 ]);
 
 /*
@@ -56,11 +55,11 @@ let testArrays = [{testArrayID:1,testJoinID:1,name:'one'},{testArrayID:2,testJoi
 const subTopicFields = getFullFields([
     {name: 'subTopicID',type:'integer primary key',new:true},
     {name:'eaID',type:'integer'},
-    'eaTopic',
+    {name:'eaTopic',rename:'topic',type:'text'},
     'categoryTab',
-    'eaScale',
+    {name:'eaScale',rename:'scale',type:'text'},
     'name',
-    'eaDescription',
+    {name:'eaDescription',rename:'description',type:'text'},
     {name:'eaBC',type:'integer'},
     {name:'eaCA',type:'integer'},
     {name:'eaCPW',type:'integer'},
@@ -69,7 +68,7 @@ const subTopicFields = getFullFields([
     {name:'eaNHM',type:'integer'},
     {name:'eaRCA',type:'integer'},
     {name:'eaPBS',type:'integer'},
-    'eaTags',
+    {name:'eaTags',rename:'tags',type:'text'},
     'sourceType'
 ]);
 

@@ -6,14 +6,13 @@ let table = {
     key: 'layerID',
 };
 
-//table.fields = queryBuilder.generateFieldsConfig({table,fields:'pula_id, event_name, effective_date, creator_id, created_by, created_time_stamp, reviewer_id, reviewed_by, reviewed_time_stamp, publisher_id, published_by, published_time_stamp, expirer_id, expired_by, expired_time_stamp, base_data, base_data_modifiers, additional_information, focus_meeting, proposed_decision, interim_proposed_decision, interim_decision, final_decision, biological_opinion_regreview, biological_opinion_lit, sec3_newchem, sec3_newuse, sec24, sec18, other_justification, comments'});
-//get rid of justification fields
-table.fields = queryBuilder.generateFieldsConfig({table,fields:'layerID,subTopicID,name,subLayerName,eaMetadata'});
+table.fields = queryBuilder.generateFieldsConfig({table,fields:'layerID,subTopicID,eaID,name,subLayerName,description,metric,dfsLink,metadataID,url,lyrNum,tags,tileLink,tileURL,serviceType,popup,numDecimal,sourceType,cacheLevelNat,DownloadSource,areaGeog,agoID,UniqueTag,HUBsearch,TagHubText,ViewName'});
 
 //Note: schema. fields are used by swagger and query builder code
-// put fields query builder code only fields level above schema
+// put query builder code only fields level above schema
 // eg. table.fields.creator_id.serverWrite = true;
-table.fields.layerID.schema.type = 'integer';
-table.fields.subTopicID.schema.type = 'integer';
+for (let field of 'layerID,subTopicID,eaID,numDecimal'.split(',')) {
+    table.fields[field].schema.type = 'integer';
+}
 
 module.exports = table;

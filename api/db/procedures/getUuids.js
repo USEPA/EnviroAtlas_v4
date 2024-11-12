@@ -38,10 +38,10 @@ function getText (args={}) {
     //then can pass this custom from table to getQueryText
     //from is subquery wrapped in () and called table name alias
     let fromTable = `
-(SELECT eaMetadata,'national' AS scale,${Object.values(nationalUuidsFields).join(',')}
+(SELECT metadataID,'national' AS scale,${Object.values(nationalUuidsFields).join(',')}
 FROM national_uuids
 UNION
-SELECT eaMetadata,'community' AS scale,${Object.values(communityUuidsFields).join(',')}
+SELECT metadataID,'community' AS scale,${Object.values(communityUuidsFields).join(',')}
 FROM community_uuids)
 `;
 
