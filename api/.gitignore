@@ -45,10 +45,3 @@ scripts/out/*
 
 #don't check in .dev-link config file because only want to use them to link locally
 .dev-link
-
-#dont check in the shm and wal
-db/files/*.db-shm
-db/files/*.db-wal
-#also don't check in the session db
-db/files/session.db
-
