@@ -13,7 +13,7 @@
     "devLink": "usepa-ngst-dev-link npmLink"
   },
   "dependencies": {
-    "@usepa-ngst/db-api": "^0.0.4",
+    "@usepa-ngst/db-api": "^0.0.5",
     "app-root-path": "^3.0.0",
     "merge": "^1.2.1"
   },
