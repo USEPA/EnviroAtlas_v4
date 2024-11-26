@@ -168,8 +168,16 @@
     display-mode="docked"
     position='start'
     width-scale="m"
+    id="shell-panel-start"
   >
-    <calcite-action-bar slot="action-bar" role="menu" tabindex="-1" on:click={handleActionBarClick} on:keypress={handleActionBarClick}>
+    <calcite-action-bar 
+      expand-disabled 
+      id="left-action-bar" 
+      hidden
+      slot="action-bar" 
+      role="menu" 
+      tabindex="-1" 
+    >
       <calcite-action
         tabindex="-1"
         role="button"
@@ -177,13 +185,6 @@
         active
         icon="layers"
         text="EnviroAtlas Data Catalog"
-      />
-      <calcite-action
-        tabindex="-1"
-        role="button"
-        data-action-id="summarize-my-area"
-        icon="sigma"
-        text="Summarize My Area"
       />
       <!-- <calcite-action
         data-action-id="climate-data-viewer"
@@ -195,10 +196,16 @@
         icon="plus-square"
         text="Add Data"
       /> -->
+      <calcite-action
+        slot="actions-end"
+        tabindex="-1"
+        role="button"
+        icon="chevrons-right"
+        text="open data catalog"
+      />
     </calcite-action-bar>
 
     <DataCatalog view={$viewState.view}/>
-    <SummarizeMyArea />
     <!-- <ClimateChangeViewer view={$viewState.view}/> -->
     <!-- <AddData map={$mapState.map} /> -->
   </calcite-shell-panel>
@@ -214,12 +221,19 @@
   >
   <calcite-action-bar role="menu" tabindex="-1" slot="action-bar" on:click={handleOtherActionBarClick} on:keypress={handleOtherActionBarClick}>
     <calcite-action data-action-id="layers" icon="layers" text="Layers" />
-      <calcite-action
+    <calcite-action
       data-action-id="basemaps"
       icon="basemap"
       text="Basemaps"
     />
     <calcite-action data-action-id="legend" icon="legend" text="Legend" />
+    <calcite-action
+      tabindex="-1"
+      role="button"
+      data-action-id="summarize-my-area"
+      icon="sigma"
+      text="Summarize My Area"
+    />
   </calcite-action-bar>
 
   <calcite-panel
@@ -249,6 +263,7 @@
   >
     <div id="legend-container" bind:this={legendContainer} />
   </calcite-panel>
+  <SummarizeMyArea />
   </calcite-shell-panel>
 </calcite-shell>
 
