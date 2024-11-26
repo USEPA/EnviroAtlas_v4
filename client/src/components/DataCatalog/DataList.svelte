@@ -30,6 +30,16 @@
 
     let activeDataCatalog = "national";
 
+    const handleFabClick = () => {
+        let bar = document.getElementById("left-action-bar");
+        let panel = document.getElementById("data-catalog");
+        let shell = document.getElementById("shell-panel-start");
+        bar.removeAttribute("hidden");
+        panel.removeAttribute("open");
+        panel.setAttribute("hidden", "");
+        shell.setAttribute("collapsed", "");    
+    };
+
     const handleCatalogActionClick = ({ target }) => {
         if (target.tagName !== "CALCITE-ACTION") {
             return;
@@ -53,11 +63,9 @@
                 = false;
         
     };
-
-    
 </script>
 
-<calcite-flow data-panel-id="data-catalog" open>
+<calcite-flow data-panel-id="data-catalog" id="data-catalog" open>
     <calcite-flow-item height-scale="l">
         <calcite-action-bar
             role="menu" 
@@ -120,6 +128,17 @@
         </calcite-block>
         <calcite-block data-panel-id="subnational" heading="Subnational Catalog" open hidden>
         </calcite-block>
+        <calcite-fab
+            slot="fab"
+            role="button"
+            tabindex="-1"
+            id="data-catalog-fab" 
+            data-testid="data-catalog-fab" 
+            icon="chevrons-left" 
+            kind="neutral"
+            on:click={handleFabClick}
+            on:keypress={handleFabClick}
+        ></calcite-fab>
     </calcite-flow-item>
 </calcite-flow>
 
