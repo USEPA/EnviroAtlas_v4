@@ -135,7 +135,6 @@
             id="data-catalog-fab" 
             data-testid="data-catalog-fab" 
             icon="chevrons-left" 
-            kind="neutral"
             on:click={handleFabClick}
             on:keypress={handleFabClick}
         ></calcite-fab>

@@ -58,34 +58,45 @@
     });
   }
 
-  let activeWidgetLeft = 'data-catalog';
+  let activeDataCatalog = 'national';
 
-  const handleActionBarClick = ({ target }) => {
+  const handleExpandClick = () => {
+    let bar = document.getElementById("left-action-bar");
+    let panel = document.getElementById("data-catalog");
+    let shell = document.getElementById("shell-panel-start");
+    bar.setAttribute("hidden", "");
+    panel.removeAttribute("hidden");
+    panel.setAttribute("open", "");
+    shell.removeAttribute("collapsed")
+  }
+
+  const handleCatalogActionClick = ({ target }) => {
     if (target.tagName !== "CALCITE-ACTION") {
       return;
     }
 
-    if (activeWidgetLeft) {
-      document.querySelector(`[data-action-id=${activeWidgetLeft}]`).active = false;
-      document.querySelector(`[data-panel-id=${activeWidgetLeft}]`).hidden = true;
-      document.querySelector(`[data-panel-id=${activeWidgetLeft}]`).closed = true;
-      document.querySelector(`[component-id="shell-panel-start"]`).collapsed = true;
-      console.log(activeWidgetLeft);
-    }
+    handleExpandClick();
 
-    const nextWidgetLeft = target.dataset.actionId;
-    if (nextWidgetLeft !== activeWidgetLeft) {
-      // these need to reference calcite components
-      // give the widgets their own varibale
-      document.querySelector(`[data-action-id=${nextWidgetLeft}]`).active = true;
-      document.querySelector(`[data-panel-id=${nextWidgetLeft}]`).hidden = false;
-      document.querySelector(`[data-panel-id=${nextWidgetLeft}]`).closed = false;
-      document.querySelector(`[component-id="shell-panel-start"]`).collapsed = false;
-      activeWidgetLeft = nextWidgetLeft;
-      console.log(activeWidgetLeft);
-    } else {
-      activeWidgetLeft = null;
-    }
+    const nextDataCatalog = target.dataset.actionId;
+
+    if (nextDataCatalog !== activeDataCatalog) {
+      let activeAction = document.querySelectorAll(`[data-action-id=${activeDataCatalog}]`);
+      activeAction.forEach((action) => {
+        action.removeAttribute("active")
+      });
+      document.querySelector(`[data-panel-id=${activeDataCatalog}]`).setAttribute("hidden", "");
+      let nextAction = document.querySelectorAll(`[data-action-id=${nextDataCatalog}]`);
+      nextAction.forEach((action) => {
+        action.setAttribute("active", "");
+      });
+      document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
+      activeDataCatalog = nextDataCatalog;
+      console.log(activeDataCatalog);
+    } 
+
+    nextDataCatalog == 'add-data' 
+      ? document.querySelector(`[id=catalog-search-filter]`).setAttribute("hidden", "") 
+      : document.querySelector(`[id=catalog-search-filter]`).removeAttribute("hidden");
   };
 
   let activeWidgetRight;
@@ -178,13 +189,51 @@
       role="menu" 
       tabindex="-1" 
     >
-      <calcite-action
+      <!-- <calcite-action
         tabindex="-1"
         role="button"
         data-action-id="data-catalog"
-        active
         icon="layers"
         text="EnviroAtlas Data Catalog"
+        on:click={handleActionBarClick}
+        on:keypress={handleActionBarClick}
+      /> -->
+      <calcite-action
+        tabindex="-1"
+        role="button"
+        data-action-id="national"
+        text="national"
+        icon="globe"
+        active
+        on:click={handleCatalogActionClick}
+        on:keypress={handleCatalogActionClick}
+      />
+      <calcite-action
+        tabindex="-1"
+        role="button"  
+        data-action-id="subnational"
+        text="subnational"
+        icon="urban-model"
+        on:click={handleCatalogActionClick}
+        on:keypress={handleCatalogActionClick}
+      />
+      <calcite-action
+        tabindex="-1"
+        role="button"  
+        data-action-id="climate-data-viewer-2"
+        text="climate-data-viewer"
+        icon="clock-forward"
+        on:click={handleCatalogActionClick}
+        on:keypress={handleCatalogActionClick}
+      />
+      <calcite-action
+        tabindex="-1"
+        role="button"
+        data-action-id="add-data"
+        text="add-data"
+        icon="add-layer"
+        on:click={handleCatalogActionClick}
+        on:keypress={handleCatalogActionClick}
       />
       <!-- <calcite-action
         data-action-id="climate-data-viewer"
@@ -200,8 +249,11 @@
         slot="actions-end"
         tabindex="-1"
         role="button"
+        data-action-id="expand"
         icon="chevrons-right"
         text="open data catalog"
+        on:click={handleExpandClick}
+        on:keypress={handleExpandClick}
       />
     </calcite-action-bar>
 
@@ -263,7 +315,7 @@
   >
     <div id="legend-container" bind:this={legendContainer} />
   </calcite-panel>
-  <SummarizeMyArea />
+  <SummarizeMyArea /> 
   </calcite-shell-panel>
 </calcite-shell>
 
