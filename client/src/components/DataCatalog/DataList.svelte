@@ -9,15 +9,22 @@
     import "@esri/calcite-components/dist/components/calcite-action-group";
 
     // Import components and store
+    import { catalog } from "src/store.ts";
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
     import eatopics from "src/shared/dataCatalog_initialize.json";
     import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
     import Bookmark from "src/components/ClimateChangeViewer/Bookmark.svelte";
+    // use npm published version now (in development used linked version via devLink utility
     import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
 
     export let view;
     export let map;
+    let activeDataCatalog;
+
+    catalog.subscribe((value) => {
+        console.log(value.type)
+    })
 
     window.ea.dataCatalog = {};
     window.ea.dataCatalog.view = () => {
@@ -27,8 +34,6 @@
     window.ea.dataCatalog.map = () => {
         return map;
     };
-
-    let activeDataCatalog = "national";
 
     const handleFabClick = () => {
         let bar = document.getElementById("left-action-bar");
@@ -47,20 +52,24 @@
 
         const nextDataCatalog = target.dataset.actionId;
 
-        if (nextDataCatalog !== activeDataCatalog) {
-            document.querySelector(`[data-action-id=${activeDataCatalog}]`).active = false;
-            document.querySelector(`[data-panel-id=${activeDataCatalog}]`).hidden = true;
-            document.querySelector(`[data-action-id=${nextDataCatalog}]`).active = true;
-            document.querySelector(`[data-panel-id=${nextDataCatalog}]`).hidden = false;
-            activeDataCatalog = nextDataCatalog;
-            console.log(activeDataCatalog);
+        if (nextDataCatalog !== $catalog.type) {
+            let activeDataCatalog = $catalog.type;
+            let activeAction = document.querySelectorAll(`[data-action-id=${activeDataCatalog}]`);
+            activeAction.forEach((action) => {
+                action.removeAttribute("active")
+            });
+            document.querySelector(`[data-panel-id=${activeDataCatalog}]`).setAttribute("hidden", "");
+            let nextAction = document.querySelectorAll(`[data-action-id=${nextDataCatalog}]`);
+            nextAction.forEach((action) => {
+                action.setAttribute("active", "")
+            });         
+            document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
+            $catalog.type = nextDataCatalog;
         } 
 
         nextDataCatalog == 'add-data' 
-            ? document.querySelector(`[id=catalog-search-filter]`).hidden 
-                = true 
-            : document.querySelector(`[id=catalog-search-filter]`).hidden 
-                = false;
+            ? document.querySelector(`[id=catalog-search-filter]`).setAttribute("hidden", "")
+            : document.querySelector(`[id=catalog-search-filter]`).removeAttribute("hidden");
         
     };
 </script>
@@ -101,7 +110,7 @@
                 scale="l"
             ></calcite-action>
         </calcite-action-bar>
-        <CatalogActionBar type={activeDataCatalog} />
+        <CatalogActionBar type={$catalog.type} />
         <ClimateChangeViewer view={view} />
         <Bookmark view={view}/>
         <AddData map={map} />

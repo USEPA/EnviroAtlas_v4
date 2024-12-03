@@ -14,22 +14,21 @@
   import Legend from "@arcgis/core/widgets/Legend";
 
   // Import components and store
-  import { viewState, mapState } from "../store";
-  import SummarizeMyArea from "./SummarizeMyArea.svelte";
-  import ClimateChangeViewer from "./ClimateChangeViewer/ClimateChangeViewer.svelte";
-  import DataCatalog from "./DataCatalog/DataList.svelte";
-  //import AddData from "./AddData/index.svelte";
-  //use npm published version now (in development used linked version via devLink utility
-  import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
-  import Modal from "./Modal.svelte";
+  import { viewState, catalog } from "src/store.ts";
+  import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
+  import DataCatalog from "src/components/DataCatalog/DataList.svelte";
+  import Modal from "src/components/Modal.svelte";
 
   let bmgContainer;
   let layerListContainer;
   let legendContainer;
 
-  let item = {};
   let view;
   let loaded = true;
+
+  catalog.subscribe((value) => {
+    console.log(value.type)
+  })
 
   viewState.subscribe((value) => {
     view = value.view;
@@ -58,8 +57,6 @@
     });
   }
 
-  let activeDataCatalog = 'national';
-
   const handleExpandClick = () => {
     let bar = document.getElementById("left-action-bar");
     let panel = document.getElementById("data-catalog");
@@ -79,19 +76,18 @@
 
     const nextDataCatalog = target.dataset.actionId;
 
-    if (nextDataCatalog !== activeDataCatalog) {
-      let activeAction = document.querySelectorAll(`[data-action-id=${activeDataCatalog}]`);
+    if (nextDataCatalog !== $catalog.type) {
+      let activeAction = document.querySelectorAll(`[data-action-id=${$catalog.type}]`);
       activeAction.forEach((action) => {
         action.removeAttribute("active")
       });
-      document.querySelector(`[data-panel-id=${activeDataCatalog}]`).setAttribute("hidden", "");
+      document.querySelector(`[data-panel-id=${$catalog.type}]`).setAttribute("hidden", "");
       let nextAction = document.querySelectorAll(`[data-action-id=${nextDataCatalog}]`);
       nextAction.forEach((action) => {
         action.setAttribute("active", "");
       });
       document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
-      activeDataCatalog = nextDataCatalog;
-      console.log(activeDataCatalog);
+      $catalog.type = nextDataCatalog;
     } 
 
     nextDataCatalog == 'add-data' 
