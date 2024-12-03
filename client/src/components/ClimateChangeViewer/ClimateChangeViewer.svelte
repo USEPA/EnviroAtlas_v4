@@ -130,7 +130,7 @@
     }
 </script>
 
-<calcite-panel data-panel-id="climate-data-viewer-2" heading="Climate Data Viewer" open hidden>
+<calcite-panel data-testid="climate-data-viewer-2" data-panel-id="climate-data-viewer-2" heading="Climate Data Viewer" open hidden>
     <calcite-button width="half" slot="footer" appearance="outline">
         Reset
     </calcite-button>

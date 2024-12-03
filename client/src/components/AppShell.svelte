@@ -208,6 +208,7 @@
         tabindex="-1"
         role="button"  
         data-action-id="subnational"
+        data-testid="subnational-sidebar-action"
         text="subnational"
         icon="urban-model"
         on:click={handleCatalogActionClick}
@@ -231,21 +232,12 @@
         on:click={handleCatalogActionClick}
         on:keypress={handleCatalogActionClick}
       />
-      <!-- <calcite-action
-        data-action-id="climate-data-viewer"
-        icon="clock-forward"
-        text="Climate Change Data Viewer"
-      /> 
-      <calcite-action
-        data-action-id="add-data"
-        icon="plus-square"
-        text="Add Data"
-      /> -->
       <calcite-action
         slot="actions-end"
         tabindex="-1"
         role="button"
         data-action-id="expand"
+        data-testid="data-catalog-expand"
         icon="chevrons-right"
         text="open data catalog"
         on:click={handleExpandClick}

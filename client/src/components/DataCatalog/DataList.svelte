@@ -93,6 +93,7 @@
             ></calcite-action>
             <calcite-action
                 data-action-id="subnational"
+                data-testid="subnational-catalog-action"
                 text="subnational"
                 icon="urban-model"
                 scale="l"
@@ -114,7 +115,7 @@
         <ClimateChangeViewer view={view} />
         <Bookmark view={view}/>
         <AddData map={map} />
-        <calcite-block data-panel-id="national" heading="National Catalog" open>
+        <calcite-block data-panel-id="national" heading="National Catalog" open data-testid="national">
             <calcite-list selection-mode="none">
                 {#each eatopics as eatopic}
                     <calcite-list-item
@@ -135,7 +136,7 @@
                 {/each}
             </calcite-list>
         </calcite-block>
-        <calcite-block data-panel-id="subnational" heading="Subnational Catalog" open hidden>
+        <calcite-block data-testid="subnational" data-panel-id="subnational" heading="Subnational Catalog" open hidden>
         </calcite-block>
         <calcite-fab
             slot="fab"
