@@ -64,3 +64,7 @@ export function resetSMA(): void {
     // nlcdChange2Combobox.value = '';
     // summaryUnitCombobox.value = '';
 }
+
+export const catalog = writable({
+    type: "national"
+})
