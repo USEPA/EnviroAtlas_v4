@@ -1,7 +1,7 @@
 import '/src/app.css';
 import App from '/src/App.svelte';
 import { setAssetPath } from '@esri/calcite-components/dist/components';
-setAssetPath('https://js.arcgis.com/calcite-components/2.8.5/assets');
+setAssetPath('https://js.arcgis.com/calcite-components/2.13.2/assets');
 
 if (!window.ea ) window.ea = {};
 
