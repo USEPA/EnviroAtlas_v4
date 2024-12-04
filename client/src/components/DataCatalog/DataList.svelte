@@ -20,7 +20,6 @@
 
     export let view;
     export let map;
-    let activeDataCatalog;
 
     catalog.subscribe((value) => {
         console.log(value.type)
@@ -34,6 +33,38 @@
     window.ea.dataCatalog.map = () => {
         return map;
     };
+
+    async function updateListStyle(elem) {
+        const shadow = elem.shadowRoot;
+        const stylesheet = new CSSStyleSheet();
+        stylesheet.replaceSync(`
+            .content, .custom-content {
+                height: 19px;
+            }
+        `);
+        shadow.adoptedStyleSheets = [stylesheet];
+    }
+
+    (async () => {
+        await customElements
+        .whenDefined("calcite-list-item");
+            const listESB = await document.querySelectorAll("calcite-list-item.ESB");
+            listESB.forEach((elem) => {
+                updateListStyle(elem);
+            });
+            const listPSI = await document.querySelectorAll("calcite-list-item.PSI");
+            listPSI.forEach((elem) => {
+                updateListStyle(elem);
+            });
+            const listPBS = await document.querySelectorAll("calcite-list-item.PBS");
+            listPBS.forEach((elem) => {
+                updateListStyle(elem);
+            });
+            const listBNF = await document.querySelectorAll("calcite-list-item.BNF");
+            listBNF.forEach((elem) => {
+                updateListStyle(elem);
+            });
+    })();
 
     const handleFabClick = () => {
         let bar = document.getElementById("left-action-bar");
