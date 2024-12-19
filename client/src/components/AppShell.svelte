@@ -14,7 +14,7 @@
   import Legend from "@arcgis/core/widgets/Legend";
 
   // Import components and store
-  import { viewState, catalog } from "src/store.ts";
+  import { viewState, catalog, activeWidget } from "src/store.ts";
   import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
@@ -105,33 +105,29 @@
       : document.querySelector(`[id=catalog-search-filter]`).removeAttribute("hidden");
   };
 
-  let activeWidgetRight;
-
   const handleOtherActionBarClick = ({ target }) => {
     if (target.tagName !== "CALCITE-ACTION") {
       return;
     }
-
-    if (activeWidgetRight) {
-      document.querySelector(`[data-action-id=${activeWidgetRight}]`).active = false;
-      document.querySelector(`[data-panel-id=${activeWidgetRight}]`).hidden = true;
-      document.querySelector(`[data-panel-id=${activeWidgetRight}]`).closed = true;
+    // If there's one already active, close things.
+    if ($activeWidget.right) {
+      document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
+      document.querySelector(`[data-panel-id=${$activeWidget.right}]`).hidden = true;
+      document.querySelector(`[data-panel-id=${$activeWidget.right}]`).closed = true;
       document.querySelector(`[component-id="shell-panel-end"]`).collapsed = true;
-      console.log(activeWidgetRight);
     }
 
+    // Figure out what was clicked
     const nextWidgetRight = target.dataset.actionId;
-    if (nextWidgetRight !== activeWidgetRight) {
-      // these need to reference calcite components
-      // give the widgets their own varibale
+    // If there's a change, open things, and update store value to what was clicked
+    if (nextWidgetRight !== $activeWidget.right) {
       document.querySelector(`[data-action-id=${nextWidgetRight}]`).active = true;
       document.querySelector(`[data-panel-id=${nextWidgetRight}]`).hidden = false;
       document.querySelector(`[data-panel-id=${nextWidgetRight}]`).closed = false;
       document.querySelector(`[component-id="shell-panel-end"]`).collapsed = false;
-      activeWidgetRight = nextWidgetRight;
-      console.log(activeWidgetRight);
+      $activeWidget.right = nextWidgetRight;
     } else {
-      activeWidgetRight = null;
+      $activeWidget.right = null;
     }
   };
 
@@ -150,7 +146,7 @@
         const shellElement = target.parentElement;
         shellElement.collapsed = !shellElement.collapsed;
         document.querySelector('[data-action-id="basemaps"]').active = false;
-        console.log(activeWidgetRight);
+        $activeWidget.right = null;
     };
 </script>
 
