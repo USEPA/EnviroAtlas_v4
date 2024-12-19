@@ -49,6 +49,16 @@
     const layerList = new LayerList({
       view,
       container: layerListContainer,
+      listItemCreatedFunction: (e) => {
+        const item = e.item;
+        if (item.layer.type != "group") {
+          //don't show legend twice
+          item.panel = {
+            content: "legend",
+            open: true
+          };
+        }
+      }
     });
 
     const legend = new Legend({
