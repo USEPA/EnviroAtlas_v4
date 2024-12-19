@@ -2,7 +2,7 @@
     import { getEALayerObject, addLayer } from "src/shared/addtoMap.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import detailConfig from "src/shared/dataCatalog_details_1layer.json";
-    import { onMount } from "svelte";
+    import { activeWidget } from "src/store.ts";
 
     export let subtopic;
     export let view;
@@ -11,6 +11,7 @@
 
 
     function getEALayerId() {
+        openLayerList()
         if (subtopic.layers.length < 2) {
             layerID = subtopic.layers[0].eaID
         }
@@ -18,6 +19,30 @@
         let lObject = getEALayerObject(layerID);
         // TODO: error handle if lObject is empty 
         addLayer(lObject, view);
+    }
+
+    function openLayerList() {
+        // TODO: Given the right side panel is closed, when Add to map is clicked, the right side panel opens with the layer list visible
+        let shell = document.querySelector(`[component-id="shell-panel-end"]`);
+        let layerPanel = document.querySelector(`[data-panel-id="layers"]`)
+        if (!$activeWidget.right) {
+            layerPanel.removeAttribute("hidden");
+            layerPanel.setAttribute("open", "");
+            shell.removeAttribute("collapsed");
+            $activeWidget.right = "layers";
+            document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = true;
+        } else if ($activeWidget.right !== "layers") {
+            // TODO: Given the right side panel is open, when Add to map is clicked, the right side panel remains open and has layer list visible
+            console.log("toggle off of ", $activeWidget.right)
+            layerPanel.removeAttribute("hidden");
+            layerPanel.removeAttribute("closed");
+            layerPanel.setAttribute("open", "");
+            document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
+            document.querySelector(`[data-panel-id=${$activeWidget.right}]`).hidden = true;
+            document.querySelector(`[data-panel-id=${$activeWidget.right}]`).closed = true;
+            $activeWidget.right = "layers";
+            document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = true;
+        }
     }
 
     function subtopicSelected(event) {
