@@ -68,3 +68,7 @@ export function resetSMA(): void {
 export const catalog = writable({
     type: "national"
 })
+
+export const activeWidget = writable({
+    right: null
+})
