@@ -48,6 +48,7 @@
     (async () => {
         await customElements
         .whenDefined("calcite-list-item");
+            // TODO: tidy this up.
             const listESB = await document.querySelectorAll("calcite-list-item.ESB");
             listESB.forEach((elem) => {
                 updateListStyle(elem);

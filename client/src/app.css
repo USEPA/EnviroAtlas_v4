@@ -28,3 +28,7 @@ calcite-block {
   margin-right: 4px;
   margin-bottom: 0px;
 }
+
+.esri-ui {
+  inset: 0px !important;
+}

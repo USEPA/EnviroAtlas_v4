@@ -11,17 +11,15 @@
   // Import arcgis js api
   import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
   import LayerList from "@arcgis/core/widgets/LayerList";
-  import Legend from "@arcgis/core/widgets/Legend";
 
   // Import components and store
-  import { viewState, catalog } from "src/store.ts";
+  import { viewState, catalog, activeWidget } from "src/store.ts";
   import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
 
   let bmgContainer;
   let layerListContainer;
-  let legendContainer;
 
   let view;
   let loaded = true;
@@ -49,11 +47,16 @@
     const layerList = new LayerList({
       view,
       container: layerListContainer,
-    });
-
-    const legend = new Legend({
-      view,
-      container: legendContainer,
+      listItemCreatedFunction: (e) => {
+        const item = e.item;
+        if (item.layer.type != "group") {
+          //don't show legend twice
+          item.panel = {
+            content: "legend",
+            open: true
+          };
+        }
+      }
     });
   }
 
@@ -95,33 +98,29 @@
       : document.querySelector(`[id=catalog-search-filter]`).removeAttribute("hidden");
   };
 
-  let activeWidgetRight;
-
   const handleOtherActionBarClick = ({ target }) => {
     if (target.tagName !== "CALCITE-ACTION") {
       return;
     }
-
-    if (activeWidgetRight) {
-      document.querySelector(`[data-action-id=${activeWidgetRight}]`).active = false;
-      document.querySelector(`[data-panel-id=${activeWidgetRight}]`).hidden = true;
-      document.querySelector(`[data-panel-id=${activeWidgetRight}]`).closed = true;
+    // If there's one already active, close things.
+    if ($activeWidget.right) {
+      document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
+      document.querySelector(`[data-panel-id=${$activeWidget.right}]`).hidden = true;
+      document.querySelector(`[data-panel-id=${$activeWidget.right}]`).closed = true;
       document.querySelector(`[component-id="shell-panel-end"]`).collapsed = true;
-      console.log(activeWidgetRight);
     }
 
+    // Figure out what was clicked
     const nextWidgetRight = target.dataset.actionId;
-    if (nextWidgetRight !== activeWidgetRight) {
-      // these need to reference calcite components
-      // give the widgets their own varibale
+    // If there's a change, open things, and update store value to what was clicked
+    if (nextWidgetRight !== $activeWidget.right) {
       document.querySelector(`[data-action-id=${nextWidgetRight}]`).active = true;
       document.querySelector(`[data-panel-id=${nextWidgetRight}]`).hidden = false;
       document.querySelector(`[data-panel-id=${nextWidgetRight}]`).closed = false;
       document.querySelector(`[component-id="shell-panel-end"]`).collapsed = false;
-      activeWidgetRight = nextWidgetRight;
-      console.log(activeWidgetRight);
+      $activeWidget.right = nextWidgetRight;
     } else {
-      activeWidgetRight = null;
+      $activeWidget.right = null;
     }
   };
 
@@ -135,13 +134,12 @@
     });
   };
 
-  export const handleBasemapPanelClose = function (ev) {
-        const target = ev.target;
-        const shellElement = target.parentElement;
-        shellElement.collapsed = !shellElement.collapsed;
-        document.querySelector('[data-action-id="basemaps"]').active = false;
-        console.log(activeWidgetRight);
-    };
+  export const handleBasemapPanelClose = function (e) {
+    const target = e.target;
+    const shellElement = target.parentElement;
+    shellElement.collapsed = !shellElement.collapsed;
+    document.querySelector('[data-action-id="basemaps"]').active = false;
+  };
 </script>
 
 <calcite-shell>
@@ -185,15 +183,6 @@
       role="menu" 
       tabindex="-1" 
     >
-      <!-- <calcite-action
-        tabindex="-1"
-        role="button"
-        data-action-id="data-catalog"
-        icon="layers"
-        text="EnviroAtlas Data Catalog"
-        on:click={handleActionBarClick}
-        on:keypress={handleActionBarClick}
-      /> -->
       <calcite-action
         tabindex="-1"
         role="button"
@@ -244,10 +233,7 @@
         on:keypress={handleExpandClick}
       />
     </calcite-action-bar>
-
     <DataCatalog view={$viewState.view}/>
-    <!-- <ClimateChangeViewer view={$viewState.view}/> -->
-    <!-- <AddData map={$mapState.map} /> -->
   </calcite-shell-panel>
   <slot></slot>
   <Modal />
@@ -259,7 +245,7 @@
     position='end'
     width-scale="m"
   >
-  <calcite-action-bar role="menu" tabindex="-1" slot="action-bar" on:click={handleOtherActionBarClick} on:keypress={handleOtherActionBarClick}>
+  <calcite-action-bar expand-disabled role="menu" tabindex="-1" slot="action-bar" on:click={handleOtherActionBarClick} on:keypress={handleOtherActionBarClick}>
     <calcite-action data-action-id="layers" icon="layers" text="Layers" />
     <calcite-action
       data-action-id="basemaps"
@@ -275,7 +261,6 @@
       text="Summarize My Area"
     />
   </calcite-action-bar>
-
   <calcite-panel
     heading="Layers"
     height-scale="l"
@@ -294,14 +279,6 @@
     on:calcitePanelClose={handleBasemapPanelClose}
   >
     <div id="basemaps-container" bind:this={bmgContainer} />
-  </calcite-panel>
-  <calcite-panel
-    heading="Legend"
-    height-scale="l"
-    data-panel-id="legend"
-    hidden
-  >
-    <div id="legend-container" bind:this={legendContainer} />
   </calcite-panel>
   <SummarizeMyArea /> 
   </calcite-shell-panel>
