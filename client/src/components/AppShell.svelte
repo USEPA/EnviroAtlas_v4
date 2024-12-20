@@ -11,7 +11,6 @@
   // Import arcgis js api
   import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
   import LayerList from "@arcgis/core/widgets/LayerList";
-  import Legend from "@arcgis/core/widgets/Legend";
 
   // Import components and store
   import { viewState, catalog, activeWidget } from "src/store.ts";
@@ -21,7 +20,6 @@
 
   let bmgContainer;
   let layerListContainer;
-  let legendContainer;
 
   let view;
   let loaded = true;
@@ -59,11 +57,6 @@
           };
         }
       }
-    });
-
-    const legend = new Legend({
-      view,
-      container: legendContainer,
     });
   }
 
@@ -141,13 +134,12 @@
     });
   };
 
-  export const handleBasemapPanelClose = function (ev) {
-        const target = ev.target;
-        const shellElement = target.parentElement;
-        shellElement.collapsed = !shellElement.collapsed;
-        document.querySelector('[data-action-id="basemaps"]').active = false;
-        $activeWidget.right = null;
-    };
+  export const handleBasemapPanelClose = function (e) {
+    const target = e.target;
+    const shellElement = target.parentElement;
+    shellElement.collapsed = !shellElement.collapsed;
+    document.querySelector('[data-action-id="basemaps"]').active = false;
+  };
 </script>
 
 <calcite-shell>
@@ -191,15 +183,6 @@
       role="menu" 
       tabindex="-1" 
     >
-      <!-- <calcite-action
-        tabindex="-1"
-        role="button"
-        data-action-id="data-catalog"
-        icon="layers"
-        text="EnviroAtlas Data Catalog"
-        on:click={handleActionBarClick}
-        on:keypress={handleActionBarClick}
-      /> -->
       <calcite-action
         tabindex="-1"
         role="button"
@@ -250,10 +233,7 @@
         on:keypress={handleExpandClick}
       />
     </calcite-action-bar>
-
     <DataCatalog view={$viewState.view}/>
-    <!-- <ClimateChangeViewer view={$viewState.view}/> -->
-    <!-- <AddData map={$mapState.map} /> -->
   </calcite-shell-panel>
   <slot></slot>
   <Modal />
@@ -265,7 +245,7 @@
     position='end'
     width-scale="m"
   >
-  <calcite-action-bar role="menu" tabindex="-1" slot="action-bar" on:click={handleOtherActionBarClick} on:keypress={handleOtherActionBarClick}>
+  <calcite-action-bar expand-disabled role="menu" tabindex="-1" slot="action-bar" on:click={handleOtherActionBarClick} on:keypress={handleOtherActionBarClick}>
     <calcite-action data-action-id="layers" icon="layers" text="Layers" />
     <calcite-action
       data-action-id="basemaps"
@@ -281,7 +261,6 @@
       text="Summarize My Area"
     />
   </calcite-action-bar>
-
   <calcite-panel
     heading="Layers"
     height-scale="l"
@@ -300,14 +279,6 @@
     on:calcitePanelClose={handleBasemapPanelClose}
   >
     <div id="basemaps-container" bind:this={bmgContainer} />
-  </calcite-panel>
-  <calcite-panel
-    heading="Legend"
-    height-scale="l"
-    data-panel-id="legend"
-    hidden
-  >
-    <div id="legend-container" bind:this={legendContainer} />
   </calcite-panel>
   <SummarizeMyArea /> 
   </calcite-shell-panel>
