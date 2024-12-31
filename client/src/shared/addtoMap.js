@@ -3,6 +3,22 @@ import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 
 export let view;
 
+// Generic ea api call function
+export async function getEaData(url, params) {
+    let paramText = '';
+    for (const key in params) {
+        paramText += `${key}=${params[key]}&`
+    }
+    let constructedUrl = `${url}?${paramText.slice(0,-1)}`;
+    try {
+        let res = await fetch(constructedUrl);
+        let data = await res.json();
+        return data;
+    } catch (e) {
+        console.error("Error fetching data: ", e)
+    }
+}
+
 // When Add to Map button is clicked, get object from the mapping config
 export function getEALayerObject(id) {
     var filtered = layerConfig.filter(lyr => lyr.eaID == id)
