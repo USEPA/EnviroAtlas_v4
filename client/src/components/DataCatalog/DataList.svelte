@@ -21,6 +21,7 @@
 
     export let view;
     export let map;
+    let subtopicObj = {};
 
     catalog.subscribe((value) => {
         console.log(value.type)
@@ -41,19 +42,38 @@
     };
 
     let eaTopics = getEaData("/ea/api/subtopics", topicParams)
-        .then(function(data) {
+        .then((data) => {
             let categoryOrder = { ESB: 1, PSI: 2, PBS: 3, BNF: 4};
             data.sort((a,b) => a.topic.localeCompare(b.topic));
             data.sort((a,b) => categoryOrder[a.categoryTab] - categoryOrder[b.categoryTab]);
+            // Add empty subtopic array to each array objects
+            data = data.map(obj => ({...obj, subtopic: []}))
             console.log("api call: ", data);
             return data
         });
     
+    let subtopicParams = {
+        select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"tags":1,"name":1}}`),
+        where: encodeURIComponent(`{"topic":"Carbon Storage"}`)
+    };
+    
+    (async (eaTopics) => {
+        await eaTopics
+        .then((eaTopics) => {
+            console.log(eaTopics);
+        })
+    })
 
     // when list item is opened, call the api to populate the items.
     const getSubtopics = ({ target }) => {
         //let topicName = eatopics.topic;
         console.log(target.value);
+    }
+
+    const getSubtopicObject = (topic) => {
+        // TODO: Get the subtopic object from api using the topic name
+        // TODO: then, pass to CatalogListItem component
+        console.log(topic);
     }
     
     async function updateListStyle(elem) {
@@ -181,8 +201,8 @@
                         value={ea.topic}
                         role="button"
                         tabindex="0"
-                        on:click={getSubtopics}
-                        on:keypress={getSubtopics}
+                        on:click={subtopicObj = () => getSubtopicObject(ea.topic)}
+                        on:keypress={subtopicObj = () => getSubtopicObject(ea.topic)}
                     >
                         <calcite-list
                             id="not-header"
