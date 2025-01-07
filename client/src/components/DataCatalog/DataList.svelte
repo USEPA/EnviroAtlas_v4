@@ -21,11 +21,8 @@
 
     export let view;
     export let map;
-    let subtopicObj = {};
 
-    catalog.subscribe((value) => {
-        console.log(value.type)
-    })
+    catalog.subscribe;
 
     window.ea.dataCatalog = {};
     window.ea.dataCatalog.view = () => {
@@ -47,35 +44,38 @@
             data.sort((a,b) => a.topic.localeCompare(b.topic));
             data.sort((a,b) => categoryOrder[a.categoryTab] - categoryOrder[b.categoryTab]);
             // Add empty subtopic array to each array objects
-            data = data.map(obj => ({...obj, subtopic: []}))
-            console.log("api call: ", data);
+            // data = data.map(obj => ({...obj, subtopic: []}))
+            // load national data into the store
+            $catalog.national = data;
             return data
+        }).catch(err => {
+            console.error(err);
         });
-    
-    let subtopicParams = {
-        select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"tags":1,"name":1}}`),
-        where: encodeURIComponent(`{"topic":"Carbon Storage"}`)
-    };
-    
-    (async (eaTopics) => {
-        await eaTopics
-        .then((eaTopics) => {
-            console.log(eaTopics);
-        })
-    })
 
-    // when list item is opened, call the api to populate the items.
-    const getSubtopics = ({ target }) => {
-        //let topicName = eatopics.topic;
-        console.log(target.value);
+    async function getEaSubtopics(data) {
+        // Create for loop to load in all subtopics to build UI object
+        for (const prop in data) {
+            // console.log(`${prop}: ${data[prop].topic}`);
+            //apply topic to subtopic params
+            let subtopicParams = {
+                select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"tags":1,"name":1}}`),
+                where: encodeURIComponent(`{"topic":"${data[prop].topic}"}`)
+            };
+            // get subtopic object from api
+            // return promise object resolve, not the whole promise object
+            let res = await getEaData("/ea/api/subtopics", subtopicParams);
+            // console.log(res);
+            // take the result and put into data, subtopic object
+            data[prop].subtopic = res;
+            $catalog.national[prop].subtopic = res;
+        }
+        // console.log(data);
+        //$catalog.national = data;
+        return data
     }
 
-    const getSubtopicObject = (topic) => {
-        // TODO: Get the subtopic object from api using the topic name
-        // TODO: then, pass to CatalogListItem component
-        console.log(topic);
-    }
-    
+    eaTopics.then((result) => getEaSubtopics(result));
+
     async function updateListStyle(elem) {
         const shadow = elem.shadowRoot;
         const stylesheet = new CSSStyleSheet();
@@ -87,6 +87,7 @@
         shadow.adoptedStyleSheets = [stylesheet];
     }
 
+    //TODO: need to fix this since the api calls changed the call stack 
     (async () => {
         await customElements
         .whenDefined("calcite-list-item");
@@ -194,24 +195,22 @@
                 {#await eaTopics}
                     <p>...loading</p>
                 {:then eaTopics}
-                    {#each eaTopics as ea}
+                    {#each $catalog.national as ea}
                     <calcite-list-item
                         class={ea.categoryTab}
                         label={ea.topic}
                         value={ea.topic}
-                        role="button"
-                        tabindex="0"
-                        on:click={subtopicObj = () => getSubtopicObject(ea.topic)}
-                        on:keypress={subtopicObj = () => getSubtopicObject(ea.topic)}
                     >
                         <calcite-list
                             id="not-header"
                             group="trails"
                             selection-mode="none"
                         >
-                            <!-- {#each eatopic.subtopic as subtopic}
+                        {#if ea.subtopic}
+                            {#each ea.subtopic as subtopic}
                                 <CatalogListItem {subtopic} {view} />
-                            {/each} -->
+                            {/each}
+                        {/if}
                         </calcite-list>
                     </calcite-list-item>
                     {/each}

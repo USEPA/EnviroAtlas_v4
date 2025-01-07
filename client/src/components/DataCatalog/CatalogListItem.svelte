@@ -98,8 +98,8 @@
         >
             {#each subtopic.layers as layer}
                 <calcite-combobox-item
-                    value={layer.eaID}
-                    text-label={layer.title}
+                    value={layer.layerID}
+                    text-label={layer.subLayerName}
                 ></calcite-combobox-item>
             {/each}
         </calcite-combobox>

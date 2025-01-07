@@ -24,9 +24,7 @@
   let view;
   let loaded = true;
 
-  catalog.subscribe((value) => {
-    console.log(value.type)
-  })
+  catalog.subscribe;
 
   viewState.subscribe((value) => {
     view = value.view;
