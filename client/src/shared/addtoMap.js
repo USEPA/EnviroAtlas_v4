@@ -21,34 +21,34 @@ export async function getEaData(url, params) {
 
 // When Add to Map button is clicked, get object from the mapping config
 export function getEALayerObject(id) {
-    var filtered = layerConfig.filter(lyr => lyr.eaID == id)
-    return filtered
+    // use api to fetch layer object
+    let layerParams = {
+        select: encodeURIComponent(`{"layerID":1,"name":1,"cacheLevelNat":1,"lyrNum":1,"popup":1,"tileLink":1,"tileURL":1,"type":1,"url":1}`)
+    }
+    let lObj = getEaData(`/ea/api/layers/${id}`, layerParams)
+    return lObj
 }
 
 // addLayer function is passed an array of objects (like feature and tile layers)
 export function addLayer(lObj, view) {
     // TODO: apply defaults to lObj, like opacity=0.6
     console.log(lObj);
-    lObj.forEach(lyr => {
-        const url = Object.hasOwn(lyr, 'eaLyrNum') ? `${lyr.url}/${lyr.eaLyrNum}` : lyr.url;
-        console.log(url);
-        // feature server URL
-        var copiedLayer = new FeatureLayer({
-            url,
-            title: lyr.name
-        });
-        console.log('lObj', copiedLayer);
-
-        setupErrorHandling(copiedLayer);
-        
-        copiedLayer.on('layerview-create', function () {
-            // TODO: popup config?
-
-        });
-        
-        view.map.add(copiedLayer);
-
+    const url = Object.hasOwn(lObj, 'eaLyrNum') ? `${lObj.url}/${lObj.lyrNum}` : lObj.url;
+    console.log(url);
+    // feature server URL
+    var copiedLayer = new FeatureLayer({
+        url,
+        title: lObj.name
     });
+    console.log('lObj', copiedLayer);
+
+    setupErrorHandling(copiedLayer);
+        
+    copiedLayer.on('layerview-create', function () {
+            // TODO: popup config?
+    });
+        
+    view.map.add(copiedLayer);
 };
 
 // TODO: look for tileLink = yes in object attributes, split into 2 objects for addLayer function

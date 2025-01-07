@@ -10,16 +10,17 @@
     let detailsObj = {};
 
 
-    function getEALayerId() {
+    async function getEALayerId() {
         if (subtopic.layers.length < 2) {
-            layerID = subtopic.layers[0].eaID
+            layerID = subtopic.layers[0].layerID
         }
         console.log('EA Layer: ', layerID)
-        let lObject = getEALayerObject(layerID);
+        let lObject = await getEALayerObject(layerID);
+        console.log(lObject);
         // TODO: error handle if lObject is empty 
         addLayer(lObject, view);
         // If there is a layer added, open the Layer List
-        if (lObject.length > 0) {
+        if (lObject) {
             openLayerList();
         }
     }
