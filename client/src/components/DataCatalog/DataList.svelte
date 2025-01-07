@@ -9,7 +9,7 @@
     import "@esri/calcite-components/dist/components/calcite-action-group";
 
     // Import components and store
-    import { catalog } from "src/store.ts";
+    import { catalog, nationalItems } from "src/store.ts";
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
     //import eatopics from "src/shared/dataCatalog_initialize.json";
@@ -23,6 +23,7 @@
     export let map;
 
     catalog.subscribe;
+    nationalItems.subscribe;
 
     window.ea.dataCatalog = {};
     window.ea.dataCatalog.view = () => {
@@ -46,7 +47,7 @@
             // Add empty subtopic array to each array objects
             // data = data.map(obj => ({...obj, subtopic: []}))
             // load national data into the store
-            $catalog.national = data;
+            $nationalItems = data;
             return data
         }).catch(err => {
             console.error(err);
@@ -67,7 +68,7 @@
             // console.log(res);
             // take the result and put into data, subtopic object
             data[prop].subtopic = res;
-            $catalog.national[prop].subtopic = res;
+            $nationalItems[prop].subtopic = res;
         }
         // console.log(data);
         //$catalog.national = data;
@@ -194,8 +195,8 @@
             <calcite-list selection-mode="none">
                 {#await eaTopics}
                     <p>...loading</p>
-                {:then eaTopics}
-                    {#each $catalog.national as ea}
+                {:then}
+                    {#each $nationalItems as ea}
                     <calcite-list-item
                         class={ea.categoryTab}
                         label={ea.topic}
