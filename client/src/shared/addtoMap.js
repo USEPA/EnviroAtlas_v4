@@ -1,4 +1,3 @@
-import layerConfig from "src/shared/dataCatalog_layerConfig.json";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 
 export let view;
@@ -23,6 +22,7 @@ export async function getEaData(url, params) {
 export function getEALayerObject(id) {
     // use api to fetch layer object
     let layerParams = {
+        //TODO: where did type go?
         select: encodeURIComponent(`{"layerID":1,"name":1,"cacheLevelNat":1,"lyrNum":1,"popup":1,"tileLink":1,"tileURL":1,"type":1,"url":1}`)
     }
     let lObj = getEaData(`/ea/api/layers/${id}`, layerParams)
@@ -33,7 +33,8 @@ export function getEALayerObject(id) {
 export function addLayer(lObj, view) {
     // TODO: apply defaults to lObj, like opacity=0.6
     console.log(lObj);
-    const url = Object.hasOwn(lObj, 'eaLyrNum') ? `${lObj.url}/${lObj.lyrNum}` : lObj.url;
+    //TODO: fix lyrNum to int
+    const url = Object.hasOwn(lObj, 'lyrNum') ? `${lObj.url}/${lObj.lyrNum}` : lObj.url;
     console.log(url);
     // feature server URL
     var copiedLayer = new FeatureLayer({
