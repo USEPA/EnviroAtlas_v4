@@ -56,7 +56,7 @@
         // Create for loop to load in all subtopics to build UI object
         for (const prop in data) {
             // console.log(`${prop}: ${data[prop].topic}`);
-            // apply topic to subtopic params
+            //apply topic to subtopic params
             let subtopicParams = {
                 select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"tags":1,"name":1}}`),
                 where: encodeURIComponent(`{"topic":"${data[prop].topic}"}`)
@@ -64,13 +64,16 @@
             // get subtopic object from api
             // return promise object resolve, not the whole promise object
             let res = await getEaData("/ea/api/subtopics", subtopicParams);
-            // take the result and put into store subtopic object
+            // console.log(res);
+            // take the result and put into data, subtopic object
+            data[prop].subtopic = res;
             $nationalItems[prop].subtopic = res;
         }
+        // console.log(data);
+        //$catalog.national = data;
         return data
     }
 
-    // wait for eaTopics to finish before updating data for catalog UI
     eaTopics.then((result) => getEaSubtopics(result));
 
     async function updateListStyle(elem) {
@@ -84,10 +87,8 @@
         shadow.adoptedStyleSheets = [stylesheet];
     }
 
-    // Need to wait for eaTopics to load before styling list
-    eaTopics.then(() => styleList());
-
-    async function styleList() {
+    //TODO: need to fix this since the api calls changed the call stack 
+    (async () => {
         await customElements
         .whenDefined("calcite-list-item");
             // TODO: tidy this up.
@@ -107,7 +108,7 @@
             listBNF.forEach((elem) => {
                 updateListStyle(elem);
             });
-    };
+    })();
 
     const handleFabClick = () => {
         let bar = document.getElementById("left-action-bar");

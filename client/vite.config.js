@@ -6,7 +6,7 @@ const projectRootDir = path.resolve(__dirname);
 
 let proxy = {
     '/ea/api/': {
-        target: 'http://localhost:3030'
+        target: 'http://localhost'
     }
 };
 

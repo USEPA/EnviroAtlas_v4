@@ -1,25 +1,25 @@
-import { writable, derived } from "svelte/store";
+import { writable } from "svelte/store";
 
 // don't have to call this state; shared between components (App and AppShell)
 export const viewState = writable({
     view: null
-});
+})
 
 // Seperate map and view to stop initWidgets from running twice
 export const mapState = writable({
     map: null
-});
+})
 
 export const climate = writable({
     climateVar: [],
-});
+})
 
 type SmaViewModel = {
     indicator: string;
     landcoverYear: number;
     sumUnit: string;
     geographyLabel: string;
-};
+}
 
 export const smaViewModel = writable<SmaViewModel>({
     indicator: "nlcd",
@@ -75,4 +75,4 @@ export const searchTerm = writable('');
 
 export const activeWidget = writable({
     right: null
-});
+})

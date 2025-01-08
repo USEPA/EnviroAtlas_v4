@@ -1,13 +1,12 @@
 <script>
     import "@esri/calcite-components/dist/components/calcite-filter";
-    import { nationalItems } from "src/store.ts";
 
     export let type;
 </script>
 
 <calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>
     {#if type=='national' || type=='subnational'}
-    <calcite-filter placeholder="Try searching" items={$nationalItems}></calcite-filter>
+    <calcite-filter placeholder="Try searching"></calcite-filter>
     {/if}
     {#if type=='climate-data-viewer-2'}
         <calcite-chip-group

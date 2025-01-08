@@ -15,8 +15,3 @@ Thumbs.db
 
 #don't check in .dev-link config file because only want to use them to link locally
 .dev-link
-node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
