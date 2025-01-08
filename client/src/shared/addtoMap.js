@@ -33,8 +33,7 @@ export function getEALayerObject(id) {
 export function addLayer(lObj, view) {
     // TODO: apply defaults to lObj, like opacity=0.6
     console.log(lObj);
-    //TODO: fix lyrNum to int
-    const url = Object.hasOwn(lObj, 'lyrNum') ? `${lObj.url}/${lObj.lyrNum}` : lObj.url;
+    const url = Object.hasOwn(lObj, 'lyrNum') ? `${lObj.url}/${~~lObj.lyrNum}` : lObj.url;
     console.log(url);
     // feature server URL
     var copiedLayer = new FeatureLayer({
