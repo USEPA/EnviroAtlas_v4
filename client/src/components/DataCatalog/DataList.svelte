@@ -12,7 +12,6 @@
     import { catalog, nationalItems } from "src/store.ts";
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
-    //import eatopics from "src/shared/dataCatalog_initialize.json";
     import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
     import Bookmark from "src/components/ClimateChangeViewer/Bookmark.svelte";
     // use npm published version now (in development used linked version via devLink utility

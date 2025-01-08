@@ -18,17 +18,6 @@ export async function getEaData(url, params) {
     }
 }
 
-// When Add to Map button is clicked, get object from the mapping config
-export function getEALayerObject(id) {
-    // use api to fetch layer object
-    let layerParams = {
-        //TODO: where did type go?
-        select: encodeURIComponent(`{"layerID":1,"name":1,"cacheLevelNat":1,"lyrNum":1,"popup":1,"tileLink":1,"tileURL":1,"type":1,"url":1}`)
-    }
-    let lObj = getEaData(`/ea/api/layers/${id}`, layerParams)
-    return lObj
-}
-
 // addLayer function is passed an array of objects (like feature and tile layers)
 export function addLayer(lObj, view) {
     // TODO: apply defaults to lObj, like opacity=0.6
