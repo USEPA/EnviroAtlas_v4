@@ -25,7 +25,7 @@ const layerFields = getFullFields([
     {name:'eaDfsLink',rename:'dfsLink',type:'text'},
     {name:'eaMetadata',rename:'metadataID',type:'text'},
     'url',
-    {name:'eaLyrNum',rename:'lyrNum',type:'text'},
+    {name:'eaLyrNum',rename:'lyrNum',type:'integer'},
     {name:'eaTags',rename:'tags',type:'text'},
     'tileLink',
     'tileURL',

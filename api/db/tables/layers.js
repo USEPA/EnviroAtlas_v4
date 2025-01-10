@@ -11,7 +11,7 @@ table.fields = queryBuilder.generateFieldsConfig({table,fields:'layerID,subTopic
 //Note: schema. fields are used by swagger and query builder code
 // put query builder code only fields level above schema
 // eg. table.fields.creator_id.serverWrite = true;
-for (let field of 'layerID,subTopicID,eaID,numDecimal'.split(',')) {
+for (let field of 'layerID,subTopicID,eaID,numDecimal,lyrNum'.split(',')) {
     table.fields[field].schema.type = 'integer';
 }
 
