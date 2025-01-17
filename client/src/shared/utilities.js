@@ -1,4 +1,6 @@
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import TileLayer from "@arcgis/core/layers/TileLayer"
+import PopupTemplate from "@arcgis/core/PopupTemplate";
 
 export let view;
 
@@ -22,14 +24,28 @@ export async function getEaData(url, params) {
 
 // addLayer function is passed an array of objects (like feature and tile layers)
 export function addLayer(lObj, view) {
-    // TODO: apply defaults to lObj, like opacity=0.6
     console.log(lObj);
     const url = Object.hasOwn(lObj, 'lyrNum') ? `${lObj.url}/${~~lObj.lyrNum}` : lObj.url;
     console.log(url);
+    if (lObj.tileLink === 'yes') {
+        console.log(lObj.tileURL)
+        let layer = new TileLayer({
+            url: lObj.tileURL,
+            legendEnabled: false, // hide from legend no honored...
+            opacity: 0.6,
+            maxScale: lObj.cacheNatLevel
+        });
+        //TODO: set scale level
+        //TODO: hide from legend
+        //TODO: opacity
+        //TODO: 
+        view.map.add(layer);
+    }
     // feature server URL
     var copiedLayer = new FeatureLayer({
         url,
-        title: lObj.name
+        title: lObj.name,
+        opacity: 0.6, // apply defaults, like opacity=0.6
     });
     console.log('lObj', copiedLayer);
 
