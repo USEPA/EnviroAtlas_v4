@@ -4,8 +4,10 @@ export let view;
 
 // Generic ea api call function
 export async function getEaData(url, params) {
+    //TODO: check if params is string or object
+    //TODO: if object, JSON.stringify
     let paramText = '';
-    for (const key in params) {
+    for (const [key, value] of Object.entries(params)) {
         paramText += `${key}=${params[key]}&`
     }
     let constructedUrl = `${url}?${paramText.slice(0,-1)}`;

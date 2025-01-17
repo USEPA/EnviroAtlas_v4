@@ -16,7 +16,7 @@
     import Bookmark from "src/components/ClimateChangeViewer/Bookmark.svelte";
     // use npm published version now (in development used linked version via devLink utility
     import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
-    import { getEaData } from "src/shared/addtoMap.js"
+    import { getEaData } from "src/shared/utilities.js"
 
     export let view;
     export let map;
