@@ -9,21 +9,20 @@
     import "@esri/calcite-components/dist/components/calcite-action-group";
 
     // Import components and store
-    import { catalog } from "src/store.ts";
+    import { catalog, nationalItems } from "src/store.ts";
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
-    import eatopics from "src/shared/dataCatalog_initialize.json";
     import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
     import Bookmark from "src/components/ClimateChangeViewer/Bookmark.svelte";
     // use npm published version now (in development used linked version via devLink utility
     import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
+    import { getEaData } from "src/shared/utilities.js"
 
     export let view;
     export let map;
 
-    catalog.subscribe((value) => {
-        console.log(value.type)
-    })
+    catalog.subscribe;
+    nationalItems.subscribe;
 
     window.ea.dataCatalog = {};
     window.ea.dataCatalog.view = () => {
@@ -33,6 +32,46 @@
     window.ea.dataCatalog.map = () => {
         return map;
     };
+
+    let topicParams = {
+        select: encodeURIComponent(`{"topic":1,"categoryTab":1}`),
+        options: encodeURIComponent(`{"select":{"distinct":true}}`)
+    };
+
+    let eaTopics = getEaData("/ea/api/subtopics", topicParams)
+        .then((data) => {
+            let categoryOrder = { ESB: 1, PSI: 2, PBS: 3, BNF: 4};
+            data.sort((a,b) => a.topic.localeCompare(b.topic));
+            data.sort((a,b) => categoryOrder[a.categoryTab] - categoryOrder[b.categoryTab]);
+            // Add empty subtopic array to each array objects
+            // data = data.map(obj => ({...obj, subtopic: []}))
+            // load national data into the store
+            $nationalItems = data;
+            return data
+        }).catch(err => {
+            console.error(err);
+        });
+
+    async function getEaSubtopics(data) {
+        // Create for loop to load in all subtopics to build UI object
+        for (const prop in data) {
+            // console.log(`${prop}: ${data[prop].topic}`);
+            // apply topic to subtopic params
+            let subtopicParams = {
+                select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"tags":1,"name":1}}`),
+                where: encodeURIComponent(`{"topic":"${data[prop].topic}"}`)
+            };
+            // get subtopic object from api
+            // return promise object resolve, not the whole promise object
+            let res = await getEaData("/ea/api/subtopics", subtopicParams);
+            // take the result and put into store subtopic object
+            $nationalItems[prop].subtopic = res;
+        }
+        return data
+    }
+
+    // wait for eaTopics to finish before updating data for catalog UI
+    eaTopics.then((result) => getEaSubtopics(result));
 
     async function updateListStyle(elem) {
         const shadow = elem.shadowRoot;
@@ -45,7 +84,10 @@
         shadow.adoptedStyleSheets = [stylesheet];
     }
 
-    (async () => {
+    // Need to wait for eaTopics to load before styling list
+    eaTopics.then(() => styleList());
+
+    async function styleList() {
         await customElements
         .whenDefined("calcite-list-item");
             // TODO: tidy this up.
@@ -65,7 +107,7 @@
             listBNF.forEach((elem) => {
                 updateListStyle(elem);
             });
-    })();
+    };
 
     const handleFabClick = () => {
         let bar = document.getElementById("left-action-bar");
@@ -149,23 +191,29 @@
         <AddData map={map} />
         <calcite-block data-panel-id="national" heading="National Catalog" open data-testid="national">
             <calcite-list selection-mode="none">
-                {#each eatopics as eatopic}
+                {#await eaTopics}
+                    <p>...loading</p>
+                {:then}
+                    {#each $nationalItems as ea}
                     <calcite-list-item
-                        class={eatopic.category}
-                        label={eatopic.topic}
-                        value={eatopic.topic}
+                        class={ea.categoryTab}
+                        label={ea.topic}
+                        value={ea.topic}
                     >
                         <calcite-list
                             id="not-header"
                             group="trails"
                             selection-mode="none"
                         >
-                            {#each eatopic.subtopic as subtopic}
+                        {#if ea.subtopic}
+                            {#each ea.subtopic as subtopic}
                                 <CatalogListItem {subtopic} {view} />
                             {/each}
+                        {/if}
                         </calcite-list>
                     </calcite-list-item>
-                {/each}
+                    {/each}
+                {/await}
             </calcite-list>
         </calcite-block>
         <calcite-block data-testid="subnational" data-panel-id="subnational" heading="Subnational Catalog" open hidden>

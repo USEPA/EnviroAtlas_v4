@@ -1,7 +1,6 @@
 <script>
-    import { getEALayerObject, addLayer } from "src/shared/addtoMap.js";
+    import { addLayer, getEaData } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
-    import detailConfig from "src/shared/dataCatalog_details_1layer.json";
     import { activeWidget } from "src/store.ts";
 
     export let subtopic;
@@ -9,19 +8,31 @@
     export let layerID = null;
     let detailsObj = {};
 
-
-    function getEALayerId() {
+    async function getEALayerId() {
         if (subtopic.layers.length < 2) {
-            layerID = subtopic.layers[0].eaID
+            layerID = subtopic.layers[0].layerID
         }
         console.log('EA Layer: ', layerID)
-        let lObject = getEALayerObject(layerID);
+        let lObject = await getEALayerObject(layerID);
+        console.log(lObject);
         // TODO: error handle if lObject is empty 
         addLayer(lObject, view);
         // If there is a layer added, open the Layer List
-        if (lObject.length > 0) {
+        if (lObject) {
             openLayerList();
         }
+    }
+
+    // When Add to Map button is clicked, get object from the mapping config
+    function getEALayerObject(id) {
+        // use api to fetch layer object
+        let layerParams = {
+            //TODO: where did type go?
+            //TODO: test out using code like, select = JSON.stringify( {layerID:1,name:1,etc etc} )
+            select: encodeURIComponent(`{"layerID":1,"name":1,"cacheLevelNat":1,"lyrNum":1,"popup":1,"tileLink":1,"tileURL":1,"type":1,"url":1}`)
+        }
+        let lObj = getEaData(`/ea/api/layers/${id}`, layerParams)
+        return lObj
     }
 
     function openLayerList() {
@@ -55,11 +66,21 @@
         console.log(layerID);
     }
 
-    export const getSubtopicDetails = (sortId) => {
-        // Get the object and pass to the SubtopicDetails component
-        //TODO: Use api to get detailsObj
-        detailsObj = detailConfig.filter(lyr => lyr.sortId == sortId)[0];
-        let findPopover = document.querySelector(`[reference-element="${sortId}-details-popover-button"]`);
+    async function getSubtopicDetails () {
+        // Use api to get detailsObj and pass to the SubtopicDetails component with subtopic 
+        if (subtopic.layers.length < 2) {
+            layerID = subtopic.layers[0].layerID
+        } else {
+            // TODO: write logic for subtopics with 2 or more layers
+            // May need to destroy component on close, so new component can be instantiated when new dropdown is selected
+            // Need to create different popup if layer isn't selected in dropdown - has generic description, no buttons, has message to select a layer
+        }
+        let detailsParams = {
+            select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"DownloadSource":1,"metadataID":1}`)
+        };
+        let detailsObj = await getEaData(`/ea/api/layers/${layerID}`, detailsParams);
+        console.log(detailsObj);
+        let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
         if (!findPopover) {
             new SubtopicDetails({
                 target: document.body,
@@ -67,7 +88,7 @@
             });
         }
         // Workaround for calcite v2.9. 
-        let popover = document.querySelector(`[reference-element="${sortId}-details-popover-button"]`);
+        let popover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
         popover.setAttribute("open", "true");
         return detailsObj
     }
@@ -82,9 +103,9 @@
         icon="information" 
         scale="s" 
         slot="actions-end" 
-        id="{subtopic.sortId}-details-popover-button"
-        on:click={detailsObj = () => getSubtopicDetails(subtopic.sortId)}
-        on:keypress={detailsObj = () => getSubtopicDetails(subtopic.sortId)}></calcite-action>
+        id="{subtopic.subTopicID}-details-popover-button"
+        on:click={detailsObj = () => getSubtopicDetails()}
+        on:keypress={detailsObj = () => getSubtopicDetails()}></calcite-action>
     {#if subtopic.layers.length > 1}
         <calcite-combobox
             scale="s"
@@ -98,8 +119,8 @@
         >
             {#each subtopic.layers as layer}
                 <calcite-combobox-item
-                    value={layer.eaID}
-                    text-label={layer.title}
+                    value={layer.layerID}
+                    text-label={layer.subLayerName}
                 ></calcite-combobox-item>
             {/each}
         </calcite-combobox>

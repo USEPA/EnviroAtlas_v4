@@ -14,24 +14,24 @@
     overlay-positioning="fixed"
     scale="s"
     heading="Details"
-    label="{subtopic.sortId}-details-popover-button"
-    reference-element="{subtopic.sortId}-details-popover-button"
+    label="{subtopic.subTopicID}-details-popover-button"
+    reference-element="{subtopic.subTopicID}-details-popover-button"
     auto-close
     trigger-disabled
 >
     <calcite-card>
         <span slot="heading">{subtopic.name}</span>
-        <span slot="description">{detailsObj.eaDescription}</span>
+        <span slot="description">{detailsObj.description}</span>
         <div slot="footer-start">
             <calcite-button 
                 icon-start='file' 
-                label="{subtopic.sortId}-pdf"
+                label="{subtopic.layerID}-pdf"
                 tabindex="0"
                 role="button"
                 round 
                 scale='s' 
-                on:click={openFactSheet(detailsObj.eaDfsLink)}
-                on:keypress={openFactSheet(detailsObj.eaDfsLink)}
+                on:click={openFactSheet(detailsObj.dfsLink)}
+                on:keypress={openFactSheet(detailsObj.dfsLink)}
                 >Fact Sheet
             </calcite-button>
             <calcite-button icon-start='file-code' round scale='s'>Metadata</calcite-button>
