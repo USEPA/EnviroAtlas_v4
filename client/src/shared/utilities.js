@@ -23,21 +23,14 @@ export async function getEaData(url, params) {
 }
 
 // addLayer function is passed an array of objects (like feature and tile layers)
+// TODO: Make this a handler function? 
+// TEST: is it faster to load data from portal item metadata instead of EAAPI?
 export function addLayer(lObj, view) {
     console.log(lObj);
     const url = Object.hasOwn(lObj, 'lyrNum') ? `${lObj.url}/${~~lObj.lyrNum}` : lObj.url;
     console.log(url);
     if (lObj.tileLink === 'yes') {
-        console.log(lObj.tileURL)
-        let tLyr = new TileLayer({
-            url: lObj.tileURL,
-            legendEnabled: false, // hide from legend not honored in layer list...
-            opacity: 0.6, // set opacity
-            // TODO: revist scale level...seems like cacheNatLevel isn't synced with the feature layer scales.
-            maxScale: lObj.cacheNatLevel
-        });
-        tLyr.listMode = "hide"; // hide from layer list
-        view.map.add(tLyr);
+        addTileLayer(lObj, view)
     }
     // feature server URL
     var copiedLayer = new FeatureLayer({
@@ -55,6 +48,22 @@ export function addLayer(lObj, view) {
         
     view.map.add(copiedLayer);
 };
+
+export function addTileLayer(lObj, view) {
+    console.log(lObj.tileURL)
+    let tLyr = new TileLayer({
+        url: lObj.tileURL,
+        legendEnabled: false, // hide from legend not honored in layer list...
+        opacity: 0.6, // set opacity
+        // TODO: revist scale level...seems like cacheNatLevel isn't synced with the feature layer scales.
+        maxScale: 4622324
+    });
+    tLyr.listMode = "hide"; // hide from layer list
+    console.log(view.zoom);
+    view.map.add(tLyr);
+}
+
+
 
 // TODO: look for tileLink = yes in object attributes, split into 2 objects for addLayer function
 

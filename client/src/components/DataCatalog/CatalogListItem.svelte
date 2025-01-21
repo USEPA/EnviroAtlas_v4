@@ -14,7 +14,6 @@
         }
         console.log('EA Layer: ', layerID)
         let lObject = await getEALayerObject(layerID);
-        console.log(lObject);
         // TODO: error handle if lObject is empty 
         addLayer(lObject, view);
         // If there is a layer added, open the Layer List
