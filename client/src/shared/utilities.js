@@ -29,17 +29,15 @@ export function addLayer(lObj, view) {
     console.log(url);
     if (lObj.tileLink === 'yes') {
         console.log(lObj.tileURL)
-        let layer = new TileLayer({
+        let tLyr = new TileLayer({
             url: lObj.tileURL,
-            legendEnabled: false, // hide from legend no honored...
-            opacity: 0.6,
+            legendEnabled: false, // hide from legend not honored in layer list...
+            opacity: 0.6, // set opacity
+            // TODO: revist scale level...seems like cacheNatLevel isn't synced with the feature layer scales.
             maxScale: lObj.cacheNatLevel
         });
-        //TODO: set scale level
-        //TODO: hide from legend
-        //TODO: opacity
-        //TODO: 
-        view.map.add(layer);
+        tLyr.listMode = "hide"; // hide from layer list
+        view.map.add(tLyr);
     }
     // feature server URL
     var copiedLayer = new FeatureLayer({
@@ -52,7 +50,7 @@ export function addLayer(lObj, view) {
     setupErrorHandling(copiedLayer);
         
     copiedLayer.on('layerview-create', function () {
-            // TODO: popup config?
+        // TODO: popup config?
     });
         
     view.map.add(copiedLayer);
