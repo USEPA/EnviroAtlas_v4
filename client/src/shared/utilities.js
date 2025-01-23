@@ -70,6 +70,7 @@ export function addFeatureLayer(lObj, view) {
     }, function (error) {
         // This function will execute if the promise is rejected due to an error
         // This is a workaround not having sourceType='dynamic' from API
+        // TODO: Update sourceType with data in DB
         if (error.message === 'Source type "Raster Layer" is not supported') {
             console.log('this is a dynamic map service')
             let miLyr = new MapImageLayer({
@@ -80,10 +81,6 @@ export function addFeatureLayer(lObj, view) {
     });
 
     setupErrorHandling(copiedLayer);
-
-    copiedLayer.on('layerview-create', function () {
-        // TODO: popup config?
-    });
 
     view.map.add(copiedLayer);
 }
@@ -106,6 +103,7 @@ export function addTileLayer(lObj, view) {
         legendEnabled: false, // hide from legend not honored in layer list...
         opacity: 0.6, // set opacity
         // TODO: revist scale level...seems like cacheNatLevel isn't synced with the feature layer scales.
+        // TODO: revist scale for block group vs huc12 layers
         maxScale: 4622324
     });
     //tLyr.listMode = "hide"; // hide from layer list...or "hide-children"
@@ -115,11 +113,11 @@ export function addTileLayer(lObj, view) {
 
 // TODO: look for the layer already in the view
 
-// TODO: error catching / email broken layers?
+// TODO: error catching / email broken layers
 export function setupErrorHandling(errorObj) {
     errorObj.on("layerview-create-error", function (evt) {
         console.error("Failed to create layer: ", errorObj.title, ". Error is: ", evt.error.message, ". Details: ", evt.error.details);
-        // TODO: alert messaging?
+        // TODO: alert messaging
     });
 };
 
