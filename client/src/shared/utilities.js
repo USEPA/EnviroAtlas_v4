@@ -1,6 +1,9 @@
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import TileLayer from "@arcgis/core/layers/TileLayer"
 import PopupTemplate from "@arcgis/core/PopupTemplate";
+import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
+import MapImageLayer from "@arcgis/core/layers/MapImageLayer";
+
 
 export let view;
 
@@ -28,23 +31,28 @@ export async function getEaData(url, params) {
 export function addLayer(lObj, view) {
     console.log(lObj);
     if (isFeatureService(lObj.url)) {
-        addFeatureLayer(lObj)
+        addFeatureLayer(lObj, view)
     }
     if (lObj.tileLink === 'yes') {
         addTileLayer(lObj, view)
     }
+    if (isImageService(lObj.url)) {
+        addImageryLayer(lObj, view)
+    }
 };
 
+// Boolean test for Feature or Map service type
 export function isFeatureService(url) {
     let match = url.substring(url.lastIndexOf('/') + 1);
     return match === 'FeatureServer' || match === 'MapServer'
 }
 
+// Boolean test for Image service type
 export function isImageService(url) {
     return url.substring(url.lastIndexOf('/') + 1) === 'ImageServer'
 }
 
-export function addFeatureLayer(lObj) {
+export function addFeatureLayer(lObj, view) {
     const url = Object.hasOwn(lObj, 'lyrNum') ? `${lObj.url}/${~~lObj.lyrNum}` : lObj.url;
     console.log(url);
     // feature server URL
@@ -53,20 +61,42 @@ export function addFeatureLayer(lObj) {
         title: lObj.name,
         opacity: 0.6, // apply defaults, like opacity=0.6
     });
-    // if it has a popup property, build the popup template
-    if (lObj.popup != null) {
-        copiedLayer.popupTemplate = buildFSPopupTemp(lObj);
-    }
-    
-    console.log('lObj', copiedLayer);
+
+    // catch error on instantiating the new Feature Layer
+    copiedLayer.when(function () {
+        // if it has a popup property, build the popup template
+        if (lObj.popup != null) {
+            copiedLayer.popupTemplate = buildFSPopupTemp(lObj);
+        }
+    }, function (error) {
+        // This function will execute if the promise is rejected due to an error
+        // This is a workaround not having sourceType='dynamic' from API
+        if (error.message === 'Source type "Raster Layer" is not supported') {
+            console.log('this is a dynamic map service')
+            let miLyr = new MapImageLayer({
+                url: lObj.url
+            });
+            view.map.add(miLyr);
+        }
+    });
 
     setupErrorHandling(copiedLayer);
-        
+
     copiedLayer.on('layerview-create', function () {
         // TODO: popup config?
     });
         
     view.map.add(copiedLayer);
+}
+
+export function addImageryLayer(lObj, view) {
+    let iLyr = new ImageryLayer({
+        url: lObj.url,
+        format: "lerc", // for possible client side rendering or pixelfilter
+        popupEnabled: true
+    });
+    console.log("imageryLayer: ", iLyr);
+    view.map.add(iLyr);
 }
 
 export function addTileLayer(lObj, view) {
@@ -100,12 +130,16 @@ export function buildFSPopupTemp(lObj) {
         pTemplate = new PopupTemplate({
             title: lObj.name,
             content: [{
-                type: 'fields', 
-                fieldInfos: lObj.popup.fieldInfos 
+                type: 'text',
+                // TODO: arcade expression to split on ":", and bold the first half of title...example below
+                // popupTitle = lObj.popup.title.split(":");
+                // content = "<b>" + popupTitle[0] + "</b>: $" + popupTitle[1].trim() + "<hr>";
+                text: lObj.popup.title
+            },{
+                type: 'fields',
+                fieldInfos: lObj.popup.fieldInfos
             }]
         })
         return pTemplate
-    } else {
-        return
-    }
+    } 
 }
