@@ -25,8 +25,6 @@ export async function getEaData(url, params) {
     }
 }
 
-// addLayer function is passed an array of objects (like feature and tile layers)
-// TODO: Make this a handler function? 
 // TEST: is it faster to load data from portal item metadata instead of EAAPI?
 export function addLayer(lObj, view) {
     console.log(lObj);
@@ -39,6 +37,7 @@ export function addLayer(lObj, view) {
     if (isImageService(lObj.url)) {
         addImageryLayer(lObj, view)
     }
+    // TODO: Add EA Boundaries and locations when community data is added to the map
 };
 
 // Boolean test for Feature or Map service type
@@ -85,7 +84,7 @@ export function addFeatureLayer(lObj, view) {
     copiedLayer.on('layerview-create', function () {
         // TODO: popup config?
     });
-        
+
     view.map.add(copiedLayer);
 }
 
@@ -126,20 +125,30 @@ export function setupErrorHandling(errorObj) {
 
 export function buildFSPopupTemp(lObj) {
     let pTemplate;
+    // Add popup title data to the front of fieldInfos array
+    let popupTitle = lObj.popup.title?.split(":");
+    popupTitle[1] = popupTitle[1].replace('{', '').replace('}', '').trim();
+    lObj.popup.fieldInfos.unshift({
+        fieldName: popupTitle[1],
+        label: popupTitle[0],
+        visible: true
+    });
+
+    // Instantiate popup template 
     if (lObj.popup.fieldInfos != null) {
         pTemplate = new PopupTemplate({
-            title: lObj.name,
-            content: [{
-                type: 'text',
-                // TODO: arcade expression to split on ":", and bold the first half of title...example below
-                // popupTitle = lObj.popup.title.split(":");
-                // content = "<b>" + popupTitle[0] + "</b>: $" + popupTitle[1].trim() + "<hr>";
-                text: lObj.popup.title
-            },{
-                type: 'fields',
-                fieldInfos: lObj.popup.fieldInfos
-            }]
-        })
+            //title: lObj.name,
+            overwriteActions: true,
+            content: [
+                {
+                    type: 'text',
+                    text: '<b>' + lObj.name + '<b>'
+                },
+                {
+                    type: 'fields',
+                    fieldInfos: lObj.popup.fieldInfos
+                }]
+        });
         return pTemplate
-    } 
+    }
 }
