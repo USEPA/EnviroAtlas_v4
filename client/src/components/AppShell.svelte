@@ -44,16 +44,58 @@
 
     const layerList = new LayerList({
       view,
+      dragEnabled: true,
       container: layerListContainer,
+      visibilityAppearance: "checkbox",
       listItemCreatedFunction: (e) => {
         const item = e.item;
+        // TODO: make layer NOT disabled if it isn't visibleAtCurrentScale
+        // This is so the features can be clicked for popup, even if tile layer is visibleAtCurrentScale
         if (item.layer.type != "group") {
-          //don't show legend twice
+          // don't show legend twice
           item.panel = {
             content: "legend",
-            open: true
+            open: true,
           };
+          item.actionsSections = [
+            [
+              {
+                title: "Increase transparency",
+                icon: "chevron-up",
+                id: "inc-transparency",
+              },
+              {
+                title: "Decrease transparency",
+                icon: "chevron-down",
+                id: "dec-transparency",
+              },
+              {
+                title: "Show table",
+                icon: "table",
+                id: "table",
+              },
+              {
+                title: "Remove",
+                icon: "trash",
+                id: "trash",
+              },
+            ],
+          ];
         }
+      },
+    });
+
+    layerList.on("trigger-action", (e) => {
+      const id = e.action.id;
+      if (id === "trash") {
+        view.map.remove(e.item.layer);
+        // Find and Remove the identically named tile layer, if it exists
+        const foundLyr = view.map.allLayers.find(function(layer) {
+          return layer.title === e.item.title;
+        });
+        if (foundLyr != undefined) {
+          view.map.remove(foundLyr);
+        };         
       }
     });
   }
