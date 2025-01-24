@@ -111,7 +111,7 @@ export function addImageryLayer(lObj, view) {
 export function addTileLayer(lObj, view) {
     console.log(lObj.tileURL)
     let tLyr = new TileLayer({
-        title: lObj.name + ' Tiles',
+        title: lObj.name,
         url: lObj.tileURL,
         legendEnabled: false, // hide from legend not honored in layer list...
         opacity: 0.6, // set opacity
