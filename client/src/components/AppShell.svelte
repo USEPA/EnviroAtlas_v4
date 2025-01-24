@@ -96,6 +96,10 @@
         if (foundLyr != undefined) {
           view.map.remove(foundLyr);
         };         
+      } else if (id === 'inc-transparency') {
+        e.item.layer.opacity += .1
+      } else if (id === 'dec-transparency') {
+        e.item.layer.opacity -= .1
       }
     });
   }
