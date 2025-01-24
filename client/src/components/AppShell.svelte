@@ -100,6 +100,9 @@
         e.item.layer.opacity += .1
       } else if (id === 'dec-transparency') {
         e.item.layer.opacity -= .1
+      } else if (id == 'table') {
+        // TODO: have a feature table widget in the app.
+        // https://developers.arcgis.com/javascript/latest/sample-code/feature-table/
       }
     });
   }
