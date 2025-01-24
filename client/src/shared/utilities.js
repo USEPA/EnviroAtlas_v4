@@ -27,7 +27,12 @@ export async function getEaData(url, params) {
 
 // TEST: is it faster to load data from portal item metadata instead of EAAPI?
 export function addLayer(lObj, view) {
-    console.log(lObj);
+    // Look for the layer already in the view
+    // TODO: find a way to check this before sending request to API for lyrObject
+    if (isLayerTitleInMap(lObj.name, view)) {
+        console.log("Layer is already in map!")
+        return 
+    }
     if (isFeatureService(lObj.url)) {
         addFeatureLayer(lObj, view)
     }
@@ -51,6 +56,12 @@ export function isImageService(url) {
     return url.substring(url.lastIndexOf('/') + 1) === 'ImageServer'
 }
 
+export function isLayerTitleInMap(title, view) {
+    const foundLayer = view.map.allLayers.find(function(lyr) {
+        return lyr.title === title
+    });
+    return foundLayer
+}
 export function addFeatureLayer(lObj, view) {
     const url = Object.hasOwn(lObj, 'lyrNum') ? `${lObj.url}/${~~lObj.lyrNum}` : lObj.url;
     console.log(url);
@@ -69,8 +80,8 @@ export function addFeatureLayer(lObj, view) {
         }
     }, function (error) {
         // This function will execute if the promise is rejected due to an error
-        // This is a workaround not having sourceType='dynamic' from API
-        // TODO: Update sourceType with data in DB
+        // This is a workaround not having serviceType='dynamic' from API
+        // TODO: Update serviceType with data in DB
         if (error.message === 'Source type "Raster Layer" is not supported') {
             console.log('this is a dynamic map service')
             let miLyr = new MapImageLayer({
@@ -111,7 +122,6 @@ export function addTileLayer(lObj, view) {
     view.map.add(tLyr);
 }
 
-// TODO: look for the layer already in the view
 
 // TODO: error catching / email broken layers
 export function setupErrorHandling(errorObj) {
