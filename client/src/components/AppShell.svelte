@@ -292,7 +292,6 @@
       icon="basemap"
       text="Basemaps"
     />
-    <calcite-action data-action-id="legend" icon="legend" text="Legend" />
     <calcite-action
       tabindex="-1"
       role="button"
