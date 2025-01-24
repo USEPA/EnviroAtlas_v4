@@ -28,11 +28,12 @@ export async function getEaData(url, params) {
 // TEST: is it faster to load data from portal item metadata instead of EAAPI?
 export function addLayer(lObj, view) {
     // Look for the layer already in the view
-    // TODO: find a way to check this before sending request to API for lyrObject
+    // TODO: find a way to check this before sending request to API for lyrObject?
     if (isLayerTitleInMap(lObj.name, view)) {
         console.log("Layer is already in map!")
         return 
     }
+    console.log(lObj);
     if (isFeatureService(lObj.url)) {
         addFeatureLayer(lObj, view)
     }
@@ -43,6 +44,7 @@ export function addLayer(lObj, view) {
         addImageryLayer(lObj, view)
     }
     // TODO: Add EA Boundaries and locations when community data is added to the map
+    // Maybe don't have to do this if EA is dropping Community data from the app?
 };
 
 // Boolean test for Feature or Map service type
@@ -109,7 +111,7 @@ export function addImageryLayer(lObj, view) {
 export function addTileLayer(lObj, view) {
     console.log(lObj.tileURL)
     let tLyr = new TileLayer({
-        title: lObj.name,
+        title: lObj.name + ' Tiles',
         url: lObj.tileURL,
         legendEnabled: false, // hide from legend not honored in layer list...
         opacity: 0.6, // set opacity
@@ -118,10 +120,9 @@ export function addTileLayer(lObj, view) {
         maxScale: 4622324
     });
     //tLyr.listMode = "hide"; // hide from layer list...or "hide-children"
-    console.log(view.zoom);
+    //console.log(view.zoom);
     view.map.add(tLyr);
 }
-
 
 // TODO: error catching / email broken layers
 export function setupErrorHandling(errorObj) {
@@ -131,6 +132,7 @@ export function setupErrorHandling(errorObj) {
     });
 };
 
+// TODO: build popup template without the DB popup json object? 
 export function buildFSPopupTemp(lObj) {
     let pTemplate;
     // Add popup title data to the front of fieldInfos array
