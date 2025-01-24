@@ -14,7 +14,6 @@
         }
         console.log('EA Layer: ', layerID)
         let lObject = await getEALayerObject(layerID);
-        console.log(lObject);
         // TODO: error handle if lObject is empty 
         addLayer(lObject, view);
         // If there is a layer added, open the Layer List
@@ -29,7 +28,7 @@
         let layerParams = {
             //TODO: where did type go?
             //TODO: test out using code like, select = JSON.stringify( {layerID:1,name:1,etc etc} )
-            select: encodeURIComponent(`{"layerID":1,"name":1,"cacheLevelNat":1,"lyrNum":1,"popup":1,"tileLink":1,"tileURL":1,"type":1,"url":1}`)
+            select: encodeURIComponent(`{"layerID":1,"name":1,"lyrNum":1,"popup":1,"tileLink":1,"tileURL":1,"type":1,"url":1,"serviceType":1}`)
         }
         let lObj = getEaData(`/ea/api/layers/${id}`, layerParams)
         return lObj

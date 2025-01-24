@@ -64,10 +64,16 @@
     //   $state.item = map
     // });
 
-    
+    view.popup = {
+      dockEnabled: true,
+      headingLevel: 3,
+      dockOptions: {
+        position: "top-right",
+        breakpoint: false,
+      }
+    };
 
   });
-
 </script>
 
 <AppShell>
