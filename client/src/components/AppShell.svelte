@@ -11,6 +11,7 @@
   // Import arcgis js api
   import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
   import LayerList from "@arcgis/core/widgets/LayerList";
+  import FeatureTable from "@arcgis/core/widgets/FeatureTable";
 
   // Import components and store
   import { viewState, catalog, activeWidget } from "src/store.ts";
@@ -20,6 +21,7 @@
 
   let bmgContainer;
   let layerListContainer;
+  let fTableContainer;
 
   let view;
   let loaded = true;
@@ -103,6 +105,13 @@
       } else if (id == 'table') {
         // TODO: have a feature table widget in the app.
         // https://developers.arcgis.com/javascript/latest/sample-code/feature-table/
+        console.log(e.item.layer);
+        document.querySelector(`[id="shell-panel-table"]`).collapsed = false
+        const featureTable = new FeatureTable({
+            view: view, // Required for feature highlight to work
+            layer: e.item.layer,
+            container: fTableContainer
+          })
       }
     });
   }
@@ -186,6 +195,12 @@
     const shellElement = target.parentElement;
     shellElement.collapsed = !shellElement.collapsed;
     document.querySelector('[data-action-id="basemaps"]').active = false;
+  };
+
+  export const closeShellElement = function (e) {
+    const target = e.target;
+    const shellElement = target.parentElement;
+    shellElement.collapsed = !shellElement.collapsed;
   };
 </script>
 
@@ -328,9 +343,24 @@
   </calcite-panel>
   <SummarizeMyArea /> 
   </calcite-shell-panel>
+  <calcite-shell-panel
+    slot="panel-bottom" 
+    layout="horizontal" 
+    position="end" 
+    id="shell-panel-table"
+    collapsed
+  >
+  <calcite-panel closable class="fTable" id="panel-start" on:calcitePanelClose={closeShellElement}>
+    <div id="fTable-container" bind:this={fTableContainer} />
+  </calcite-panel>
+  </calcite-shell-panel>
 </calcite-shell>
 
 <style>
+  calcite-panel.fTable {
+    height: 500px
+  }
+
   calcite-shell-panel {
     --calcite-shell-panel-min-width: 340px;
   }
