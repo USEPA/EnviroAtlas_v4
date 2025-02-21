@@ -89,7 +89,7 @@ config.resources = {
     },
     uuids:{
         description: 'Meta Data UUIDs for National and Community Scale',
-        view:'uuids_union_view',
+//        view:'uuids_union_view',
         procedures: {
             query: 'getUuids',
 //transform procedure transforms each row as it streams out
