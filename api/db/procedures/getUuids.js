@@ -52,6 +52,7 @@ FROM community_uuids)
         for (let [name,value] of Object.entries(select)) {
             if (value) {
                 select.scale=1;
+                break;
             }
         }
     }
