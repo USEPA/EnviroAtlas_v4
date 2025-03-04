@@ -34,7 +34,7 @@ export function addLayer(lObj, view) {
         return 
     }
     console.log(lObj);
-    if (isFeatureService(lObj.url)) {
+    if (isFeatureorMapService(lObj.url)) {
         addFeatureLayer(lObj, view)
     }
     if (lObj.tileLink === 'yes') {
@@ -48,7 +48,7 @@ export function addLayer(lObj, view) {
 };
 
 // Boolean test for Feature or Map service type
-export function isFeatureService(url) {
+export function isFeatureorMapService(url) {
     let match = url.substring(url.lastIndexOf('/') + 1);
     return match === 'FeatureServer' || match === 'MapServer'
 }
@@ -64,6 +64,7 @@ export function isLayerTitleInMap(title, view) {
     });
     return foundLayer
 }
+
 export function addFeatureLayer(lObj, view) {
     const url = Object.hasOwn(lObj, 'lyrNum') ? `${lObj.url}/${~~lObj.lyrNum}` : lObj.url;
     console.log(url);
@@ -102,7 +103,8 @@ export function addImageryLayer(lObj, view) {
     let iLyr = new ImageryLayer({
         url: lObj.url,
         format: "lerc", // for possible client side rendering or pixelfilter
-        popupEnabled: true
+        popupEnabled: true,
+        opacity: 0.6
     });
     console.log("imageryLayer: ", iLyr);
     view.map.add(iLyr);

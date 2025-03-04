@@ -64,6 +64,7 @@
             // get subtopic object from api
             // return promise object resolve, not the whole promise object
             let res = await getEaData("/ea/api/subtopics", subtopicParams);
+            res.sort((a,b) => a.name.localeCompare(b.name));
             // take the result and put into store subtopic object
             $nationalItems[prop].subtopic = res;
         }
