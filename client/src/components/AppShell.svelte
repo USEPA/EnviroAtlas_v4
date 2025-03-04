@@ -11,7 +11,7 @@
   // Import arcgis js api
   import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
   import LayerList from "@arcgis/core/widgets/LayerList";
-  import FeatureTable from "@arcgis/core/widgets/FeatureTable";
+  //import FeatureTable from "@arcgis/core/widgets/FeatureTable";
 
   // Import components and store
   import { viewState, catalog, activeWidget } from "src/store.ts";
@@ -211,23 +211,6 @@
       heading="v4"
       thumbnail="/ea/client/images/logo.png"
     ></calcite-navigation-logo>
-    <calcite-button
-      slot="content-end"
-      appearance="solid"
-      scale="s"
-      width="full"
-      kind="brand"
-      role="button"
-      tabindex="-1"
-      target="_blank"
-      label="Open Apps"
-      icon-start="collection"
-      id="example-button"
-      on:click={openModal}
-      on:keypress={openModal}
-    >
-      Explore EnviroAtlas
-    </calcite-button>
   </calcite-navigation>
   <calcite-shell-panel
     component-id="shell-panel-start"
@@ -313,13 +296,6 @@
       data-action-id="basemaps"
       icon="basemap"
       text="Basemaps"
-    />
-    <calcite-action
-      tabindex="-1"
-      role="button"
-      data-action-id="summarize-my-area"
-      icon="sigma"
-      text="Summarize My Area"
     />
   </calcite-action-bar>
   <calcite-panel

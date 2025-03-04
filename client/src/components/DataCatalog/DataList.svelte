@@ -45,13 +45,15 @@
             data.sort((a,b) => categoryOrder[a.categoryTab] - categoryOrder[b.categoryTab]);
             // Add empty subtopic array to each array objects
             // data = data.map(obj => ({...obj, subtopic: []}))
+            // Drop community only subtopics (Carbon Storage, Health & Eco Outcomes, Pollutant Redxn: Air)
+            let dataReduced = data.filter(item => (item.topic !== "Carbon Storage" && item.topic !== "Health and Economic Outcomes" && item.topic !== "Pollutant Reduction: Air"));
             // load national data into the store
-            $nationalItems = data;
-            return data
+            $nationalItems = dataReduced;
+            return dataReduced
         }).catch(err => {
             console.error(err);
         });
-
+ 
     async function getEaSubtopics(data) {
         // Create for loop to load in all subtopics to build UI object
         for (const prop in data) {
@@ -64,9 +66,12 @@
             // get subtopic object from api
             // return promise object resolve, not the whole promise object
             let res = await getEaData("/ea/api/subtopics", subtopicParams);
-            res.sort((a,b) => a.name.localeCompare(b.name));
+            // Drop Community layers
+            let resNoComm = res.filter(item => item.scale !== "COMMUNITY");
+            resNoComm.sort((a,b) => a.name.localeCompare(b.name));
             // take the result and put into store subtopic object
-            $nationalItems[prop].subtopic = res;
+            $nationalItems[prop].subtopic = resNoComm;
+            console.log($nationalItems)
         }
         return data
     }
