@@ -106,12 +106,12 @@
         // TODO: have a feature table widget in the app.
         // https://developers.arcgis.com/javascript/latest/sample-code/feature-table/
         console.log(e.item.layer);
-        document.querySelector(`[id="shell-panel-table"]`).collapsed = false
-        const featureTable = new FeatureTable({
-            view: view, // Required for feature highlight to work
-            layer: e.item.layer,
-            container: fTableContainer
-          })
+        // document.querySelector(`[id="shell-panel-table"]`).collapsed = false
+        // const featureTable = new FeatureTable({
+        //   view: view, // Required for feature highlight to work
+        //   layer: e.item.layer,
+        //   container: fTableContainer
+        // })
       }
     });
   }
@@ -123,8 +123,8 @@
     bar.setAttribute("hidden", "");
     panel.removeAttribute("hidden");
     panel.setAttribute("open", "");
-    shell.removeAttribute("collapsed")
-  }
+    shell.removeAttribute("collapsed");
+  };
 
   const handleCatalogActionClick = ({ target }) => {
     if (target.tagName !== "CALCITE-ACTION") {
@@ -233,7 +233,7 @@
     component-id="shell-panel-start"
     slot="panel-start"
     display-mode="docked"
-    position='start'
+    position="start"
     width-scale="m"
     id="shell-panel-start"
   >
