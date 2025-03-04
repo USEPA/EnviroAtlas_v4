@@ -71,7 +71,6 @@
             resNoComm.sort((a,b) => a.name.localeCompare(b.name));
             // take the result and put into store subtopic object
             $nationalItems[prop].subtopic = resNoComm;
-            console.log($nationalItems)
         }
         return data
     }

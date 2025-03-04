@@ -111,17 +111,18 @@ export function addImageryLayer(lObj, view) {
 }
 
 export function addTileLayer(lObj, view) {
-    console.log(lObj.tileURL)
+    // console.log(lObj)
+    // Scale for block group vs huc12 layers
+    let mxScale = lObj.sourceType == "cbg" ? 577790 : 4622324;
     let tLyr = new TileLayer({
         title: lObj.name,
         url: lObj.tileURL,
         legendEnabled: false, // hide from legend not honored in layer list...
         opacity: 0.6, // set opacity
         // TODO: revist scale level...seems like cacheNatLevel isn't synced with the feature layer scales.
-        // TODO: revist scale for block group vs huc12 layers
-        maxScale: 4622324
+        maxScale: mxScale
     });
-    //tLyr.listMode = "hide"; // hide from layer list...or "hide-children"
+    tLyr.listMode = "hide"; // hide from layer list...or "hide-children"
     //console.log(view.zoom);
     view.map.add(tLyr);
 }
