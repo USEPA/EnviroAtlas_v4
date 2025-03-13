@@ -19,7 +19,12 @@
   onMount(() => {
 
     const map = new Map({
-      basemap: "arcgis-topographic",
+      basemap: {
+        style: {
+          id: "arcgis/topographic",
+          worldview: "unitedStatesOfAmerica"
+        }
+      }
     });
 
     console.log('map:', map);
