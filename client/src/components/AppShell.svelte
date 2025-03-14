@@ -215,7 +215,7 @@
     <calcite-chip-group scale="s" slot="content-end" expanded>
       {#each [
         {label:'Data Download', icon:'download-to', link:'https://www.epa.gov/enviroatlas/forms/enviroatlas-data-download'}, 
-        {label:'Contact Us', icon:'envelope', link:'https://www.epa.gov/enviroatlas/forms/enviroatlas-data-download'}
+        {label:'Contact Us', icon:'envelope', link:'https://www.epa.gov/enviroatlas/forms/contact-us-about-enviroatlas'}
         ] as link}
         <calcite-button scale="s" target="_blank" id='linkbtns' href={link.link}>
           <calcite-chip icon={link.icon} scale="m">{link.label}</calcite-chip>
