@@ -210,7 +210,18 @@
       slot="content-start"
       heading="v4"
       thumbnail="/ea/client/images/logo.png"
+      href="https://www.epa.gov/enviroatlas"
     ></calcite-navigation-logo>
+    <calcite-chip-group scale="s" slot="content-end" expanded>
+      {#each [
+        {label:'Data Download', icon:'download-to', link:'https://www.epa.gov/enviroatlas/forms/enviroatlas-data-download'}, 
+        {label:'Contact Us', icon:'envelope', link:'https://www.epa.gov/enviroatlas/forms/enviroatlas-data-download'}
+        ] as link}
+        <calcite-button scale="s" target="_blank" id='linkbtns' href={link.link}>
+          <calcite-chip icon={link.icon} scale="m">{link.label}</calcite-chip>
+        </calcite-button>
+        {/each}
+    </calcite-chip-group>
   </calcite-navigation>
   <calcite-shell-panel
     component-id="shell-panel-start"
@@ -351,4 +362,14 @@
   calcite-action-bar {
     --calcite-ui-focus-color: none !important;
   }
+
+  #linkbtns {
+    --calcite-color-brand-hover: none: !important
+  }
+
+  #linkbtns:hover{
+    --calcite-chip-text-color: rgb(236, 235, 235);
+    --calcite-chip-background-color:#024f86;
+  }
+
 </style>
