@@ -211,6 +211,7 @@
       heading="v4"
       thumbnail="/ea/client/images/logo.png"
       href="https://www.epa.gov/enviroatlas"
+      target="_blank"
     ></calcite-navigation-logo>
     <calcite-chip-group scale="s" slot="content-end" expanded>
       {#each [
@@ -364,7 +365,8 @@
   }
 
   #linkbtns {
-    --calcite-color-brand-hover: none: !important
+    --calcite-color-brand-hover: none: !important;
+    --calcite-color-brand-press: none: !important
   }
 
   #linkbtns:hover{
