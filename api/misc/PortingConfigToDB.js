@@ -25,12 +25,13 @@ const layerFields = getFullFields([
     {name:'eaDfsLink',rename:'dfsLink',type:'text'},
     {name:'eaMetadata',rename:'metadataID',type:'text'},
     'url',
-    {name:'eaLyrNum',rename:'lyrNum',type:'text'},
+    {name:'eaLyrNum',rename:'lyrNum',type:'integer'},
     {name:'eaTags',rename:'tags',type:'text'},
     'tileLink',
     'tileURL',
-    'serviceType',
+    {name:'type',rename:'serviceType',type:'text'},
     'popup',
+    {name:'layers',rename:'popupLayers',type:'text'},
     {name:'numDecimal',type:'integer'},
     'sourceType',
     'cacheLevelNat',
@@ -67,18 +68,95 @@ const subTopicFields = getFullFields([
     {name:'eaFFM',type:'integer'},
     {name:'eaNHM',type:'integer'},
     {name:'eaRCA',type:'integer'},
-    {name:'eaPBS',type:'integer'},
+    {name:'eaPBS',type:'text'},
     {name:'eaTags',rename:'tags',type:'text'},
     'sourceType'
 ]);
 
 (async function () {
     try {
+        let config_layer = await fs.promises.readFile(projectDir +  'config_layer.json','utf-8');
+
+        //get the real config which is in layers.layer
+        let config = JSON.parse(config_layer).layers.layer;
+
+        let testingConfigFileStuff = false;
+        if (testingConfigFileStuff) {
+            for (let item of config) {
+                if ('layers' in item) {
+
+                }
+            }
+            //just hacking this in here to try to find the name of the icon booleans because WAB needs that
+            let booleanIconLabels = {};
+            let booleanIconFields = ['eaBC','eaCA','eaCPW','eaCS','eaFFM','eaNHM','eaRCA'];
+            let tempLayers = [];
+            for (let item of config) {
+                if (!(Array.isArray(item.eaBCSDD))) {
+    //                console.log(item.eaBCSDD);
+                    continue;
+                }
+                for (let label of item.eaBCSDD) {
+                    if (!(booleanIconLabels[label])) booleanIconLabels[label] = {};
+                    for (let field of booleanIconFields) {
+                        if (item[field]) {
+                            if (!(booleanIconLabels[label][field])) booleanIconLabels[label][field] = 0;
+                            booleanIconLabels[label][field] += 1;
+                        }
+                    }
+                }
+            }
+            //        console.log(JSON.stringify(booleanIconLabels,null,2));
+
+            for (let item of config) {
+                if ([10,901,1000,72,79,1001,73,80].includes(item.eaID)) {
+                    tempLayers.push(item);
+                }
+    //            tempLayers.push(item);
+            }
+
+            let fileContent = JSON.stringify({layers:{layer:tempLayers}});
+            let fileName = 'C:\\AaronEvans\\Projects\\EPA CAM\\EnviroAtlas\\gitrepos\\EnviroAtlas_JSApp\\widgets\\SimpleSearchFilter\\config_layer.json';
+            await writeFile(fileName,fileContent);
+
+            console.log(fileContent===config_layer);
+            console.log(fileContent.length);
+            console.log(config_layer.length);
+            console.log(JSON.stringify(JSON.parse(config_layer)).length);
+
+            return;
+
+        }
+
+        let fixingDBfields = true;
+
 //create dbfile
         let dbfile = projectDir + 'EA_v4.db';
+        //Don't set this file name to something that will overwrite active DB so we don't accidentally change stuff
+        //Just change name later to active name if we want to port againa and it looks right
+        dbfile = 'C:\\AaronEvans\\Projects\\EPA CAM\\EnviroAtlas\\gitrepos\\EnviroAtlas_DB\\db\\staging\\';
 
+        if (fixingDBfields) {
+            dbfile += 'staging.db';
+        } else {
+            dbfile += 'staging-ported.db';
+
+        }
         const db = sqlite3(dbfile);
         db.pragma('journal_mode = WAL');
+
+        if (fixingDBfields) {
+            for (let item of config) {
+                if ('layers' in item) {
+                    console.log(item.eaID);
+                    let layerUpdate = db.prepare(`UPDATE layers SET popupLayers=? WHERE eaID=?`);
+                    layerUpdate.run([JSON.stringify(item.layers),item.eaID]);
+                }
+            }
+            return;
+        }
+
+        console.log('Porting WAB config to Sqlite DB');
 
         let layerArgs = {db,table:'layers',fields:layerFields};
         createTable(layerArgs);
@@ -89,9 +167,6 @@ const subTopicFields = getFullFields([
 //        let testArrayArgs = {db,table:'testArrays',fields:testArrayFields};
 //        createTable(testArrayArgs);
 
-        let config_layer = await fs.promises.readFile(projectDir +  'config_layer.json','utf-8');
-        //get the real config which is in layers.layer
-        let config = JSON.parse(config_layer).layers.layer;
 
 //divide items in  onfig into subTopics and layers
         let subTopics = [];
@@ -264,3 +339,90 @@ function getInsertValues({data,fields}) {
 
     return values;
 }
+
+class Deferred {
+    constructor(options) {
+        this.status = "pending";
+        this.value;
+        this.resolve;
+        this.reject;
+        //Also store the status and value to expose to outside
+        this.promise = new Promise((resolve,reject)=>{
+            this.resolve = function (result) {
+                this.status = "resolved";
+                this.value = result;
+                resolve(result);
+            };
+            this.reject = function (error) {
+                this.status = "rejected";
+                this.value = error;
+                reject(error);
+            };
+        });
+    }
+};
+
+function writeFile(filename,content) {
+    const fs = require('fs');
+
+    let defer = new Deferred();
+
+    fs.writeFile(filename, content, err => {
+        if (err) {
+            defer.reject(err);
+        } else {
+            defer.resolve();
+        }
+    });
+    return defer.promise;
+}
+
+class streamWriter {
+    constructor () {
+        this.defer = new Deferred();
+        this.ws = null;
+        //kind of a dumb thing but have to catch rejection here or will get deprecated unhandled rejection warning
+        this.defer.promise.catch(()=>{});
+    }
+    open (file) {
+        const fse = require('fs-extra');
+        //promise that can be rejecte/resolved for this open command
+        let openDefer = new Deferred();
+//        console.log('ws open');
+        this.ws =  fse.createWriteStream(file);
+
+        let self = this;
+        this.ws.on("error",function (err) {
+//            console.log('ws error');
+            self.defer.reject(err);
+            openDefer.reject(err);
+        });
+        this.ws.on("finish",function () {
+//            console.log('ws finish');
+            self.defer.resolve();
+        });
+
+        //if there was no error then we should be able to write
+        this.ws.write('', () => {
+            openDefer.resolve();
+//            console.log('test write worked and resolved');
+        });
+
+        return openDefer.promise;
+    }
+    write (text,encoding) {
+//        console.log('ws write');
+        if (this.ws) {
+            this.ws.write(text,encoding);
+        } else {
+            throw new Error('No file is open for writing');
+        }
+    }
+    end () {
+        if (this.ws) {
+            this.ws.end();
+            this.ws = null;
+        }
+        return this.defer.promise;
+    }
+};

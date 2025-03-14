@@ -63,11 +63,15 @@ export function resetSMA(): void {
     // nlcdChange1Combobox.value = '';
     // nlcdChange2Combobox.value = '';
     // summaryUnitCombobox.value = '';
-}
+};
 
 export const catalog = writable({
     type: "national"
-})
+});
+
+export const nationalItems = writable([]);
+
+export const searchTerm = writable('');
 
 export const activeWidget = writable({
     right: null

@@ -14,7 +14,7 @@ table.fields = queryBuilder.generateFieldsConfig({table,fields:'subTopicID,topic
 // eg. table.fields.creator_id.serverWrite = true;
 
 table.fields.subTopicID.schema.type = 'integer';
-for (let field of 'eaBC,eaCA,eaCPW,eaCS,eaFFM,eaNHM,eaRCA,eaPBS'.split(',')) {
+for (let field of 'eaBC,eaCA,eaCPW,eaCS,eaFFM,eaNHM,eaRCA'.split(',')) {
     table.fields[field].schema.type = 'boolean';
 }
 

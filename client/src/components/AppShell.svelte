@@ -11,6 +11,7 @@
   // Import arcgis js api
   import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
   import LayerList from "@arcgis/core/widgets/LayerList";
+  //import FeatureTable from "@arcgis/core/widgets/FeatureTable";
 
   // Import components and store
   import { viewState, catalog, activeWidget } from "src/store.ts";
@@ -20,13 +21,12 @@
 
   let bmgContainer;
   let layerListContainer;
+  let fTableContainer;
 
   let view;
   let loaded = true;
 
-  catalog.subscribe((value) => {
-    console.log(value.type)
-  })
+  catalog.subscribe;
 
   viewState.subscribe((value) => {
     view = value.view;
@@ -46,16 +46,72 @@
 
     const layerList = new LayerList({
       view,
+      dragEnabled: true,
       container: layerListContainer,
+      visibilityAppearance: "checkbox",
       listItemCreatedFunction: (e) => {
         const item = e.item;
+        // TODO: make layer NOT disabled if it isn't visibleAtCurrentScale
+        // This is so the features can be clicked for popup, even if tile layer is visibleAtCurrentScale
         if (item.layer.type != "group") {
-          //don't show legend twice
+          // don't show legend twice
           item.panel = {
             content: "legend",
-            open: true
+            open: true,
           };
+          item.actionsSections = [
+            [
+              {
+                title: "Increase transparency",
+                icon: "chevron-up",
+                id: "inc-transparency",
+              },
+              {
+                title: "Decrease transparency",
+                icon: "chevron-down",
+                id: "dec-transparency",
+              },
+              {
+                title: "Show table",
+                icon: "table",
+                id: "table",
+              },
+              {
+                title: "Remove",
+                icon: "trash",
+                id: "trash",
+              },
+            ],
+          ];
         }
+      },
+    });
+
+    layerList.on("trigger-action", (e) => {
+      const id = e.action.id;
+      if (id === "trash") {
+        view.map.remove(e.item.layer);
+        // Find and Remove the identically named tile layer, if it exists
+        const foundLyr = view.map.allLayers.find(function(layer) {
+          return layer.title === e.item.title;
+        });
+        if (foundLyr != undefined) {
+          view.map.remove(foundLyr);
+        };         
+      } else if (id === 'inc-transparency') {
+        e.item.layer.opacity += .1
+      } else if (id === 'dec-transparency') {
+        e.item.layer.opacity -= .1
+      } else if (id == 'table') {
+        // TODO: have a feature table widget in the app.
+        // https://developers.arcgis.com/javascript/latest/sample-code/feature-table/
+        console.log(e.item.layer);
+        // document.querySelector(`[id="shell-panel-table"]`).collapsed = false
+        // const featureTable = new FeatureTable({
+        //   view: view, // Required for feature highlight to work
+        //   layer: e.item.layer,
+        //   container: fTableContainer
+        // })
       }
     });
   }
@@ -67,8 +123,8 @@
     bar.setAttribute("hidden", "");
     panel.removeAttribute("hidden");
     panel.setAttribute("open", "");
-    shell.removeAttribute("collapsed")
-  }
+    shell.removeAttribute("collapsed");
+  };
 
   const handleCatalogActionClick = ({ target }) => {
     if (target.tagName !== "CALCITE-ACTION") {
@@ -140,6 +196,12 @@
     shellElement.collapsed = !shellElement.collapsed;
     document.querySelector('[data-action-id="basemaps"]').active = false;
   };
+
+  export const closeShellElement = function (e) {
+    const target = e.target;
+    const shellElement = target.parentElement;
+    shellElement.collapsed = !shellElement.collapsed;
+  };
 </script>
 
 <calcite-shell>
@@ -148,30 +210,24 @@
       slot="content-start"
       heading="v4"
       thumbnail="/ea/client/images/logo.png"
+      href="https://www.epa.gov/enviroatlas"
     ></calcite-navigation-logo>
-    <calcite-button
-      slot="content-end"
-      appearance="solid"
-      scale="s"
-      width="full"
-      kind="brand"
-      role="button"
-      tabindex="-1"
-      target="_blank"
-      label="Open Apps"
-      icon-start="collection"
-      id="example-button"
-      on:click={openModal}
-      on:keypress={openModal}
-    >
-      Explore EnviroAtlas
-    </calcite-button>
+    <calcite-chip-group scale="s" slot="content-end" expanded>
+      {#each [
+        {label:'Data Download', icon:'download-to', link:'https://www.epa.gov/enviroatlas/forms/enviroatlas-data-download'}, 
+        {label:'Contact Us', icon:'envelope', link:'https://www.epa.gov/enviroatlas/forms/enviroatlas-data-download'}
+        ] as link}
+        <calcite-button scale="s" target="_blank" id='linkbtns' href={link.link}>
+          <calcite-chip icon={link.icon} scale="m">{link.label}</calcite-chip>
+        </calcite-button>
+        {/each}
+    </calcite-chip-group>
   </calcite-navigation>
   <calcite-shell-panel
     component-id="shell-panel-start"
     slot="panel-start"
     display-mode="docked"
-    position='start'
+    position="start"
     width-scale="m"
     id="shell-panel-start"
   >
@@ -252,14 +308,6 @@
       icon="basemap"
       text="Basemaps"
     />
-    <calcite-action data-action-id="legend" icon="legend" text="Legend" />
-    <calcite-action
-      tabindex="-1"
-      role="button"
-      data-action-id="summarize-my-area"
-      icon="sigma"
-      text="Summarize My Area"
-    />
   </calcite-action-bar>
   <calcite-panel
     heading="Layers"
@@ -282,9 +330,24 @@
   </calcite-panel>
   <SummarizeMyArea /> 
   </calcite-shell-panel>
+  <calcite-shell-panel
+    slot="panel-bottom" 
+    layout="horizontal" 
+    position="end" 
+    id="shell-panel-table"
+    collapsed
+  >
+  <calcite-panel closable class="fTable" id="panel-start" on:calcitePanelClose={closeShellElement}>
+    <div id="fTable-container" bind:this={fTableContainer} />
+  </calcite-panel>
+  </calcite-shell-panel>
 </calcite-shell>
 
 <style>
+  calcite-panel.fTable {
+    height: 500px
+  }
+
   calcite-shell-panel {
     --calcite-shell-panel-min-width: 340px;
   }
@@ -299,4 +362,14 @@
   calcite-action-bar {
     --calcite-ui-focus-color: none !important;
   }
+
+  #linkbtns {
+    --calcite-color-brand-hover: none: !important
+  }
+
+  #linkbtns:hover{
+    --calcite-chip-text-color: rgb(236, 235, 235);
+    --calcite-chip-background-color:#024f86;
+  }
+
 </style>

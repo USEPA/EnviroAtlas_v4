@@ -19,7 +19,12 @@
   onMount(() => {
 
     const map = new Map({
-      basemap: "arcgis-topographic",
+      basemap: {
+        style: {
+          id: "arcgis/topographic",
+          worldview: "unitedStatesOfAmerica"
+        }
+      }
     });
 
     console.log('map:', map);
@@ -64,10 +69,16 @@
     //   $state.item = map
     // });
 
-    
+    view.popup = {
+      dockEnabled: true,
+      headingLevel: 3,
+      dockOptions: {
+        position: "top-right",
+        breakpoint: false,
+      }
+    };
 
   });
-
 </script>
 
 <AppShell>
