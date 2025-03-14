@@ -53,6 +53,10 @@ test.describe('Integrate sidebar buttons and Data Catalog buttons (national/subn
     });
 });
 
+test.describe('links should open in a new window', () => {
+    
+})
+
 test.describe('Integrate add to map button click and layer list panel', () => {
     test('should open layer list when "Add to map" is clicked', async ({ page }) => {
         // Open Ecosystem Markets topic

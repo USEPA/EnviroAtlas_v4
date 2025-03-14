@@ -43,5 +43,8 @@ export default defineConfig({
   server: {
       proxy
   },
+  test: {
+
+    },
   plugins: [svelte()],
 })
