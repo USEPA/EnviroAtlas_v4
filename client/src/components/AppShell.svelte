@@ -212,13 +212,13 @@
       thumbnail="/ea/client/images/logo.png"
       href="https://www.epa.gov/enviroatlas"
     ></calcite-navigation-logo>
-    <calcite-chip-group slot="content-end" expanded>
+    <calcite-chip-group scale="s" slot="content-end" expanded>
       {#each [
         {label:'Data Download', icon:'download-to', link:'https://www.epa.gov/enviroatlas/forms/enviroatlas-data-download'}, 
         {label:'Contact Us', icon:'envelope', link:'https://www.epa.gov/enviroatlas/forms/enviroatlas-data-download'}
         ] as link}
-        <calcite-button target="_blank" id='linkbtns' href={link.link}>
-          <calcite-chip icon={link.icon} scale="l">{link.label}</calcite-chip>
+        <calcite-button scale="s" target="_blank" id='linkbtns' href={link.link}>
+          <calcite-chip icon={link.icon} scale="m">{link.label}</calcite-chip>
         </calcite-button>
         {/each}
     </calcite-chip-group>
