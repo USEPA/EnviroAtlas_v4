@@ -4,7 +4,7 @@
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173/ea/client');
+    await page.goto('https://awseastaging.epa.gov/ea/client/');
 });
 
 test('has title', async ({ page }) => {
