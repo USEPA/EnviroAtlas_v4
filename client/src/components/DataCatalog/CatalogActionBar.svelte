@@ -1,12 +1,24 @@
 <script>
     import "@esri/calcite-components/dist/components/calcite-filter";
+    import { nationalItems } from "src/store.ts";
 
     export let type;
+
+    const initFilter = () => {
+        console.log('run Filter');
+        let filterElement = document.querySelector("calcite-filter");
+        if (filterElement.value) {
+            console.log(filterElement.value);
+            console.log(filterElement.filteredItems);
+            $nationalItems = filterElement.filteredItems;
+        }
+    }
+
 </script>
 
 <calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>
     {#if type=='national' || type=='subnational'}
-    <calcite-filter placeholder="Try searching"></calcite-filter>
+    <calcite-filter placeholder="Try searching" on:calciteFilterChange={initFilter}></calcite-filter>
     {/if}
     {#if type=='climate-data-viewer-2'}
         <calcite-chip-group
