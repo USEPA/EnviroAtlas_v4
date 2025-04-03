@@ -7,7 +7,7 @@ let table = {
 };
 
 //get rid of justification fields
-table.fields = queryBuilder.generateFieldsConfig({table,fields:'subTopicID,topic,categoryTab,scale,name,description,eaBC,eaCA,eaCPW,eaCS,eaFFM,eaNHM,eaRCA,eaPBS,tags'});
+table.fields = queryBuilder.generateFieldsConfig({table,fields:'subTopicID,topic,categoryTab,scale,name,description,eaBC,eaCA,eaCPW,eaCS,eaFFM,eaNHM,eaRCA,eaPBS,tags,sourceType'});
 
 //Note: schema. fields are used by swagger and query builder code
 // put fields query builder code only fields level above schema
