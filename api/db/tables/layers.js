@@ -6,7 +6,7 @@ let table = {
     key: 'layerID',
 };
 
-table.fields = queryBuilder.generateFieldsConfig({table,fields:'layerID,subTopicID,eaID,name,subLayerName,description,metric,dfsLink,metadataID,url,lyrNum,tags,tileLink,tileURL,serviceType,popup,numDecimal,cacheLevelNat,DownloadSource,areaGeog,agoID,UniqueTag,HUBsearch,TagHubText,ViewName'});
+table.fields = queryBuilder.generateFieldsConfig({table,fields:'layerID,subTopicID,eaID,name,subLayerName,description,dfsLink,metadataID,url,lyrNum,tags,tileLink,tileURL,serviceType,popup,numDecimal,cacheLevelNat,DownloadSource,areaGeog,agoID,UniqueTag,HUBsearch,TagHubText,ViewName'});
 
 //Note: schema. fields are used by swagger and query builder code
 // put query builder code only fields level above schema
