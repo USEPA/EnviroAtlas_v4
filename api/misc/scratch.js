@@ -1,4 +1,4 @@
-//const appRoot = require('app-root-path');
+const appRoot = require('app-root-path');
 //const utilities = require(appRoot + '/shared/utilities');
 //const inputProcessor = require(appRoot + '/shared/inputProcessor');
 //const config = require(appRoot + '/config/env');
@@ -9,14 +9,66 @@
 //const jwt = require('jsonwebtoken');
 
 //const utilities = require('@usepa-ngst/utilities');
+//can only require @usepa-ngst/utilities if you ran npm run devLink because it's not installed via pacakge.json
 const utilities = require('@usepa-ngst/utilities/index.cjs');
+const dbApi = require('@usepa-ngst/db-api/index.js');
+dbApi.appRoot = appRoot;
 
 const sqlite3 = require('better-sqlite3');
 
+
 (async function () {
     try {
+        (function () {
+            var db = sqlite3('C:\\AaronEvans\\Projects\\EPA CAM\\EnviroAtlas\\gitrepos\\EnviroAtlas_DB\\db\\local\\local.db');
+            console.log();
+            db.pragma('journal_mode = WAL');
+
+            const rows = db.prepare('Select name,subTopicID from subtopics where subTopicID=$subTopicID and 1=$1')['all']({1:1,subTopicID:5});
+
+            console.log(rows);
+
+        })();
+//        return;
+        const dbsqlite = dbApi.require('/db/');
+        let results = await dbsqlite.query('Select name,subTopicID from subtopics where subTopicID=$2 and 1=$1',[1,5]);
+
+        console.log(results);
+        return;
+
+        process.on('exit', () => {
+            console.log('sqlite3 database connection closed.');
+        });
+        process.on('exit', () => {
+            console.log('sqlite3 database connection closed2.');
+        });
+        process.on('exit', cleanup);
+        function cleanup(type) {
+            console.log('sqlite3 database connection closed.' + type);
+        }
+
+        process.exit();
+        return;
+
+        var libRoot = require('C:/AaronEvans/Projects/EPA CAM/NGST NPM Publishing/ngst-js-library/packages/lib-root-path');
+        console.log(libRoot);
+//        var libRootTest = libRoot('@ngst\\myapp','c:\\test\\@ngst\\myapp\\bin\\etc.js');
+        var libRootTest = libRoot('db-api');
+        console.log(libRootTest);
+        libRootTest = libRoot('db-api','C:/AaronEvans/Projects/EPA CAM/NGST NPM Publishing/ngst-js-library/packages/db-api/app/');
+        console.log(libRootTest);
+
+        /* testing db/core_experimental.js
+        console.log(dbsqlite.csv.test());
+        dbsqlite.csv.dum().then(x=>console.log(x));
+        return;
+        */
+
+
         let rurl = utilities.relativeURLfactory('test/index');
         console.log(rurl.pathname);
+        return;
+
         let text = `Select x,y,z
         ,(SELECT json_agg(sub.*)
         FROM ( SELECT a,b,c FROM list WHERE list.x = test.x) sub) AS list2
@@ -45,10 +97,17 @@ const sqlite3 = require('better-sqlite3');
 
 //        const rows = db.prepare('SELECT * FROM test WHERE x=?').all(1);
 //        const rows = db.prepare('SELECT * FROM list').all();
-        const rows = db.prepare(text).all();
+//        const rows = db.prepare(text).all();
+        const rows = db.prepare(text)['all']();
 
 
         console.log(rows);
+        var alist = rows[1].alist;
+        console.log(alist);
+        console.log(typeof(alist));
+        let rows2 = JSON.parse(rows);
+        console.log(rows2);
+
 //        const rows = db.prepare('SELECT * FROM list').all();
 //        console.log(rows);
 
@@ -69,3 +128,5 @@ const sqlite3 = require('better-sqlite3');
         console.error(ex);
     }
 })();
+
+console.log();
