@@ -21,6 +21,7 @@
     "@playwright/test": "^1.49.1",
     "@sveltejs/vite-plugin-svelte": "3.0.0",
     "@types/node": "^22.10.5",
+    "jsdom": "^26.0.0",
     "svelte": "4.2.19",
     "vite": "5.0.0",
     "vitest": "3.1.1"

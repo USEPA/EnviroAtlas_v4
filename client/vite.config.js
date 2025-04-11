@@ -46,6 +46,8 @@ export default defineConfig({
   },
   test: {
     root: './tests/unit',
+    //https://vitest.dev/config/#environment
+    environment: 'jsdom',
   },
   plugins: [svelte()],
 })
