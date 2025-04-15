@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this application code, please cite it as below."
+authors:
+- family-names: "Neale"
+  given-names: "Anne"
+  orcid: "https://orcid.org/0000-0003-2412-8861"
+- family-names: "Baynes"
+  given-names: "Jeremy"
+  orcid: "https://orcid.org/0009-0000-9579-1615"
+title: "EnviroAtlas_v4"
+version: 0.0.1
+doi: coming soon
+date-released: 2025-04-09
+url: "https://github.com/USEPA/EnviroAtlas_v4"
