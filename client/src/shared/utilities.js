@@ -42,7 +42,6 @@ export function addLayer(lObj, view) {
         addTileLayer(lObj, view)
     }
     if (isImageService(lObj.url)) {
-
         if (lObj.tileLink == 'renderer') {
             console.log('render this!')
             let rfRule = renderFloodplainNLCD(lObj.url, 30, 1, 14);
@@ -69,10 +68,19 @@ export function isImageService(url) {
 export function isLayerInMap(url, view) {
     const foundLayer = view.map.allLayers.find(function(lyr) {
         // TODO: For RFTs, the url may be the same, but the viz will be different, 
-        // so will need to update this helper function 
+        // so will need to update this helper function
         return lyr.url === url
     });
     return foundLayer
+}
+
+export function removeLayer(lyrName, view) {
+    const foundLyr = view.map.allLayers.find(function(layer) {
+        return layer.title === lyrName;
+    });
+    if (foundLyr != undefined) {
+        view.map.removeAll(foundLyr);
+    };         
 }
 
 export function addFeatureLayer(lObj, view) {
@@ -148,7 +156,8 @@ export function addImageryLayer(lObj, view, rfRule) {
         url: lObj.url,
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
-        opacity: 0.6
+        opacity: 0.6,
+        title: lObj.name
     }); 
     if (rfRule) {
         iLyr.rasterFunction = rfRule

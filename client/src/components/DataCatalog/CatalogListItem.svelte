@@ -1,5 +1,5 @@
 <script>
-    import { addLayer, getEaData } from "src/shared/utilities.js";
+    import { addLayer, getEaData, removeLayer } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import { activeWidget } from "src/store.ts";
 
@@ -68,8 +68,8 @@
             getEALayerId()
         } if (!this.checked) {
             console.log('unchecked!')
+            removeLayer(event.target.name, view)
         }
-        
     }
 
     async function getSubtopicDetails () {
@@ -102,6 +102,17 @@
 </script>
 
 <calcite-list-item label={subtopic.name}>
+    {#if subtopic.layers.length == 1}
+    <calcite-checkbox 
+        slot="actions-start" 
+        aria-checked="false" 
+        role="checkbox" 
+        tabindex="0"
+        value={subtopic.layers[0].layerID}
+        name={subtopic.layers[0].name}
+        on:calciteCheckboxChange={subtopicSelected}
+    ></calcite-checkbox>
+    {/if}
     <calcite-action 
         tabindex="-1"
         role="button"
@@ -111,35 +122,18 @@
         slot="actions-end" 
         id="{subtopic.subTopicID}-details-popover-button"
         on:click={detailsObj = () => getSubtopicDetails()}
-        on:keypress={detailsObj = () => getSubtopicDetails()}></calcite-action>
+        on:keypress={detailsObj = () => getSubtopicDetails()}>
+    </calcite-action>
     {#if subtopic.layers.length > 1}
     <div slot="content-bottom" id="concernFilterDiv">
         {#each subtopic.layers as layer}
             <calcite-label scale='s' layout="inline">
-                <calcite-checkbox value={layer.layerID} on:calciteCheckboxChange={subtopicSelected}></calcite-checkbox>
+                <calcite-checkbox name={layer.name} value={layer.layerID} on:calciteCheckboxChange={subtopicSelected}></calcite-checkbox>
                 {layer.subLayerName}
             </calcite-label>
         {/each}
     </div>
-        <!-- <calcite-combobox
-            scale="s"
-            slot="content-bottom"
-            selection-mode="single-persist"
-            label={subtopic.name}
-            name={subtopic.name}
-            required
-            placeholder="Select a layer"
-            on:calciteComboboxChange={subtopicSelected}
-        >
-            {#each subtopic.layers as layer}
-                <calcite-combobox-item
-                    value={layer.layerID}
-                    text-label={layer.subLayerName}
-                ></calcite-combobox-item>
-            {/each}
-        </calcite-combobox> -->
     {/if}
-
     <calcite-action-bar
         slot="content-bottom"
         layout="horizontal"
@@ -268,8 +262,7 @@
             appearance='transparent'
             on:click={getEALayerId}
             on:keypress={getEALayerId}
-            >Add to map</calcite-button
-        >
+        >Add to map</calcite-button>
     </calcite-action-bar>
 </calcite-list-item>
 
