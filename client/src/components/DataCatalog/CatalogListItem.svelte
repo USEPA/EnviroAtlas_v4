@@ -134,12 +134,8 @@
         {/each}
     </div>
     {/if}
-    <calcite-action-bar
-        slot="content-bottom"
-        layout="horizontal"
-        expand-disabled
-    >
     <calcite-chip-group
+            slot="content-bottom"
             id="ea-chip-group"
             scale="s"
             selection-mode="none"
@@ -252,31 +248,13 @@
                 {/if}
             {/each}
         </calcite-chip-group>
-        <calcite-button
-            role="button"
-            tabindex="0"
-            scale="s"
-            round
-            label="Add to map"
-            slot="actions-end"
-            appearance='transparent'
-            on:click={getEALayerId}
-            on:keypress={getEALayerId}
-        >Add to map</calcite-button>
-    </calcite-action-bar>
 </calcite-list-item>
 
 <style>
-    calcite-button {
+    #ea-chip-group {
         margin-left: 5px;
         margin-bottom: 5px;
         margin-top: 5px;
-    }
-    
-    calcite-combobox {
-        margin-top: 5px;
-        margin-bottom: 5px;
-        --calcite-color-brand: #005ea2;
     }
 
     calcite-list-item {
