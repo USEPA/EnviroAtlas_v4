@@ -3,6 +3,7 @@ import TileLayer from "@arcgis/core/layers/TileLayer"
 import PopupTemplate from "@arcgis/core/PopupTemplate";
 import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
 import MapImageLayer from "@arcgis/core/layers/MapImageLayer";
+import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
 
 
 export let view;
@@ -29,7 +30,7 @@ export async function getEaData(url, params) {
 export function addLayer(lObj, view) {
     // Look for the layer already in the view
     // TODO: find a way to check this before sending request to API for lyrObject?
-    if (isLayerTitleInMap(lObj.name, view)) {
+    if (isLayerInMap(lObj.url, view)) {
         console.log("Layer is already in map!")
         return 
     }
@@ -41,7 +42,14 @@ export function addLayer(lObj, view) {
         addTileLayer(lObj, view)
     }
     if (isImageService(lObj.url)) {
-        addImageryLayer(lObj, view)
+
+        if (lObj.tileLink == 'renderer') {
+            console.log('render this!')
+            let rfRule = renderFloodplainNLCD(lObj.url, 30, 1, 14);
+            addImageryLayer(lObj, view, rfRule)
+        } else {
+            addImageryLayer(lObj, view)
+        }
     }
     // TODO: Add EA Boundaries and locations when community data is added to the map
     // Maybe don't have to do this if EA is dropping Community data from the app?
@@ -58,9 +66,11 @@ export function isImageService(url) {
     return url.substring(url.lastIndexOf('/') + 1) === 'ImageServer'
 }
 
-export function isLayerTitleInMap(title, view) {
+export function isLayerInMap(url, view) {
     const foundLayer = view.map.allLayers.find(function(lyr) {
-        return lyr.title === title
+        // TODO: For RFTs, the url may be the same, but the viz will be different, 
+        // so will need to update this helper function 
+        return lyr.url === url
     });
     return foundLayer
 }
@@ -99,13 +109,50 @@ export function addFeatureLayer(lObj, view) {
     view.map.add(copiedLayer);
 }
 
-export function addImageryLayer(lObj, view) {
+export function renderFloodplainNLCD(url, pixSize, fpID, lcID){
+    let riparianRemap = new RasterFunction({
+        functionName: "Remap",
+        functionArguments: {
+            inputRanges: [1, 5],
+            outputValues: [1],
+            NoDataRanges: [0, 0],
+            raster: "$" + fpID,
+        },
+    });
+
+    let nlcdRemap = new RasterFunction({
+        functionName: "Remap",
+        functionArguments: {
+            inputRanges: [21,24],
+            outputValues: [0],
+            NoDataRanges: [0, 0],
+            raster: "$" + lcID,
+        }
+    });
+
+    let riparianNLCD = new RasterFunction({
+        functionName: "Arithmetic",
+        functionArguments: {
+            Raster: riparianRemap,
+            Raster2: nlcdRemap,
+            Operation: "3",
+        }
+    });
+
+    return riparianNLCD
+}
+
+export function addImageryLayer(lObj, view, rfRule) {
+    console.log(rfRule)
     let iLyr = new ImageryLayer({
         url: lObj.url,
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
         opacity: 0.6
-    });
+    }); 
+    if (rfRule) {
+        iLyr.rasterFunction = rfRule
+    }
     console.log("imageryLayer: ", iLyr);
     view.map.add(iLyr);
 }

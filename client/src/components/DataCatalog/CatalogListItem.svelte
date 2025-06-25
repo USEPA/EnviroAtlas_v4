@@ -63,6 +63,13 @@
     function subtopicSelected(event) {
         layerID = event.target.value;
         console.log(layerID);
+        if (this.checked) {
+            console.log('checked!')
+            getEALayerId()
+        } if (!this.checked) {
+            console.log('unchecked!')
+        }
+        
     }
 
     async function getSubtopicDetails () {
@@ -100,13 +107,21 @@
         role="button"
         text="Details" 
         icon="information" 
-        scale="s" 
+        scale="m" 
         slot="actions-end" 
         id="{subtopic.subTopicID}-details-popover-button"
         on:click={detailsObj = () => getSubtopicDetails()}
         on:keypress={detailsObj = () => getSubtopicDetails()}></calcite-action>
     {#if subtopic.layers.length > 1}
-        <calcite-combobox
+    <div slot="content-bottom" id="concernFilterDiv">
+        {#each subtopic.layers as layer}
+            <calcite-label scale='s' layout="inline">
+                <calcite-checkbox value={layer.layerID} on:calciteCheckboxChange={subtopicSelected}></calcite-checkbox>
+                {layer.subLayerName}
+            </calcite-label>
+        {/each}
+    </div>
+        <!-- <calcite-combobox
             scale="s"
             slot="content-bottom"
             selection-mode="single-persist"
@@ -122,7 +137,7 @@
                     text-label={layer.subLayerName}
                 ></calcite-combobox-item>
             {/each}
-        </calcite-combobox>
+        </calcite-combobox> -->
     {/if}
 
     <calcite-action-bar
@@ -307,5 +322,14 @@
 
     calcite-chip.sType {
         --calcite-chip-background-color: #BACFE1;
+    }
+
+    #concernFilterDiv {
+        padding-left: 12px;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-gap: 5px;
+		max-width: 400px;
+        font-size: 11px !important;
     }
 </style>
