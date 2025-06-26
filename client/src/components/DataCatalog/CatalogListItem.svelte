@@ -1,5 +1,5 @@
 <script>
-    import { addLayer, getEaData } from "src/shared/utilities.js";
+    import { addLayer, getEaData, removeLayer } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import { activeWidget } from "src/store.ts";
 
@@ -63,6 +63,13 @@
     function subtopicSelected(event) {
         layerID = event.target.value;
         console.log(layerID);
+        if (this.checked) {
+            console.log('checked!')
+            getEALayerId()
+        } if (!this.checked) {
+            console.log('unchecked!')
+            removeLayer(event.target.name, view)
+        }
     }
 
     async function getSubtopicDetails () {
@@ -95,42 +102,40 @@
 </script>
 
 <calcite-list-item label={subtopic.name}>
+    {#if subtopic.layers.length == 1}
+    <calcite-checkbox 
+        slot="actions-start" 
+        aria-checked="false" 
+        role="checkbox" 
+        tabindex="0"
+        value={subtopic.layers[0].layerID}
+        name={subtopic.layers[0].name}
+        on:calciteCheckboxChange={subtopicSelected}
+    ></calcite-checkbox>
+    {/if}
     <calcite-action 
         tabindex="-1"
         role="button"
         text="Details" 
         icon="information" 
-        scale="s" 
+        scale="m" 
         slot="actions-end" 
         id="{subtopic.subTopicID}-details-popover-button"
         on:click={detailsObj = () => getSubtopicDetails()}
-        on:keypress={detailsObj = () => getSubtopicDetails()}></calcite-action>
+        on:keypress={detailsObj = () => getSubtopicDetails()}>
+    </calcite-action>
     {#if subtopic.layers.length > 1}
-        <calcite-combobox
-            scale="s"
-            slot="content-bottom"
-            selection-mode="single-persist"
-            label={subtopic.name}
-            name={subtopic.name}
-            required
-            placeholder="Select a layer"
-            on:calciteComboboxChange={subtopicSelected}
-        >
-            {#each subtopic.layers as layer}
-                <calcite-combobox-item
-                    value={layer.layerID}
-                    text-label={layer.subLayerName}
-                ></calcite-combobox-item>
-            {/each}
-        </calcite-combobox>
+    <div slot="content-bottom" id="concernFilterDiv">
+        {#each subtopic.layers as layer}
+            <calcite-label scale='s' layout="inline">
+                <calcite-checkbox name={layer.name} value={layer.layerID} on:calciteCheckboxChange={subtopicSelected}></calcite-checkbox>
+                {layer.subLayerName}
+            </calcite-label>
+        {/each}
+    </div>
     {/if}
-
-    <calcite-action-bar
-        slot="content-bottom"
-        layout="horizontal"
-        expand-disabled
-    >
     <calcite-chip-group
+            slot="content-bottom"
             id="ea-chip-group"
             scale="s"
             selection-mode="none"
@@ -243,32 +248,13 @@
                 {/if}
             {/each}
         </calcite-chip-group>
-        <calcite-button
-            role="button"
-            tabindex="0"
-            scale="s"
-            round
-            label="Add to map"
-            slot="actions-end"
-            appearance='transparent'
-            on:click={getEALayerId}
-            on:keypress={getEALayerId}
-            >Add to map</calcite-button
-        >
-    </calcite-action-bar>
 </calcite-list-item>
 
 <style>
-    calcite-button {
+    #ea-chip-group {
         margin-left: 5px;
         margin-bottom: 5px;
         margin-top: 5px;
-    }
-    
-    calcite-combobox {
-        margin-top: 5px;
-        margin-bottom: 5px;
-        --calcite-color-brand: #005ea2;
     }
 
     calcite-list-item {
@@ -307,5 +293,14 @@
 
     calcite-chip.sType {
         --calcite-chip-background-color: #BACFE1;
+    }
+
+    #concernFilterDiv {
+        padding-left: 12px;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-gap: 5px;
+		max-width: 400px;
+        font-size: 11px !important;
     }
 </style>

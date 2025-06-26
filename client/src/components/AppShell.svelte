@@ -90,14 +90,9 @@
     layerList.on("trigger-action", (e) => {
       const id = e.action.id;
       if (id === "trash") {
-        view.map.remove(e.item.layer);
-        // Find and Remove the identically named tile layer, if it exists
-        const foundLyr = view.map.allLayers.find(function(layer) {
-          return layer.title === e.item.title;
-        });
-        if (foundLyr != undefined) {
-          view.map.remove(foundLyr);
-        };         
+        view.map.removeAll(e.item.layer);
+        // uncheck the layer's checkbox in the data catalog
+        document.querySelector(`calcite-checkbox[name="${e.item.layer.title}"]`).removeAttribute("checked");
       } else if (id === 'inc-transparency') {
         e.item.layer.opacity += .1
       } else if (id === 'dec-transparency') {
