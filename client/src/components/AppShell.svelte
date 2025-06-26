@@ -90,9 +90,9 @@
     layerList.on("trigger-action", (e) => {
       const id = e.action.id;
       if (id === "trash") {
-        console.log(e.item.layer)
         view.map.removeAll(e.item.layer);
-        //TODO: uncheck the layer's checkbox in the data catalog
+        // uncheck the layer's checkbox in the data catalog
+        document.querySelector(`calcite-checkbox[name="${e.item.layer.title}"]`).removeAttribute("checked");
       } else if (id === 'inc-transparency') {
         e.item.layer.opacity += .1
       } else if (id === 'dec-transparency') {
