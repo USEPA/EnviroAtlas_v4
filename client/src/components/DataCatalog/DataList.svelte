@@ -148,9 +148,12 @@
 
         nextDataCatalog == 'add-data' 
             ? document.querySelector(`[id=catalog-search-filter]`).setAttribute("hidden", "")
-            : document.querySelector(`[id=catalog-search-filter]`).removeAttribute("hidden");
-        
+            : document.querySelector(`[id=catalog-search-filter]`).removeAttribute("hidden");  
     };
+
+    function listItemExpand() {
+        !this.open ? this.setAttribute("open", "") : this.removeAttribute("open")
+    }
 </script>
 
 <calcite-flow data-panel-id="data-catalog" id="data-catalog" open>
@@ -204,6 +207,7 @@
                         class={ea.categoryTab}
                         label={ea.topic}
                         value={ea.topic}
+                        on:calciteListItemSelect={listItemExpand}
                     >
                         <calcite-list
                             id="not-header"
