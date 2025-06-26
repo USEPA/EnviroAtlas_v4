@@ -124,15 +124,15 @@ export function renderFloodplainNLCD(url, pixSize, fpID, lcID){
             inputRanges: [1, 5],
             outputValues: [1],
             NoDataRanges: [0, 0],
-            raster: "$" + fpID,
+            raster: "$" + fpID, //$# is the image # in the service
         },
     });
 
     let nlcdRemap = new RasterFunction({
         functionName: "Remap",
         functionArguments: {
-            inputRanges: [21,24],
-            outputValues: [0],
+            inputRanges: [0,11,11,12,12,21,21,31,31,41,41,42,42,43,43,52,52,71,71,81,81,82,82,90,90,95,95,96],
+            outputValues: [0,11,12,0,31,41,42,43,52,71,81,82,90,95],
             NoDataRanges: [0, 0],
             raster: "$" + lcID,
         }
@@ -147,7 +147,28 @@ export function renderFloodplainNLCD(url, pixSize, fpID, lcID){
         }
     });
 
-    return riparianNLCD
+    let colorRft = new RasterFunction({
+        functionName: "Colormap",
+        functionArguments: {
+            Colormap: [
+                [11, 92,138,194],
+                [12, 250,250,253],
+                [31, 240,233,235],
+                [41, 130,197,135],
+                [42, 103,134,94],
+                [43, 90,164,119],
+                [52, 242,219,192],
+                [71, 252,242,205],
+                [81, 240,237,169],
+                [82, 253,253,172],
+                [90, 169,221,185],
+                [95, 199,236,229]
+            ],
+            raster: riparianNLCD
+        }
+    });
+
+    return colorRft
 }
 
 export function addImageryLayer(lObj, view, rfRule) {
