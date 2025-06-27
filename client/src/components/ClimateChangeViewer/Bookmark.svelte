@@ -79,6 +79,36 @@
         document.querySelector('[id="climate-filter-prvi"]').active = true;
         console.log(document.querySelector('[id="climate-filter-action-group"]'));
     };
+
+    const _onGuamClick = (view) => {
+        let extent = new Extent({
+			xmax: 16446175.757969558,
+			xmin: 16004237.379520258,
+			ymax: 2301068.6854367177,
+			ymin: 1503028.389935526,
+            spatialReference: { wkid: 102100 },
+        });
+        view.goTo(extent).catch(function (error) {
+            if (error.name != "AbortError") {
+                console.error(error);
+            }
+        });
+    }
+
+    const _onPacIslesClick = (view) => {
+        let extent = new Extent({
+			xmax: -18844510.286599636,
+			xmin: -19163997.22517633,
+			ymax: -1444391.585028562,
+			ymin: -1774134.0808157807,
+            spatialReference: { wkid: 102100 },
+        });
+        view.goTo(extent).catch(function (error) {
+            if (error.name != "AbortError") {
+                console.error(error);
+            }
+        });
+    }
 </script>
 
 <calcite-popover
@@ -132,7 +162,25 @@
             on:click={_onPrViClick(view)}
             on:keypress={_onPrViClick(view)}
         ></calcite-action>
-        <calcite-action scale="s" text="Pacific Islands" text-enabled
+        <calcite-action 
+            tabindex="0"
+            role="button"
+            id="climate-filter-guam"
+            scale="s" 
+            text="Guam" 
+            text-enabled
+            on:click={_onGuamClick(view)}
+            on:keypress={_onGuamClick(view)}
+        ></calcite-action>
+        <calcite-action 
+            tabindex="0"
+            role="button"
+            id="climate-filter-pacisles"
+            scale="s" 
+            text="Pacific Islands" 
+            text-enabled
+            on:click={_onPacIslesClick(view)}
+            on:keypress={_onPacIslesClick(view)}
         ></calcite-action>
     </calcite-action-group>
 </calcite-popover>
