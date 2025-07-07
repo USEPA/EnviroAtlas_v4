@@ -48,7 +48,6 @@
         } else if ($activeWidget.right !== "layers") {
             // Given the right side panel is open, when Add to map is clicked, 
             // the right side panel remains open and has layer list visible
-            console.log("toggle off of ", $activeWidget.right)
             layerPanel.removeAttribute("hidden");
             layerPanel.removeAttribute("closed");
             document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
@@ -101,7 +100,7 @@
 
 </script>
 
-<calcite-list-item label={subtopic.name}>
+<calcite-list-item label={subtopic.name} on:calciteListItemSelect={e=>e.stopPropagation()}>
     {#if subtopic.layers.length == 1}
     <calcite-checkbox 
         slot="actions-start" 

@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { derived, writable } from "svelte/store";
 
 // don't have to call this state; shared between components (App and AppShell)
 export const viewState = writable({
@@ -66,8 +66,10 @@ export function resetSMA(): void {
 };
 
 export const catalog = writable({
-    type: "national"
+    type: "national",
 });
+
+export const geography = writable('')
 
 export const nationalItems = writable([]);
 
@@ -75,4 +77,18 @@ export const searchTerm = writable('');
 
 export const activeWidget = writable({
     right: null
-})
+});
+
+export const filteredNationalItems = derived(
+    [nationalItems, geography], ([$nationalItems, $geography]) => {
+        if (!$geography) {
+            return $nationalItems
+        } if ($geography) {
+            return $nationalItems.map(category => {
+                return {...category, subtopic: category.subtopic.map(subtopic => {
+                    return {...subtopic, layers: subtopic.layers.filter(lyr => lyr.areaGeog.includes($geography))};
+                }).filter(subtopic => subtopic.layers.length > 0)}
+            }).filter(category => category.subtopic.some(subtopic => subtopic.layers.length > 0))    
+        }
+    }
+)

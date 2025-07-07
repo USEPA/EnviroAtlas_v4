@@ -9,7 +9,7 @@
     import "@esri/calcite-components/dist/components/calcite-action-group";
 
     // Import components and store
-    import { catalog, nationalItems } from "src/store.ts";
+    import { catalog, nationalItems, filteredNationalItems } from "src/store.ts";
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
     import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
@@ -60,7 +60,7 @@
             // console.log(`${prop}: ${data[prop].topic}`);
             // apply topic to subtopic params
             let subtopicParams = {
-                select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"tags":1,"name":1}}`),
+                select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"areaGeog":1,"name":1}}`),
                 where: encodeURIComponent(`{"topic":"${data[prop].topic}"}`)
             };
             // get subtopic object from api
@@ -202,7 +202,7 @@
                 {#await eaTopics}
                     <p>...loading</p>
                 {:then}
-                    {#each $nationalItems as ea}
+                    {#each $filteredNationalItems as ea}
                     <calcite-list-item
                         class={ea.categoryTab}
                         label={ea.topic}
