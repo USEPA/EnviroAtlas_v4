@@ -125,7 +125,7 @@
     </calcite-action>
     {#if subtopic.layers.length > 1}
     <div slot="content-bottom" id="concernFilterDiv">
-        {#each subtopic.layers as layer}
+        {#each subtopic.layers as layer (layer.layerID)}
             <calcite-label scale='s' layout="inline">
                 <calcite-checkbox name={layer.name} value={layer.layerID} on:calciteCheckboxChange={subtopicSelected}></calcite-checkbox>
                 {layer.subLayerName}

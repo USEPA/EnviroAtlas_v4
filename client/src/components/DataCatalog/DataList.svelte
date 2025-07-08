@@ -202,7 +202,7 @@
                 {#await eaTopics}
                     <p>...loading</p>
                 {:then}
-                    {#each $filteredNationalItems as ea}
+                    {#each $filteredNationalItems as ea (ea.topic)}
                     <calcite-list-item
                         class={ea.categoryTab}
                         label={ea.topic}
@@ -215,7 +215,7 @@
                             selection-mode="none"
                         >
                         {#if ea.subtopic}
-                            {#each ea.subtopic as subtopic}
+                            {#each ea.subtopic as subtopic (subtopic.subTopicID)}
                                 <CatalogListItem {subtopic} {view} />
                             {/each}
                         {/if}
