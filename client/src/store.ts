@@ -71,15 +71,13 @@ export const catalog = writable({
 
 export const geography = writable('')
 
-export const nationalItems = writable([
-]);
+export const nationalItems = writable([]);
 
 export const searchTerm = writable('');
 
 export const activeWidget = writable({
     right: null
 });
-
 
 // If we can rewrite things to call api instead of using store, then this is all unnecessary...
 

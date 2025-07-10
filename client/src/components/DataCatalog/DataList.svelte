@@ -18,9 +18,6 @@
     import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
     import { getEaData } from "src/shared/utilities.js"
 
-    // Import svelte
-    import { afterUpdate } from "svelte";
-
     export let view;
     export let map;
 
@@ -76,13 +73,12 @@
             resNoComm.sort((a,b) => a.name.localeCompare(b.name));
             // take the result and put into store subtopic object
             $nationalItems[prop].subtopic = resNoComm;
-            //$nationalItems[prop].subtopic = $nationalItems[prop].subtopic.map(sub => ({...sub, isVisible: true}))
         }
         return data
     }
 
     // wait for eaTopics to finish before updating data for catalog UI
-    eaTopics.then((result) => getEaSubtopics(result)).then(() => console.log($nationalItems));
+    eaTopics.then((result) => getEaSubtopics(result));
 
     async function updateListStyle(elem) {
         const shadow = elem.shadowRoot;
@@ -160,7 +156,6 @@
     function listItemExpand() {
         !this.open ? this.setAttribute("open", "") : this.removeAttribute("open")
     }
-
 </script>
 
 <calcite-flow data-panel-id="data-catalog" id="data-catalog" open>

@@ -1,10 +1,5 @@
 <script>
-    //Rethinking this component...
-    //Could be more flexible if the action buttons were each blocks
-    //and names and extents were passed in as props.
-    //Would need a click handler function that looks at active action and toggles 
-    //Needs to pass a filter prop to data catalog
-    import { filteredNationalItems, nationalItems, geography } from "src/store.ts";
+    import { filteredNationalItems, geography } from "src/store.ts";
     import Extent from "@arcgis/core/geometry/Extent";
 
     export let view;
@@ -28,8 +23,7 @@
             }
         });
 
-        //TODO: only one bookmark can be active at a time
-        // QUESTION: Is there a "none" or "Clear" option? Or just select the same one twice and it "unselects" all?
+        //TODO: only one bookmark can be active at a time. No "clear" or "none" option. Conus is default.
         document.querySelector('[id="popover-button"]').indicator = true;
 
         bookmarkPopupButton.open = false;
@@ -71,8 +65,3 @@
         {/each}
     </calcite-action-group>
 </calcite-popover>
-
-
-
-
- 
