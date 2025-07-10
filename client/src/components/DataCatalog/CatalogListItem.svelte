@@ -48,7 +48,6 @@
         } else if ($activeWidget.right !== "layers") {
             // Given the right side panel is open, when Add to map is clicked, 
             // the right side panel remains open and has layer list visible
-            console.log("toggle off of ", $activeWidget.right)
             layerPanel.removeAttribute("hidden");
             layerPanel.removeAttribute("closed");
             document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
@@ -100,8 +99,8 @@
     }
 
 </script>
-
-<calcite-list-item label={subtopic.name}>
+{#if subtopic.isVisible}
+<calcite-list-item label={subtopic.name} on:calciteListItemSelect={e=>e.stopPropagation()}>
     {#if subtopic.layers.length == 1}
     <calcite-checkbox 
         slot="actions-start" 
@@ -126,11 +125,13 @@
     </calcite-action>
     {#if subtopic.layers.length > 1}
     <div slot="content-bottom" id="concernFilterDiv">
-        {#each subtopic.layers as layer}
+        {#each subtopic.layers as layer (layer.layerID)}
+        {#if layer.isVisible}
             <calcite-label scale='s' layout="inline">
                 <calcite-checkbox name={layer.name} value={layer.layerID} on:calciteCheckboxChange={subtopicSelected}></calcite-checkbox>
                 {layer.subLayerName}
             </calcite-label>
+        {/if}
         {/each}
     </div>
     {/if}
@@ -249,6 +250,7 @@
             {/each}
         </calcite-chip-group>
 </calcite-list-item>
+{/if}
 
 <style>
     #ea-chip-group {

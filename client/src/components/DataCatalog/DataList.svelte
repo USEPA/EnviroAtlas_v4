@@ -9,7 +9,7 @@
     import "@esri/calcite-components/dist/components/calcite-action-group";
 
     // Import components and store
-    import { catalog, nationalItems } from "src/store.ts";
+    import { catalog, nationalItems, filteredNationalItems } from "src/store.ts";
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
     import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
@@ -48,6 +48,7 @@
             // Drop community only subtopics (Carbon Storage, Health & Eco Outcomes, Pollutant Redxn: Air)
             let dataReduced = data.filter(item => (item.topic !== "Carbon Storage" && item.topic !== "Health and Economic Outcomes" && item.topic !== "Pollutant Reduction: Air"));
             // load national data into the store
+            dataReduced = dataReduced.map(obj => ({...obj, isVisible: true}))
             $nationalItems = dataReduced;
             return dataReduced
         }).catch(err => {
@@ -60,12 +61,13 @@
             // console.log(`${prop}: ${data[prop].topic}`);
             // apply topic to subtopic params
             let subtopicParams = {
-                select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"tags":1,"name":1}}`),
+                select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"areaGeog":1,"name":1}}`),
                 where: encodeURIComponent(`{"topic":"${data[prop].topic}"}`)
             };
             // get subtopic object from api
             // return promise object resolve, not the whole promise object
             let res = await getEaData("/ea/api/subtopics", subtopicParams);
+            res = res.map(sub => ({...sub, isVisible: true}))
             // Drop Community layers
             let resNoComm = res.filter(item => item.scale !== "COMMUNITY");
             resNoComm.sort((a,b) => a.name.localeCompare(b.name));
@@ -82,7 +84,7 @@
         const shadow = elem.shadowRoot;
         const stylesheet = new CSSStyleSheet();
         stylesheet.replaceSync(`
-            .content, .custom-content {
+            .content-container, .container {
                 height: 19px;
             }
         `);
@@ -202,7 +204,8 @@
                 {#await eaTopics}
                     <p>...loading</p>
                 {:then}
-                    {#each $nationalItems as ea}
+                    {#each $filteredNationalItems as ea (ea.topic)}
+                    {#if ea.isVisible}
                     <calcite-list-item
                         class={ea.categoryTab}
                         label={ea.topic}
@@ -215,12 +218,13 @@
                             selection-mode="none"
                         >
                         {#if ea.subtopic}
-                            {#each ea.subtopic as subtopic}
+                            {#each ea.subtopic as subtopic (subtopic.subTopicID)}
                                 <CatalogListItem {subtopic} {view} />
                             {/each}
                         {/if}
                         </calcite-list>
                     </calcite-list-item>
+                    {/if}
                     {/each}
                 {/await}
             </calcite-list>
