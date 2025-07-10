@@ -99,7 +99,7 @@
     }
 
 </script>
-
+{#if subtopic.isVisible}
 <calcite-list-item label={subtopic.name} on:calciteListItemSelect={e=>e.stopPropagation()}>
     {#if subtopic.layers.length == 1}
     <calcite-checkbox 
@@ -126,10 +126,12 @@
     {#if subtopic.layers.length > 1}
     <div slot="content-bottom" id="concernFilterDiv">
         {#each subtopic.layers as layer (layer.layerID)}
+        {#if layer.isVisible}
             <calcite-label scale='s' layout="inline">
                 <calcite-checkbox name={layer.name} value={layer.layerID} on:calciteCheckboxChange={subtopicSelected}></calcite-checkbox>
                 {layer.subLayerName}
             </calcite-label>
+        {/if}
         {/each}
     </div>
     {/if}
@@ -248,6 +250,7 @@
             {/each}
         </calcite-chip-group>
 </calcite-list-item>
+{/if}
 
 <style>
     #ea-chip-group {

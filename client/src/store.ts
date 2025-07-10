@@ -71,7 +71,8 @@ export const catalog = writable({
 
 export const geography = writable('')
 
-export const nationalItems = writable([]);
+export const nationalItems = writable([
+]);
 
 export const searchTerm = writable('');
 
@@ -79,6 +80,12 @@ export const activeWidget = writable({
     right: null
 });
 
+
+// If we can rewrite things to call api instead of using store, then this is all unnecessary...
+
+// derived store that filters each level of UI data (level1=topic, level2=subtopic, level3=layers) based on geography
+// This works, but re-rendering has the downstream effect of needing to override shadow dom again, which I couldn't figure out how to correct.
+// To recreate the issue, filter to Hawaii, then filter to CONUS...the calcite-list-items aren't height: 19px when they re-render.
 export const filteredNationalItems = derived(
     [nationalItems, geography], ([$nationalItems, $geography]) => {
         if (!$geography) {
@@ -92,3 +99,40 @@ export const filteredNationalItems = derived(
         }
     }
 )
+
+// This is the in-between code from filtering (above) to using an isVisible prop in each level of UI data (level1=topic, level2=subtopic, level3=layers)
+// export const filteredNationalItems = derived(
+//     [nationalItems, geography], ([$nationalItems, $geography]) => {
+//         if (!$geography) {
+//             return $nationalItems
+//         } if ($geography) {
+//             return $nationalItems.map(category => {
+//                 return {...category, subtopic: category.subtopic.map(subtopic => {
+//                     return {...subtopic, layers: subtopic.layers.map(lyr => {
+//                         return {...lyr, ...((lyr.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
+//                     })}
+//                 })}
+//             })    
+//         }
+//     }
+// )
+
+// Almost got this working, but need to set top level object.isVisible to false if there aren't some subtopic.isVisible
+// This was trying to get around re-rendering components that drop the shadow dom overriding css in DataList.svelte
+// export const filteredNationalItems = derived(
+//     [nationalItems, geography], ([$nationalItems, $geography]) => {
+//         if (!$geography) {
+//             return $nationalItems
+//         } if ($geography) {
+//             return $nationalItems.map(category => {
+//                 return {...category, subtopic: category.subtopic.map(subtopic => {
+//                     const lyrObj = subtopic.layers.map(lyr => {
+//                         return {...lyr, ...((lyr.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
+//                     });
+//                     const isSubVis = lyrObj.some(lyr => lyr.isVisible);
+//                     return {...subtopic, lyr: lyrObj, isVisible: isSubVis}
+//                 })}
+//             })    
+//         }
+//     }
+// )

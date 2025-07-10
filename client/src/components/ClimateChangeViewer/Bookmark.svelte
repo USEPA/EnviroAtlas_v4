@@ -4,7 +4,7 @@
     //and names and extents were passed in as props.
     //Would need a click handler function that looks at active action and toggles 
     //Needs to pass a filter prop to data catalog
-    import { geography } from "src/store.ts";
+    import { filteredNationalItems, nationalItems, geography } from "src/store.ts";
     import Extent from "@arcgis/core/geometry/Extent";
 
     export let view;
@@ -36,10 +36,12 @@
         bookmark.element.active = true;
  
         //TODO: put in all stuff that changes this dataList Query Store we are creating that triggers dataList refresh in that comopnent
-        
+       
         $geography = bookmark.name
         console.log($geography)
+        console.log($filteredNationalItems)
     };
+
 </script>
 
 <calcite-popover

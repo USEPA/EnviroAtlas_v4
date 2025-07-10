@@ -18,6 +18,9 @@
     import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
     import { getEaData } from "src/shared/utilities.js"
 
+    // Import svelte
+    import { afterUpdate } from "svelte";
+
     export let view;
     export let map;
 
@@ -48,6 +51,7 @@
             // Drop community only subtopics (Carbon Storage, Health & Eco Outcomes, Pollutant Redxn: Air)
             let dataReduced = data.filter(item => (item.topic !== "Carbon Storage" && item.topic !== "Health and Economic Outcomes" && item.topic !== "Pollutant Reduction: Air"));
             // load national data into the store
+            dataReduced = dataReduced.map(obj => ({...obj, isVisible: true}))
             $nationalItems = dataReduced;
             return dataReduced
         }).catch(err => {
@@ -66,23 +70,25 @@
             // get subtopic object from api
             // return promise object resolve, not the whole promise object
             let res = await getEaData("/ea/api/subtopics", subtopicParams);
+            res = res.map(sub => ({...sub, isVisible: true}))
             // Drop Community layers
             let resNoComm = res.filter(item => item.scale !== "COMMUNITY");
             resNoComm.sort((a,b) => a.name.localeCompare(b.name));
             // take the result and put into store subtopic object
             $nationalItems[prop].subtopic = resNoComm;
+            //$nationalItems[prop].subtopic = $nationalItems[prop].subtopic.map(sub => ({...sub, isVisible: true}))
         }
         return data
     }
 
     // wait for eaTopics to finish before updating data for catalog UI
-    eaTopics.then((result) => getEaSubtopics(result));
+    eaTopics.then((result) => getEaSubtopics(result)).then(() => console.log($nationalItems));
 
     async function updateListStyle(elem) {
         const shadow = elem.shadowRoot;
         const stylesheet = new CSSStyleSheet();
         stylesheet.replaceSync(`
-            .content, .custom-content {
+            .content-container, .container {
                 height: 19px;
             }
         `);
@@ -154,6 +160,7 @@
     function listItemExpand() {
         !this.open ? this.setAttribute("open", "") : this.removeAttribute("open")
     }
+
 </script>
 
 <calcite-flow data-panel-id="data-catalog" id="data-catalog" open>
@@ -203,6 +210,7 @@
                     <p>...loading</p>
                 {:then}
                     {#each $filteredNationalItems as ea (ea.topic)}
+                    {#if ea.isVisible}
                     <calcite-list-item
                         class={ea.categoryTab}
                         label={ea.topic}
@@ -221,6 +229,7 @@
                         {/if}
                         </calcite-list>
                     </calcite-list-item>
+                    {/if}
                     {/each}
                 {/await}
             </calcite-list>
