@@ -67,7 +67,13 @@
             // get subtopic object from api
             // return promise object resolve, not the whole promise object
             let res = await getEaData("/ea/api/subtopics", subtopicParams);
-            res = res.map(sub => ({...sub, isVisible: true}))
+            // add an isVisible property to subtopic and layers objects for filtering
+            res = res.map(subtopic => {
+                const lyrObj = subtopic.layers.map(layers => {
+                    return {...layers, isVisible: true}
+                });
+                return ({...subtopic, layers: lyrObj, isVisible: true})
+            });
             // Drop Community layers
             let resNoComm = res.filter(item => item.scale !== "COMMUNITY");
             resNoComm.sort((a,b) => a.name.localeCompare(b.name));

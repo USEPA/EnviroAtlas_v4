@@ -84,19 +84,19 @@ export const activeWidget = writable({
 // derived store that filters each level of UI data (level1=topic, level2=subtopic, level3=layers) based on geography
 // This works, but re-rendering has the downstream effect of needing to override shadow dom again, which I couldn't figure out how to correct.
 // To recreate the issue, filter to Hawaii, then filter to CONUS...the calcite-list-items aren't height: 19px when they re-render.
-export const filteredNationalItems = derived(
-    [nationalItems, geography], ([$nationalItems, $geography]) => {
-        if (!$geography) {
-            return $nationalItems
-        } if ($geography) {
-            return $nationalItems.map(category => {
-                return {...category, subtopic: category.subtopic.map(subtopic => {
-                    return {...subtopic, layers: subtopic.layers.filter(lyr => lyr.areaGeog.includes($geography))};
-                }).filter(subtopic => subtopic.layers.length > 0)}
-            }).filter(category => category.subtopic.some(subtopic => subtopic.layers.length > 0))    
-        }
-    }
-)
+// export const filteredNationalItems = derived(
+//     [nationalItems, geography], ([$nationalItems, $geography]) => {
+//         if (!$geography) {
+//             return $nationalItems
+//         } if ($geography) {
+//             return $nationalItems.map(category => {
+//                 return {...category, subtopic: category.subtopic.map(subtopic => {
+//                     return {...subtopic, layers: subtopic.layers.filter(lyr => lyr.areaGeog.includes($geography))};
+//                 }).filter(subtopic => subtopic.layers.length > 0)}
+//             }).filter(category => category.subtopic.some(subtopic => subtopic.layers.length > 0))    
+//         }
+//     }
+// )
 
 // This is the in-between code from filtering (above) to using an isVisible prop in each level of UI data (level1=topic, level2=subtopic, level3=layers)
 // export const filteredNationalItems = derived(
@@ -115,22 +115,25 @@ export const filteredNationalItems = derived(
 //     }
 // )
 
-// Almost got this working, but need to set top level object.isVisible to false if there aren't some subtopic.isVisible
-// This was trying to get around re-rendering components that drop the shadow dom overriding css in DataList.svelte
-// export const filteredNationalItems = derived(
-//     [nationalItems, geography], ([$nationalItems, $geography]) => {
-//         if (!$geography) {
-//             return $nationalItems
-//         } if ($geography) {
-//             return $nationalItems.map(category => {
-//                 return {...category, subtopic: category.subtopic.map(subtopic => {
-//                     const lyrObj = subtopic.layers.map(lyr => {
-//                         return {...lyr, ...((lyr.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
-//                     });
-//                     const isSubVis = lyrObj.some(lyr => lyr.isVisible);
-//                     return {...subtopic, lyr: lyrObj, isVisible: isSubVis}
-//                 })}
-//             })    
-//         }
-//     }
-// )
+// Got this working
+// This was trying to get around re-rendering components that drop the shadow dom overriding css in DataList.svelte, but they still get re-rendered. 
+// Maybe would have to change the svelte html to not have an {#if} statement?
+export const filteredNationalItems = derived(
+    [nationalItems, geography], ([$nationalItems, $geography]) => {
+        if (!$geography) {
+            return $nationalItems
+        } if ($geography) {
+            return $nationalItems.map(category => {
+                const subObj = category.subtopic.map(subtopic => {
+                    const lyrObj = subtopic.layers.map(layers => {
+                        return {...layers, ...((layers.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
+                    });
+                    const isSubVis = lyrObj.some(layers => layers.isVisible);
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                });
+                const isCatVis = subObj.some(subtopic => subtopic.isVisible);
+                return {...category, subtopic: subObj, isVisible: isCatVis}
+            })    
+        }
+    }
+)
