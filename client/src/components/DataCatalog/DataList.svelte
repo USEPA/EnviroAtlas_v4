@@ -46,7 +46,7 @@
             // Add empty subtopic array to each array objects
             // data = data.map(obj => ({...obj, subtopic: []}))
             // Drop community only subtopics (Carbon Storage, Health & Eco Outcomes, Pollutant Redxn: Air)
-            let dataReduced = data.filter(item => (item.topic !== "Carbon Storage" && item.topic !== "Health and Economic Outcomes" && item.topic !== "Pollutant Reduction: Air"));
+            let dataReduced = data.filter(item => (item.topic !== "Carbon Storage" && item.topic !== "Health and Economic Outcomes" && item.topic !== "Pollutant Reduction: Air" && item.topic !== "Housing and Schools"));
             // load national data into the store
             dataReduced = dataReduced.map(obj => ({...obj, isVisible: true}))
             $nationalItems = dataReduced;
@@ -160,7 +160,7 @@
     };
 
     function listItemExpand() {
-        !this.open ? this.setAttribute("open", "") : this.removeAttribute("open")
+        !this.open ? this.setAttribute("expanded", "") : this.removeAttribute("expanded")
     }
 </script>
 
@@ -182,13 +182,6 @@
                 active
             ></calcite-action>
             <calcite-action
-                data-action-id="subnational"
-                data-testid="subnational-catalog-action"
-                text="subnational"
-                icon="urban-model"
-                scale="l"
-            ></calcite-action>
-            <calcite-action
                 data-action-id="climate-data-viewer-2"
                 text="climate-data-viewer"
                 icon="clock-forward"
@@ -206,36 +199,28 @@
         <Bookmark view={view}/>
         <AddData map={map} />
         <calcite-block data-panel-id="national" heading="National Catalog" open data-testid="national">
-            <calcite-list selection-mode="none">
+            <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s' interaction-Mode="static">
                 {#await eaTopics}
                     <p>...loading</p>
                 {:then}
                     {#each $filteredNationalItems as ea (ea.topic)}
                     {#if ea.isVisible}
                     <calcite-list-item
-                        class={ea.categoryTab}
+                        id={ea.categoryTab}
                         label={ea.topic}
                         value={ea.topic}
                         on:calciteListItemSelect={listItemExpand}
                     >
-                        <calcite-list
-                            id="not-header"
-                            group="trails"
-                            selection-mode="none"
-                        >
                         {#if ea.subtopic}
                             {#each ea.subtopic as subtopic (subtopic.subTopicID)}
                                 <CatalogListItem {subtopic} {view} />
                             {/each}
                         {/if}
-                        </calcite-list>
                     </calcite-list-item>
                     {/if}
                     {/each}
                 {/await}
             </calcite-list>
-        </calcite-block>
-        <calcite-block data-testid="subnational" data-panel-id="subnational" heading="Subnational Catalog" open hidden>
         </calcite-block>
         <calcite-fab
             slot="fab"
@@ -251,44 +236,38 @@
 </calcite-flow>
 
 <style>
-    .ESB {
-        --calcite-color-foreground-1: #adbb9a;
-        --calcite-color-foreground-2: #cdd6c2;
+    calcite-list-item, #ESB {
+        --calcite-list-background-color: #adbb9a;
+        --calcite-list-background-color-hover: #cdd6c2;
+        --calcite-list-border-color: #adbb9a;
     }
 
-    .PSI {
-        --calcite-color-foreground-1: #bb9aad;
-        --calcite-color-foreground-2: #d6c2cd;
+    calcite-list-item, #PSI {
+        --calcite-list-background-color: #bb9aad;
+        --calcite-list-background-color-hover: #d6c2cd;
+        --calcite-list-border-color: #bb9aad;
     }
 
-    .PBS {
-        --calcite-color-foreground-1: #9aadbb;
-        --calcite-color-foreground-2: #c2cdd6;
+    calcite-list-item, #PBS {
+        --calcite-list-background-color: #9aadbb;
+        --calcite-list-background-color-hover: #c2cdd6;
+        --calcite-list-border-color: #9aadbb
     }
 
-    .BNF {
-        --calcite-color-foreground-1: #aeaba2;
-        --calcite-color-foreground-2: #ceccc7;
-    }
-
-    #not-header {
-        --calcite-color-foreground-1: #fff;
-    }
-
-    calcite-list {
-        padding-top: 0px;
+    calcite-list-item, #BNF {
+        --calcite-list-background-color: #aeaba2;
+        --calcite-list-background-color-hover: #ceccc7;
+        --calcite-list-border-color:#white
     }
 
     calcite-list-item {
-        --calcite-list-item-spacing-indent: 0rem;
         --calcite-ui-focus-color: none !important;
-        --calcite-color-brand: none !important;
         --calcite-color-text-2: #005ea2;
     }
 
     calcite-action-bar {
-        --calcite-action-bar-items-space: 21px;
+        --calcite-action-bar-items-space: 61px;
         --calcite-ui-focus-color: none !important;
-        margin-left: 10px;
+        margin-left: 35px;
     }
 </style>

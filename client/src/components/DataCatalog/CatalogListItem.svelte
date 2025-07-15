@@ -100,7 +100,7 @@
 
 </script>
 {#if subtopic.isVisible}
-<calcite-list-item label={subtopic.name} on:calciteListItemSelect={e=>e.stopPropagation()}>
+<calcite-list-item id="not-header" label={subtopic.name} on:calciteListItemSelect={e=>e.stopPropagation()} selection-appearance="none">
     {#if subtopic.layers.length == 1}
     <calcite-checkbox 
         slot="actions-start" 
@@ -135,7 +135,7 @@
         {/each}
     </div>
     {/if}
-    <calcite-chip-group
+    <!-- <calcite-chip-group
             slot="content-bottom"
             id="ea-chip-group"
             scale="s"
@@ -147,6 +147,7 @@
                     scale="s"
                     value="eaCA"
                     class="eaCA"
+                    label="eaCA"
                 >
                     <calcite-avatar
                         slot="image"
@@ -160,6 +161,7 @@
                     scale="s"
                     value="eaCPW"
                     class="eaCPW"
+                    label="eaCPW"
                 >
                     <calcite-avatar
                         slot="image"
@@ -173,6 +175,7 @@
                     scale="s"
                     value="eaCS"
                     class="eaCS"
+                    label="eaCS"
                 >
                     <calcite-avatar
                         slot="image"
@@ -186,6 +189,7 @@
                     scale="s"
                     value="eaNHM"
                     class="eaNHM"
+                    label="eaNHM"
                 >
                     <calcite-avatar
                         slot="image"
@@ -199,6 +203,7 @@
                     scale="s"
                     value="eaRCA"
                     class="eaRCA"
+                    label="eaRCA"
                 >
                     <calcite-avatar
                         slot="image"
@@ -212,6 +217,7 @@
                     scale="s"
                     value="eaFFM"
                     class="eaFFM"
+                    label="eaFFM"
                 >
                     <calcite-avatar
                         slot="image"
@@ -225,6 +231,7 @@
                     scale="s"
                     value="eaBC"
                     class="eaBC"
+                    label="eaBC"
                 >
                     <calcite-avatar
                         slot="image"
@@ -239,6 +246,7 @@
                     scale="s"
                     value={sType}
                     class="sType"
+                    label={sType}
                 >
                     <calcite-avatar
                         slot="image"
@@ -248,11 +256,16 @@
                 </calcite-chip>
                 {/if}
             {/each}
-        </calcite-chip-group>
+        </calcite-chip-group> -->
 </calcite-list-item>
 {/if}
 
 <style>
+    #not-header {
+        --calcite-list-background-color: #fff;
+        --calcite-list-background-color-hover: none;
+        --calcite-list-background-color-press: none;
+    } 
     #ea-chip-group {
         margin-left: 5px;
         margin-bottom: 5px;
@@ -260,12 +273,11 @@
     }
 
     calcite-list-item {
-        padding-left: 18px;
         --calcite-color-focus-color: none !important;
         --calcite-color-foreground-2: none !important;
     }
 
-    calcite-chip.eaCA {
+    /* calcite-chip.eaCA {
         --calcite-chip-background-color: #7F81BA;
     }
 
@@ -295,7 +307,7 @@
 
     calcite-chip.sType {
         --calcite-chip-background-color: #BACFE1;
-    }
+    } */
 
     #concernFilterDiv {
         padding-left: 12px;
