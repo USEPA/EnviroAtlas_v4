@@ -3,12 +3,10 @@
   import config from "@arcgis/core/config";
   import Map from "@arcgis/core/Map";
   import MapView from "@arcgis/core/views/MapView";
-  import LayerList from "@arcgis/core/widgets/LayerList";
   import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 
   import { onMount } from "svelte";
   import AppShell from "src/components/AppShell.svelte";
-  import TestChild from "src/components/TestChild/index.svelte";
 
   import { viewState, mapState } from "src/store";
 
@@ -26,8 +24,6 @@
         }
       }
     });
-
-    console.log('map:', map);
 
     const view = new MapView({
       container: viewContainer,
@@ -83,7 +79,6 @@
 
 <AppShell>
   <div class="viewDiv" bind:this={viewContainer} />
-  <!-- <TestChild></TestChild>  -->
 </AppShell>
 
 <style>

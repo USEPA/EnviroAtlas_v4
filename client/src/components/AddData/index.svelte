@@ -1,17 +1,15 @@
 <script>
-  import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
-
-    // Import calcite components
-    import "@esri/calcite-components/dist/components/calcite-panel";
-    import "@esri/calcite-components/dist/components/calcite-tile-select-group";
-    import "@esri/calcite-components/dist/components/calcite-tile-select";
-    import "@esri/calcite-components/dist/components/calcite-slider";
-    import "@esri/calcite-components/dist/components/calcite-fab";
-    import "@esri/calcite-components/dist/components/calcite-button";
-    import "@esri/calcite-components/dist/components/calcite-segmented-control";
-    import "@esri/calcite-components/dist/components/calcite-segmented-control-item";
-    import "@esri/calcite-components/dist/components/calcite-list";
-    import "@esri/calcite-components/dist/components/calcite-list-item"
+  // Import calcite components
+  import "@esri/calcite-components/dist/components/calcite-panel";
+  import "@esri/calcite-components/dist/components/calcite-tile-select-group";
+  import "@esri/calcite-components/dist/components/calcite-tile-select";
+  import "@esri/calcite-components/dist/components/calcite-slider";
+  import "@esri/calcite-components/dist/components/calcite-fab";
+  import "@esri/calcite-components/dist/components/calcite-button";
+  import "@esri/calcite-components/dist/components/calcite-segmented-control";
+  import "@esri/calcite-components/dist/components/calcite-segmented-control-item";
+  import "@esri/calcite-components/dist/components/calcite-list";
+  import "@esri/calcite-components/dist/components/calcite-list-item";
   import "@esri/calcite-components/dist/components/calcite-tabs";
   import "@esri/calcite-components/dist/components/calcite-tab";
   import "@esri/calcite-components/dist/components/calcite-tab-nav";
