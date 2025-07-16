@@ -100,7 +100,7 @@
 
 </script>
 {#if subtopic.isVisible}
-<calcite-list-item id="not-header" label={subtopic.name} on:calciteListItemSelect={e=>e.stopPropagation()} selection-appearance="none">
+<calcite-list-item id="not-header" label={subtopic.name} on:calciteListItemSelect={e=>e.stopPropagation()}>
     {#if subtopic.layers.length == 1}
     <calcite-checkbox 
         slot="actions-start" 
