@@ -272,11 +272,6 @@
         margin-top: 5px;
     }
 
-    calcite-list-item {
-        --calcite-color-focus-color: none !important;
-        --calcite-color-foreground-2: none !important;
-    }
-
     /* calcite-chip.eaCA {
         --calcite-chip-background-color: #7F81BA;
     }

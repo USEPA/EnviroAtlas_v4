@@ -199,7 +199,7 @@
         <Bookmark view={view}/>
         <AddData map={map} />
         <calcite-block data-panel-id="national" heading="National Catalog" open data-testid="national">
-            <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s' interaction-Mode="static">
+            <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>
                 {#await eaTopics}
                     <p>...loading</p>
                 {:then}
@@ -238,26 +238,30 @@
 <style>
     calcite-list-item, #ESB {
         --calcite-list-background-color: #adbb9a;
+        --calcite-list-background-color-press: #cdd6c2;
         --calcite-list-background-color-hover: #cdd6c2;
         --calcite-list-border-color: #adbb9a;
     }
 
     calcite-list-item, #PSI {
         --calcite-list-background-color: #bb9aad;
+        --calcite-list-background-color-press: #d6c2cd;
         --calcite-list-background-color-hover: #d6c2cd;
         --calcite-list-border-color: #bb9aad;
     }
 
     calcite-list-item, #PBS {
         --calcite-list-background-color: #9aadbb;
+        --calcite-list-background-color-press: #c2cdd6;
         --calcite-list-background-color-hover: #c2cdd6;
         --calcite-list-border-color: #9aadbb
     }
 
     calcite-list-item, #BNF {
         --calcite-list-background-color: #aeaba2;
+        --calcite-list-background-color-press: #ceccc7;
         --calcite-list-background-color-hover: #ceccc7;
-        --calcite-list-border-color:#white
+        --calcite-list-border-color: #aeaba2;
     }
 
     calcite-list-item {

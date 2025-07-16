@@ -199,8 +199,8 @@
   };
 </script>
 
-<calcite-shell>
-  <calcite-navigation id="header" slot="header" style="block-size: 3rem">
+<calcite-shell content-behind>
+  <calcite-navigation id="header" slot="header">
     <calcite-navigation-logo
       slot="content-start"
       heading="v4"
@@ -208,13 +208,13 @@
       href="https://www.epa.gov/enviroatlas"
       target="_blank"
     ></calcite-navigation-logo>
-    <calcite-chip-group scale="s" slot="content-end" expanded>
+    <calcite-chip-group slot="content-end" expanded>
       {#each [
         {label:'Data Download', icon:'download-to', link:'https://www.epa.gov/enviroatlas/forms/enviroatlas-data-download'}, 
         {label:'Contact Us', icon:'envelope', link:'https://www.epa.gov/enviroatlas/forms/contact-us-about-enviroatlas'}
         ] as link}
         <calcite-button scale="s" target="_blank" id='linkbtns' href={link.link}>
-          <calcite-chip icon={link.icon} scale="m">{link.label}</calcite-chip>
+          <calcite-chip icon={link.icon} scale="l">{link.label}</calcite-chip>
         </calcite-button>
         {/each}
     </calcite-chip-group>
@@ -222,9 +222,7 @@
   <calcite-shell-panel
     component-id="shell-panel-start"
     slot="panel-start"
-    display-mode="docked"
     position="start"
-    width-scale="m"
     id="shell-panel-start"
   >
     <calcite-action-bar 
@@ -242,16 +240,6 @@
         text="national"
         icon="globe"
         active
-        on:click={handleCatalogActionClick}
-        on:keypress={handleCatalogActionClick}
-      />
-      <calcite-action
-        tabindex="-1"
-        role="button"  
-        data-action-id="subnational"
-        data-testid="subnational-sidebar-action"
-        text="subnational"
-        icon="urban-model"
         on:click={handleCatalogActionClick}
         on:keypress={handleCatalogActionClick}
       />
@@ -349,7 +337,7 @@
   }
 
   calcite-navigation {
-    --calcite-navigation-background: #005ea2;
+    --calcite-navigation-background-color: #005ea2;
     --calcite-color-text-1: white;
     --calcite-color-foreground-2: none;
     --calcite-color-foreground-3: none;
