@@ -20,7 +20,24 @@
 
     export let view;
     export let map;
-
+    $: {
+        if (view && !map) {
+            view.addEventListener("arcgisViewReadyChange", () => {
+                map = view.map;
+//                console.log(view.map);
+            });
+            /*
+            console.log(view);
+            console.log('has view ');
+            if ('map' in view) {
+                console.log('map in view ');
+                if (view.map) {
+                    console.log('view.map exists');
+                }
+            }
+            */
+        }
+    }
     catalog.subscribe;
     nationalItems.subscribe;
 
