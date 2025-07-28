@@ -18,6 +18,8 @@
   import "@arcgis/map-components/components/arcgis-basemap-gallery";
   import "@arcgis/map-components/components/arcgis-coordinate-conversion";
   import "@arcgis/map-components/components/arcgis-layer-list";
+  import "@arcgis/map-components/components/arcgis-zoom";
+  import "@arcgis/map-components/components/arcgis-search";
 
   // Import components and store
   import { viewState, catalog, activeWidget } from "src/store.ts";
@@ -29,6 +31,7 @@
   let bmgContainer;
   let layerListContainer;
   let fTableContainer;
+  let leftActionBar;
 
   const basemap = new Basemap({
     style: new BasemapStyle({
@@ -106,10 +109,9 @@
   }
 
   const handleExpandClick = () => {
-    let bar = document.getElementById("left-action-bar");
     let panel = document.getElementById("data-catalog");
     let shell = document.getElementById("shell-panel-start");
-    bar.setAttribute("hidden", "");
+    leftActionBar.setAttribute("hidden", "");
     panel.removeAttribute("hidden");
     panel.setAttribute("open", "");
     shell.removeAttribute("collapsed");
@@ -169,22 +171,15 @@
     }
   };
 
-  const openModal = function () {
-    const button = document.getElementById("example-button");
-    const modal = document.getElementById("example-modal");
+  // const openModal = function () {
+  //   const button = document.getElementById("example-button");
+  //   const modal = document.getElementById("example-modal");
 
-    button?.addEventListener("click", function () {
-      modal.open = !modal.open;
-      console.log(modal);
-    });
-  };
-
-  export const handleBasemapPanelClose = function (e) {
-    const target = e.target;
-    const shellElement = target.parentElement;
-    shellElement.collapsed = !shellElement.collapsed;
-    document.querySelector('[data-action-id="basemaps"]').active = false;
-  };
+  //   button?.addEventListener("click", function () {
+  //     modal.open = !modal.open;
+  //     console.log(modal);
+  //   });
+  // };
 
   export const closeShellElement = function (e) {
     const target = e.target;
@@ -215,6 +210,14 @@
     </calcite-chip-group>
   </calcite-navigation>
   <arcgis-map bind:this={mapContainer} basemap={basemap} center="-97, 38" zoom="5">
+    <arcgis-search 
+      position="top-right"
+    />
+    <arcgis-zoom 
+      position="top-right" 
+      layout="vertical" 
+      referenceElement={mapContainer}
+    />
     <arcgis-scale-bar
       position="bottom-left"
       bar-style="line"
@@ -244,7 +247,8 @@
       hidden
       slot="action-bar" 
       role="menu" 
-      tabindex="-1" 
+      tabindex="-1"
+      bind:this={leftActionBar}
     >
       <calcite-action
         tabindex="-1"
@@ -298,8 +302,15 @@
     position='end'
     width-scale="m"
   >
-  <calcite-action-bar expand-disabled role="menu" tabindex="-1" slot="action-bar" on:click={handleOtherActionBarClick} on:keypress={handleOtherActionBarClick}>
-    <calcite-action data-action-id="layers" icon="layers" text="Layers" />
+  <calcite-action-bar 
+    expand-disabled 
+    role="menu" 
+    tabindex="-1" 
+    slot="action-bar"
+    on:click={handleOtherActionBarClick} 
+    on:keypress={handleOtherActionBarClick}
+  >
+    <calcite-action data-action-id="layers" icon="layers" text="Active Layer List" />
     <calcite-action
       data-action-id="basemaps"
       icon="basemap"
@@ -307,7 +318,7 @@
     />
   </calcite-action-bar>
   <calcite-panel
-    heading="Layers"
+    heading="Active Layer List"
     height-scale="l"
     data-panel-id="layers"
     hidden
@@ -328,9 +339,7 @@
     height-scale="l"
     data-panel-id="basemaps"
     hidden
-    closable
     closed
-    on:calcitePanelClose={handleBasemapPanelClose}
   >
     <arcgis-basemap-gallery
       id="basemaps-container"
