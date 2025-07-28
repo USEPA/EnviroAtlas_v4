@@ -77,7 +77,7 @@ export function isLayerInMap(url, view) {
 }
 
 export function removeLayer(lyrName, view) {
-    const foundLyr = view.map.allLayers.find(function(layer) {
+    const foundLyr = view.map.allLayers.filter(function(layer) {
         return layer.title === lyrName;
     });
     if (foundLyr != undefined) {

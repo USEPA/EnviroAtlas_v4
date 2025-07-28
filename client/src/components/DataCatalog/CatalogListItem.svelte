@@ -109,7 +109,6 @@
 {#each Object.entries(dataTypeDict) as [dTypeLabel, dTypeValue] (dTypeLabel)}
     {#if subtopic.sourceType == dTypeValue}
 <calcite-list-item id="not-header" label={subtopic.name} description={dTypeLabel} on:calciteListItemSelect={e=>e.stopPropagation()}>
-
     {#if subtopic.layers.length == 1}
     <calcite-checkbox 
         slot="actions-start" 
@@ -300,7 +299,7 @@
     } */
 
     #concernFilterDiv {
-        padding-left: 12px;
+        padding-left: 24px;
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		grid-gap: 5px;
