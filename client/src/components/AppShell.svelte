@@ -9,7 +9,10 @@
   import "@esri/calcite-components/dist/components/calcite-navigation-logo";
 
   // Import arcgis js api
+  import esriConfig from "@arcgis/core/config.js";  
   import Basemap from "@arcgis/core/Basemap.js";
+  import PortalBasemapsSource from "@arcgis/core/widgets/BasemapGallery/support/PortalBasemapsSource.js";
+  import Portal from "@arcgis/core/portal/Portal.js";
   import BasemapStyle from "@arcgis/core/support/BasemapStyle.js";
   //import FeatureTable from "@arcgis/core/widgets/FeatureTable";
 
@@ -22,7 +25,7 @@
   import "@arcgis/map-components/components/arcgis-search";
 
   // Import components and store
-  import { viewState, catalog, activeWidget } from "src/store.ts";
+  import { catalog, activeWidget } from "src/store.ts";
   import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
@@ -32,6 +35,16 @@
   let layerListContainer;
   let fTableContainer;
   let leftActionBar;
+
+  esriConfig.portalUrl = "https://epa.maps.arcgis.com/";
+
+  const portalBasemapsSource = new PortalBasemapsSource({
+    query: { id: "472046c429254aa093dcb4953d09de0d"},
+    portal: new Portal({
+      authMode: "no-prompt",
+      url: "https://epa.maps.arcgis.com/"
+    })
+  })
 
   const basemap = new Basemap({
     style: new BasemapStyle({
@@ -346,6 +359,7 @@
       id="basemaps-container"
       bind:this={bmgContainer}
       referenceElement={mapContainer}
+      source={portalBasemapsSource}
     />
   </calcite-panel>
   <SummarizeMyArea /> 
