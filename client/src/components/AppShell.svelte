@@ -200,6 +200,7 @@
     ></calcite-navigation-logo>
     <calcite-chip-group slot="content-end" expanded>
       {#each [
+        {label:'Help', icon:'question'},
         {label:'Data Download', icon:'download-to', link:'https://www.epa.gov/enviroatlas/forms/enviroatlas-data-download'}, 
         {label:'Contact Us', icon:'envelope', link:'https://www.epa.gov/enviroatlas/forms/contact-us-about-enviroatlas'}
         ] as link}

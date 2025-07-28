@@ -123,10 +123,10 @@
     };
 
     const handleFabClick = () => {
-        let bar = document.getElementById("left-action-bar");
+        let leftActionBar = document.getElementById("left-action-bar");
         let panel = document.getElementById("data-catalog");
         let shell = document.getElementById("shell-panel-start");
-        bar.removeAttribute("hidden");
+        leftActionBar.removeAttribute("hidden");
         panel.removeAttribute("open");
         panel.setAttribute("hidden", "");
         shell.setAttribute("collapsed", "");    
@@ -198,7 +198,7 @@
         <ClimateChangeViewer view={view} />
         <Bookmark view={view}/>
         <AddData map={map} />
-        <calcite-block data-panel-id="national" heading="National Catalog" open data-testid="national">
+        <calcite-block data-panel-id="national" heading="EnviroAtlas Catalog" open data-testid="national">
             <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>
                 {#await eaTopics}
                     <p>...loading</p>

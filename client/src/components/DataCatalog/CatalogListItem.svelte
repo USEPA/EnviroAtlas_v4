@@ -98,9 +98,18 @@
         return detailsObj
     }
 
+    let dataTypeDict = {
+        'Summarized by Census Block Group': 'cbg', 
+        'Points, Lines, or Polygons': 'plp',
+        'Non-summarized grid data':'grid',
+        'Summarized by HUC12':'huc12'
+    }
 </script>
 {#if subtopic.isVisible}
-<calcite-list-item id="not-header" label={subtopic.name} on:calciteListItemSelect={e=>e.stopPropagation()}>
+{#each Object.entries(dataTypeDict) as [dTypeLabel, dTypeValue] (dTypeLabel)}
+    {#if subtopic.sourceType == dTypeValue}
+<calcite-list-item id="not-header" label={subtopic.name} description={dTypeLabel} on:calciteListItemSelect={e=>e.stopPropagation()}>
+
     {#if subtopic.layers.length == 1}
     <calcite-checkbox 
         slot="actions-start" 
@@ -239,25 +248,11 @@
                     >
                     </calcite-avatar>
                 </calcite-chip>
-            {/if}
-            {#each ['cbg', 'plp', 'grid', 'huc12'] as sType}
-                {#if subtopic.sourceType == sType}
-                    <calcite-chip
-                    scale="s"
-                    value={sType}
-                    class="sType"
-                    label={sType}
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{sType}.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-                {/if}
-            {/each}
-        </calcite-chip-group> -->
+            {/if} 
+            </calcite-chip-group> -->
 </calcite-list-item>
+    {/if}
+{/each}
 {/if}
 
 <style>

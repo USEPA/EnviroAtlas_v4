@@ -130,10 +130,14 @@
     }
 </script>
 
-<calcite-panel data-testid="climate-data-viewer-2" data-panel-id="climate-data-viewer-2" heading="Climate Data Viewer" open hidden>
-    <calcite-button width="half" slot="footer" appearance="outline">
-        Reset
-    </calcite-button>
+<calcite-panel 
+    data-testid="climate-data-viewer-2" 
+    data-panel-id="climate-data-viewer-2" 
+    heading="Time Series Layers" 
+    description="Explore changing landscapes and environment" 
+    open 
+    hidden
+>
     <calcite-button width="half" slot="footer" icon-start="add-layer">
         Add Data
     </calcite-button>
