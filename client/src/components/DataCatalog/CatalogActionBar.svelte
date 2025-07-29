@@ -2,34 +2,39 @@
     import "@esri/calcite-components/dist/components/calcite-filter";
 
     export let type;
+
+    let categoryParent;
+    
+    let categories = [
+        { name: "eaCA", icon: "air" }, 
+        { name: "eaCPW", icon: "water" }, 
+        { name: "eaNHM", icon: "haz" }, 
+        { name: "eaRCA", icon: "rec" }, 
+        { name: "eaFFM", icon: "food" }, 
+        { name: "eaBC", icon: "bio" }, 
+    ];
+
+    const onCatChange = (cat) => {
+        console.log(cat.name)
+
+        // Only one benefit category filter can be selected. Once selected, that icon will stay color and the rest will gray out. 
+        // Clicking another BC changes the selection to that BC. Clicking the already selected BC turns off the filter and returns all to color. 
+        // Filter should open all the topic headers.
+    };
 </script>
 
 {#if type=='national' || type=='subnational'}
 <calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>    
     <calcite-filter placeholder="Try searching"></calcite-filter>    
 </calcite-action-bar>
-<calcite-action-bar id='catFilter' layout="horizontal" expand-disabled>
-    <calcite-button class="eaCA" round on:click={()=> console.log('clicked!')}>
-        <img style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/air.png">
+<calcite-action-bar bind:this={categoryParent} id='catFilter' layout="horizontal" expand-disabled>
+    {#each categories as cat}
+    <calcite-button class="{cat.name}" round on:click={()=>onCatChange(cat)}>
+        <img alt="{cat.name}" style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
     </calcite-button>
-    <calcite-button class="eaCPW" round>
-        <img style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/water.png">
-    </calcite-button>
-    <calcite-button class="eaNHM" round>
-        <img style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/haz.png">
-    </calcite-button>
-    <calcite-button class="eaRCA" round>
-        <img style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/rec.png">
-    </calcite-button>
-    <calcite-button class="eaFFM" round>
-        <img style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/food.png">
-    </calcite-button>
-    <calcite-button class="eaBC" round>
-         <img style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/bio.png">
-    </calcite-button>
+    {/each}
 </calcite-action-bar>
 {/if}
-
 
 <style>
     calcite-action-bar#catFilter {
