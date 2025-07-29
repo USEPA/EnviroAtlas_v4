@@ -13,7 +13,6 @@
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
     import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
-    import Bookmark from "src/components/ClimateChangeViewer/Bookmark.svelte";
     // use npm published version now (in development used linked version via devLink utility
     import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
     import { getEaData } from "src/shared/utilities.js"
@@ -213,7 +212,6 @@
         </calcite-action-bar>
         <CatalogActionBar type={$catalog.type} />
         <ClimateChangeViewer view={view} />
-        <Bookmark view={view}/>
         <AddData map={map} />
         <calcite-block data-panel-id="national" heading="EnviroAtlas Catalog" open data-testid="national">
             <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>

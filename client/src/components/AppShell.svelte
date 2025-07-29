@@ -7,6 +7,7 @@
   import "@esri/calcite-components/dist/components/calcite-panel";
   import "@esri/calcite-components/dist/components/calcite-navigation";
   import "@esri/calcite-components/dist/components/calcite-navigation-logo";
+  import "@esri/calcite-components/dist/components/calcite-combobox";
 
   // Import arcgis js api
   import esriConfig from "@arcgis/core/config.js";  
@@ -29,6 +30,7 @@
   import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
+  import Bookmark from "./ClimateChangeViewer/Bookmark.svelte";
 
   let view;
   let bmgContainer;
@@ -211,6 +213,14 @@
       href="https://www.epa.gov/enviroatlas"
       target="_blank"
     ></calcite-navigation-logo>
+    <calcite-combobox 
+      slot="content-start"
+      selectionMode="single-persist"
+      clearDisabled
+      scale="l"
+    >
+      <Bookmark view={view}/>
+    </calcite-combobox>
     <calcite-chip-group slot="content-end" expanded>
       {#each [
         {label:'Help', icon:'question'},
@@ -378,6 +388,11 @@
 </calcite-shell>
 
 <style>
+  calcite-combobox {
+    --calcite-color-text-1: #151515;
+    padding-left: 30px;
+  }
+
   calcite-panel.fTable {
     height: 500px
   }

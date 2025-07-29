@@ -8,8 +8,8 @@
     {#if type=='national' || type=='subnational'}
     <calcite-filter placeholder="Try searching"></calcite-filter>
     {/if}
-    {#if type=='climate-data-viewer-2'}
-        <!-- <calcite-chip-group
+    <!-- {#if type=='climate-data-viewer-2'}
+        <calcite-chip-group
             slot="actions-end"
             selection-mode="single"
             label="custom-criteria-chip-group"
@@ -28,7 +28,7 @@
                 value="advanced"
                 kind="neutral">Advanced</calcite-chip
             >
-        </calcite-chip-group> -->
+        </calcite-chip-group> 
     {/if}
     <calcite-action
         icon="extent-filter"
@@ -36,10 +36,10 @@
         text="Filter options"
         slot="actions-end"
         id="popover-button"
-    />
+    />-->
 </calcite-action-bar>
 
-<style>
+<!-- <style>
     calcite-action {
         --calcite-ui-focus-color: none !important;
     }
@@ -49,4 +49,4 @@
         margin-bottom: 9px;
         margin-right: 5px;
     }
-</style>
+</style> -->
