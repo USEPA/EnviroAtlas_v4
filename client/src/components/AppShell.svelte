@@ -30,7 +30,7 @@
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
 
-  let mapContainer;
+  let view;
   let bmgContainer;
   let layerListContainer;
   let fTableContainer;
@@ -223,14 +223,14 @@
         {/each}
     </calcite-chip-group>
   </calcite-navigation>
-  <arcgis-map bind:this={mapContainer} basemap={basemap} center="-97, 38" zoom="5">
+  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="5">
     <arcgis-search 
       position="top-right"
     />
     <arcgis-zoom 
       position="top-right" 
       layout="vertical" 
-      referenceElement={mapContainer}
+      referenceElement={view}
     />
     <arcgis-scale-bar
       position="bottom-left"
@@ -304,7 +304,7 @@
         on:keypress={handleExpandClick}
       />
     </calcite-action-bar>
-    <DataCatalog view={mapContainer}/>
+    <DataCatalog view={view}/>
   </calcite-shell-panel>
   <slot></slot>
   <Modal />
@@ -342,7 +342,7 @@
       visibility-appearance="checkbox"
       show-errors
       id="layers-container"
-      referenceElement={mapContainer}
+      referenceElement={view}
       bind:this={layerListContainer}
       listItemCreatedFunction={listItemCreatedFunction}
       on:arcgisTriggerAction={layerListAction}
@@ -358,7 +358,7 @@
     <arcgis-basemap-gallery
       id="basemaps-container"
       bind:this={bmgContainer}
-      referenceElement={mapContainer}
+      referenceElement={view}
       source={portalBasemapsSource}
     />
   </calcite-panel>
