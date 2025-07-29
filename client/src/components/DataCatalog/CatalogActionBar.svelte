@@ -9,7 +9,7 @@
     <calcite-filter placeholder="Try searching"></calcite-filter>
     {/if}
     {#if type=='climate-data-viewer-2'}
-        <calcite-chip-group
+        <!-- <calcite-chip-group
             slot="actions-end"
             selection-mode="single"
             label="custom-criteria-chip-group"
@@ -28,7 +28,7 @@
                 value="advanced"
                 kind="neutral">Advanced</calcite-chip
             >
-        </calcite-chip-group>
+        </calcite-chip-group> -->
     {/if}
     <calcite-action
         icon="extent-filter"

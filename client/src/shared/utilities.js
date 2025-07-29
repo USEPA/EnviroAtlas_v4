@@ -77,7 +77,7 @@ export function isLayerInMap(url, view) {
 }
 
 export function removeLayer(lyrName, view) {
-    const foundLyr = view.map.allLayers.find(function(layer) {
+    const foundLyr = view.map.allLayers.filter(function(layer) {
         return layer.title === lyrName;
     });
     if (foundLyr != undefined) {
@@ -185,6 +185,7 @@ export function addImageryLayer(lObj, view, rfRule) {
     if (rfRule) {
         iLyr.rasterFunction = rfRule
     }
+    iLyr.popupTemplate = { title: lObj.name, content: "{Raster.ServicePixelValue.Raw}" }
     console.log("imageryLayer: ", iLyr);
     view.map.add(iLyr);
 }

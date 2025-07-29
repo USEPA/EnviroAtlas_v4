@@ -9,113 +9,122 @@
   import "@esri/calcite-components/dist/components/calcite-navigation-logo";
 
   // Import arcgis js api
-  import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
-  import LayerList from "@arcgis/core/widgets/LayerList";
+  import esriConfig from "@arcgis/core/config.js";  
+  import Basemap from "@arcgis/core/Basemap.js";
+  import PortalBasemapsSource from "@arcgis/core/widgets/BasemapGallery/support/PortalBasemapsSource.js";
+  import Portal from "@arcgis/core/portal/Portal.js";
+  import BasemapStyle from "@arcgis/core/support/BasemapStyle.js";
   //import FeatureTable from "@arcgis/core/widgets/FeatureTable";
 
+  import "@arcgis/map-components/components/arcgis-scale-bar";
+  import "@arcgis/map-components/components/arcgis-map";
+  import "@arcgis/map-components/components/arcgis-basemap-gallery";
+  import "@arcgis/map-components/components/arcgis-coordinate-conversion";
+  import "@arcgis/map-components/components/arcgis-layer-list";
+  import "@arcgis/map-components/components/arcgis-zoom";
+  import "@arcgis/map-components/components/arcgis-search";
+
   // Import components and store
-  import { viewState, catalog, activeWidget } from "src/store.ts";
+  import { catalog, activeWidget } from "src/store.ts";
   import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
 
+  let view;
   let bmgContainer;
   let layerListContainer;
   let fTableContainer;
+  let leftActionBar;
 
-  let view;
-  let loaded = true;
+  esriConfig.portalUrl = "https://epa.maps.arcgis.com/";
+
+  const portalBasemapsSource = new PortalBasemapsSource({
+    query: { id: "472046c429254aa093dcb4953d09de0d"},
+    portal: new Portal({
+      authMode: "no-prompt",
+      url: "https://epa.maps.arcgis.com/"
+    })
+  })
+
+  const basemap = new Basemap({
+    style: new BasemapStyle({
+      id: "arcgis/topographic",
+      worldview: "unitedStatesOfAmerica"
+    })
+  })
 
   catalog.subscribe;
 
-  viewState.subscribe((value) => {
-    view = value.view;
-    console.log(view);
-    if (view && loaded) {
-      // do something
-      initWidgets();
+  function listItemCreatedFunction(e) {
+    const item = e.item;
+    // TODO: make layer NOT disabled if it isn't visibleAtCurrentScale
+    // This is so the features can be clicked for popup, even if tile layer is visibleAtCurrentScale
+    if (item.layer.type != "group") {
+      // don't show legend twice
+      item.panel = {
+        content: "legend",
+        open: true,
+      };
+      item.actionsSections = [
+        [
+          {
+            title: "Increase transparency",
+            icon: "chevron-up",
+            id: "inc-transparency",
+          },
+          {
+            title: "Decrease transparency",
+            icon: "chevron-down",
+            id: "dec-transparency",
+          },
+          {
+            title: "Show table",
+            icon: "table",
+            id: "table",
+          },
+          {
+            title: "Remove",
+            icon: "trash",
+            id: "trash",
+          },
+        ],
+      ];
+    };
+  }
+
+  function layerListAction(e) {
+    console.log(e)
+    const id = e.detail.action.id;
+    if (id === "trash") {
+      const title = e.detail.item.layer.title;
+      // remove tile layer and feature layer with same title
+      const removals = e.detail.item.view.map.allLayers.filter(function(layer) {
+        return layer.title === title
+      })
+      e.detail.item.view.map.removeMany(removals);
+      // uncheck the layer's checkbox in the data catalog
+      document.querySelector(`calcite-checkbox[name="${e.detail.item.layer.title}"]`).removeAttribute("checked");
+    } else if (id === 'inc-transparency') {
+      e.detail.item.layer.opacity += .1
+    } else if (id === 'dec-transparency') {
+      e.detail.item.layer.opacity -= .1
+    } else if (id == 'table') {
+      // TODO: have a feature table widget in the app.
+      // https://developers.arcgis.com/javascript/latest/sample-code/feature-table/
+      console.log(e.detail.item.layer);
+      // document.querySelector(`[id="shell-panel-table"]`).collapsed = false
+      // const featureTable = new FeatureTable({
+      //   view: view, // Required for feature highlight to work
+      //   layer: e.item.layer,
+      //   container: fTableContainer
+      // })
     }
-  });
-
-  function initWidgets() {
-    console.log("widgets initialized");
-    const basemaps = new BasemapGallery({
-      view,
-      container: bmgContainer,
-    });
-
-    const layerList = new LayerList({
-      view,
-      dragEnabled: true,
-      container: layerListContainer,
-      visibilityAppearance: "checkbox",
-      listItemCreatedFunction: (e) => {
-        const item = e.item;
-        // TODO: make layer NOT disabled if it isn't visibleAtCurrentScale
-        // This is so the features can be clicked for popup, even if tile layer is visibleAtCurrentScale
-        if (item.layer.type != "group") {
-          // don't show legend twice
-          item.panel = {
-            content: "legend",
-            open: true,
-          };
-          item.actionsSections = [
-            [
-              {
-                title: "Increase transparency",
-                icon: "chevron-up",
-                id: "inc-transparency",
-              },
-              {
-                title: "Decrease transparency",
-                icon: "chevron-down",
-                id: "dec-transparency",
-              },
-              {
-                title: "Show table",
-                icon: "table",
-                id: "table",
-              },
-              {
-                title: "Remove",
-                icon: "trash",
-                id: "trash",
-              },
-            ],
-          ];
-        }
-      },
-    });
-
-    layerList.on("trigger-action", (e) => {
-      const id = e.action.id;
-      if (id === "trash") {
-        view.map.removeAll(e.item.layer);
-        // uncheck the layer's checkbox in the data catalog
-        document.querySelector(`calcite-checkbox[name="${e.item.layer.title}"]`).removeAttribute("checked");
-      } else if (id === 'inc-transparency') {
-        e.item.layer.opacity += .1
-      } else if (id === 'dec-transparency') {
-        e.item.layer.opacity -= .1
-      } else if (id == 'table') {
-        // TODO: have a feature table widget in the app.
-        // https://developers.arcgis.com/javascript/latest/sample-code/feature-table/
-        console.log(e.item.layer);
-        // document.querySelector(`[id="shell-panel-table"]`).collapsed = false
-        // const featureTable = new FeatureTable({
-        //   view: view, // Required for feature highlight to work
-        //   layer: e.item.layer,
-        //   container: fTableContainer
-        // })
-      }
-    });
   }
 
   const handleExpandClick = () => {
-    let bar = document.getElementById("left-action-bar");
     let panel = document.getElementById("data-catalog");
     let shell = document.getElementById("shell-panel-start");
-    bar.setAttribute("hidden", "");
+    leftActionBar.setAttribute("hidden", "");
     panel.removeAttribute("hidden");
     panel.setAttribute("open", "");
     shell.removeAttribute("collapsed");
@@ -127,7 +136,7 @@
     }
 
     handleExpandClick();
-
+    
     const nextDataCatalog = target.dataset.actionId;
 
     if (nextDataCatalog !== $catalog.type) {
@@ -175,31 +184,25 @@
     }
   };
 
-  const openModal = function () {
-    const button = document.getElementById("example-button");
-    const modal = document.getElementById("example-modal");
+  // const openModal = function () {
+  //   const button = document.getElementById("example-button");
+  //   const modal = document.getElementById("example-modal");
 
-    button?.addEventListener("click", function () {
-      modal.open = !modal.open;
-      console.log(modal);
-    });
-  };
-
-  export const handleBasemapPanelClose = function (e) {
-    const target = e.target;
-    const shellElement = target.parentElement;
-    shellElement.collapsed = !shellElement.collapsed;
-    document.querySelector('[data-action-id="basemaps"]').active = false;
-  };
+  //   button?.addEventListener("click", function () {
+  //     modal.open = !modal.open;
+  //     console.log(modal);
+  //   });
+  // };
 
   export const closeShellElement = function (e) {
     const target = e.target;
     const shellElement = target.parentElement;
     shellElement.collapsed = !shellElement.collapsed;
   };
+  
 </script>
 
-<calcite-shell content-behind>
+<calcite-shell>
   <calcite-navigation id="header" slot="header">
     <calcite-navigation-logo
       slot="content-start"
@@ -210,6 +213,7 @@
     ></calcite-navigation-logo>
     <calcite-chip-group slot="content-end" expanded>
       {#each [
+        {label:'Help', icon:'question'},
         {label:'Data Download', icon:'download-to', link:'https://www.epa.gov/enviroatlas/forms/enviroatlas-data-download'}, 
         {label:'Contact Us', icon:'envelope', link:'https://www.epa.gov/enviroatlas/forms/contact-us-about-enviroatlas'}
         ] as link}
@@ -219,6 +223,32 @@
         {/each}
     </calcite-chip-group>
   </calcite-navigation>
+  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="5">
+    <arcgis-search 
+      position="top-right"
+    />
+    <arcgis-zoom 
+      position="top-right" 
+      layout="vertical" 
+      referenceElement={view}
+    />
+    <arcgis-scale-bar
+      position="bottom-left"
+      bar-style="line"
+      unit="dual"
+    />
+    <arcgis-coordinate-conversion
+      position="bottom-left"
+      mode="live"
+      orientation="auto"
+      hide-capture-button
+      hide-expand-button
+      hide-input-button
+      hide-settings-button
+      multiple-conversions-disabled
+      storage-disabled
+    />
+  </arcgis-map>
   <calcite-shell-panel
     component-id="shell-panel-start"
     slot="panel-start"
@@ -231,7 +261,8 @@
       hidden
       slot="action-bar" 
       role="menu" 
-      tabindex="-1" 
+      tabindex="-1"
+      bind:this={leftActionBar}
     >
       <calcite-action
         tabindex="-1"
@@ -273,7 +304,7 @@
         on:keypress={handleExpandClick}
       />
     </calcite-action-bar>
-    <DataCatalog view={$viewState.view}/>
+    <DataCatalog view={view}/>
   </calcite-shell-panel>
   <slot></slot>
   <Modal />
@@ -285,8 +316,15 @@
     position='end'
     width-scale="m"
   >
-  <calcite-action-bar expand-disabled role="menu" tabindex="-1" slot="action-bar" on:click={handleOtherActionBarClick} on:keypress={handleOtherActionBarClick}>
-    <calcite-action data-action-id="layers" icon="layers" text="Layers" />
+  <calcite-action-bar 
+    expand-disabled 
+    role="menu" 
+    tabindex="-1" 
+    slot="action-bar"
+    on:click={handleOtherActionBarClick} 
+    on:keypress={handleOtherActionBarClick}
+  >
+    <calcite-action data-action-id="layers" icon="layers" text="Active Layer List" />
     <calcite-action
       data-action-id="basemaps"
       icon="basemap"
@@ -294,23 +332,35 @@
     />
   </calcite-action-bar>
   <calcite-panel
-    heading="Layers"
+    heading="Active Layer List"
     height-scale="l"
     data-panel-id="layers"
     hidden
   >
-    <div id="layers-container" bind:this={layerListContainer} />
+    <arcgis-layer-list
+      dragEnabled
+      visibility-appearance="checkbox"
+      show-errors
+      id="layers-container"
+      referenceElement={view}
+      bind:this={layerListContainer}
+      listItemCreatedFunction={listItemCreatedFunction}
+      on:arcgisTriggerAction={layerListAction}
+    />
   </calcite-panel>
   <calcite-panel
     heading="Basemaps"
     height-scale="l"
     data-panel-id="basemaps"
     hidden
-    closable
     closed
-    on:calcitePanelClose={handleBasemapPanelClose}
   >
-    <div id="basemaps-container" bind:this={bmgContainer} />
+    <arcgis-basemap-gallery
+      id="basemaps-container"
+      bind:this={bmgContainer}
+      referenceElement={view}
+      source={portalBasemapsSource}
+    />
   </calcite-panel>
   <SummarizeMyArea /> 
   </calcite-shell-panel>
