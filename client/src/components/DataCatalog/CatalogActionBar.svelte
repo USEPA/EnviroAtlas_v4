@@ -48,13 +48,13 @@
             Array.from(categoryParent.children).forEach(elem => {
                 elem.classList.remove('filtered')
             });
+            // Set category filter store to empty
             $categoryFilter = '';
             // No filter should remove expanded on all topic headers
                         const listESB = document.querySelectorAll("calcite-list-item#ESB");
             listESB.forEach((elem) => {
                 elem.removeAttribute("expanded");
             });
-            console.log(listESB)
             const listPSI = document.querySelectorAll("calcite-list-item#PSI");
             listPSI.forEach((elem) => {
                 elem.removeAttribute("expanded");
