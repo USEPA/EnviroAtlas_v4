@@ -26,14 +26,48 @@
                 elem.classList.add('filtered')
             });
             $categoryFilter = cat.name;
+            // Filter should open all the topic headers.
+            const listESB = document.querySelectorAll("calcite-list-item#ESB");
+            listESB.forEach((elem) => {
+                elem.setAttribute("expanded", "");
+            });
+            const listPSI = document.querySelectorAll("calcite-list-item#PSI");
+            listPSI.forEach((elem) => {
+                elem.setAttribute("expanded", "");
+            });
+            const listPBS = document.querySelectorAll("calcite-list-item#PBS");
+            listPBS.forEach((elem) => {
+                elem.setAttribute("expanded", "");
+            });
+            const listBNF = document.querySelectorAll("calcite-list-item#BNF");
+            listBNF.forEach((elem) => {
+                elem.setAttribute("expanded", "");
+            });
         } else if ($categoryFilter === cat.name) {
             // Clicking the already selected BC turns off the filter and returns all to color. 
             Array.from(categoryParent.children).forEach(elem => {
                 elem.classList.remove('filtered')
             });
             $categoryFilter = '';
+            // No filter should remove expanded on all topic headers
+                        const listESB = document.querySelectorAll("calcite-list-item#ESB");
+            listESB.forEach((elem) => {
+                elem.removeAttribute("expanded");
+            });
+            console.log(listESB)
+            const listPSI = document.querySelectorAll("calcite-list-item#PSI");
+            listPSI.forEach((elem) => {
+                elem.removeAttribute("expanded");
+            });
+            const listPBS = document.querySelectorAll("calcite-list-item#PBS");
+            listPBS.forEach((elem) => {
+                elem.removeAttribute("expanded");
+            });
+            const listBNF = document.querySelectorAll("calcite-list-item#BNF");
+            listBNF.forEach((elem) => {
+                elem.removeAttribute("expanded");
+            });
         }
-        // Filter should open all the topic headers.
     };
 </script>
 
