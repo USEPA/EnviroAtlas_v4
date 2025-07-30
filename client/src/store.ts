@@ -121,16 +121,31 @@ export const categoryFilter = writable('');
 // This was trying to get around re-rendering components that drop the shadow dom overriding css in DataList.svelte, but they still get re-rendered. 
 // Maybe would have to change the svelte html to not have an {#if} statement?
 export const filteredNationalItems = derived(
-    [nationalItems, geography], ([$nationalItems, $geography]) => {
-        if (!$geography) {
+    [nationalItems, geography, categoryFilter], ([$nationalItems, $geography, $categoryFilter]) => {
+        if (!$geography && !$categoryFilter) {
             return $nationalItems
-        } if ($geography) {
+        } if ($geography && !$categoryFilter) {
+            console.log('1filtr!')
             return $nationalItems.map(category => {
                 const subObj = category.subtopic.map(subtopic => {
                     const lyrObj = subtopic.layers.map(layers => {
                         return {...layers, ...((layers.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible);
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                });
+                const isCatVis = subObj.some(subtopic => subtopic.isVisible);
+                return {...category, subtopic: subObj, isVisible: isCatVis}
+            })    
+        } if ($geography && $categoryFilter) {
+            console.log('2filtrs!')
+            return $nationalItems.map(category => {
+                const subObj = category.subtopic.map(subtopic => {
+                    const lyrObj = subtopic.layers.map(layers => {
+                        return {...layers, ...((layers.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
+                    });
+                    const isSubVis = lyrObj.some(layers => layers.isVisible) && subtopic[$categoryFilter];
+                    console.log();
                     return {...subtopic, layers: lyrObj, isVisible: isSubVis}
                 });
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
