@@ -145,7 +145,6 @@ export const filteredNationalItems = derived(
                         return {...layers, ...((layers.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible) && subtopic[$categoryFilter];
-                    console.log();
                     return {...subtopic, layers: lyrObj, isVisible: isSubVis}
                 });
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
