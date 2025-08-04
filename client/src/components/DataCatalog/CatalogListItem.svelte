@@ -100,6 +100,7 @@
 
     let dataTypeDict = {
         'Summarized by Census Block Group': 'cbg', 
+        'Summarized by Census Tracts': 'ctr',
         'Points, Lines, or Polygons': 'plp',
         'Non-summarized grid data':'grid',
         'Summarized by HUC12':'huc12'

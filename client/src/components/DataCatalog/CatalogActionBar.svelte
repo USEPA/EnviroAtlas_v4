@@ -1,52 +1,129 @@
 <script>
     import "@esri/calcite-components/dist/components/calcite-filter";
+    import { categoryFilter } from "/src/store.ts";
 
     export let type;
+
+    let categoryParent;
+    
+    let categories = [
+        { name: "eaCA", icon: "air" }, 
+        { name: "eaCPW", icon: "water" }, 
+        { name: "eaNHM", icon: "haz" }, 
+        { name: "eaRCA", icon: "rec" }, 
+        { name: "eaFFM", icon: "food" }, 
+        { name: "eaBC", icon: "bio" }, 
+    ];
+
+    const onCatChange = (cat) => {
+        // Only one benefit category filter can be selected. 
+        if ($categoryFilter != cat.name) {
+            // Once selected, that icon will stay color and the rest will gray out. Clicking another BC changes the selection to that BC. 
+            let elemSelected = Array.from(categoryParent.children).filter(catIcon => catIcon.classList.contains(cat.name));
+            elemSelected[0].classList.remove('filtered');
+            let elemsToFilter = Array.from(categoryParent.children).filter(catIcon => !catIcon.classList.contains(cat.name));
+            elemsToFilter.forEach(elem => {
+                elem.classList.add('filtered')
+            });
+            $categoryFilter = cat.name;
+            // Filter should open all the topic headers.
+            const listESB = document.querySelectorAll("calcite-list-item#ESB");
+            listESB.forEach((elem) => {
+                elem.setAttribute("expanded", "");
+            });
+            const listPSI = document.querySelectorAll("calcite-list-item#PSI");
+            listPSI.forEach((elem) => {
+                elem.setAttribute("expanded", "");
+            });
+            const listPBS = document.querySelectorAll("calcite-list-item#PBS");
+            listPBS.forEach((elem) => {
+                elem.setAttribute("expanded", "");
+            });
+            const listBNF = document.querySelectorAll("calcite-list-item#BNF");
+            listBNF.forEach((elem) => {
+                elem.setAttribute("expanded", "");
+            });
+        } else if ($categoryFilter === cat.name) {
+            // Clicking the already selected BC turns off the filter and returns all to color. 
+            Array.from(categoryParent.children).forEach(elem => {
+                elem.classList.remove('filtered')
+            });
+            // Set category filter store to empty
+            $categoryFilter = '';
+            // No filter should remove expanded on all topic headers
+                        const listESB = document.querySelectorAll("calcite-list-item#ESB");
+            listESB.forEach((elem) => {
+                elem.removeAttribute("expanded");
+            });
+            const listPSI = document.querySelectorAll("calcite-list-item#PSI");
+            listPSI.forEach((elem) => {
+                elem.removeAttribute("expanded");
+            });
+            const listPBS = document.querySelectorAll("calcite-list-item#PBS");
+            listPBS.forEach((elem) => {
+                elem.removeAttribute("expanded");
+            });
+            const listBNF = document.querySelectorAll("calcite-list-item#BNF");
+            listBNF.forEach((elem) => {
+                elem.removeAttribute("expanded");
+            });
+        }
+    };
 </script>
 
-<calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>
-    {#if type=='national' || type=='subnational'}
-    <calcite-filter placeholder="Try searching"></calcite-filter>
-    {/if}
-    {#if type=='climate-data-viewer-2'}
-        <!-- <calcite-chip-group
-            slot="actions-end"
-            selection-mode="single"
-            label="custom-criteria-chip-group"
-        >
-            <calcite-chip
-                class="simple-or-adv"
-                selected
-                scale="s"
-                value="global"
-                kind="brand"
-                appearance="solid">Simple</calcite-chip
-            >
-            <calcite-chip
-                class="simple-or-adv"
-                scale="s"
-                value="advanced"
-                kind="neutral">Advanced</calcite-chip
-            >
-        </calcite-chip-group> -->
-    {/if}
-    <calcite-action
-        icon="extent-filter"
-        text-enabled
-        text="Filter options"
-        slot="actions-end"
-        id="popover-button"
-    />
+{#if type=='national' || type=='subnational'}
+<calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>    
+    <calcite-filter placeholder="Try searching"></calcite-filter>    
 </calcite-action-bar>
+<calcite-action-bar bind:this={categoryParent} id='catFilter' layout="horizontal" expand-disabled>
+    {#each categories as cat}
+    <calcite-button class={cat.name} round on:click={()=>onCatChange(cat)}>
+        <img alt={cat.name} style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
+    </calcite-button>
+    {/each}
+</calcite-action-bar>
+{/if}
 
 <style>
-    calcite-action {
+    calcite-action-bar#catFilter {
+        margin: 0 auto;
+        --calcite-action-bar-items-space:5px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+    
+    calcite-button.eaCA {
+        --calcite-button-background-color: #7f81ba;
         --calcite-ui-focus-color: none !important;
     }
 
-    .simple-or-adv {
-        margin-top: 9px;
-        margin-bottom: 9px;
-        margin-right: 5px;
+    calcite-button.eaCPW {
+        --calcite-button-background-color: #74CCD1;
+        --calcite-ui-focus-color: none !important;
     }
-</style>
+
+    calcite-button.eaBC {
+        --calcite-button-background-color: #2EAE4A;
+        --calcite-ui-focus-color: none !important;
+    }
+
+    calcite-button.eaFFM {
+        --calcite-button-background-color: #F0E024;
+        --calcite-ui-focus-color: none !important;
+    }
+
+    calcite-button.eaNHM {
+        --calcite-button-background-color: #D75D64;
+        --calcite-ui-focus-color: none !important;
+    }
+
+     calcite-button.eaRCA {
+        --calcite-button-background-color: #C770B4;
+        --calcite-ui-focus-color: none !important;
+    }
+
+    calcite-button.filtered {
+        --calcite-button-background-color: #d3d3d3;
+        --calcite-ui-focus-color: none !important;
+    }
+</style> 
