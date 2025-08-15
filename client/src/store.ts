@@ -121,10 +121,10 @@ export const categoryFilter = writable('');
 // This was trying to get around re-rendering components that drop the shadow dom overriding css in DataList.svelte, but they still get re-rendered. 
 // Maybe would have to change the svelte html to not have an {#if} statement?
 export const filteredNationalItems = derived(
-    [nationalItems, geography, categoryFilter], ([$nationalItems, $geography, $categoryFilter]) => {
+    [nationalItems, geography, categoryFilter, searchTerm], ([$nationalItems, $geography, $categoryFilter, $searchTerm]) => {
         if (!$geography && !$categoryFilter) {
             return $nationalItems
-        } if ($geography && !$categoryFilter) {
+        } if ($geography && !$categoryFilter && !$searchTerm) {
             console.log('1filtr!')
             return $nationalItems.map(category => {
                 const subObj = category.subtopic.map(subtopic => {
@@ -137,7 +137,7 @@ export const filteredNationalItems = derived(
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
                 return {...category, subtopic: subObj, isVisible: isCatVis}
             })    
-        } if ($geography && $categoryFilter) {
+        } if ($geography && $categoryFilter && !$searchTerm) {
             console.log('2filtrs!')
             return $nationalItems.map(category => {
                 const subObj = category.subtopic.map(subtopic => {
@@ -145,6 +145,19 @@ export const filteredNationalItems = derived(
                         return {...layers, ...((layers.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible) && subtopic[$categoryFilter];
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                });
+                const isCatVis = subObj.some(subtopic => subtopic.isVisible);
+                return {...category, subtopic: subObj, isVisible: isCatVis}
+            })    
+        } if ($geography && $searchTerm && !$categoryFilter) {
+            console.log('2filtr!')
+            return $nationalItems.map(category => {
+                const subObj = category.subtopic.map(subtopic => {
+                    const lyrObj = subtopic.layers.map(layers => {
+                        return {...layers, ...((layers.areaGeog.includes($geography) && (layers.name.includes($searchTerm) || layers.tags.includes($searchTerm) || layers.description.includes($searchTerm))) ? {isVisible: true} : {isVisible: false})}
+                    });
+                    const isSubVis = lyrObj.some(layers => layers.isVisible);
                     return {...subtopic, layers: lyrObj, isVisible: isSubVis}
                 });
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
