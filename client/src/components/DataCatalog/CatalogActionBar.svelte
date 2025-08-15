@@ -101,7 +101,9 @@
 
 {#if type=='national' || type=='subnational'}
 <calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>    
-    <calcite-input alignment='start' maxLength=20 type='text' scale='l' icon='search' bind:this={searchInput} on:calciteInputInput={()=>onSearch()} placeholder="Search or select a filter below"></calcite-input>    
+    <calcite-input alignment='start' maxLength=20 type='text' scale='l' icon='search' bind:this={searchInput} on:calciteInputInput={()=>onSearch()} placeholder="Try searching"></calcite-input>
+    <calcite-button style="font-size:10px" id='count' scale='s'>317 / 512 <br>
+        Maps</calcite-button>   
 </calcite-action-bar>
 <calcite-action-bar bind:this={categoryParent} id='catFilter' layout="horizontal" expand-disabled>
     {#each categories as cat}
@@ -114,8 +116,14 @@
 
 <style>
     calcite-input {
-        width: 100%;
+        width: 75%;
         margin: 3px;
+    }
+
+    calcite-button#count {
+        width:25%;
+        margin: 3px;
+        --calcite-ui-focus-color: none !important;
     }
 
     calcite-action-bar#catFilter {
