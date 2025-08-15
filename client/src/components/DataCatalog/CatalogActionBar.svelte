@@ -1,10 +1,11 @@
 <script>
     import "@esri/calcite-components/dist/components/calcite-filter";
-    import { categoryFilter } from "/src/store.ts";
+    import { categoryFilter, searchTerm } from "/src/store.ts";
 
     export let type;
 
     let categoryParent;
+    let searchInput;
     
     let categories = [
         { name: "eaCA", icon: "air" }, 
@@ -14,6 +15,25 @@
         { name: "eaFFM", icon: "food" }, 
         { name: "eaBC", icon: "bio" }, 
     ];
+
+    const onSearch = () => {
+        if (searchInput.value.length > 2 ) {
+            $searchTerm = searchInput.value
+            console.log($searchTerm)
+            // Set category filter store to empty
+            $categoryFilter = '';
+            // Remove gray 'filtered' class from category buttons
+            Array.from(categoryParent.children).forEach(elem => {
+                elem.classList.remove('filtered')
+            });
+            expandTopics();
+        } else {
+            $searchTerm = '';
+            // No filter should remove expanded on all topic headers
+            collapseTopics();
+        }
+
+    };
 
     const onCatChange = (cat) => {
         // Only one benefit category filter can be selected. 
@@ -27,22 +47,7 @@
             });
             $categoryFilter = cat.name;
             // Filter should open all the topic headers.
-            const listESB = document.querySelectorAll("calcite-list-item#ESB");
-            listESB.forEach((elem) => {
-                elem.setAttribute("expanded", "");
-            });
-            const listPSI = document.querySelectorAll("calcite-list-item#PSI");
-            listPSI.forEach((elem) => {
-                elem.setAttribute("expanded", "");
-            });
-            const listPBS = document.querySelectorAll("calcite-list-item#PBS");
-            listPBS.forEach((elem) => {
-                elem.setAttribute("expanded", "");
-            });
-            const listBNF = document.querySelectorAll("calcite-list-item#BNF");
-            listBNF.forEach((elem) => {
-                elem.setAttribute("expanded", "");
-            });
+            expandTopics();
         } else if ($categoryFilter === cat.name) {
             // Clicking the already selected BC turns off the filter and returns all to color. 
             Array.from(categoryParent.children).forEach(elem => {
@@ -51,29 +56,52 @@
             // Set category filter store to empty
             $categoryFilter = '';
             // No filter should remove expanded on all topic headers
-                        const listESB = document.querySelectorAll("calcite-list-item#ESB");
-            listESB.forEach((elem) => {
-                elem.removeAttribute("expanded");
-            });
-            const listPSI = document.querySelectorAll("calcite-list-item#PSI");
-            listPSI.forEach((elem) => {
-                elem.removeAttribute("expanded");
-            });
-            const listPBS = document.querySelectorAll("calcite-list-item#PBS");
-            listPBS.forEach((elem) => {
-                elem.removeAttribute("expanded");
-            });
-            const listBNF = document.querySelectorAll("calcite-list-item#BNF");
-            listBNF.forEach((elem) => {
-                elem.removeAttribute("expanded");
-            });
+            collapseTopics();
         }
     };
+
+    function expandTopics() {
+        const listESB = document.querySelectorAll("calcite-list-item#ESB");
+        listESB.forEach((elem) => {
+            elem.setAttribute("expanded", "");
+        });
+        const listPSI = document.querySelectorAll("calcite-list-item#PSI");
+        listPSI.forEach((elem) => {
+            elem.setAttribute("expanded", "");
+        });
+        const listPBS = document.querySelectorAll("calcite-list-item#PBS");
+        listPBS.forEach((elem) => {
+            elem.setAttribute("expanded", "");
+        });
+        const listBNF = document.querySelectorAll("calcite-list-item#BNF");
+        listBNF.forEach((elem) => {
+            elem.setAttribute("expanded", "");
+        });
+    };
+
+    function collapseTopics() {
+        const listESB = document.querySelectorAll("calcite-list-item#ESB");
+        listESB.forEach((elem) => {
+            elem.removeAttribute("expanded");
+        });
+        const listPSI = document.querySelectorAll("calcite-list-item#PSI");
+        listPSI.forEach((elem) => {
+            elem.removeAttribute("expanded");
+        });
+        const listPBS = document.querySelectorAll("calcite-list-item#PBS");
+        listPBS.forEach((elem) => {
+            elem.removeAttribute("expanded");
+        });
+        const listBNF = document.querySelectorAll("calcite-list-item#BNF");
+        listBNF.forEach((elem) => {
+            elem.removeAttribute("expanded");
+        });
+    }
 </script>
 
 {#if type=='national' || type=='subnational'}
 <calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>    
-    <calcite-filter placeholder="Try searching"></calcite-filter>    
+    <calcite-input alignment='start' maxLength=20 type='text' scale='l' icon='search' bind:this={searchInput} on:calciteInputInput={()=>onSearch()} placeholder="Search or select a filter below"></calcite-input>    
 </calcite-action-bar>
 <calcite-action-bar bind:this={categoryParent} id='catFilter' layout="horizontal" expand-disabled>
     {#each categories as cat}
@@ -85,6 +113,11 @@
 {/if}
 
 <style>
+    calcite-input {
+        width: 100%;
+        margin: 3px;
+    }
+
     calcite-action-bar#catFilter {
         margin: 0 auto;
         --calcite-action-bar-items-space:5px;
