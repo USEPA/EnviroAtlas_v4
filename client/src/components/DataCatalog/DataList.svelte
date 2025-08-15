@@ -9,7 +9,7 @@
     import "@esri/calcite-components/dist/components/calcite-action-group";
 
     // Import components and store
-    import { catalog, nationalItems, filteredNationalItems } from "src/store.ts";
+    import { catalog, nationalItems, filteredNationalItems, geography } from "src/store.ts";
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
     import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
