@@ -81,6 +81,8 @@ export const activeWidget = writable({
 
 export const categoryFilter = writable('');
 
+export const totalMaps = writable(0);
+
 // If we can rewrite things to call api instead of using store, then this is all unnecessary...
 
 // derived store that filters each level of UI data (level1=topic, level2=subtopic, level3=layers) based on geography
@@ -165,4 +167,33 @@ export const filteredNationalItems = derived(
             })    
         }
     }
-)
+);
+
+export const totalVisibleMaps = derived([geography, filteredNationalItems], ([$geography, $filteredNationalItems], set) => {
+  // Simulate an asynchronous operation (e.g., API call)
+  async function fetchData() {
+    if ($geography != '') {
+    let visibleMapsCount = 0
+    if ($filteredNationalItems != undefined) {
+        $filteredNationalItems.map(category => {
+            if (category.subtopic != undefined) {
+            const subObj = category.subtopic.map(subtopic => {
+                if (subtopic.isVisible) {
+                    const lyrObj = subtopic.layers.map(layers => {  
+                        if (layers.isVisible) {
+                            visibleMapsCount += 1
+                        }
+                    });
+                }
+            });
+            }
+        })    
+    }
+    console.log(visibleMapsCount)
+    set(visibleMapsCount)
+  }
+}
+
+fetchData();
+
+},0); // Initial value

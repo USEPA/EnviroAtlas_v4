@@ -3,6 +3,8 @@
     import { categoryFilter, searchTerm } from "/src/store.ts";
 
     export let type;
+    export let totalMapsCount;
+    export let totalVisibleMaps;
 
     let categoryParent;
     let searchInput;
@@ -97,12 +99,13 @@
             elem.removeAttribute("expanded");
         });
     }
+
 </script>
 
 {#if type=='national' || type=='subnational'}
 <calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>    
     <calcite-input alignment='start' maxLength=20 type='text' scale='l' icon='search' bind:this={searchInput} on:calciteInputInput={()=>onSearch()} placeholder="Try searching"></calcite-input>
-    <calcite-button style="font-size:10px" id='count' scale='s'>317 / 512 <br>
+    <calcite-button id='count' scale='s'>{totalVisibleMaps} / {totalMapsCount} <br>
         Maps</calcite-button>   
 </calcite-action-bar>
 <calcite-action-bar bind:this={categoryParent} id='catFilter' layout="horizontal" expand-disabled>
@@ -124,6 +127,11 @@
         width:25%;
         margin: 3px;
         --calcite-ui-focus-color: none !important;
+        --calcite-color-brand-hover: #005ea2;
+        --calcite-color-brand-press: #005ea2; 
+        --calcite-button-background-color: white;
+        --calcite-button-text-color: #005ea2;
+        --calcite-button-border-color:#6a6a6a
     }
 
     calcite-action-bar#catFilter {
