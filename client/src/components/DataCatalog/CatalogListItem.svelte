@@ -76,9 +76,8 @@
         if (subtopic.layers.length < 2) {
             layerID = subtopic.layers[0].layerID
         } else {
-            // TODO: write logic for subtopics with 2 or more layers
-            // May need to destroy component on close, so new component can be instantiated when new dropdown is selected
-            // Need to create different popup if layer isn't selected in dropdown - has generic description, no buttons, has message to select a layer
+            // TODO: write logic for subtopics with 2 or more layers (show all?)
+            layerID = subtopic.layers[0].layerID
         }
         let detailsParams = {
             select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"DownloadSource":1,"metadataID":1}`)
@@ -262,48 +261,11 @@
         --calcite-list-background-color-hover: none;
         --calcite-list-background-color-press: none;
     } 
-    #ea-chip-group {
-        margin-left: 5px;
-        margin-bottom: 5px;
-        margin-top: 5px;
-    }
-
-    /* calcite-chip.eaCA {
-        --calcite-chip-background-color: #7F81BA;
-    }
-
-    calcite-chip.eaCPW {
-        --calcite-chip-background-color: #74CCD1;
-    }
-
-    calcite-chip.eaCS {
-        --calcite-chip-background-color: #F99F1F;
-    }
-
-    calcite-chip.eaBC {
-        --calcite-chip-background-color: #2EAE4A;
-    }
-
-    calcite-chip.eaFFM {
-        --calcite-chip-background-color: #F0E024;
-    }
-
-    calcite-chip.eaNHM {
-        --calcite-chip-background-color: #D75D64;
-    }
-
-    calcite-chip.eaRCA {
-        --calcite-chip-background-color: #C770B4;
-    }
-
-    calcite-chip.sType {
-        --calcite-chip-background-color: #BACFE1;
-    } */
 
     #concernFilterDiv {
         padding-left: 24px;
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(2, 1fr);
 		grid-gap: 5px;
 		max-width: 400px;
         font-size: 11px !important;
