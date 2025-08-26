@@ -245,3 +245,16 @@ export function buildFSPopupTemp(lObj) {
         return pTemplate
     }
 }
+
+export function expandTopics(expand = true) {
+    const ids = ["ESB", "PSI", "PBS", "BNF"]
+    ids.forEach(id => {
+        document.querySelectorAll(`calcite-list-item#${id}`).forEach(elem => {
+            if (expand) {
+                elem.setAttribute("expanded", "")
+            } else {
+                elem.removeAttribute("expanded")
+            }
+        });
+    });
+};

@@ -1,6 +1,7 @@
 <script>
     import "@esri/calcite-components/dist/components/calcite-filter";
     import { categoryFilter, searchTerm } from "/src/store.ts";
+    import { expandTopics } from "/src/shared/utilities.js"
 
     export let type;
     export let totalMapsCount;
@@ -32,7 +33,7 @@
         } else {
             $searchTerm = '';
             // No filter should remove expanded on all topic headers
-            collapseTopics();
+            expandTopics(false);
         }
 
     };
@@ -58,47 +59,11 @@
             // Set category filter store to empty
             $categoryFilter = '';
             // No filter should remove expanded on all topic headers
-            collapseTopics();
+            expandTopics(false);
         }
     };
 
-    function expandTopics() {
-        const listESB = document.querySelectorAll("calcite-list-item#ESB");
-        listESB.forEach((elem) => {
-            elem.setAttribute("expanded", "");
-        });
-        const listPSI = document.querySelectorAll("calcite-list-item#PSI");
-        listPSI.forEach((elem) => {
-            elem.setAttribute("expanded", "");
-        });
-        const listPBS = document.querySelectorAll("calcite-list-item#PBS");
-        listPBS.forEach((elem) => {
-            elem.setAttribute("expanded", "");
-        });
-        const listBNF = document.querySelectorAll("calcite-list-item#BNF");
-        listBNF.forEach((elem) => {
-            elem.setAttribute("expanded", "");
-        });
-    };
 
-    function collapseTopics() {
-        const listESB = document.querySelectorAll("calcite-list-item#ESB");
-        listESB.forEach((elem) => {
-            elem.removeAttribute("expanded");
-        });
-        const listPSI = document.querySelectorAll("calcite-list-item#PSI");
-        listPSI.forEach((elem) => {
-            elem.removeAttribute("expanded");
-        });
-        const listPBS = document.querySelectorAll("calcite-list-item#PBS");
-        listPBS.forEach((elem) => {
-            elem.removeAttribute("expanded");
-        });
-        const listBNF = document.querySelectorAll("calcite-list-item#BNF");
-        listBNF.forEach((elem) => {
-            elem.removeAttribute("expanded");
-        });
-    }
 
 </script>
 
