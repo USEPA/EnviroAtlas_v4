@@ -9,6 +9,7 @@
 
     let categoryParent;
     let searchInput;
+    let catRefs = []; // bind to category buttons
     
     let categories = [
         { name: "eaCA", icon: "air" }, 
@@ -21,17 +22,17 @@
 
     const onSearch = () => {
         if (searchInput.value.length > 2 ) {
-            $searchTerm = searchInput.value
+            searchTerm.set(searchInput.value);
             console.log($searchTerm)
             // Set category filter store to empty
-            $categoryFilter = '';
+            categoryFilter.set('');
             // Remove gray 'filtered' class from category buttons
-            Array.from(categoryParent.children).forEach(elem => {
+            catRefs.forEach(elem => {
                 elem.classList.remove('filtered')
             });
             expandTopics();
         } else {
-            $searchTerm = '';
+            searchTerm.set('');
             // No filter should remove expanded on all topic headers
             expandTopics(false);
         }
@@ -41,23 +42,21 @@
     const onCatChange = (cat) => {
         // Only one benefit category filter can be selected. 
         if ($categoryFilter != cat.name) {
+            categoryFilter.set(cat.name);
             // Once selected, that icon will stay color and the rest will gray out. Clicking another BC changes the selection to that BC. 
-            let elemSelected = Array.from(categoryParent.children).filter(catIcon => catIcon.classList.contains(cat.name));
-            elemSelected[0].classList.remove('filtered');
-            let elemsToFilter = Array.from(categoryParent.children).filter(catIcon => !catIcon.classList.contains(cat.name));
-            elemsToFilter.forEach(elem => {
+            catRefs.filter(catIcon => catIcon.classList.contains(cat.name))[0].classList.remove('filtered');
+            catRefs.filter(catIcon => !catIcon.classList.contains(cat.name)).forEach(elem => {
                 elem.classList.add('filtered')
             });
-            $categoryFilter = cat.name;
             // Filter should open all the topic headers.
             expandTopics();
         } else if ($categoryFilter === cat.name) {
+            // Set category filter store to empty
+            categoryFilter.set('');
             // Clicking the already selected BC turns off the filter and returns all to color. 
-            Array.from(categoryParent.children).forEach(elem => {
+            catRefs.forEach(elem => {
                 elem.classList.remove('filtered')
             });
-            // Set category filter store to empty
-            $categoryFilter = '';
             // No filter should remove expanded on all topic headers
             expandTopics(false);
         }
@@ -71,8 +70,8 @@
         Maps</calcite-button>   
 </calcite-action-bar>
 <calcite-action-bar bind:this={categoryParent} id='catFilter' layout="horizontal" expand-disabled>
-    {#each categories as cat}
-    <calcite-button class={cat.name} round on:click={()=>onCatChange(cat)}>
+    {#each categories as cat, c (cat.name)}
+    <calcite-button bind:this={catRefs[c]} class={cat.name} round on:click={()=>onCatChange(cat)}>
         <img alt={cat.name} style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
     </calcite-button>
     {/each}
