@@ -6,13 +6,16 @@ let table = {
     key: 'layerID',
 };
 
-table.fields = queryBuilder.generateFieldsConfig({table,fields:'layerID,subTopicID,eaID,name,subLayerName,description,dfsLink,metadataID,url,lyrNum,tags,tileLink,tileURL,serviceType,popup,numDecimal,cacheLevelNat,DownloadSource,areaGeog,agoID,UniqueTag,HUBsearch,TagHubText,ViewName'});
+table.fields = queryBuilder.generateFieldsConfig({table,fields:'layerID,subTopicID,eaID,name,subLayerName,description,dfsLink,metadataID,url,lyrNum,tags,tileLink,tileURL,serviceType,popup,numDecimal,cacheLevelNat,DownloadSource,areaGeog,agoID,UniqueTag,HUBsearch,TagHubText,ViewName,isLegacy'});
 
 //Note: schema. fields are used by swagger and query builder code
 // put query builder code only fields level above schema
 // eg. table.fields.creator_id.serverWrite = true;
 for (let field of 'layerID,subTopicID,eaID,numDecimal,lyrNum'.split(',')) {
     table.fields[field].schema.type = 'integer';
+}
+for (let field of 'isLegacy'.split(',')) {
+    table.fields[field].schema.type = 'boolean';
 }
 
 module.exports = table;
