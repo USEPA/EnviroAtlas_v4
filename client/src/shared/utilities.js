@@ -246,15 +246,16 @@ export function buildFSPopupTemp(lObj) {
     }
 }
 
+/** 
+ * Expand or collapse the topic headers in the data catalog
+ *
+ * @param {boolean} expand - default is true
+ */
 export function expandTopics(expand = true) {
     const ids = ["ESB", "PSI", "PBS", "BNF"]
     ids.forEach(id => {
         document.querySelectorAll(`calcite-list-item#${id}`).forEach(elem => {
-            if (expand) {
-                elem.setAttribute("expanded", "")
-            } else {
-                elem.removeAttribute("expanded")
-            }
+            expand ? elem.setAttribute("expanded", "") : elem.removeAttribute("expanded")   
         });
     });
 };

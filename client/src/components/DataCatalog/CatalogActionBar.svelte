@@ -62,9 +62,6 @@
             expandTopics(false);
         }
     };
-
-
-
 </script>
 
 {#if type=='national' || type=='subnational'}
