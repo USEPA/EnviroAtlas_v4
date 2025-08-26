@@ -10,6 +10,7 @@
     let categoryParent;
     let searchInput;
     let catRefs = []; // bind to category buttons
+    let timer;
     
     let categories = [
         { name: "eaCA", icon: "air" }, 
@@ -21,22 +22,24 @@
     ];
 
     const onSearch = () => {
-        if (searchInput.value.length > 2 ) {
-            searchTerm.set(searchInput.value);
-            console.log($searchTerm)
-            // Set category filter store to empty
-            categoryFilter.set('');
-            // Remove gray 'filtered' class from category buttons
-            catRefs.forEach(elem => {
-                elem.classList.remove('filtered')
-            });
-            expandTopics();
-        } else {
-            searchTerm.set('');
-            // No filter should remove expanded on all topic headers
-            expandTopics(false);
-        }
-
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            if (searchInput.value.length > 2 ) {
+                searchTerm.set(searchInput.value);
+                console.log($searchTerm)
+                // Set category filter store to empty
+                categoryFilter.set('');
+                // Remove gray 'filtered' class from category buttons
+                catRefs.forEach(elem => {
+                    elem.classList.remove('filtered')
+                });
+                expandTopics();
+            } else {
+                searchTerm.set('');
+                // No filter should remove expanded on all topic headers
+                expandTopics(false);
+            }
+        }, 500)
     };
 
     const onCatChange = (cat) => {
