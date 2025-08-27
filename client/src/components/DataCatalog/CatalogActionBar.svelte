@@ -7,7 +7,6 @@
     export let totalMapsCount;
     export let totalVisibleMaps;
 
-    let categoryParent;
     let searchInput;
     let catRefs = []; // bind to category buttons
     let timer;
@@ -25,17 +24,17 @@
         clearTimeout(timer);
         timer = setTimeout(() => {
             if (searchInput.value.length > 2 ) {
-                searchTerm.set(searchInput.value);
+                $searchTerm = searchInput.value;
                 console.log($searchTerm)
                 // Set category filter store to empty
-                categoryFilter.set('');
+                $categoryFilter = '';
                 // Remove gray 'filtered' class from category buttons
                 catRefs.forEach(elem => {
                     elem.classList.remove('filtered')
                 });
                 expandTopics();
             } else {
-                searchTerm.set('');
+                $searchTerm = '';
                 // No filter should remove expanded on all topic headers
                 expandTopics(false);
             }
@@ -45,7 +44,7 @@
     const onCatChange = (cat) => {
         // Only one benefit category filter can be selected. 
         if ($categoryFilter != cat.name) {
-            categoryFilter.set(cat.name);
+            $categoryFilter = cat.name;
             // Once selected, that icon will stay color and the rest will gray out. Clicking another BC changes the selection to that BC. 
             catRefs.filter(catIcon => catIcon.classList.contains(cat.name))[0].classList.remove('filtered');
             catRefs.filter(catIcon => !catIcon.classList.contains(cat.name)).forEach(elem => {
@@ -55,7 +54,7 @@
             expandTopics();
         } else if ($categoryFilter === cat.name) {
             // Set category filter store to empty
-            categoryFilter.set('');
+            $categoryFilter = '';
             // Clicking the already selected BC turns off the filter and returns all to color. 
             catRefs.forEach(elem => {
                 elem.classList.remove('filtered')
@@ -72,7 +71,7 @@
     <calcite-button id='count' scale='s'>{totalVisibleMaps} / {totalMapsCount} <br>
         Maps</calcite-button>   
 </calcite-action-bar>
-<calcite-action-bar bind:this={categoryParent} id='catFilter' layout="horizontal" expand-disabled>
+<calcite-action-bar id='catFilter' layout="horizontal" expand-disabled>
     {#each categories as cat, c (cat.name)}
     <calcite-button bind:this={catRefs[c]} class={cat.name} round on:click={()=>onCatChange(cat)}>
         <img alt={cat.name} style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
