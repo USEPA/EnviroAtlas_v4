@@ -9,7 +9,7 @@
     import "@esri/calcite-components/dist/components/calcite-action-group";
 
     // Import components and store
-    import { catalog, nationalItems, filteredNationalItems } from "src/store.ts";
+    import { catalog, nationalItems, filteredNationalItems, geography, totalMaps, totalVisibleMaps } from "src/store.ts";
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
     import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
@@ -49,6 +49,27 @@
         return map;
     };
 
+    async function countMaps() {
+        console.log($filteredNationalItems)
+        let totalMapsCount = 0
+        let visibleMapsCount = 0
+        // Probably not the best use a array.map 
+        // TODO: loop over and count visible layers another way
+        $filteredNationalItems.map(category => {
+                const subObj = category.subtopic.map(subtopic => {
+                    totalMapsCount += subtopic.layers.length;
+                    if (subtopic.isVisible) {
+                        const lyrObj = subtopic.layers.map(layers => {  
+                            if (layers.isVisible) {
+                                visibleMapsCount += 1
+                            }
+                        });
+                    }
+                });
+            })    
+        $totalMaps = totalMapsCount
+    }
+
     let topicParams = {
         select: encodeURIComponent(`{"topic":1,"categoryTab":1}`),
         options: encodeURIComponent(`{"select":{"distinct":true}}`)
@@ -77,8 +98,8 @@
             // console.log(`${prop}: ${data[prop].topic}`);
             // apply topic to subtopic params
             let subtopicParams = {
-                select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"areaGeog":1,"name":1}}`),
-                where: encodeURIComponent(`{"topic":"${data[prop].topic}"}`)
+                select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"areaGeog":1,"name":1,"tags":1}}`),
+                where: encodeURIComponent(`{"topic":"${data[prop].topic}","scale":"NATIONAL"}`) // Drop Community layers
             };
             // get subtopic object from api
             // return promise object resolve, not the whole promise object
@@ -90,17 +111,15 @@
                 });
                 return ({...subtopic, layers: lyrObj, isVisible: true})
             });
-            // Drop Community layers
-            let resNoComm = res.filter(item => item.scale !== "COMMUNITY");
-            resNoComm.sort((a,b) => a.name.localeCompare(b.name));
+            res.sort((a,b) => a.name.localeCompare(b.name));
             // take the result and put into store subtopic object
-            $nationalItems[prop].subtopic = resNoComm;
+            $nationalItems[prop].subtopic = res;
         }
         return data
     }
 
     // wait for eaTopics to finish before updating data for catalog UI
-    eaTopics.then((result) => getEaSubtopics(result));
+    eaTopics.then((result) => getEaSubtopics(result)).then(() => $geography = 'CONUS').then(() => countMaps());
 
     async function updateListStyle(elem) {
         const shadow = elem.shadowRoot;
@@ -210,10 +229,10 @@
                 scale="l"
             ></calcite-action>
         </calcite-action-bar>
-        <CatalogActionBar type={$catalog.type} />
+        <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
         <ClimateChangeViewer view={view} />
         <AddData map={map} />
-        <calcite-block data-panel-id="national" heading="EnviroAtlas Catalog" open data-testid="national">
+        <calcite-block data-panel-id="national" heading="EnviroAtlas Catalog" description="Explore the relationships between land use, environment, health, safety, and economy" open data-testid="national">
             <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>
                 {#await eaTopics}
                     <p>...loading</p>
@@ -287,6 +306,7 @@
     calcite-action-bar {
         --calcite-action-bar-items-space: 61px;
         --calcite-ui-focus-color: none !important;
-        margin-left: 35px;
+        display: grid;
+        place-items: center;
     }
 </style>

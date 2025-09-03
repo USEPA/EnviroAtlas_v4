@@ -81,6 +81,8 @@ export const activeWidget = writable({
 
 export const categoryFilter = writable('');
 
+export const totalMaps = writable(0);
+
 // If we can rewrite things to call api instead of using store, then this is all unnecessary...
 
 // derived store that filters each level of UI data (level1=topic, level2=subtopic, level3=layers) based on geography
@@ -121,10 +123,10 @@ export const categoryFilter = writable('');
 // This was trying to get around re-rendering components that drop the shadow dom overriding css in DataList.svelte, but they still get re-rendered. 
 // Maybe would have to change the svelte html to not have an {#if} statement?
 export const filteredNationalItems = derived(
-    [nationalItems, geography, categoryFilter], ([$nationalItems, $geography, $categoryFilter]) => {
+    [nationalItems, geography, categoryFilter, searchTerm], ([$nationalItems, $geography, $categoryFilter, $searchTerm]) => {
         if (!$geography && !$categoryFilter) {
             return $nationalItems
-        } if ($geography && !$categoryFilter) {
+        } if ($geography && !$categoryFilter && !$searchTerm) {
             console.log('1filtr!')
             return $nationalItems.map(category => {
                 const subObj = category.subtopic.map(subtopic => {
@@ -137,7 +139,7 @@ export const filteredNationalItems = derived(
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
                 return {...category, subtopic: subObj, isVisible: isCatVis}
             })    
-        } if ($geography && $categoryFilter) {
+        } if ($geography && $categoryFilter && !$searchTerm) {
             console.log('2filtrs!')
             return $nationalItems.map(category => {
                 const subObj = category.subtopic.map(subtopic => {
@@ -150,6 +152,48 @@ export const filteredNationalItems = derived(
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
                 return {...category, subtopic: subObj, isVisible: isCatVis}
             })    
+        } if ($geography && $searchTerm && !$categoryFilter) {
+            console.log('2filtr!')
+            return $nationalItems.map(category => {
+                const subObj = category.subtopic.map(subtopic => {
+                    const lyrObj = subtopic.layers.map(layers => {
+                        return {...layers, ...((layers.areaGeog.includes($geography) && (layers.name.includes($searchTerm) || layers.tags.includes($searchTerm) || layers.description.includes($searchTerm))) ? {isVisible: true} : {isVisible: false})}
+                    });
+                    const isSubVis = lyrObj.some(layers => layers.isVisible);
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                });
+                const isCatVis = subObj.some(subtopic => subtopic.isVisible);
+                return {...category, subtopic: subObj, isVisible: isCatVis}
+            })    
         }
     }
-)
+);
+
+export const totalVisibleMaps = derived([geography, filteredNationalItems], ([$geography, $filteredNationalItems], set) => {
+  // Simulate an asynchronous operation (e.g., API call)
+  async function fetchData() {
+    if ($geography != '') {
+    let visibleMapsCount = 0
+    if ($filteredNationalItems != undefined) {
+        $filteredNationalItems.map(category => {
+            if (category.subtopic != undefined) {
+            const subObj = category.subtopic.map(subtopic => {
+                if (subtopic.isVisible) {
+                    const lyrObj = subtopic.layers.map(layers => {  
+                        if (layers.isVisible) {
+                            visibleMapsCount += 1
+                        }
+                    });
+                }
+            });
+            }
+        })    
+    }
+    console.log(visibleMapsCount)
+    set(visibleMapsCount)
+  }
+}
+
+fetchData();
+
+},0); // Initial value
