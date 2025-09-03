@@ -53,6 +53,8 @@
         console.log($filteredNationalItems)
         let totalMapsCount = 0
         let visibleMapsCount = 0
+        // Probably not the best use a array.map 
+        // TODO: loop over and count visible layers another way
         $filteredNationalItems.map(category => {
                 const subObj = category.subtopic.map(subtopic => {
                     totalMapsCount += subtopic.layers.length;
