@@ -15,6 +15,7 @@
   import PortalBasemapsSource from "@arcgis/core/widgets/BasemapGallery/support/PortalBasemapsSource.js";
   import Portal from "@arcgis/core/portal/Portal.js";
   import BasemapStyle from "@arcgis/core/support/BasemapStyle.js";
+  import * as reactiveUtils from "@arcgis/core/core/reactiveUtils.js";
   //import FeatureTable from "@arcgis/core/widgets/FeatureTable";
 
   import "@arcgis/map-components/components/arcgis-scale-bar";
@@ -56,6 +57,25 @@
   })
 
   catalog.subscribe;
+
+  async function setupPopup() {
+    view.popup = {
+      dockEnabled: true,
+      headingLevel: 3,
+      dockOptions: {
+        position: "top-right",
+        breakpoint: false,
+      }
+    };
+    console.log(view)
+    reactiveUtils.on(
+      () => view,
+      "arcgisViewClick",
+      async (event) => {
+        console.log(event)
+      }
+    );
+  }
 
   function listItemCreatedFunction(e) {
     const item = e.item;
@@ -233,7 +253,9 @@
         {/each}
     </calcite-chip-group>
   </calcite-navigation>
-  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="5">
+  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="5" 
+    on:arcgisViewReadyChange={setupPopup}
+    >
     <arcgis-search 
       position="top-right"
     />
