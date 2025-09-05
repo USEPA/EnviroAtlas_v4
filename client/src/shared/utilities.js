@@ -184,17 +184,24 @@ export function addFeatureLayer(lObj, view) {
 export function addImageryLayer(lObj, view, rfRule) {
     let iLyr = new ImageryLayer({
         url: lObj.url,
-        //format: "lerc", // for possible client side rendering or pixelfilter
+        format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
         opacity: 0.6,
-        title: lObj.name
+        title: lObj.name,
     }); 
     if (rfRule) {
         iLyr.rasterFunction = rfRule
     }
-    iLyr.popupTemplate = { title: lObj.name, content: "{Raster.ServicePixelValue.Raw}" }
+    iLyr.popupTemplate = { title: lObj.name, content: "Pixel Value: {Raster.ServicePixelValue.Raw}" }
     console.log("imageryLayer: ", iLyr);
     view.map.add(iLyr);
+    view.whenLayerView(iLyr).then((layerView) => {
+        layerView.highlightOptions = {
+            color: [0,0,0,0],
+            haloOpacity: 0, 
+            fillOpacity: 0
+        }
+    }) 
 }
 
 export function addTileLayer(lObj, view) {
