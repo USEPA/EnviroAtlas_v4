@@ -59,20 +59,17 @@
   catalog.subscribe;
 
   async function setupPopup() {
-    view.popup = {
-      dockEnabled: true,
-      headingLevel: 3,
-      dockOptions: {
-        position: "top-right",
-        breakpoint: false,
-      }
-    };
-    console.log(view)
     reactiveUtils.on(
       () => view,
       "arcgisViewClick",
       async (event) => {
-        console.log(event)
+        view.popup ={
+          dockEnabled: true, 
+          dockOptions: {
+            position: "top-right",
+            breakpoint: false
+          }
+        }
       }
     );
   }
