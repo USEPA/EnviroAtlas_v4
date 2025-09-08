@@ -138,18 +138,14 @@
     open 
     hidden
 >
-    <calcite-button width="half" slot="footer" icon-start="add-layer">
-        Add Data
-    </calcite-button>
     <calcite-block
         open
-        heading="Climate Variable"
-        data-layerId="multidim-climate-var"
-    >
+        heading="Climate"
+    ><div id="combobox-div">
         <calcite-combobox
             id="climateVarSelect"
-            scale="s"
-            placeholder=" Select one"
+            scale="m"
+            placeholder=" Variable"
             selection-mode="single"
             max-items="0"
             overlay-positioning="absolute"
@@ -167,15 +163,11 @@
                 text-label="Minimum Temperature"
             ></calcite-combobox-item>
         </calcite-combobox>
-    </calcite-block>
-    <calcite-block
-        open
-        heading="Seasonal Interval"
-        data-layerId="multidim-seasonal-interval"
-    >
-        <calcite-combobox
-            scale="s"
-            placeholder=" Select one"
+        <calcite-button appearance='transparent' iconEnd='information'></calcite-button>
+        </div><div id="combobox-div">
+                <calcite-combobox
+            scale="m"
+            placeholder=" Season"
             selection-mode="single"
             max-items="0"
             overlay-positioning="absolute"
@@ -186,12 +178,11 @@
                     text-label={seasonalInterval}
                 ></calcite-combobox-item>
             {/each}
-        </calcite-combobox>
-    </calcite-block>
-    <calcite-block open heading="Time Range" data-layerId="multidim-year">
+        </calcite-combobox><calcite-button appearance='transparent' iconEnd='information'></calcite-button></div>
+        <div id="combobox-div">
         <calcite-combobox
-            scale="s"
-            placeholder=" Select one"
+            scale="m"
+            placeholder=" Period"
             selection-mode="single"
             max-items="0"
             overlay-positioning="absolute"
@@ -200,16 +191,13 @@
                 <calcite-combobox-item value={timeRange} text-label={timeRange}
                 ></calcite-combobox-item>
             {/each}
+            
         </calcite-combobox>
-    </calcite-block>
-    <calcite-block
-        open
-        heading="Climate Scenario"
-        data-layerId="multidim-climate-scenario"
-    >
-        <calcite-combobox
-            scale="s"
-            placeholder=" Select one"
+        <calcite-button appearance='transparent' iconEnd='information'></calcite-button>
+        </div>
+        <div id="combobox-div"><calcite-combobox
+            scale="m"
+            placeholder=" Scenario"
             selection-mode="single"
             max-items="0"
             overlay-positioning="absolute"
@@ -222,20 +210,30 @@
             ></calcite-combobox-item>
             <calcite-combobox-item value="SSP2" text-label="SSP Option 2"
             ></calcite-combobox-item>
-        </calcite-combobox>
+        </calcite-combobox><calcite-button appearance='transparent' iconEnd='information'></calcite-button></div>
+        <calcite-button>Add to map</calcite-button>
     </calcite-block>
 </calcite-panel>
 
 <style>
-    /* calcite-combobox {
-        margin-left: 38px;
-    } */
+    calcite-combobox {
+        margin-bottom: 8px;
+    }
     /* calcite-segmented-control {
         width: 60%;
     } */
 
+    calcite-button {
+        float: right;
+    }
     calcite-block {
         margin-left: 2px;
         margin-right: 2px;
+    }
+
+    #combobox-div {
+        display: grid;
+		grid-template-columns: 10fr 1fr;
+		grid-gap: 5px;
     }
 </style>
