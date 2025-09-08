@@ -56,13 +56,21 @@ export function addLayer(lObj, view) {
     // Maybe don't have to do this if EA is dropping Community data from the app?
 };
 
-// Boolean test for Feature or Map service type
+/** 
+ * Boolean test for Feature or Map service type
+ *
+ * @param {string} url
+ */
 export function isFeatureorMapService(url) {
     let match = url.substring(url.lastIndexOf('/') + 1);
     return match === 'FeatureServer' || match === 'MapServer'
 }
 
-// Boolean test for Image service type
+/** 
+ * Boolean test for Image service type
+ *
+ * @param {string} url
+ */
 export function isImageService(url) {
     return url.substring(url.lastIndexOf('/') + 1) === 'ImageServer'
 }
@@ -174,20 +182,26 @@ export function addFeatureLayer(lObj, view) {
 // }
 
 export function addImageryLayer(lObj, view, rfRule) {
-    console.log(rfRule)
     let iLyr = new ImageryLayer({
         url: lObj.url,
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
         opacity: 0.6,
-        title: lObj.name
+        //title: lObj.name,
     }); 
     if (rfRule) {
         iLyr.rasterFunction = rfRule
     }
-    iLyr.popupTemplate = { title: lObj.name, content: "{Raster.ServicePixelValue.Raw}" }
+    iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "Pixel Value: {Raster.ServicePixelValue.Raw}" }
     console.log("imageryLayer: ", iLyr);
     view.map.add(iLyr);
+    view.whenLayerView(iLyr).then((layerView) => {
+        layerView.highlightOptions = {
+            color: [0,0,0,0],
+            haloOpacity: 0, 
+            fillOpacity: 0
+        }
+    }) 
 }
 
 export function addTileLayer(lObj, view) {
@@ -235,7 +249,7 @@ export function buildFSPopupTemp(lObj) {
             content: [
                 {
                     type: 'text',
-                    text: '<b>' + lObj.name + '<b>'
+                    text: '<b>' + lObj.name + '</b>'
                 },
                 {
                     type: 'fields',
