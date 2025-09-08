@@ -187,12 +187,12 @@ export function addImageryLayer(lObj, view, rfRule) {
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
         opacity: 0.6,
-        title: lObj.name,
+        //title: lObj.name,
     }); 
     if (rfRule) {
         iLyr.rasterFunction = rfRule
     }
-    iLyr.popupTemplate = { title: lObj.name, content: "Pixel Value: {Raster.ServicePixelValue.Raw}" }
+    iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "Pixel Value: {Raster.ServicePixelValue.Raw}" }
     console.log("imageryLayer: ", iLyr);
     view.map.add(iLyr);
     view.whenLayerView(iLyr).then((layerView) => {
@@ -249,7 +249,7 @@ export function buildFSPopupTemp(lObj) {
             content: [
                 {
                     type: 'text',
-                    text: '<b>' + lObj.name + '<b>'
+                    text: '<b>' + lObj.name + '</b>'
                 },
                 {
                     type: 'fields',
