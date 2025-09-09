@@ -15,202 +15,64 @@
     import "@esri/calcite-components/dist/components/calcite-action-group";
     import "@esri/calcite-components/dist/components/calcite-tooltip";
 
-    // Import from arcgis js api
-    import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
-    import DimensionalDefinition from "@arcgis/core/layers/support/DimensionalDefinition";
-    import MosaicRule from "@arcgis/core/layers/support/MosaicRule";
-    import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
+    let options = [ 
+        { name: "Variable", options: [ 
+            {value: "Precip", label: "Precipitation"},  
+            {value: "PET", label: "PET"},
+            {value: "Max Temp", label: "Maximum Temperature"},
+            {value: "Min Temp", label: "Minimum Temperature"}
+        ]}, 
+        { name: "Season", options: [ 
+            {value: "Spring", label: "Spring"},  
+            {value: "Summer", label: "Summer"},
+            {value: "Fall", label: "Fall"},
+            {value: "Winter", label: "Winter"},
+            {value: "Annual", label: "Annual"}
+        ]}, 
+        { name: "Period", options: [ 
+            {value: "Near Term", label: "Near Term"},  
+            {value: "Medium Term", label: "Medium Term"},
+            {value: "Long Term", label: "Long Term"},
+            {value: "XXI 2025-2054 to 2045-2074", label: "XXI 2025-2054 to 2045-2074"},
+            {value: "XXI 2025-2054 to 2070-2100", label: "XXI 2025-2054 to 2070-2100"}
+        ]}, 
+        { name: "Scenario", options: [
+            {value: "RCP45", label: "RCP 4.5"},
+            {value: "RCP85", label: "RCP 8.5"},
+            {value: "SSP1", label: "SSP Option 1"},
+            {value: "SSP2", label: "SSP Option 2"}
+        ]}
+    ];
 
-    // Import components and store
-    import { viewState, mapState, climate } from "src/store";
-
-    export let view;
-
-    window.ea.climateChangeViewer = {};
-    window.ea.climateChangeViewer.view = () => {
-        return view;
-    };
-
-    const server = "https://awseastaging.epa.gov";
-    const mdURL =
-        "/arcgis/rest/services/test_services/precipMultiDim/ImageServer";
-    let yearVal = [2040];
-
-    async function initSelections() {
-        //await customElements.whenDefined("calcite-combobox");
-        const climateVarSelection = document.getElementById("climateVarSelect");
-        $climate.climateVar = [
-            //climateVarSelection.value
-            //         // yearSlider.minValue,
-            //         // yearSlider.maxValue
-        ];
-        console.log(climateVarSelection);
-        console.log($climate.climateVar);
-
-        climateVarSelection.addEventListener("calciteComboboxChange", () => {
-            $climate.climateVar = [
-                //climateVarSelection.value
-                //             // yearSlider.minValue,
-                //             // yearSlider.maxValue
-            ];
-            //         console.log("update: ", $ecat.yearThresholds);
-        });
-    }
-
-    //Not sure what was going on with this function but not doing anything right now but causing errors
-    //If we are trying to initialize dropdowns we can set most of the stuff in the markup
-    //    initSelections();
-
-    async function addMultidim() {
-        $mapState.map.removeAll();
-        // set initial year value
-        const yearDefinition = new DimensionalDefinition({
-            dimensionName: "Year",
-            values: yearVal,
-            isSlice: true,
-        });
-
-        const seasonDefinition = new DimensionalDefinition({
-            dimensionName: "Season",
-            values: [5],
-            isSlice: true,
-        });
-
-        let mosaicRule = new MosaicRule({
-            multidimensionalDefinition: [yearDefinition, seasonDefinition],
-        });
-
-        const stretchFunction = new RasterFunction({
-            functionName: "Stretch",
-            functionArguments: {
-                StretchType: 5, // (0 = None, 3 = StandardDeviation, 4 = Histogram Equalization, 5 = MinMax, 6 = PercentClip, 9 = Sigmoid)
-                Min: 0,
-                Max: 255,
-                Raster: "$$", // $$(default) refers to the entire image service, $2 refers to the second image of the image service
-            },
-            outputPixelType: "u8",
-        });
-
-        const colorFunction = new RasterFunction({
-            functionName: "Colormap",
-            functionArguments: {
-                ColorrampName: "Precipitation", // other examples: "Slope", "Surface", "Blue Bright"....
-                Raster: stretchFunction, // chaining multiple rasterfunctions
-            },
-        });
-
-        const layer = new ImageryLayer({
-            url: server + mdURL,
-            format: "jpg",
-            renderingRule: colorFunction,
-            mosaicRule: mosaicRule,
-            opacity: 0.9,
-            title: "RCP26AnnualTempMax2Dim" + yearVal,
-            popupTemplate: {
-                title: "Max Temp value: {Raster.ItemPixelValue}",
-                fieldInfos: [
-                    {
-                        fieldName: "Raster.ItemPixelValue",
-                        format: {
-                            places: 2,
-                            digitSeparator: true,
-                        },
-                    },
-                ],
-            },
-        });
-
-        console.log($mapState.map);
-        $mapState.map.add(layer);
-
-        $viewState.view.whenLayerView(layer).then(() => {
-            const multidimInfo = layer.multidimensionalInfo;
-            console.log("layer: ", multidimInfo);
-        });
-    }
 </script>
 
-<calcite-panel 
-    data-testid="climate-data-viewer-2" 
-    data-panel-id="climate-data-viewer-2" 
-    heading="Time Series Layers" 
-    description="Explore changing landscapes and environment" 
-    open 
+<calcite-panel
+    data-testid="climate-data-viewer-2"
+    data-panel-id="climate-data-viewer-2"
+    heading="Time Series Layers"
+    description="Explore changing landscapes and environment"
+    open
     hidden
 >
-    <calcite-block
-        open
-        heading="Climate"
-    ><div id="combobox-div">
-        <calcite-combobox
-            id="climateVarSelect"
-            scale="m"
-            placeholder=" Variable"
-            selection-mode="single"
-            max-items="0"
-            overlay-positioning="absolute"
-        >
-            <calcite-combobox-item value="Precip" text-label="Precipitation"
-            ></calcite-combobox-item>
-            <calcite-combobox-item value="PET" text-label="PET"
-            ></calcite-combobox-item>
-            <calcite-combobox-item
-                value="Max Temp"
-                text-label="Maximum Temperature"
-            ></calcite-combobox-item>
-            <calcite-combobox-item
-                value="Min Temp"
-                text-label="Minimum Temperature"
-            ></calcite-combobox-item>
-        </calcite-combobox>
-        <calcite-button appearance='transparent' iconEnd='information'></calcite-button>
-        </div><div id="combobox-div">
-                <calcite-combobox
-            scale="m"
-            placeholder=" Season"
-            selection-mode="single"
-            max-items="0"
-            overlay-positioning="absolute"
-        >
-            {#each ["Spring", "Summer", "Fall", "Winter", "Annual"] as seasonalInterval}
-                <calcite-combobox-item
-                    value={seasonalInterval}
-                    text-label={seasonalInterval}
-                ></calcite-combobox-item>
-            {/each}
-        </calcite-combobox><calcite-button appearance='transparent' iconEnd='information'></calcite-button></div>
+    <calcite-block open heading="Climate">
+        {#each options as c}
         <div id="combobox-div">
-        <calcite-combobox
-            scale="m"
-            placeholder=" Period"
-            selection-mode="single"
-            max-items="0"
-            overlay-positioning="absolute"
-        >
-            {#each ["Near Term", "Medium Term", "Long Term", "XXI 2025-2054 to 2045-2074", "XXI 2025-2054 to 2070-2100"] as timeRange}
-                <calcite-combobox-item value={timeRange} text-label={timeRange}
-                ></calcite-combobox-item>
+            <calcite-combobox
+                id="climateVarSelect"
+                scale="m"
+                placeholder={c.name}
+                selection-mode="single"
+                max-items="0"
+                overlay-positioning="absolute"
+            >
+            {#each c.options as o}
+                <calcite-combobox-item value={o.value} text-label={o.label}/>
             {/each}
-            
-        </calcite-combobox>
-        <calcite-button appearance='transparent' iconEnd='information'></calcite-button>
+            </calcite-combobox>
+            <calcite-button appearance="transparent" iconEnd="information"
+            ></calcite-button>
         </div>
-        <div id="combobox-div"><calcite-combobox
-            scale="m"
-            placeholder=" Scenario"
-            selection-mode="single"
-            max-items="0"
-            overlay-positioning="absolute"
-        >
-            <calcite-combobox-item value="RCP45" text-label="RCP 4.5"
-            ></calcite-combobox-item>
-            <calcite-combobox-item value="RCP85" text-label="RCP 8.5"
-            ></calcite-combobox-item>
-            <calcite-combobox-item value="SSP1" text-label="SSP Option 1"
-            ></calcite-combobox-item>
-            <calcite-combobox-item value="SSP2" text-label="SSP Option 2"
-            ></calcite-combobox-item>
-        </calcite-combobox><calcite-button appearance='transparent' iconEnd='information'></calcite-button></div>
+        {/each}
         <calcite-button>Add to map</calcite-button>
     </calcite-block>
 </calcite-panel>
@@ -233,7 +95,7 @@
 
     #combobox-div {
         display: grid;
-		grid-template-columns: 10fr 1fr;
-		grid-gap: 5px;
+        grid-template-columns: 10fr 1fr;
+        grid-gap: 5px;
     }
 </style>

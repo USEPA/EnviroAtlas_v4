@@ -2,8 +2,6 @@
     export let subtopic;
     export let detailsObj;
 
-
-
     export const openFactSheet = (factSheetsnippet) => {
         let url = "https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/";
         window.open(url + factSheetsnippet);
@@ -68,8 +66,7 @@
         <span slot="content-top">
             <h4 style="margin:0;line-height:1.1em">{subtopic.name}</h4>
             <p style="margin-top:5px;margin-bottom:0;font-size:12px;line-height:1.1em">{detailsObj.description}</p>
-        </span>
-        
+        </span>    
         <div slot="footer-end">
             <calcite-button
                 icon-start="file"
@@ -83,8 +80,8 @@
                 >Fact Sheet
             </calcite-button>
             <calcite-button icon-start="download-to" round scale="s"
-                >Data Access</calcite-button
-            >
+                >Data Access
+            </calcite-button>
         </div>
         </calcite-flow-item>
     </calcite-flow>
