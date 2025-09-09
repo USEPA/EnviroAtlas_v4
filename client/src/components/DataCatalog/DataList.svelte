@@ -230,7 +230,7 @@
             ></calcite-action>
         </calcite-action-bar>
         <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
-        <ClimateChangeViewer view={view} />
+        <ClimateChangeViewer view={view} geography={$geography}/>
         <AddData map={map} />
         <calcite-block data-panel-id="national" heading="EnviroAtlas Catalog" description="Explore the relationships between land use, environment, health, safety, and economy" open data-testid="national">
             <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>

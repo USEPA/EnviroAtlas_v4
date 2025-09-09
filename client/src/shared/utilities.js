@@ -13,17 +13,25 @@ export async function getEaData(url, params) {
     //TODO: check if params is string or object
     //TODO: if object, JSON.stringify
     let paramText = '';
-    for (const [key, value] of Object.entries(params)) {
+    for (const [key] of Object.entries(params)) {
         paramText += `${key}=${params[key]}&`
     }
     let constructedUrl = `${url}?${paramText.slice(0, -1)}`;
     try {
         let res = await fetch(constructedUrl);
-        let data = await res.json();
-        return data;
+        return await res.json()
     } catch (e) {
         console.error("Error fetching data: ", e)
     }
+}
+
+export function getQueryStringParams(urlObj=window.location.href) {
+    if (typeof(urlObj)=="string") urlObj = new URL(urlObj);
+    let params = {};
+    for (let [key,value] of urlObj.searchParams.entries()) {
+        params[key] = value;
+    }
+    return params;
 }
 
 // TEST: is it faster to load data from portal item metadata instead of EAAPI?
