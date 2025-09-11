@@ -66,7 +66,6 @@ export function addLayer(lObj, view) {
 
 /** 
  * Boolean test for Feature or Map service type
- *
  * @param {string} url
  */
 export function isFeatureorMapService(url) {
@@ -76,11 +75,18 @@ export function isFeatureorMapService(url) {
 
 /** 
  * Boolean test for Image service type
- *
  * @param {string} url
  */
 export function isImageService(url) {
     return url.substring(url.lastIndexOf('/') + 1) === 'ImageServer'
+}
+
+/**
+ * Boolean test for object with undefined values
+ * @param {Object} obj 
+ */
+export function hasValueUndefined(obj) {
+    return Object.values(obj).some(value => value === undefined)
 }
 
 export function isLayerInMap(url, view) {
