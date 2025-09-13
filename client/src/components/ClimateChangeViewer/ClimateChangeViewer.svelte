@@ -14,11 +14,16 @@
     import "@esri/calcite-components/dist/components/calcite-action";
     import "@esri/calcite-components/dist/components/calcite-action-group";
     import "@esri/calcite-components/dist/components/calcite-tooltip";
-    import { hasValueUndefined } from "src/shared/utilities.js";
     
+    import { hasValueUndefined, largestAbsVal } from "src/shared/utilities.js";
+    
+    import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+
     export let geography;
+    export let view;
 
     let climRefs = [];
+    let climateNotify;
     let options = [ 
         { name: "Variable", options: [ 
             {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "PRin", label: "Change in Precipitation (in)"},  
@@ -36,19 +41,20 @@
             {domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040"},
             {domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100"}
         ]},
-        { name: "Season", options: [ 
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "Spring", label: "Spring"},  
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "Summer", label: "Summer"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "Fall", label: "Fall"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "Winter", label: "Winter"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "A", label: "Annual"}
+        { name: "Season", options: [
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "A", label: "Annual"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "M", label: "Spring"},  
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "J", label: "Summer"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "S", label: "Fall"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "D", label: "Winter"},
+            
         ]}, 
         { name: "Period", options: [ 
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "Near Term", label: "Near Term"},  
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "Medium Term", label: "Medium Term"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "Long Term", label: "Long Term"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "XXI 2025-2054 to 2045-2074", label: "XXI 2025-2054 to 2045-2074"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "XXI 2025-2054 to 2070-2100", label: "XXI 2025-2054 to 2070-2100"}
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "HF1", label: "1976-2005 to 2025-2054"},  
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "HF2", label: "1976-2005 to 2045-2074"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "HF3", label: "1976-2005 to 2070-2099"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "FF2", label: "2025-2054 to 2045-2074"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "FF3", label: "2025-2054 to 2070-2099"}
         ]}, 
     ];
 
@@ -62,12 +68,22 @@
     //     var domainText = this.domainOCONUS.options[this.domainOCONUS.selectedIndex].text;
     //     var scenario = dojo.byId("modelSelectionOCONUS").value;
     //     map.setExtent(this._zoomToOCONUSArea(domain));
-        var fieldname = _buildOconusField(selections);
+        let fieldname = buildOconusField(selections);
+        console.log(fieldname)
+        let oconusUrl = `https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/NEXGDDP_${selections['Scenario']}/FeatureServer/0`;
+        let oLayerId = "NEXGDDP" + geography + selections['Scenario'] + fieldname;
+        let oLayer = new FeatureLayer({url: oconusUrl, opacity: 0.6, id: oLayerId, definitionExpression: "domain = '" + `${geography}` + "' AND " + `${fieldname}` + " IS NOT NULL"});
+        let oconusSelections = _buildOconusId();
+    //     this.oLayer.name = domainText + ', ' + scenario + ', ' + oconusSelections;
+    //     this.oLayer.title = domainText + ', ' + scenario + ', ' + oconusSelections;
+    //     var popupTitle = scenario + ', ' + oconusSelections;
+        //oLayer.setDefinitionExpression("domain = '" + `${geography}` + "' AND " + `${fieldname}` + " IS NOT NULL");
+        view.map.add(oLayer);
     };
-
-    function _buildOconusField(selections) {
+    
+    function buildOconusField(selections) {
         // Need to build the field name from selections
-        //return ("ME" + dojo.byId("seasonSelectionOCONUS").value + dojo.byId("climateSelectionOCONUS").value + dojo.byId("periodSelectionOCONUS").value)
+        return ("ME" + selections['Season'] + selections['Variable'] + selections['Period'])
     };
 
     function getSelections() {
@@ -79,8 +95,11 @@
             selections[option] = value
         });
         if (hasValueUndefined(selections)) {
-            console.log('give user notify')
+            console.log(climateNotify)
+            climateNotify.removeAttribute("hidden")
+            return
         } else {
+            climateNotify.setAttribute("hidden", "")
             return selections
         }
     }
@@ -114,6 +133,10 @@
             ></calcite-button>
         </div>
         {/each}
+        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+            <div slot="title">Incomplete selections</div>
+            <div slot="message">Please make selections.</div>
+        </calcite-notice>
         <calcite-button on:click={loadOCONUS}>Add to map</calcite-button>
     </calcite-block>
 </calcite-panel>

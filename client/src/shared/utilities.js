@@ -89,6 +89,15 @@ export function hasValueUndefined(obj) {
     return Object.values(obj).some(value => value === undefined)
 }
 
+/** 
+ * Returns largest absolute value of two numbers
+ * @param {number} num1
+ * @param {number} num2
+*/
+export function largestAbsVal(num1, num2) {
+    return Math.max(Math.abs(num1), Math.abs(num2))
+};
+
 export function isLayerInMap(url, view) {
     const foundLayer = view.map.allLayers.find(function(lyr) {
         // TODO: For RFTs, the url may be the same, but the viz will be different, 
