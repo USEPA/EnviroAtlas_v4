@@ -91,7 +91,6 @@
 
     function loadOCONUS(selections) {
         let fieldname = buildOconusField(selections);
-        console.log(fieldname)
         let oconusUrl = `https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/NEXGDDP_${selections['Scenario'].value}/FeatureServer/0`;
         let oLayerId = "NEXGDDP" + domain + selections['Scenario'].value + fieldname;
         let oconusSelections = buildOconusId(selections);
@@ -148,7 +147,6 @@
     };
 
     function classBreaks(field, clim, layer) {
-        console.log(maxVal, minVal);
         let sls = new SimpleLineSymbol({style: 'none'});
         // var symbol = new SimpleFillSymbol({color: [150, 150, 150, 0.6], outline: sls});
         //symbol.setColor(new Color([150, 150, 150, 0.6])).setOutline(sls);
@@ -482,7 +480,6 @@
                 });
             }
         } else {
-            console.log('all negative!')
             if (clim == "PRfr" || clim == "PEfr") {
                 // min is the smallest number, the max is 1 (7 total classes)
                 var largestVal = 1;
@@ -723,7 +720,6 @@
             selections[option] = {value: value, label: label}
         });
         if (hasValueUndefined(selections)) {
-            console.log(climateNotify)
             climateNotify.removeAttribute("hidden")
             return
         } else {
@@ -774,9 +770,6 @@
     calcite-combobox {
         margin-bottom: 8px;
     }
-    /* calcite-segmented-control {
-        width: 60%;
-    } */
 
     calcite-button {
         float: right;
