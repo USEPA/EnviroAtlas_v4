@@ -21,12 +21,17 @@
     import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
     import PopupTemplate from "@arcgis/core/PopupTemplate";
     import CustomContent from "@arcgis/core/popup/content/CustomContent.js";
+    import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition.js";
+    import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol.js";
+    import SimpleLineSymbol from "@arcgis/core/symbols/SimpleLineSymbol.js";
 
     export let geography;
     export let view;
 
     let climRefs = [];
     let climateNotify;
+    let maxVal;
+    let minVal;
     let options = [ 
         { name: "Variable", options: [ 
             {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "PRin", label: "Change in Precipitation (in)"},  
@@ -70,7 +75,7 @@
         console.log(fieldname)
         let oconusUrl = `https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/NEXGDDP_${selections['Scenario'].value}/FeatureServer/0`;
         let oLayerId = "NEXGDDP" + geography + selections['Scenario'].value + fieldname;
-        var oconusSelections = buildOconusId(selections);
+        let oconusSelections = buildOconusId(selections);
         let oLayer = new FeatureLayer({
             url: oconusUrl, 
             opacity: 0.6, 
@@ -85,19 +90,52 @@
             () => view,
             "arcgisViewClick",
             async (e) => {
-                //view.map.graphics.clear();
-                console.log(e)
                 const opts = { include: oLayer}
                 const res = await view.hitTest(e.detail, opts)
                 if (res.results.length) {
                     executeQueryTask(res, oLayer, geography, fieldname, popupTitle);
                 }         
         });
+        let minfield = "MI" + fieldname.substring(2);
+        let maxfield = "MX" + fieldname.substring(2);
+        const dataMinQuery = oLayer.createQuery();
+        dataMinQuery.returnGeometry = false;
+        dataMinQuery.where = "domain = '" + `${geography}` + "'";
+        dataMinQuery.outFields = ["HUC_12", minfield, fieldname, maxfield];
+        // query outStatistics of the symbology field
+        let statMinDef = new StatisticDefinition();
+        statMinDef.statisticType = "min";
+        statMinDef.onStatisticField = fieldname;
+        statMinDef.outStatisticFieldName = "minValue";
+        dataMinQuery.outStatistics = [statMinDef];
+        oLayer.queryFeatures(dataMinQuery).then((resultsMn) => {
+        // don't want to round yet, in case the value is a fraction.
+            minVal = resultsMn.features[0].attributes.minValue;
+            const dataMaxQuery = oLayer.createQuery();
+            let statDef = new StatisticDefinition();
+            statDef.statisticType = "max";
+            statDef.onStatisticField = fieldname;
+            statDef.outStatisticFieldName = "maxValue";
+            dataMaxQuery.returnGeometry = false;
+            dataMaxQuery.where = "domain = '" + `${geography}` + "'";
+            dataMaxQuery.outStatistics = [statDef];
+            return oLayer.queryFeatures(dataMaxQuery)
+         }).then(resultsMx => {
+            // don't want to round yet, in case the value is a fraction.
+            maxVal = resultsMx.features[0].attributes.maxValue;
+         }).then(() => {
+            classBreaks(fieldname, selections['Variable'].value);
+         });
+    //     showLayerListWidget();
+    };
+
+    function classBreaks(field, clim) {
+        console.log(maxVal, minVal);
     };
 
     async function executeQueryTask(res, layer, domain, fieldname, popupTitle) {
-        var minfield = "MI" + fieldname.substring(2);
-        var maxfield = "MX" + fieldname.substring(2);
+        let minfield = "MI" + fieldname.substring(2);
+        let maxfield = "MX" + fieldname.substring(2);
         const mapPoint = res['results'][0].mapPoint;
         const query = layer.createQuery();
         query.geometry = mapPoint
@@ -158,7 +196,7 @@
     };
 
     function buildOconusPopupJson(huc12, min, mean, max) {
-         var oTable = `<table id='Oconus'><tr id='Oconus'><td>HUC 12</td><td>${huc12}</td></tr><tr id='Oconus'><td>Ensemble Minimum of Changes</td><td>${min}</td></tr><tr id='Oconus'><td>Ensemble Median of Changes</td><td>${mean}</td></tr><tr id='Oconus'><td>Ensemble Maximum of Changes</td><td>${max}</td></tr></table>`
+         let oTable = `<table id='Oconus'><tr id='Oconus'><td>HUC 12</td><td>${huc12}</td></tr><tr id='Oconus'><td>Ensemble Minimum of Changes</td><td>${min}</td></tr><tr id='Oconus'><td>Ensemble Median of Changes</td><td>${mean}</td></tr><tr id='Oconus'><td>Ensemble Maximum of Changes</td><td>${max}</td></tr></table>`
          return oTable
     };
 
