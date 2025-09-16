@@ -86,7 +86,7 @@ export function isImageService(url) {
  * @param {Object} obj 
  */
 export function hasValueUndefined(obj) {
-    return Object.values(obj).some(value => value === undefined)
+    return Object.values(obj).some(value => value.value === undefined)
 }
 
 /** 

@@ -18,6 +18,9 @@
     import { hasValueUndefined, largestAbsVal } from "src/shared/utilities.js";
     
     import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+    import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
+    import PopupTemplate from "@arcgis/core/PopupTemplate";
+    import CustomContent from "@arcgis/core/popup/content/CustomContent.js";
 
     export let geography;
     export let view;
@@ -62,28 +65,110 @@
         return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
     })
 
-    //Code to adapt from v3
-    function loadOCONUS() {
-        let selections = getSelections()
-    //     var domainText = this.domainOCONUS.options[this.domainOCONUS.selectedIndex].text;
-    //     var scenario = dojo.byId("modelSelectionOCONUS").value;
-    //     map.setExtent(this._zoomToOCONUSArea(domain));
+    function loadOCONUS(selections) {
         let fieldname = buildOconusField(selections);
         console.log(fieldname)
-        let oconusUrl = `https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/NEXGDDP_${selections['Scenario']}/FeatureServer/0`;
-        let oLayerId = "NEXGDDP" + geography + selections['Scenario'] + fieldname;
-        let oLayer = new FeatureLayer({url: oconusUrl, opacity: 0.6, id: oLayerId, definitionExpression: "domain = '" + `${geography}` + "' AND " + `${fieldname}` + " IS NOT NULL"});
-        let oconusSelections = _buildOconusId();
-    //     this.oLayer.name = domainText + ', ' + scenario + ', ' + oconusSelections;
-    //     this.oLayer.title = domainText + ', ' + scenario + ', ' + oconusSelections;
-    //     var popupTitle = scenario + ', ' + oconusSelections;
-        //oLayer.setDefinitionExpression("domain = '" + `${geography}` + "' AND " + `${fieldname}` + " IS NOT NULL");
+        let oconusUrl = `https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/NEXGDDP_${selections['Scenario'].value}/FeatureServer/0`;
+        let oLayerId = "NEXGDDP" + geography + selections['Scenario'].value + fieldname;
+        var oconusSelections = buildOconusId(selections);
+        let oLayer = new FeatureLayer({
+            url: oconusUrl, 
+            opacity: 0.6, 
+            id: oLayerId, 
+            definitionExpression: "domain = '" + `${geography}` + "' AND " + `${fieldname}` + " IS NOT NULL",
+            title: geography + ', ' + selections['Scenario'].value + ', ' + oconusSelections,
+            //visible: false
+        });
+        let popupTitle = selections['Scenario'].value + ', ' + oconusSelections;
         view.map.add(oLayer);
+        reactiveUtils.on(
+            () => view,
+            "arcgisViewClick",
+            async (e) => {
+                //view.map.graphics.clear();
+                console.log(e)
+                const opts = { include: oLayer}
+                const res = await view.hitTest(e.detail, opts)
+                if (res.results.length) {
+                    executeQueryTask(res, oLayer, geography, fieldname, popupTitle);
+                }         
+        });
     };
-    
+
+    async function executeQueryTask(res, layer, domain, fieldname, popupTitle) {
+        var minfield = "MI" + fieldname.substring(2);
+        var maxfield = "MX" + fieldname.substring(2);
+        const mapPoint = res['results'][0].mapPoint;
+        const query = layer.createQuery();
+        query.geometry = mapPoint
+        query.returnGeometry = true;
+        query.where = "domain = '" + `${domain}` + "'";
+        query.outFields = ["HUC_12", minfield, fieldname, maxfield];
+        if (fieldname.includes("PRfr") || fieldname.includes("PEfr")) {
+            const contentPromise = new CustomContent({
+                outFields: ["*"],
+                creator: () => {
+                    return layer.queryFeatures(query).then((result) => {
+                        const f = result.features.map((item) => {
+                            return item.attributes
+                        });
+                    
+                    return buildOconusPopupJson(
+                        f[0]['HUC_12'], 
+                        Number(((f[0][minfield]) * 100).toFixed(1)) + '%',
+                        Number(((f[0][fieldname]) * 100).toFixed(1)) + '%', 
+                        Number(((f[0][maxfield]) * 100).toFixed(1)) + '%', 
+                        )
+                    })
+                } 
+            })
+
+            let popupTemplate = new PopupTemplate({
+                title: popupTitle,
+                content: [contentPromise]
+            })
+
+            layer.popupTemplate = popupTemplate
+        } else {
+            const contentPromise = new CustomContent({
+                outFields: ["*"],
+                creator: () => {
+                    return layer.queryFeatures(query).then((result) => {
+                        const f = result.features.map((item) => {
+                            return item.attributes
+                        });
+                    
+                    return buildOconusPopupJson(
+                        f[0]['HUC_12'], 
+                        Number((f[0][minfield]).toFixed(1)),
+                        Number((f[0][fieldname]).toFixed(1)), 
+                        Number((f[0][maxfield]).toFixed(1)), 
+                        )
+                    })
+                } 
+            })
+
+            let popupTemplate = new PopupTemplate({
+                title: popupTitle,
+                content: [contentPromise]
+            })
+
+            layer.popupTemplate = popupTemplate
+         }
+    };
+
+    function buildOconusPopupJson(huc12, min, mean, max) {
+         var oTable = `<table id='Oconus'><tr id='Oconus'><td>HUC 12</td><td>${huc12}</td></tr><tr id='Oconus'><td>Ensemble Minimum of Changes</td><td>${min}</td></tr><tr id='Oconus'><td>Ensemble Median of Changes</td><td>${mean}</td></tr><tr id='Oconus'><td>Ensemble Maximum of Changes</td><td>${max}</td></tr></table>`
+         return oTable
+    };
+
+    function buildOconusId(selections) {
+        return ('Median ' + selections['Season'].label + ' ' + selections['Variable'].label + ', ' + selections['Period'].label)
+    };
+
     function buildOconusField(selections) {
         // Need to build the field name from selections
-        return ("ME" + selections['Season'] + selections['Variable'] + selections['Period'])
+        return ("ME" + selections['Season'].value + selections['Variable'].value + selections['Period'].value)
     };
 
     function getSelections() {
@@ -92,7 +177,8 @@
         climRefs.forEach(elem => {
             let option = elem.placeholder
             let value = elem.selectedItems[0]?.value
-            selections[option] = value
+            let label = elem.selectedItems[0]?.textLabel
+            selections[option] = {value: value, label: label}
         });
         if (hasValueUndefined(selections)) {
             console.log(climateNotify)
@@ -100,7 +186,8 @@
             return
         } else {
             climateNotify.setAttribute("hidden", "")
-            return selections
+            loadOCONUS(selections)
+            return
         }
     }
 </script>
@@ -137,7 +224,7 @@
             <div slot="title">Incomplete selections</div>
             <div slot="message">Please make selections.</div>
         </calcite-notice>
-        <calcite-button on:click={loadOCONUS}>Add to map</calcite-button>
+        <calcite-button on:click={getSelections}>Add to map</calcite-button>
     </calcite-block>
 </calcite-panel>
 
