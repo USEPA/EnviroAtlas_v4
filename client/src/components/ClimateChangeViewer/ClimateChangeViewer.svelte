@@ -15,7 +15,8 @@
     import "@esri/calcite-components/dist/components/calcite-action-group";
     import "@esri/calcite-components/dist/components/calcite-tooltip";
     
-    import { hasValueUndefined, largestAbsVal } from "src/shared/utilities.js";
+    import { hasValueUndefined, largestAbsVal, openLayerList } from "src/shared/utilities.js";
+    import { activeWidget } from "src/store.ts";
     
     import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
     import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
@@ -35,35 +36,35 @@
     let domain;
     let options = [ 
         { name: "Variable", options: [ 
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "PRin", label: "Change in Precipitation (in)"},  
-            {domains: "AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "PRfr", label: "Change in Precipitation (fraction as %)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "PEin", label: "Change in PET (in)"},
-            {domains: "AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "PEfr", label: "Change in PET (fraction as %)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "mxTF", label: "Change in Maximum Temperature (°F)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "miTF", label: "Change in Minimum Temperature (°F)"}
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRin", label: "Change in Precipitation (in)"},  
+            {domains: "AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRfr", label: "Change in Precipitation (fraction as %)"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PEin", label: "Change in PET (in)"},
+            {domains: "AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PEfr", label: "Change in PET (fraction as %)"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "mxTF", label: "Change in Maximum Temperature (°F)"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "miTF", label: "Change in Minimum Temperature (°F)"}
         ]}, 
         { name: "Scenario", options: [
             {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp126", label: "SSP1-2.6 (>3.6°F by 2100)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "ssp245", label: "SSP2-4.5 (4.9 ± 1.6 °F by 2100)"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp245", label: "SSP2-4.5 (4.9 ± 1.6 °F by 2100)"},
             {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp370", label: "SSP3-7.0 (6.5 ± 1.3 °F by 2100)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "ssp585", label: "SSP5-8.5 (7.9 ± 2.3 °F by 2100)"},
-            {domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040"},
-            {domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100"}
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp585", label: "SSP5-8.5 (7.9 ± 2.3 °F by 2100)"},
+            //{domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040"},
+            //{domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100"}
         ]},
         { name: "Season", options: [
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "A", label: "Annual"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "M", label: "Spring"},  
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "J", label: "Summer"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "S", label: "Fall"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "D", label: "Winter"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "A", label: "Annual"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "M", label: "Spring"},  
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "J", label: "Summer"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "S", label: "Fall"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "D", label: "Winter"},
             
         ]}, 
         { name: "Period", options: [ 
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "HF1", label: "1976-2005 to 2025-2054"},  
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "HF2", label: "1976-2005 to 2045-2074"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "HF3", label: "1976-2005 to 2070-2099"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "FF2", label: "2025-2054 to 2045-2074"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands,CONUS", value: "FF3", label: "2025-2054 to 2070-2099"}
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF1", label: "1976-2005 to 2025-2054"},  
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF2", label: "1976-2005 to 2045-2074"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF3", label: "1976-2005 to 2070-2099"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF2", label: "2025-2054 to 2045-2074"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF3", label: "2025-2054 to 2070-2099"}
         ]}, 
     ];
 
@@ -143,7 +144,7 @@
          }).then(() => {
             classBreaks(fieldname, selections['Variable'].value, oLayer);
          });
-    //     showLayerListWidget();
+         openLayerList($activeWidget);
     };
 
     function classBreaks(field, clim, layer) {
