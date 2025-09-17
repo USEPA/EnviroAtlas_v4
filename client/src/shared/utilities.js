@@ -23,7 +23,7 @@ export async function getEaData(url, params) {
     } catch (e) {
         console.error("Error fetching data: ", e)
     }
-}
+};
 
 export function getQueryStringParams(urlObj=window.location.href) {
     if (typeof(urlObj)=="string") urlObj = new URL(urlObj);
@@ -32,7 +32,7 @@ export function getQueryStringParams(urlObj=window.location.href) {
         params[key] = value;
     }
     return params;
-}
+};
 
 // TEST: is it faster to load data from portal item metadata instead of EAAPI?
 export function addLayer(lObj, view) {
@@ -67,32 +67,36 @@ export function addLayer(lObj, view) {
 /** 
  * Boolean test for Feature or Map service type
  * @param {string} url
+ * @return {boolean} Is the url an Feature or Map Service?
  */
 export function isFeatureorMapService(url) {
     let match = url.substring(url.lastIndexOf('/') + 1);
     return match === 'FeatureServer' || match === 'MapServer'
-}
+};
 
 /** 
  * Boolean test for Image service type
  * @param {string} url
+ * @return {boolean} Is the url an Imager Service?
  */
 export function isImageService(url) {
     return url.substring(url.lastIndexOf('/') + 1) === 'ImageServer'
-}
+};
 
 /**
  * Boolean test for object with undefined values
- * @param {Object} obj 
+ * @param {Object} obj
+ * @return {boolean} Does object have undefined value?
  */
 export function hasValueUndefined(obj) {
     return Object.values(obj).some(value => value.value === undefined)
-}
+};
 
 /** 
  * Returns largest absolute value of two numbers
  * @param {number} num1
  * @param {number} num2
+ * @returns {number} largest absolute value of num1, num2
 */
 export function largestAbsVal(num1, num2) {
     return Math.max(Math.abs(num1), Math.abs(num2))
@@ -105,7 +109,7 @@ export function isLayerInMap(url, view) {
         return lyr.url === url
     });
     return foundLayer
-}
+};
 
 export function removeLayer(lyrName, view) {
     const foundLyr = view.map.allLayers.filter(function(layer) {
@@ -114,7 +118,7 @@ export function removeLayer(lyrName, view) {
     if (foundLyr != undefined) {
         view.map.removeAll(foundLyr);
     };         
-}
+};
 
 export function addFeatureLayer(lObj, view) {
     const url = Object.hasOwn(lObj, 'lyrNum') ? `${lObj.url}/${~~lObj.lyrNum}` : lObj.url;
@@ -148,61 +152,7 @@ export function addFeatureLayer(lObj, view) {
     setupErrorHandling(copiedLayer);
 
     view.map.add(copiedLayer);
-}
-
-// export function renderFloodplainNLCD(url, pixSize, fpID, lcID){
-//     let riparianRemap = new RasterFunction({
-//         functionName: "Remap",
-//         functionArguments: {
-//             inputRanges: [1, 5],
-//             outputValues: [1],
-//             NoDataRanges: [0, 0],
-//             raster: "$" + fpID, //$# is the image # in the service
-//         },
-//     });
-
-//     let nlcdRemap = new RasterFunction({
-//         functionName: "Remap",
-//         functionArguments: {
-//             inputRanges: [0,11,11,12,12,21,21,31,31,41,41,42,42,43,43,52,52,71,71,81,81,82,82,90,90,95,95,96],
-//             outputValues: [0,11,12,0,31,41,42,43,52,71,81,82,90,95],
-//             NoDataRanges: [0, 0],
-//             raster: "$" + lcID,
-//         }
-//     });
-
-//     let riparianNLCD = new RasterFunction({
-//         functionName: "Arithmetic",
-//         functionArguments: {
-//             Raster: riparianRemap,
-//             Raster2: nlcdRemap,
-//             Operation: "3",
-//         }
-//     });
-
-//     let colorRft = new RasterFunction({
-//         functionName: "Colormap",
-//         functionArguments: {
-//             Colormap: [
-//                 [11, 92,138,194],
-//                 [12, 250,250,253],
-//                 [31, 240,233,235],
-//                 [41, 130,197,135],
-//                 [42, 103,134,94],
-//                 [43, 90,164,119],
-//                 [52, 242,219,192],
-//                 [71, 252,242,205],
-//                 [81, 240,237,169],
-//                 [82, 253,253,172],
-//                 [90, 169,221,185],
-//                 [95, 199,236,229]
-//             ],
-//             raster: riparianNLCD
-//         }
-//     });
-
-//     return colorRft
-// }
+};
 
 export function addImageryLayer(lObj, view, rfRule) {
     let iLyr = new ImageryLayer({
@@ -225,7 +175,7 @@ export function addImageryLayer(lObj, view, rfRule) {
             fillOpacity: 0
         }
     }) 
-}
+};
 
 export function addTileLayer(lObj, view) {
     // console.log(lObj)
@@ -242,7 +192,7 @@ export function addTileLayer(lObj, view) {
     tLyr.listMode = "hide"; // hide from layer list...or "hide-children"
     //console.log(view.zoom);
     view.map.add(tLyr);
-}
+};
 
 // TODO: error catching / email broken layers
 export function setupErrorHandling(errorObj) {
@@ -284,8 +234,7 @@ export function buildFSPopupTemp(lObj) {
 }
 
 /** 
- * Expand or collapse the topic headers in the data catalog
- *
+ * Expand or collapse the topic headers in the data catalog.
  * @param {boolean} expand - default is true
  */
 export function expandTopics(expand = true) {
@@ -297,6 +246,11 @@ export function expandTopics(expand = true) {
     });
 };
 
+/**
+ * Opens Layer List widget and closes others on right side, if applicable.
+ * Used when data is added to the map.
+ * @param {object} activeWidget - this value comes from the store
+ */
 export function openLayerList(activeWidget) {
     let shell = document.querySelector(`[component-id="shell-panel-end"]`);
     let layerPanel = document.querySelector(`[data-panel-id="layers"]`)
@@ -320,4 +274,4 @@ export function openLayerList(activeWidget) {
         document.querySelector(`[data-action-id=${activeWidget.right}]`).active = true;
         shell.removeAttribute("collapsed");
     }
-}
+};

@@ -68,10 +68,17 @@
         ]}, 
     ];
 
+    /**
+     * Filters selections in the Climate dropdowns based on selected geography.
+     */
     $: options_filtered = options.map(obj => {
         return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
     });
 
+    /**
+     * Transforms the selected geography into a string that aligns with the 'domain' field of OCONUS dataset.
+     * The transformed string is used to build feature layer definitionExpression and queries. 
+    */
     $: {
         if (geography == "Puerto Rico,Virgin Islands") {
             domain = "VIPR"
@@ -90,6 +97,10 @@
         }
     }
 
+    /**
+     * Main process function to add OCONUS data to map, set up custom class breaks, and set up popups.
+     * @param selections - object returned from getSelections()
+     */
     function loadOCONUS(selections) {
         let fieldname = buildOconusField(selections);
         let oconusUrl = `https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/NEXGDDP_${selections['Scenario'].value}/FeatureServer/0`;
@@ -138,15 +149,23 @@
             dataMaxQuery.where = "domain = '" + `${domain}` + "'";
             dataMaxQuery.outStatistics = [statDef];
             return oLayer.queryFeatures(dataMaxQuery)
-         }).then(resultsMx => {
+        }).then(resultsMx => {
             // don't want to round yet, in case the value is a fraction.
             maxVal = resultsMx.features[0].attributes.maxValue;
-         }).then(() => {
+        }).then(() => {
             classBreaks(fieldname, selections['Variable'].value, oLayer);
-         });
-         openLayerList($activeWidget);
+        });
+        openLayerList($activeWidget);
     };
 
+    /**
+     * Creates custom renderer based on conditions of dataset, including climate variable, 
+     * and the statistical min and max value of the feature layer. Also, applies the rendererer 
+     * and makes the layer visible.
+     * @param field - specific field from feature layer to render
+     * @param clim - climate variable from selections
+     * @param layer - feature layer object created in loadOCONUS()
+     */
     function classBreaks(field, clim, layer) {
         let sls = new SimpleLineSymbol({style: 'none'});
         // var symbol = new SimpleFillSymbol({color: [150, 150, 150, 0.6], outline: sls});
@@ -631,6 +650,16 @@
        layer.visible = true
     };
 
+    /**
+     * Asynchronously builds popup template for OCONUS feature layer. Called in loadOCONUS()
+     * function. Contains conditions for climate variable selected. Pulls in specific fields
+     * and builds dynamic arcade expressions.
+     * @param res
+     * @param layer
+     * @param domain
+     * @param fieldname
+     * @param popupTitle
+     */
     async function executeQueryTask(res, layer, domain, fieldname, popupTitle) {
         let minfield = "MI" + fieldname.substring(2);
         let maxfield = "MX" + fieldname.substring(2);
@@ -702,17 +731,29 @@
          }
     };
 
+    /**
+     * Builds a readable string to describe selections represented in feature layer.
+     * @param selections - object returned from getSelections()
+     */
     function buildOconusId(selections) {
         return ('Median ' + selections['Season'].label + ' ' + selections['Variable'].label + ', ' + selections['Period'].label)
     };
 
+    /**
+     * Builds a string that aligns with OCONUS field for queries, definitionExpression, popup fields, etc.
+     * @param selections - object returned from getSelections()
+     */
     function buildOconusField(selections) {
-        // Need to build the field name from selections
         return ("ME" + selections['Season'].value + selections['Variable'].value + selections['Period'].value)
     };
 
+    /**
+     * Controlling function when 'Add to map' button is clicked.
+     * Collects relevant selection data. Checks for missing selections.
+     * If selections are missing, opens a calcite-notify component.
+     * If not, runs the loadOCONUS() function. 
+     */
     function getSelections() {
-        // Get selections as a dictionary
         let selections = {}
         climRefs.forEach(elem => {
             let option = elem.placeholder
