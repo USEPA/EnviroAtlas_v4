@@ -33,8 +33,7 @@
     let climateNotify;
     let maxVal;
     let minVal;
-    let domain;
-    let options = [ 
+    const options = [ 
         { name: "Variable", options: [ 
             {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRin", label: "Change in Precipitation (in)"},  
             {domains: "AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRfr", label: "Change in Precipitation (fraction as %)"},
@@ -67,6 +66,13 @@
             {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF3", label: "2025-2054 to 2070-2099"}
         ]}, 
     ];
+    const domainMap = {
+        "Puerto Rico,Virgin Islands": "VIPR",
+        "Guam": "GUAM",
+        "AmericanSamoa": "AMSAM",
+        "Hawaii": "HAWAII",
+        "Alaska": "ALASKA"
+    }
 
     /**
      * Filters selections in the Climate dropdowns based on selected geography.
@@ -76,26 +82,10 @@
     });
 
     /**
-     * Transforms the selected geography into a string that aligns with the 'domain' field of OCONUS dataset.
+     * Transforms the selected geography using domainMap that aligns with the 'domain' field of OCONUS dataset.
      * The transformed string is used to build feature layer definitionExpression and queries. 
     */
-    $: {
-        if (geography == "Puerto Rico,Virgin Islands") {
-            domain = "VIPR"
-        }
-        if (geography == "Guam") {
-            domain = "GUAM"
-        }
-        if (geography == "AmericanSamoa") {
-            domain = "AMSAM"
-        }
-        if (geography == "Hawaii") {
-            domain = "HAWAII"
-        }
-        if (geography == "Alaska") {
-            domain = "ALASKA"
-        }
-    }
+    $: domain = domainMap[geography]
 
     /**
      * Main process function to add OCONUS data to map, set up custom class breaks, and set up popups.
@@ -111,7 +101,7 @@
             opacity: 0.6, 
             id: oLayerId, 
             definitionExpression: "domain = '" + `${domain}` + "' AND " + `${fieldname}` + " IS NOT NULL",
-            title: domain + ', ' + selections['Scenario'].value + ', ' + oconusSelections,
+            title: geography + ', ' + selections['Scenario'].value + ', ' + oconusSelections,
             visible: false
         });
         let popupTitle = selections['Scenario'].value + ', ' + oconusSelections;
@@ -168,8 +158,6 @@
      */
     function classBreaks(field, clim, layer) {
         let sls = new SimpleLineSymbol({style: 'none'});
-        // var symbol = new SimpleFillSymbol({color: [150, 150, 150, 0.6], outline: sls});
-        //symbol.setColor(new Color([150, 150, 150, 0.6])).setOutline(sls);
         let renderer = new ClassBreaksRenderer({field: field});
         // when there are negative and positive values, create 9 value diverging color classification 
         if (minVal < 0 && maxVal > 0) {
@@ -295,7 +283,7 @@
                     symbol: new SimpleFillSymbol({color: [165, 0, 38, 0.6], outline: sls})
                 });
             }
-             if (clim == "PRin" || clim == "PEin") {
+            if (clim == "PRin" || clim == "PEin") {
                 // compare the min and max of to domain, then whichever is largest number, the other side of break is max/min (9 total classes)
                 var largestVal = largestAbsVal(Math.ceil(maxVal), Math.floor(minVal));
                 var smallestVal = (-1 * largestVal);
@@ -499,7 +487,7 @@
                     symbol: new SimpleFillSymbol({color: [175, 21, 137, 0.6], outline: sls})
                 });
             }
-        } else {
+        } else { // all negative
             if (clim == "PRfr" || clim == "PEfr") {
                 // min is the smallest number, the max is 1 (7 total classes)
                 var largestVal = 1;
