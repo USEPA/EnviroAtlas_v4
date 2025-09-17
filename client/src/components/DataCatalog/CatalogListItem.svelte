@@ -1,5 +1,5 @@
 <script>
-    import { addLayer, getEaData, removeLayer } from "src/shared/utilities.js";
+    import { addLayer, getEaData, removeLayer, openLayerList } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import { activeWidget } from "src/store.ts";
 
@@ -18,7 +18,7 @@
         addLayer(lObject, view);
         // If there is a layer added, open the Layer List
         if (lObject) {
-            openLayerList();
+            openLayerList($activeWidget);
         }
     }
 
@@ -32,31 +32,6 @@
         }
         let lObj = getEaData(`/ea/api/layers/${id}`, layerParams)
         return lObj
-    }
-
-    function openLayerList() {
-        let shell = document.querySelector(`[component-id="shell-panel-end"]`);
-        let layerPanel = document.querySelector(`[data-panel-id="layers"]`)
-        // Given the right side panel is closed, when Add to map is clicked, 
-        // the right side panel opens with the layer list visible
-        if (!$activeWidget.right) {
-            layerPanel.removeAttribute("hidden");
-            layerPanel.removeAttribute("closed");
-            shell.removeAttribute("collapsed");
-            $activeWidget.right = "layers";
-            document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = true;
-        } else if ($activeWidget.right !== "layers") {
-            // Given the right side panel is open, when Add to map is clicked, 
-            // the right side panel remains open and has layer list visible
-            layerPanel.removeAttribute("hidden");
-            layerPanel.removeAttribute("closed");
-            document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
-            document.querySelector(`[data-panel-id=${$activeWidget.right}]`).hidden = true;
-            document.querySelector(`[data-panel-id=${$activeWidget.right}]`).closed = true;
-            $activeWidget.right = "layers";
-            document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = true;
-            shell.removeAttribute("collapsed");
-        }
     }
 
     function subtopicSelected(event) {
