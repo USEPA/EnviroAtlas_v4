@@ -111,12 +111,19 @@ export function isLayerInMap(url, view) {
     return foundLayer
 };
 
+/**
+ * Remove the layer(s) from map based on the title.
+ * @param {string} lyrName 
+ * @param {object} view 
+ */
 export function removeLayer(lyrName, view) {
     const foundLyr = view.map.allLayers.filter(function(layer) {
         return layer.title === lyrName;
     });
-    if (foundLyr != undefined) {
-        view.map.removeAll(foundLyr);
+    if (foundLyr) {
+        foundLyr.forEach((lyr) => {
+            view.map.remove(lyr);
+        }) 
     };         
 };
 
