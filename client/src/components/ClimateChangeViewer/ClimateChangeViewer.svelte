@@ -172,19 +172,19 @@
                     minValue: Number((smallestVal).toFixed(3)),
                     maxValue: Number((smallestVal + negativeBreakDiff).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [133, 46, 4, 0.6], outline: sls}),
-                    label: Number((smallestVal * 100).toFixed(1)) + ' - ' + Number(((smallestVal + negativeBreakDiff) * 100).toFixed(1)) + '%'
+                    label: Number((smallestVal * 100).toFixed(1)) + ' – ' + Number(((smallestVal + negativeBreakDiff) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal + negativeBreakDiff).toFixed(3)),
                     maxValue: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [218, 92, 10, 0.6], outline: sls}),
-                    label: Number(((smallestVal + negativeBreakDiff) * 100).toFixed(1)) + ' - ' + Number(((smallestVal + (2 * negativeBreakDiff)) * 100).toFixed(1)) + '%'
+                    label: Number(((smallestVal + negativeBreakDiff) * 100).toFixed(1)) + ' – ' + Number(((smallestVal + (2 * negativeBreakDiff)) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(3)),
                     maxValue: -0.001,
                     symbol: new SimpleFillSymbol({color: [254, 230, 151, 0.6], outline: sls}),
-                    label: Number(((smallestVal + (2 * negativeBreakDiff)) * 100).toFixed(1)) + ' - <' + 0 + '%'
+                    label: Number(((smallestVal + (2 * negativeBreakDiff)) * 100).toFixed(1)) + ' – <' + 0 + '%'
                 });
                 // zero (1 class)
                 renderer.addClassBreakInfo({
@@ -198,31 +198,31 @@
                     minValue: 0.001,
                     maxValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [185, 231, 248, 0.6], outline: sls}),
-                    label: '>0 - ' + Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + '%'
+                    label: '>0 – ' + Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(3)),
                     maxValue: Number((largestVal - (3 * positiveBreakDiff)).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [79, 280, 252, 0.6], outline: sls}),
-                    label: Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + ' - ' + Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + '%'
+                    label: Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (3 * positiveBreakDiff)).toFixed(3)),
                     maxValue: Number((largestVal - (2 * positiveBreakDiff)).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [0, 127, 216, 0.6], outline: sls}),
-                    label: Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + ' - ' + Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + '%'
+                    label: Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (2 * positiveBreakDiff)).toFixed(3)),
                     maxValue: Number((largestVal - positiveBreakDiff).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [0, 0, 139, 0.6], outline: sls}),
-                    label: Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + ' - ' + Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + '%'
+                    label: Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - positiveBreakDiff).toFixed(3)),
                     maxValue: Number(largestVal.toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [175, 21, 137, 0.6], outline: sls}),
-                    label: Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + ' - ' + Number((largestVal * 100).toFixed(1)) + '%'
+                    label: Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + ' – ' + Number((largestVal * 100).toFixed(1)) + '%'
                 });
             }
             if (clim == "miTF" || clim == "mxTF") {
@@ -246,7 +246,7 @@
                     minValue: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)),
                     maxValue: -0.001,
                     symbol: new SimpleFillSymbol({color: [165, 210, 229, 0.6], outline: sls}),
-                    label: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)) + ' - <' + 0
+                    label: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)) + ' – <' + 0
                 });
                 // zero (1 class)
                 renderer.addClassBreakInfo({
@@ -260,7 +260,7 @@
                     minValue: 0.001,
                     maxValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
                     symbol: new SimpleFillSymbol({color: [252, 219, 143, 0.6], outline: sls}),
-                    label: '>0 - ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))
+                    label: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), 
@@ -304,7 +304,7 @@
                     minValue: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)), 
                     maxValue: -0.001, 
                     symbol: new SimpleFillSymbol({color: [254, 230, 151, 0.6], outline: sls}),
-                    label: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)) + ' - <' + 0    
+                    label: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)) + ' – <' + 0    
                 });
                 // zero (1 class)
                 renderer.addClassBreakInfo({
@@ -318,7 +318,7 @@
                     minValue: 0.001,
                     maxValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
                     symbol: new SimpleFillSymbol({color: [185, 231, 248, 0.6], outline: sls}),
-                    label: '>0 - ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))
+                    label: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
@@ -366,31 +366,31 @@
                     minValue: 0.001,
                     maxValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [185, 231, 248, 0.6], outline: sls}),
-                    label: '>0 - ' + Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + '%'
+                    label: '>0 – ' + Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(3)),
                     maxValue: Number((largestVal - (3 * positiveBreakDiff)).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [79, 280, 252, 0.6], outline: sls}),
-                    label: Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + ' - ' + Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + '%'
+                    label: Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (3 * positiveBreakDiff)).toFixed(3)),
                     maxValue: Number((largestVal - (2 * positiveBreakDiff)).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [0, 127, 216, 0.6], outline: sls}),
-                    label: Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + ' - ' + Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + '%'
+                    label: Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (2 * positiveBreakDiff)).toFixed(3)),
                     maxValue: Number((largestVal - positiveBreakDiff).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [0, 0, 139, 0.6], outline: sls}),
-                    label: Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + ' - ' + Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + '%'
+                    label: Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - positiveBreakDiff).toFixed(3)),
                     maxValue: Number(largestVal.toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [175, 21, 137, 0.6], outline: sls}),
-                    label: Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + ' - ' + Number((largestVal * 100).toFixed(1)) + '%'
+                    label: Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + ' – ' + Number((largestVal * 100).toFixed(1)) + '%'
                 });
             }
             if (clim == "miTF" || clim == "mxTF") {
@@ -768,7 +768,7 @@
     open
     hidden
 >
-    <calcite-block expanded heading="Climate">
+    <calcite-block expanded>
         {#each options_filtered as clim, c (clim.name)}
         <div id="combobox-div">
             <calcite-combobox
