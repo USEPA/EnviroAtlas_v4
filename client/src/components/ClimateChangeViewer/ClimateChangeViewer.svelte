@@ -1,5 +1,4 @@
 <script>
-    //TODO: I-button information text...can I resuse the subtopic details popover?
     //TODO: en-dash for minuses in legend
 
     // Import calcite components
@@ -20,6 +19,7 @@
     
     import { hasValueUndefined, largestAbsVal, openLayerList } from "src/shared/utilities.js";
     import { activeWidget } from "src/store.ts";
+    import TimeSeriesDetails from "src/components/ClimateChangeViewer/TimeSeriesDetails.svelte";
     
     import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
     import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
@@ -38,37 +38,80 @@
     let minVal;
     const options = [ 
         { name: "Variable", options: [ 
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRin", label: "Change in Precipitation (in)"},  
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRin", label: "Change in Precipitation (in)",
+                info: "Change in total precipitation in inches or as fraction for the season or annually.",
+                pdf: "Supplemental/Climate_Precip_NEXGDDP_OCONUS.pdf"
+            },  
             {domains: "AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRfr", label: "Change in Precipitation (fraction as %)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PEin", label: "Change in PET (in)"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PEin", label: "Change in PET (in)",
+                info: "Change in total potential evapotranspiration in inches or as fraction for the season or annually.",
+                pdf: "Supplemental/Climate_PET_NEXGDDP_OCONUS.pdf"
+            },
             {domains: "AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PEfr", label: "Change in PET (fraction as %)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "mxTF", label: "Change in Maximum Temperature (°F)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "miTF", label: "Change in Minimum Temperature (°F)"}
-        ]}, 
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "mxTF", label: "Change in Maximum Temperature (°F)",
+                info: "Change in average maximum temperature in degrees Fahrenheit for the season or annually.",
+                pdf: "Supplemental/Climate_Temp_NEXGDDP_OCONUS.pdf"
+            },
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "miTF", label: "Change in Minimum Temperature (°F)",
+                info: "Change in average minimum temperature in degrees Fahrenheit for the season or annually.",
+                pdf: "Supplemental/Climate_Temp_NEXGDDP_OCONUS.pdf"
+            }
+        ], description: "All variables are presented as a median, minimum and maximum of the NEX-GDDP-CMIP6 Global Climate Model ensemble."
+    }, 
         { name: "Scenario", options: [
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp126", label: "SSP1–2.6 (>3.6°F by 2100)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp245", label: "SSP2–4.5 (4.9 ± 1.6 °F by 2100)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp370", label: "SSP3–7.0 (6.5 ± 1.3 °F by 2100)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp585", label: "SSP5–8.5 (7.9 ± 2.3 °F by 2100)"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp126", label: "SSP1–2.6 (>3.6°F by 2100)", 
+                info: "SSP1 (“Sustainability”) assumes widespread global climate change mitigation policies, clean energy technologies, and natural environment conservancy. This scenario assumes very low GHG concentration levels and reflects the international climate policy goal of limiting global warming below 3.6°F (2.0°C) at 2100 compared to PIA."
+            },
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp245", label: "SSP2–4.5 (4.9 ± 1.6 °F by 2100)", 
+                info: "SSP2 (“Middle of the Road”) assumes moderate global climate mitigation and adaptation and a slow progress in climate protection measures. This scenario is a medium pathway of future GHG concentrations. Global temperatures increase by 4.9±1.3°F (2.7±0.7°C) at 2100 compared to PIA."
+            },
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp370", label: "SSP3–7.0 (6.5 ± 1.3 °F by 2100)",
+                info: "SSP3 (“Regional Rivalry”) assumes high challenges to mitigation and adaptation. Here, nationalism drives policy, and regional and local take precedence over global issues. Global temperatures increase by 6.5±1.6°F (3.6±0.9°C) at 2100 compared to PIA."
+            },
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp585", label: "SSP5–8.5 (7.9 ± 2.3 °F by 2100)",
+                info: "SSP5 (“Fossil-fueled Development”) reflects high challenges to mitigation and low challenges to adaptation. It is characterized by steadily increasing GHG concentrations. It represents the upper boundary of the range of scenarios. Global temperatures increase by 7.9±2.2°F (4.4±1.2°C) at 2100 compared to PIA."
+            },
             //{domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040"},
             //{domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100"}
-        ]},
+        ], description: "Shared Socioeconomic Pathways (SSPs) reflect global trends in human activities and changes in radiative forcing that result from changes in atmospheric greenhouse gases (GHGs) and aerosol concentrations. In the SSP labels (like SSP1-2.6), the first number refers to a defined socioeconomic pathway (trends in population, policy, and economic growth), and the second refers to an increase in radiative forcing (W/m2) relative to pre-industrial (1850-1900) average (PIA)."
+    },
         { name: "Season", options: [
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "A", label: "Annual"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "M", label: "Spring"},  
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "J", label: "Summer"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "S", label: "Fall"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "D", label: "Winter"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "A", label: "Annual", 
+                info: "January through December of the same calendar year"
+            },
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "M", label: "Spring",
+                info: "March, April, May"
+            },  
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "J", label: "Summer",
+                info: "June, July, August"
+            },
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "S", label: "Fall",
+                info: "September, October, November"
+            },
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "D", label: "Winter",
+                info: "December of previous year, January, February"
+            },
             
         ]}, 
         { name: "Period", options: [ 
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF1", label: "1976–2005 to 2025–2054"},  
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF2", label: "1976–2005 to 2045–2074"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF3", label: "1976–2005 to 2070–2099"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF2", label: "2025–2054 to 2045–2074"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF3", label: "2025–2054 to 2070–2099"}
-        ]}, 
-    ];
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF1", label: "1976–2005 to 2025–2054", 
+                info: "Recent history (1976–2005) to near-term future (2025–2054)"
+            },  
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF2", label: "1976–2005 to 2045–2074",
+                info: "Recent history (1976–2005) to mid-century (2045–2074)"
+            },
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF3", label: "1976–2005 to 2070–2099",
+                info: "Recent history (1976–2005) to end-of-century (2070–2099)"
+            },
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF2", label: "2025–2054 to 2045–2074",
+                info: "Near-term future (2025–2054) to mid-century (2045–2074)"
+            },
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF3", label: "2025–2054 to 2070–2099",
+                info: "Near-term future (2025–2054) to end-of-century (2070–2099)"
+            }
+        ], description: "Climate change variables were computed using 30–year periods: recent history (1976–2005), near-term future (2025–2054), mid-century (2045–2074), and end-of-century (2070–2099). Climate change variables are expressed as a change between different periods:"
+    }];
+
     const domainMap = {
         "Puerto Rico,Virgin Islands": "VIPR",
         "Guam": "GUAM",
@@ -761,6 +804,24 @@
             return
         }
     }
+
+    async function openDetails(option_name) {
+        console.log(options)
+        console.log(option_name)
+        let optionsObj = options.filter((opt => opt.name == option_name))[0]
+        console.log(optionsObj)
+        let findPopover = document.querySelector(`[reference-element="${optionsObj.name}-details-popover-button"]`);
+        if (!findPopover) {
+            new TimeSeriesDetails({
+                target: document.body,
+                props: { optionsObj },
+            });
+        }
+        // // Workaround for calcite v2.9. 
+        let popover = document.querySelector(`[reference-element="${optionsObj.name}-details-popover-button"]`);
+        popover.setAttribute("open", "true");
+        return optionsObj
+    }
 </script>
 
 <calcite-panel
@@ -787,7 +848,7 @@
                 <calcite-combobox-item value={o.value} text-label={o.label}/>
             {/each}
             </calcite-combobox>
-            <calcite-button appearance="transparent" iconEnd="information"
+            <calcite-button appearance="transparent" iconEnd="information" on:click={openDetails(clim.name)} id="{clim.name}-details-popover-button"
             ></calcite-button>
         </div>
         {/each}
