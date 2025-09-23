@@ -1,4 +1,7 @@
 <script>
+    //TODO: I-button information text...can I resuse the subtopic details popover?
+    //TODO: en-dash for minuses in legend
+
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
     import "@esri/calcite-components/dist/components/calcite-button";
@@ -43,10 +46,10 @@
             {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "miTF", label: "Change in Minimum Temperature (°F)"}
         ]}, 
         { name: "Scenario", options: [
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp126", label: "SSP1-2.6 (>3.6°F by 2100)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp245", label: "SSP2-4.5 (4.9 ± 1.6 °F by 2100)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp370", label: "SSP3-7.0 (6.5 ± 1.3 °F by 2100)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp585", label: "SSP5-8.5 (7.9 ± 2.3 °F by 2100)"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp126", label: "SSP1–2.6 (>3.6°F by 2100)"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp245", label: "SSP2–4.5 (4.9 ± 1.6 °F by 2100)"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp370", label: "SSP3–7.0 (6.5 ± 1.3 °F by 2100)"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp585", label: "SSP5–8.5 (7.9 ± 2.3 °F by 2100)"},
             //{domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040"},
             //{domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100"}
         ]},
@@ -59,11 +62,11 @@
             
         ]}, 
         { name: "Period", options: [ 
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF1", label: "1976-2005 to 2025-2054"},  
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF2", label: "1976-2005 to 2045-2074"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF3", label: "1976-2005 to 2070-2099"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF2", label: "2025-2054 to 2045-2074"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF3", label: "2025-2054 to 2070-2099"}
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF1", label: "1976–2005 to 2025–2054"},  
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF2", label: "1976–2005 to 2045–2074"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF3", label: "1976–2005 to 2070–2099"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF2", label: "2025–2054 to 2045–2074"},
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF3", label: "2025–2054 to 2070–2099"}
         ]}, 
     ];
     const domainMap = {
@@ -101,7 +104,7 @@
             opacity: 0.6, 
             id: oLayerId, 
             definitionExpression: "domain = '" + `${domain}` + "' AND " + `${fieldname}` + " IS NOT NULL",
-            title: geography + ', ' + selections['Scenario'].value + ', ' + oconusSelections,
+            title: geography.replaceAll(",", " & ").replace(/([a-z])([A-Z])/g, '$1 $2') + ', ' + selections['Scenario'].value.toUpperCase() + ', ' + oconusSelections,
             visible: false
         });
         let popupTitle = selections['Scenario'].value + ', ' + oconusSelections;
@@ -143,7 +146,7 @@
             // don't want to round yet, in case the value is a fraction.
             maxVal = resultsMx.features[0].attributes.maxValue;
         }).then(() => {
-            classBreaks(fieldname, selections['Variable'].value, oLayer);
+            classBreaks(fieldname, selections['Variable'], oLayer);
         });
         openLayerList($activeWidget);
     };
@@ -153,15 +156,15 @@
      * and the statistical min and max value of the feature layer. Also, applies the rendererer 
      * and makes the layer visible.
      * @param field - specific field from feature layer to render
-     * @param clim - climate variable from selections
+     * @param clim - climate variable (label and value) from selections
      * @param layer - feature layer object created in loadOCONUS()
      */
     function classBreaks(field, clim, layer) {
         let sls = new SimpleLineSymbol({style: 'none'});
-        let renderer = new ClassBreaksRenderer({field: field});
+        let renderer = new ClassBreaksRenderer({field: field, legendOptions: {title: clim.label}});
         // when there are negative and positive values, create 9 value diverging color classification 
         if (minVal < 0 && maxVal > 0) {
-            if (clim == "PRfr" || clim == "PEfr") {
+            if (clim.value == "PRfr" || clim.value == "PEfr") {
                 // compare the min and max of to domain, then whichever is largest number, the other side of break is max/min (9 total classes)
                 var largestVal = largestAbsVal(maxVal, minVal); // don't round fractions until the end
                 var smallestVal = (-1 * largestVal);
@@ -225,7 +228,7 @@
                     label: Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + ' – ' + Number((largestVal * 100).toFixed(1)) + '%'
                 });
             }
-            if (clim == "miTF" || clim == "mxTF") {
+            if (clim.value == "miTF" || clim.value == "mxTF") {
                 // compare the min and max of to domain, then whichever is largest number, the other side of break is max/min (9 total classes)
                 var largestVal = largestAbsVal(Math.ceil(maxVal), Math.floor(minVal));
                 var smallestVal = (-1 * largestVal);
@@ -283,7 +286,7 @@
                     symbol: new SimpleFillSymbol({color: [165, 0, 38, 0.6], outline: sls})
                 });
             }
-            if (clim == "PRin" || clim == "PEin") {
+            if (clim.value == "PRin" || clim.value == "PEin") {
                 // compare the min and max of to domain, then whichever is largest number, the other side of break is max/min (9 total classes)
                 var largestVal = largestAbsVal(Math.ceil(maxVal), Math.floor(minVal));
                 var smallestVal = (-1 * largestVal);
@@ -342,7 +345,7 @@
                 });
             }
         } else if (minVal > 0 && maxVal > 0) { // when the max and min value is greater than 0
-            if (clim == "PRfr" || clim == "PEfr") {
+            if (clim.value == "PRfr" || clim.value == "PEfr") {
                 // max is the largest number, the min is -1 (7 total classes)
                 var largestVal = maxVal; // don't round fractions until the end
                 var smallestVal = -1;
@@ -393,7 +396,7 @@
                     label: Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + ' – ' + Number((largestVal * 100).toFixed(1)) + '%'
                 });
             }
-            if (clim == "miTF" || clim == "mxTF") {
+            if (clim.value == "miTF" || clim.value == "mxTF") {
                 // max is the largest number, the min is -1 (7 total classes)
                 var largestVal = Math.ceil(maxVal);
                 var smallestVal = -1;
@@ -417,7 +420,7 @@
                     minValue: 0.001,
                     maxValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
                     symbol: new SimpleFillSymbol({color: [252, 219, 143, 0.6], outline: sls}),
-                    label: '>0 - ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))
+                    label: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), 
@@ -440,7 +443,7 @@
                     symbol: new SimpleFillSymbol({color: [165, 0, 38, 0.6], outline: sls})
                 });
             }
-            if (clim == "PRin" || clim == "PEin") {
+            if (clim.value == "PRin" || clim.value == "PEin") {
                 // max is the largest number, the min is -1 (7 total classes)
                 var largestVal = Math.ceil(maxVal);
                 var smallestVal = -1;
@@ -464,7 +467,7 @@
                     minValue: 0.001,
                     maxValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
                     symbol: new SimpleFillSymbol({color: [185, 231, 248, 0.6], outline: sls}),
-                    label: '>0 - ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))
+                    label: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), 
@@ -488,7 +491,7 @@
                 });
             }
         } else { // all negative
-            if (clim == "PRfr" || clim == "PEfr") {
+            if (clim.value == "PRfr" || clim.value == "PEfr") {
                 // min is the smallest number, the max is 1 (7 total classes)
                 var largestVal = 1;
                 var smallestVal = minVal; // don't round fractions until the end
@@ -498,31 +501,31 @@
                     minValue: Number(smallestVal.toFixed(3)),
                     maxValue: Number((smallestVal - negativeBreakDiff).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [102, 37, 6, 0.6], outline: sls}), // dark brown
-                    label: Number(((smallestVal - negativeBreakDiff) * 100).toFixed(1)) + ' - ' + Number((smallestVal * 100).toFixed(1)) + '%'
+                    label: Number(((smallestVal - negativeBreakDiff) * 100).toFixed(1)) + ' – ' + Number((smallestVal * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal - negativeBreakDiff).toFixed(3)),
                     maxValue: Number((smallestVal - (2 * negativeBreakDiff)).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [196, 72, 2, 0.6], outline: sls}), // dark orange
-                    label: Number(((smallestVal - (2 * negativeBreakDiff)) * 100).toFixed(1)) + ' - ' + Number(((smallestVal - negativeBreakDiff) * 100).toFixed(1)) + '%'
+                    label: Number(((smallestVal - (2 * negativeBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((smallestVal - negativeBreakDiff) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal - (2 * negativeBreakDiff)).toFixed(3)),
                     maxValue: Number((smallestVal - (3 * negativeBreakDiff)).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [251, 166, 52, 0.6], outline: sls}), //orange
-                    label: Number(((smallestVal - (3 * negativeBreakDiff)) * 100).toFixed(1)) + ' - ' + Number(((smallestVal - (2 * negativeBreakDiff)) * 100).toFixed(1)) + '%'
+                    label: Number(((smallestVal - (3 * negativeBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((smallestVal - (2 * negativeBreakDiff)) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal - (3 * negativeBreakDiff)).toFixed(3)),
                     maxValue: Number((smallestVal - (4 * negativeBreakDiff)).toFixed(3)),
                     symbol: new SimpleFillSymbol({color: [253, 192, 76, 0.6], outline: sls}),  //light orange
-                    label: Number(((smallestVal - (4 * negativeBreakDiff)) * 100).toFixed(1)) + ' - ' + Number(((smallestVal - (3 * negativeBreakDiff)) * 100).toFixed(1)) + '%'
+                    label: Number(((smallestVal - (4 * negativeBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((smallestVal - (3 * negativeBreakDiff)) * 100).toFixed(1)) + '%'
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal - (4 * negativeBreakDiff)).toFixed(3)),
                     maxValue: -0.001,
                     symbol: new SimpleFillSymbol({color: [254, 230, 151, 0.6], outline: sls}), // yellow
-                    label: '<0 - ' + Number(((smallestVal - (4 * negativeBreakDiff)) * 100).toFixed(1)) + '%'
+                    label: '<0 – ' + Number(((smallestVal - (4 * negativeBreakDiff)) * 100).toFixed(1)) + '%'
                 });
                 // zero (1 class)
                 renderer.addClassBreakInfo({
@@ -539,7 +542,7 @@
                     label: '>0%'
                 });
             }
-            if (clim == "miTF" || clim == "mxTF") {
+            if (clim.value == "miTF" || clim.value == "mxTF") {
                 // min is the smallest number, the max is 1 (7 total classes)
                 var largestVal = 1;
                 var smallestVal = Math.floor(minVal);
@@ -569,7 +572,7 @@
                     minValue: Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1)),
                     maxValue: 0.001,
                     symbol: new SimpleFillSymbol({color: [196, 228, 236, 0.6], outline: sls}),
-                    label: '<0 - ' + Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1))
+                    label: '<0 – ' + Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1))
                 });
                 // zero (1 class)
                 renderer.addClassBreakInfo({
@@ -586,7 +589,7 @@
                     label: '>0'
                 });
             }
-            if (clim == "PRin" || clim == "PEin") {
+            if (clim.value == "PRin" || clim.value == "PEin") {
                 // min is the smallest number, the max is 1 (7 total classes)
                 var largestVal = 1;
                 var smallestVal = Math.floor(minVal);
@@ -616,7 +619,7 @@
                     minValue: Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1)),
                     maxValue: 0.001,
                     symbol: new SimpleFillSymbol({color: [254, 230, 151, 0.6], outline: sls}), //yellow
-                    label: '<0 - ' + Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1))
+                    label: '<0 – ' + Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1))
                 });
                 // zero (1 class)
                 renderer.addClassBreakInfo({
