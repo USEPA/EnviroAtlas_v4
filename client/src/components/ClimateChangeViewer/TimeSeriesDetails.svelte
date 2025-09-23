@@ -20,7 +20,10 @@
 >
     <calcite-flow>
         <calcite-flow-item>
-            <calcite-panel heading={optionsObj.name} description={optionsObj.description}>
+            <calcite-panel heading={optionsObj.name}>
+                {#if optionsObj.description}
+                    <calcite-block description={optionsObj.description}/>
+                {/if}
                 {#each optionsObj.options as o}
                 {#if o.info}
                     <calcite-block heading={o.label} description={o.info}>

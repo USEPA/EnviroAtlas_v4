@@ -150,7 +150,7 @@
             title: geography.replaceAll(",", " & ").replace(/([a-z])([A-Z])/g, '$1 $2') + ', ' + selections['Scenario'].value.toUpperCase() + ', ' + oconusSelections,
             visible: false
         });
-        let popupTitle = selections['Scenario'].value + ', ' + oconusSelections;
+        let popupTitle = selections['Scenario'].value.toUpperCase() + ', ' + oconusSelections;
         view.map.add(oLayer);
         reactiveUtils.on(
             () => view,
@@ -848,8 +848,12 @@
                 <calcite-combobox-item value={o.value} text-label={o.label}/>
             {/each}
             </calcite-combobox>
-            <calcite-button appearance="transparent" iconEnd="information" on:click={openDetails(clim.name)} id="{clim.name}-details-popover-button"
-            ></calcite-button>
+            <calcite-button 
+                appearance="transparent"
+                iconEnd="information"
+                on:click={openDetails(clim.name)}
+                id="{clim.name}-details-popover-button"
+            />
         </div>
         {/each}
         <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
