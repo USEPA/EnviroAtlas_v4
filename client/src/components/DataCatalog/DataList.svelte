@@ -92,16 +92,23 @@
             console.error(err);
         });
  
+    /**
+     * Call the API for UI data properties. Loop builds params to call each topic header's subtopics,
+     * then adds an 'isVisible' feature flag to the response subtopic and layer objects for filtering.
+     * The response is sorted alphabetically, then loaded into the items array. After completing the
+     * loop of API calls, items array is applied to nationalItems store, so the UI dropdowns get
+     * updated all at once.
+     * @param {object} data
+     */
     async function getEaSubtopics(data) {
-        // Create for loop to load in all subtopics to build UI object
+        let items = data
+        // Loop to load in all subtopics to build UI object
         for (const prop in data) {
-            // console.log(`${prop}: ${data[prop].topic}`);
             // apply topic to subtopic params
             let subtopicParams = {
                 select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"areaGeog":1,"name":1,"tags":1}}`),
                 where: encodeURIComponent(`{"topic":"${data[prop].topic}","scale":"NATIONAL"}`) // Drop Community layers
             };
-            // get subtopic object from api
             // return promise object resolve, not the whole promise object
             let res = await getEaData("/ea/api/subtopics", subtopicParams);
             // add an isVisible property to subtopic and layers objects for filtering
@@ -112,50 +119,51 @@
                 return ({...subtopic, layers: lyrObj, isVisible: true})
             });
             res.sort((a,b) => a.name.localeCompare(b.name));
-            // take the result and put into store subtopic object
-            $nationalItems[prop].subtopic = res;
+            items[prop].subtopic = res;
         }
-        return data
+        // Put final results into store so UI updates all at once
+        $nationalItems = items
+        return items
     }
 
     // wait for eaTopics to finish before updating data for catalog UI
     eaTopics.then((result) => getEaSubtopics(result)).then(() => $geography = 'CONUS').then(() => countMaps());
 
-    async function updateListStyle(elem) {
-        const shadow = elem.shadowRoot;
-        const stylesheet = new CSSStyleSheet();
-        stylesheet.replaceSync(`
-            .content-container, .container {
-                height: 19px;
-            }
-        `);
-        shadow.adoptedStyleSheets = [stylesheet];
-    }
+    // async function updateListStyle(elem) {
+    //     const shadow = elem.shadowRoot;
+    //     const stylesheet = new CSSStyleSheet();
+    //     stylesheet.replaceSync(`
+    //         .content-container, .container {
+    //             height: 19px;
+    //         }
+    //     `);
+    //     shadow.adoptedStyleSheets = [stylesheet];
+    // }
 
-    // Need to wait for eaTopics to load before styling list
-    eaTopics.then(() => styleList());
+    // // Need to wait for eaTopics to load before styling list
+    // eaTopics.then(() => styleList());
 
-    async function styleList() {
-        await customElements
-        .whenDefined("calcite-list-item");
-            // TODO: tidy this up.
-            const listESB = await document.querySelectorAll("calcite-list-item.ESB");
-            listESB.forEach((elem) => {
-                updateListStyle(elem);
-            });
-            const listPSI = await document.querySelectorAll("calcite-list-item.PSI");
-            listPSI.forEach((elem) => {
-                updateListStyle(elem);
-            });
-            const listPBS = await document.querySelectorAll("calcite-list-item.PBS");
-            listPBS.forEach((elem) => {
-                updateListStyle(elem);
-            });
-            const listBNF = await document.querySelectorAll("calcite-list-item.BNF");
-            listBNF.forEach((elem) => {
-                updateListStyle(elem);
-            });
-    };
+    // async function styleList() {
+    //     await customElements
+    //     .whenDefined("calcite-list-item");
+    //         // TODO: tidy this up.
+    //         const listESB = await document.querySelectorAll("calcite-list-item.ESB");
+    //         listESB.forEach((elem) => {
+    //             updateListStyle(elem);
+    //         });
+    //         const listPSI = await document.querySelectorAll("calcite-list-item.PSI");
+    //         listPSI.forEach((elem) => {
+    //             updateListStyle(elem);
+    //         });
+    //         const listPBS = await document.querySelectorAll("calcite-list-item.PBS");
+    //         listPBS.forEach((elem) => {
+    //             updateListStyle(elem);
+    //         });
+    //         const listBNF = await document.querySelectorAll("calcite-list-item.BNF");
+    //         listBNF.forEach((elem) => {
+    //             updateListStyle(elem);
+    //         });
+    // };
 
     const handleFabClick = () => {
         let leftActionBar = document.getElementById("left-action-bar");
