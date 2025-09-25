@@ -49,6 +49,17 @@
         return map;
     };
 
+    const domainMap = {
+        "CONUS": "Continental US",
+        "Puerto Rico,Virgin Islands": "Puerto Rico & Virgin Islands",
+        "Guam": "Guam & Northern Mariana Islands",
+        "AmericanSamoa": "American Samoa",
+        "Hawaii": "Hawaii",
+        "Alaska": "Alaska"
+    }
+
+    $: domain = domainMap[$geography]
+
     async function countMaps() {
         console.log($filteredNationalItems)
         let totalMapsCount = 0
@@ -56,17 +67,17 @@
         // Probably not the best use a array.map 
         // TODO: loop over and count visible layers another way
         $filteredNationalItems.map(category => {
-                const subObj = category.subtopic.map(subtopic => {
-                    totalMapsCount += subtopic.layers.length;
-                    if (subtopic.isVisible) {
-                        const lyrObj = subtopic.layers.map(layers => {  
-                            if (layers.isVisible) {
-                                visibleMapsCount += 1
-                            }
-                        });
-                    }
-                });
-            })    
+            const subObj = category.subtopic.map(subtopic => {
+                totalMapsCount += subtopic.layers.length;
+                if (subtopic.isVisible) {
+                    const lyrObj = subtopic.layers.map(layers => {  
+                        if (layers.isVisible) {
+                            visibleMapsCount += 1
+                        }
+                    });
+                }
+            });
+        })    
         $totalMaps = totalMapsCount
     }
 
@@ -208,7 +219,8 @@
 </script>
 
 <calcite-flow data-panel-id="data-catalog" id="data-catalog" open>
-    <calcite-flow-item height-scale="l">
+    <calcite-flow-item heading={domain} height-scale="l">
+        <calcite-action id="domain-popover-ref" text="Configure" icon="chevron-right" slot="header-actions-end"/>
         <calcite-action-bar
             role="menu" 
             tabindex="-1"
