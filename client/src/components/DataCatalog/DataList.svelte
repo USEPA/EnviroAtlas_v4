@@ -12,7 +12,7 @@
     import { catalog, nationalItems, filteredNationalItems, geography, totalMaps, totalVisibleMaps } from "src/store.ts";
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
-    import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
+    import TimeSeriesViewer from "src/components/TimeSeriesViewer/TimeSeriesViewer.svelte";
     // use npm published version now (in development used linked version via devLink utility
     import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
     import { getEaData } from "src/shared/utilities.js"
@@ -237,8 +237,8 @@
                 active
             ></calcite-action>
             <calcite-action
-                data-action-id="climate-data-viewer-2"
-                text="climate-data-viewer"
+                data-action-id="time-series-viewer"
+                text="time-series-viewer"
                 icon="clock-forward"
                 scale="l"
             ></calcite-action>
@@ -250,7 +250,7 @@
             ></calcite-action>
         </calcite-action-bar>
         <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
-        <ClimateChangeViewer view={view} geography={$geography}/>
+        <TimeSeriesViewer view={view} geography={$geography}/>
         <AddData map={map} />
         <calcite-block data-panel-id="national" heading="EnviroAtlas Catalog" description="Explore the relationships between land use, environment, health, safety, and economy" open data-testid="national">
             <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>

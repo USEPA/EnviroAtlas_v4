@@ -1,5 +1,5 @@
 <script>
-    //TODO: en-dash for minuses in legend
+    //TODO: en-dash for minuses in legend...add labels
 
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
@@ -19,7 +19,7 @@
     
     import { hasValueUndefined, largestAbsVal, openLayerList } from "src/shared/utilities.js";
     import { activeWidget } from "src/store.ts";
-    import TimeSeriesDetails from "src/components/ClimateChangeViewer/TimeSeriesDetails.svelte";
+    import TimeSeriesDetails from "src/components/TimeSeriesViewer/TimeSeriesDetails.svelte";
     
     import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
     import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
@@ -825,8 +825,8 @@
 </script>
 
 <calcite-panel
-    data-testid="climate-data-viewer-2"
-    data-panel-id="climate-data-viewer-2"
+    data-testid="time-series-viewer"
+    data-panel-id="time-series-viewer"
     heading="Time Series Layers"
     description="Explore changing landscapes and environment"
     open

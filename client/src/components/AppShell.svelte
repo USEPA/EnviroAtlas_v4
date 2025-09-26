@@ -25,20 +25,24 @@
   import "@arcgis/map-components/components/arcgis-layer-list";
   import "@arcgis/map-components/components/arcgis-zoom";
   import "@arcgis/map-components/components/arcgis-search";
+  import "@arcgis/map-components/components/arcgis-features";
 
   // Import components and store
   import { catalog, activeWidget } from "src/store.ts";
   import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
-  import Bookmark from "./ClimateChangeViewer/Bookmark.svelte";
+  import Bookmark from "./TimeSeriesViewer/Bookmark.svelte";
 
   let view;
+  let featuresComponent;
+  let featuresExpand;
   let bmgContainer;
   let layerListContainer;
   let fTableContainer;
   let leftActionBar;
 
+  const panel = document.getElementById("panel");
   esriConfig.portalUrl = "https://epa.maps.arcgis.com/";
 
   const portalBasemapsSource = new PortalBasemapsSource({
@@ -306,8 +310,8 @@
       <calcite-action
         tabindex="-1"
         role="button"  
-        data-action-id="climate-data-viewer-2"
-        text="climate-data-viewer"
+        data-action-id="time-series-viewer"
+        text="time-series-viewer"
         icon="clock-forward"
         on:click={handleCatalogActionClick}
         on:keypress={handleCatalogActionClick}
