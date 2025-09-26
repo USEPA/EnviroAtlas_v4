@@ -16,9 +16,11 @@
     // use npm published version now (in development used linked version via devLink utility
     import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
     import { getEaData } from "src/shared/utilities.js"
+    import Bookmark from "../TimeSeriesViewer/Bookmark.svelte";
 
     export let view;
     export let map;
+
     $: {
         if (view && !map) {
             view.addEventListener("arcgisViewReadyChange", () => {
@@ -26,6 +28,7 @@
             });
         }
     }
+
     catalog.subscribe;
     nationalItems.subscribe;
 
@@ -48,6 +51,12 @@
     }
 
     $: domain = domainMap[$geography]
+
+    const actionsDict = {
+        "national": "globe", 
+        "time-series-viewer": "clock-forward", 
+        "add-data": "add-layer"
+    }
 
     async function countMaps() {
         console.log($filteredNationalItems)
@@ -197,16 +206,15 @@
     function listItemExpand() {
         !this.open ? this.setAttribute("expanded", "") : this.removeAttribute("expanded")
     }
-
-    let actionsDict = {
-        "national": "globe", 
-        "time-series-viewer": "clock-forward", 
-        "add-data": "add-layer"}
 </script>
 
 <calcite-flow data-panel-id="data-catalog" id="data-catalog" open>
     <calcite-flow-item heading={domain} height-scale="l">
-        <calcite-action id="domain-popover-ref" text="Configure" icon="chevron-right" slot="header-actions-end"/>
+        <calcite-action 
+            id="domain-popover-ref" 
+            icon="chevron-right" 
+            slot="header-actions-end"/>
+        <Bookmark view={view}/>
         <calcite-action-bar
             role="menu" 
             tabindex="-1"
