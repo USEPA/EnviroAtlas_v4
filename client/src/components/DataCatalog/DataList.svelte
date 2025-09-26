@@ -23,18 +23,7 @@
         if (view && !map) {
             view.addEventListener("arcgisViewReadyChange", () => {
                 map = view.map;
-//                console.log(view.map);
             });
-            /*
-            console.log(view);
-            console.log('has view ');
-            if ('map' in view) {
-                console.log('map in view ');
-                if (view.map) {
-                    console.log('view.map exists');
-                }
-            }
-            */
         }
     }
     catalog.subscribe;
@@ -195,15 +184,7 @@
 
         if (nextDataCatalog !== $catalog.type) {
             let activeDataCatalog = $catalog.type;
-            let activeAction = document.querySelectorAll(`[data-action-id=${activeDataCatalog}]`);
-            activeAction.forEach((action) => {
-                action.removeAttribute("active")
-            });
             document.querySelector(`[data-panel-id=${activeDataCatalog}]`).setAttribute("hidden", "");
-            let nextAction = document.querySelectorAll(`[data-action-id=${nextDataCatalog}]`);
-            nextAction.forEach((action) => {
-                action.setAttribute("active", "")
-            });         
             document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
             $catalog.type = nextDataCatalog;
         } 
@@ -216,6 +197,11 @@
     function listItemExpand() {
         !this.open ? this.setAttribute("expanded", "") : this.removeAttribute("expanded")
     }
+
+    let actionsDict = {
+        "national": "globe", 
+        "time-series-viewer": "clock-forward", 
+        "add-data": "add-layer"}
 </script>
 
 <calcite-flow data-panel-id="data-catalog" id="data-catalog" open>
@@ -229,25 +215,15 @@
             on:click={handleCatalogActionClick}
             on:keypress={handleCatalogActionClick}
         >
+        {#each Object.entries(actionsDict) as [action, icon]}
             <calcite-action
-                data-action-id="national"
-                text="national"
-                icon="globe"
+                data-action-id={action}
+                text={action}
+                icon={icon}
                 scale="l"
-                active
-            ></calcite-action>
-            <calcite-action
-                data-action-id="time-series-viewer"
-                text="time-series-viewer"
-                icon="clock-forward"
-                scale="l"
-            ></calcite-action>
-            <calcite-action
-                data-action-id="add-data"
-                text="add-data"
-                icon="add-layer"
-                scale="l"
-            ></calcite-action>
+                active={action == $catalog.type}
+            />
+        {/each}
         </calcite-action-bar>
         <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
         <TimeSeriesViewer view={view} geography={$geography}/>
