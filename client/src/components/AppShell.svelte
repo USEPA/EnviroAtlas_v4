@@ -35,14 +35,11 @@
   import Bookmark from "./TimeSeriesViewer/Bookmark.svelte";
 
   let view;
-  let featuresComponent;
-  let featuresExpand;
   let bmgContainer;
   let layerListContainer;
   let fTableContainer;
   let leftActionBar;
 
-  const panel = document.getElementById("panel");
   esriConfig.portalUrl = "https://epa.maps.arcgis.com/";
 
   const portalBasemapsSource = new PortalBasemapsSource({
