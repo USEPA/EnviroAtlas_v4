@@ -806,10 +806,7 @@
     }
 
     async function openDetails(option_name) {
-        console.log(options)
-        console.log(option_name)
         let optionsObj = options.filter((opt => opt.name == option_name))[0]
-        console.log(optionsObj)
         let findPopover = document.querySelector(`[reference-element="${optionsObj.name}-details-popover-button"]`);
         if (!findPopover) {
             new TimeSeriesDetails({
@@ -817,9 +814,8 @@
                 props: { optionsObj },
             });
         }
-        // // Workaround for calcite v2.9. 
         let popover = document.querySelector(`[reference-element="${optionsObj.name}-details-popover-button"]`);
-        popover.setAttribute("open", "true");
+        popover.setAttribute("open", "");
         return optionsObj
     }
 </script>

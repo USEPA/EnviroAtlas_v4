@@ -13,7 +13,7 @@
   "dependencies": {
     "@arcgis/core": "4.33.9",
     "@arcgis/map-components": "^4.33.11",
-    "@esri/calcite-components": "3.2.1",
+    "@esri/calcite-components": "3.3.0",
     "@usepa-ngst/calcite-components": "^0.0.2",
     "@usepa-ngst/utilities": "^0.0.4",
     "page": "^1.11.6"
