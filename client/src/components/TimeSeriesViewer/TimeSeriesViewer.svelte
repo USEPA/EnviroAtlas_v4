@@ -853,6 +853,7 @@
                 iconEnd="information"
                 on:click={openDetails(clim.name)}
                 id="{clim.name}-details-popover-button"
+                class="info-button"
             />
         </div>
         {/each}
@@ -865,6 +866,9 @@
 </calcite-panel>
 
 <style>
+    calcite-button.info-button {
+        --calcite-ui-icon-color: #6a6a6a
+    }
     calcite-combobox {
         margin-bottom: 8px;
     }

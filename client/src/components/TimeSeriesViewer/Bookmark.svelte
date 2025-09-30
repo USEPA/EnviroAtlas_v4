@@ -1,5 +1,5 @@
 <script>
-    import { filteredNationalItems, geography } from "src/store.ts";
+    import { geography } from "src/store.ts";
     import Extent from "@arcgis/core/geometry/Extent";
     import "@esri/calcite-components/dist/components/calcite-combobox-item";
 

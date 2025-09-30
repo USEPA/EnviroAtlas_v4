@@ -33,10 +33,11 @@
                             icon="file"
                             round
                             scale="s"
+                            text="Fact Sheet"
+                            textEnabled
                             on:click={openFactSheet(o.pdf)}
                             on:keypress={openFactSheet(o.pdf)}
-                            >Fact Sheet
-                        </calcite-action>
+                        />
                         {/if}
                     </calcite-block>
                 {/if}

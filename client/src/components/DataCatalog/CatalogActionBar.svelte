@@ -71,13 +71,15 @@
     <calcite-button id='count' scale='s'>{totalVisibleMaps} / {totalMapsCount} <br>
         Maps</calcite-button>   
 </calcite-action-bar>
-<calcite-action-bar id='catFilter' layout="horizontal" expand-disabled>
-    {#each categories as cat, c (cat.name)}
-    <calcite-button bind:this={catRefs[c]} class={cat.name} round on:click={()=>onCatChange(cat)}>
-        <img alt={cat.name} style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
-    </calcite-button>
-    {/each}
-</calcite-action-bar>
+<calcite-card>
+    <calcite-chip-group scale="l" slot="footer-start">
+       {#each categories as cat, c (cat.name)}
+        <calcite-chip bind:this={catRefs[c]} class={cat.name} round on:click={()=>onCatChange(cat)}>{cat.name}
+            <img slot="image" alt={cat.name} style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
+        </calcite-chip>    
+        {/each}
+    </calcite-chip-group>
+ </calcite-card>
 {/if}
 
 <style>
