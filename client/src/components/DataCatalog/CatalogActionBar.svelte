@@ -32,16 +32,13 @@
         timer = setTimeout(() => {
             if (searchInput.value.length > 2 ) {
                 $searchTerm = searchInput.value;
-                // Set category filter store to empty
                 $categoryFilter = '';
-                // Remove gray 'filtered' class from category buttons
                 catRefs.forEach(elem => {
                     elem.classList.remove('filtered')
                 });
                 expandTopics();
             } else {
                 $searchTerm = '';
-                // No filter should remove expanded on all topic headers
                 expandTopics(false);
             }
         }, 500)
