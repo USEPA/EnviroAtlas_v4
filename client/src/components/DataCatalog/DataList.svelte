@@ -235,7 +235,7 @@
         </calcite-action-bar>
         <TimeSeriesViewer view={view} geography={$geography}/>
         <AddData map={map} />
-        <calcite-block data-panel-id="national" heading="EnviroAtlas Catalog" description="Explore the relationships between land use, environment, health, safety, and economy" open data-testid="national">
+        <calcite-block data-panel-id="national" heading="EnviroAtlas Data Catalog" description="Explore the relationships between land use, environment, health, safety, and economy" open data-testid="national">
             <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
             <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>
                 {#await eaTopics}

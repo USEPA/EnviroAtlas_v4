@@ -31,7 +31,6 @@
   import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
-  import Bookmark from "./TimeSeriesViewer/Bookmark.svelte";
 
   let view;
   let bmgContainer;
