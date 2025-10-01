@@ -12,31 +12,23 @@
     import { catalog, nationalItems, filteredNationalItems, geography, totalMaps, totalVisibleMaps } from "src/store.ts";
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
-    import ClimateChangeViewer from "src/components/ClimateChangeViewer/ClimateChangeViewer.svelte";
+    import TimeSeriesViewer from "src/components/TimeSeriesViewer/TimeSeriesViewer.svelte";
     // use npm published version now (in development used linked version via devLink utility
     import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
     import { getEaData } from "src/shared/utilities.js"
+    import Bookmark from "../TimeSeriesViewer/Bookmark.svelte";
 
     export let view;
     export let map;
+
     $: {
         if (view && !map) {
             view.addEventListener("arcgisViewReadyChange", () => {
                 map = view.map;
-//                console.log(view.map);
             });
-            /*
-            console.log(view);
-            console.log('has view ');
-            if ('map' in view) {
-                console.log('map in view ');
-                if (view.map) {
-                    console.log('view.map exists');
-                }
-            }
-            */
         }
     }
+
     catalog.subscribe;
     nationalItems.subscribe;
 
@@ -49,6 +41,23 @@
         return map;
     };
 
+    const domainMap = {
+        "CONUS": "Continental US",
+        "Puerto Rico,Virgin Islands": "Puerto Rico & Virgin Islands",
+        "Guam": "Guam & Northern Mariana Islands",
+        "AmericanSamoa": "American Samoa",
+        "Hawaii": "Hawaii",
+        "Alaska": "Alaska"
+    }
+
+    $: domain = domainMap[$geography]
+
+    const actionsDict = {
+        "national": "globe", 
+        "time-series-viewer": "clock-forward", 
+        "add-data": "add-layer"
+    }
+
     async function countMaps() {
         console.log($filteredNationalItems)
         let totalMapsCount = 0
@@ -56,17 +65,17 @@
         // Probably not the best use a array.map 
         // TODO: loop over and count visible layers another way
         $filteredNationalItems.map(category => {
-                const subObj = category.subtopic.map(subtopic => {
-                    totalMapsCount += subtopic.layers.length;
-                    if (subtopic.isVisible) {
-                        const lyrObj = subtopic.layers.map(layers => {  
-                            if (layers.isVisible) {
-                                visibleMapsCount += 1
-                            }
-                        });
-                    }
-                });
-            })    
+            const subObj = category.subtopic.map(subtopic => {
+                totalMapsCount += subtopic.layers.length;
+                if (subtopic.isVisible) {
+                    const lyrObj = subtopic.layers.map(layers => {  
+                        if (layers.isVisible) {
+                            visibleMapsCount += 1
+                        }
+                    });
+                }
+            });
+        })    
         $totalMaps = totalMapsCount
     }
 
@@ -92,16 +101,23 @@
             console.error(err);
         });
  
+    /**
+     * Call the API for UI data properties. Loop builds params to call each topic header's subtopics,
+     * then adds an 'isVisible' feature flag to the response subtopic and layer objects for filtering.
+     * The response is sorted alphabetically, then loaded into the items array. After completing the
+     * loop of API calls, items array is applied to nationalItems store, so the UI dropdowns get
+     * updated all at once.
+     * @param {object} data
+     */
     async function getEaSubtopics(data) {
-        // Create for loop to load in all subtopics to build UI object
+        let items = data
+        // Loop to load in all subtopics to build UI object
         for (const prop in data) {
-            // console.log(`${prop}: ${data[prop].topic}`);
             // apply topic to subtopic params
             let subtopicParams = {
                 select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"areaGeog":1,"name":1,"tags":1}}`),
                 where: encodeURIComponent(`{"topic":"${data[prop].topic}","scale":"NATIONAL"}`) // Drop Community layers
             };
-            // get subtopic object from api
             // return promise object resolve, not the whole promise object
             let res = await getEaData("/ea/api/subtopics", subtopicParams);
             // add an isVisible property to subtopic and layers objects for filtering
@@ -112,50 +128,51 @@
                 return ({...subtopic, layers: lyrObj, isVisible: true})
             });
             res.sort((a,b) => a.name.localeCompare(b.name));
-            // take the result and put into store subtopic object
-            $nationalItems[prop].subtopic = res;
+            items[prop].subtopic = res;
         }
-        return data
+        // Put final results into store so UI updates all at once
+        $nationalItems = items
+        return items
     }
 
     // wait for eaTopics to finish before updating data for catalog UI
     eaTopics.then((result) => getEaSubtopics(result)).then(() => $geography = 'CONUS').then(() => countMaps());
 
-    async function updateListStyle(elem) {
-        const shadow = elem.shadowRoot;
-        const stylesheet = new CSSStyleSheet();
-        stylesheet.replaceSync(`
-            .content-container, .container {
-                height: 19px;
-            }
-        `);
-        shadow.adoptedStyleSheets = [stylesheet];
-    }
+    // async function updateListStyle(elem) {
+    //     const shadow = elem.shadowRoot;
+    //     const stylesheet = new CSSStyleSheet();
+    //     stylesheet.replaceSync(`
+    //         .content-container, .container {
+    //             height: 19px;
+    //         }
+    //     `);
+    //     shadow.adoptedStyleSheets = [stylesheet];
+    // }
 
-    // Need to wait for eaTopics to load before styling list
-    eaTopics.then(() => styleList());
+    // // Need to wait for eaTopics to load before styling list
+    // eaTopics.then(() => styleList());
 
-    async function styleList() {
-        await customElements
-        .whenDefined("calcite-list-item");
-            // TODO: tidy this up.
-            const listESB = await document.querySelectorAll("calcite-list-item.ESB");
-            listESB.forEach((elem) => {
-                updateListStyle(elem);
-            });
-            const listPSI = await document.querySelectorAll("calcite-list-item.PSI");
-            listPSI.forEach((elem) => {
-                updateListStyle(elem);
-            });
-            const listPBS = await document.querySelectorAll("calcite-list-item.PBS");
-            listPBS.forEach((elem) => {
-                updateListStyle(elem);
-            });
-            const listBNF = await document.querySelectorAll("calcite-list-item.BNF");
-            listBNF.forEach((elem) => {
-                updateListStyle(elem);
-            });
-    };
+    // async function styleList() {
+    //     await customElements
+    //     .whenDefined("calcite-list-item");
+    //         // TODO: tidy this up.
+    //         const listESB = await document.querySelectorAll("calcite-list-item.ESB");
+    //         listESB.forEach((elem) => {
+    //             updateListStyle(elem);
+    //         });
+    //         const listPSI = await document.querySelectorAll("calcite-list-item.PSI");
+    //         listPSI.forEach((elem) => {
+    //             updateListStyle(elem);
+    //         });
+    //         const listPBS = await document.querySelectorAll("calcite-list-item.PBS");
+    //         listPBS.forEach((elem) => {
+    //             updateListStyle(elem);
+    //         });
+    //         const listBNF = await document.querySelectorAll("calcite-list-item.BNF");
+    //         listBNF.forEach((elem) => {
+    //             updateListStyle(elem);
+    //         });
+    // };
 
     const handleFabClick = () => {
         let leftActionBar = document.getElementById("left-action-bar");
@@ -176,15 +193,7 @@
 
         if (nextDataCatalog !== $catalog.type) {
             let activeDataCatalog = $catalog.type;
-            let activeAction = document.querySelectorAll(`[data-action-id=${activeDataCatalog}]`);
-            activeAction.forEach((action) => {
-                action.removeAttribute("active")
-            });
             document.querySelector(`[data-panel-id=${activeDataCatalog}]`).setAttribute("hidden", "");
-            let nextAction = document.querySelectorAll(`[data-action-id=${nextDataCatalog}]`);
-            nextAction.forEach((action) => {
-                action.setAttribute("active", "")
-            });         
             document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
             $catalog.type = nextDataCatalog;
         } 
@@ -200,7 +209,12 @@
 </script>
 
 <calcite-flow data-panel-id="data-catalog" id="data-catalog" open>
-    <calcite-flow-item height-scale="l">
+    <calcite-flow-item heading={domain} height-scale="l">
+        <calcite-action 
+            id="domain-popover-ref" 
+            icon="chevron-right" 
+            slot="header-actions-end"/>
+        <Bookmark view={view}/>
         <calcite-action-bar
             role="menu" 
             tabindex="-1"
@@ -209,30 +223,20 @@
             on:click={handleCatalogActionClick}
             on:keypress={handleCatalogActionClick}
         >
+        {#each Object.entries(actionsDict) as [action, icon]}
             <calcite-action
-                data-action-id="national"
-                text="national"
-                icon="globe"
+                data-action-id={action}
+                text={action}
+                icon={icon}
                 scale="l"
-                active
-            ></calcite-action>
-            <calcite-action
-                data-action-id="climate-data-viewer-2"
-                text="climate-data-viewer"
-                icon="clock-forward"
-                scale="l"
-            ></calcite-action>
-            <calcite-action
-                data-action-id="add-data"
-                text="add-data"
-                icon="add-layer"
-                scale="l"
-            ></calcite-action>
+                active={action == $catalog.type}
+            />
+        {/each}
         </calcite-action-bar>
-        <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
-        <ClimateChangeViewer view={view} geography={$geography}/>
+        <TimeSeriesViewer view={view} geography={$geography}/>
         <AddData map={map} />
         <calcite-block data-panel-id="national" heading="EnviroAtlas Catalog" description="Explore the relationships between land use, environment, health, safety, and economy" open data-testid="national">
+            <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
             <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>
                 {#await eaTopics}
                     <p>...loading</p>

@@ -7,7 +7,6 @@
   import "@esri/calcite-components/dist/components/calcite-panel";
   import "@esri/calcite-components/dist/components/calcite-navigation";
   import "@esri/calcite-components/dist/components/calcite-navigation-logo";
-  import "@esri/calcite-components/dist/components/calcite-combobox";
 
   // Import arcgis js api
   import esriConfig from "@arcgis/core/config.js";  
@@ -25,13 +24,14 @@
   import "@arcgis/map-components/components/arcgis-layer-list";
   import "@arcgis/map-components/components/arcgis-zoom";
   import "@arcgis/map-components/components/arcgis-search";
+  import "@arcgis/map-components/components/arcgis-features";
 
   // Import components and store
   import { catalog, activeWidget } from "src/store.ts";
   import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
-  import Bookmark from "./ClimateChangeViewer/Bookmark.svelte";
+  import Bookmark from "./TimeSeriesViewer/Bookmark.svelte";
 
   let view;
   let bmgContainer;
@@ -230,14 +230,6 @@
       href="https://www.epa.gov/enviroatlas"
       target="_blank"
     ></calcite-navigation-logo>
-    <calcite-combobox 
-      slot="content-start"
-      selectionMode="single-persist"
-      clearDisabled
-      scale="l"
-    >
-      <Bookmark view={view}/>
-    </calcite-combobox>
     <calcite-chip-group slot="content-end" expanded>
       {#each [
         {label:'Help', icon:'question'},
@@ -306,8 +298,8 @@
       <calcite-action
         tabindex="-1"
         role="button"  
-        data-action-id="climate-data-viewer-2"
-        text="climate-data-viewer"
+        data-action-id="time-series-viewer"
+        text="time-series-viewer"
         icon="clock-forward"
         on:click={handleCatalogActionClick}
         on:keypress={handleCatalogActionClick}
@@ -407,11 +399,6 @@
 </calcite-shell>
 
 <style>
-  calcite-combobox {
-    --calcite-color-text-1: #151515;
-    padding-left: 30px;
-  }
-
   calcite-panel.fTable {
     height: 500px
   }

@@ -111,12 +111,19 @@ export function isLayerInMap(url, view) {
     return foundLayer
 };
 
+/**
+ * Remove the layer(s) from map based on the title.
+ * @param {string} lyrName 
+ * @param {object} view 
+ */
 export function removeLayer(lyrName, view) {
     const foundLyr = view.map.allLayers.filter(function(layer) {
         return layer.title === lyrName;
     });
-    if (foundLyr != undefined) {
-        view.map.removeAll(foundLyr);
+    if (foundLyr) {
+        foundLyr.forEach((lyr) => {
+            view.map.remove(lyr);
+        }) 
     };         
 };
 
@@ -160,7 +167,7 @@ export function addImageryLayer(lObj, view, rfRule) {
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
         opacity: 0.6,
-        //title: lObj.name,
+        title: lObj.name,
     }); 
     if (rfRule) {
         iLyr.rasterFunction = rfRule
@@ -178,7 +185,6 @@ export function addImageryLayer(lObj, view, rfRule) {
 };
 
 export function addTileLayer(lObj, view) {
-    // console.log(lObj)
     // Scale for block group vs huc12 layers
     let mxScale = lObj.sourceType == "cbg" ? 577790 : 4622324;
     let tLyr = new TileLayer({

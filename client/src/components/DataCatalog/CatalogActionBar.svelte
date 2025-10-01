@@ -8,76 +8,84 @@
     export let totalVisibleMaps;
 
     let searchInput;
-    let catRefs = []; // bind to category buttons
+    let catRefs = [];
     let timer;
     
     let categories = [
-        { name: "eaCA", icon: "air" }, 
-        { name: "eaCPW", icon: "water" }, 
-        { name: "eaNHM", icon: "haz" }, 
-        { name: "eaRCA", icon: "rec" }, 
-        { name: "eaFFM", icon: "food" }, 
-        { name: "eaBC", icon: "bio" }, 
+        { name: "eaCA", icon: "air", label: " Clean Air", color: "#7f81ba" }, 
+        { name: "eaNHM", icon: "haz", label: " Natural Hazard Mitigation", color: "#D75D64" }, 
+        { name: "eaCPW", icon: "water", label: " Clean Water", color: "#74CCD1" }, 
+        { name: "eaRCA", icon: "rec", label: " Recreation & Culture", color: "#C770B4" }, 
+        { name: "eaFFM", icon: "food", label: " Food, Fuel & Materials", color: "#F0E024" }, 
+        //{ name: "eaBC", icon: "bio", label: "Biodiversity Conservation", color: "#2EAE4A" }, 
     ];
 
+    /**
+     * The on:calciteInputInput function for search filtering.
+     * Has basic debounce by setting a timer and waiting 0.5 seconds 
+     * before filtering the list. Will only perform search filter for more 
+     * than 2 characters of input. Search filter will clear category filters
+     * and give UI feedback. Search filter will expand topic headers.
+     */
     const onSearch = () => {
         clearTimeout(timer);
         timer = setTimeout(() => {
             if (searchInput.value.length > 2 ) {
                 $searchTerm = searchInput.value;
-                console.log($searchTerm)
-                // Set category filter store to empty
                 $categoryFilter = '';
-                // Remove gray 'filtered' class from category buttons
                 catRefs.forEach(elem => {
                     elem.classList.remove('filtered')
                 });
                 expandTopics();
             } else {
                 $searchTerm = '';
-                // No filter should remove expanded on all topic headers
                 expandTopics(false);
             }
         }, 500)
     };
 
+    /**
+     * The on:click function for category filter buttons. 
+     * Controls the categoryFilter store value for catalog filtering.
+     * Performs UI feedback of graying out the other selections.
+     * Expands or collapses the topics in the list.
+     * @param {object} cat - the selected category data dictionary
+     */
     const onCatChange = (cat) => {
-        // Only one benefit category filter can be selected. 
         if ($categoryFilter != cat.name) {
             $categoryFilter = cat.name;
-            // Once selected, that icon will stay color and the rest will gray out. Clicking another BC changes the selection to that BC. 
             catRefs.filter(catIcon => catIcon.classList.contains(cat.name))[0].classList.remove('filtered');
             catRefs.filter(catIcon => !catIcon.classList.contains(cat.name)).forEach(elem => {
                 elem.classList.add('filtered')
             });
-            // Filter should open all the topic headers.
             expandTopics();
         } else if ($categoryFilter === cat.name) {
-            // Set category filter store to empty
             $categoryFilter = '';
-            // Clicking the already selected BC turns off the filter and returns all to color. 
             catRefs.forEach(elem => {
                 elem.classList.remove('filtered')
             });
-            // No filter should remove expanded on all topic headers
             expandTopics(false);
         }
     };
 </script>
 
 {#if type=='national' || type=='subnational'}
+<calcite-card>
 <calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>    
     <calcite-input alignment='start' maxLength=20 type='text' scale='l' icon='search' bind:this={searchInput} on:calciteInputInput={()=>onSearch()} placeholder="Try searching"></calcite-input>
     <calcite-button id='count' scale='s'>{totalVisibleMaps} / {totalMapsCount} <br>
         Maps</calcite-button>   
 </calcite-action-bar>
-<calcite-action-bar id='catFilter' layout="horizontal" expand-disabled>
-    {#each categories as cat, c (cat.name)}
-    <calcite-button bind:this={catRefs[c]} class={cat.name} round on:click={()=>onCatChange(cat)}>
-        <img alt={cat.name} style="width:21px;height:24px;" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
-    </calcite-button>
-    {/each}
-</calcite-action-bar>
+    <calcite-chip-group scale="s" slot="footer-start">
+       {#each categories as cat, c (cat.name)}
+        <calcite-button bind:this={catRefs[c]} alignment="start" class={cat.name} id="catFilter" round appearance="outline" on:click={()=>onCatChange(cat)}>
+            <img alt={cat.name} style="width:20px;height:20px;background-color:{cat.color};border-radius:50%" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
+            {cat.label}
+        </calcite-button>    
+        {/each}
+        <calcite-button id="catFilter" icon-start="plus-circle" round appearance="outline">More Filters</calcite-button>
+    </calcite-chip-group>
+ </calcite-card>
 {/if}
 
 <style>
@@ -97,40 +105,9 @@
         --calcite-button-border-color:#6a6a6a
     }
 
-    calcite-action-bar#catFilter {
-        margin: 0 auto;
-        --calcite-action-bar-items-space:5px;
-        margin-top: 5px;
-        margin-bottom: 5px;
-    }
-    
-    calcite-button.eaCA {
-        --calcite-button-background-color: #7f81ba;
-        --calcite-ui-focus-color: none !important;
-    }
-
-    calcite-button.eaCPW {
-        --calcite-button-background-color: #74CCD1;
-        --calcite-ui-focus-color: none !important;
-    }
-
-    calcite-button.eaBC {
-        --calcite-button-background-color: #2EAE4A;
-        --calcite-ui-focus-color: none !important;
-    }
-
-    calcite-button.eaFFM {
-        --calcite-button-background-color: #F0E024;
-        --calcite-ui-focus-color: none !important;
-    }
-
-    calcite-button.eaNHM {
-        --calcite-button-background-color: #D75D64;
-        --calcite-ui-focus-color: none !important;
-    }
-
-     calcite-button.eaRCA {
-        --calcite-button-background-color: #C770B4;
+    calcite-button#catFilter {
+        --calcite-button-text-color: black;
+        --calcite-button-border-color: black;
         --calcite-ui-focus-color: none !important;
     }
 

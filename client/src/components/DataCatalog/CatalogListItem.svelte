@@ -112,7 +112,11 @@
         {#each subtopic.layers as layer (layer.layerID)}
         {#if layer.isVisible}
             <calcite-label scale='s' layout="inline">
-                <calcite-checkbox name={layer.name} value={layer.layerID} on:calciteCheckboxChange={subtopicSelected}></calcite-checkbox>
+                <calcite-checkbox 
+                    name={layer.name} 
+                    value={layer.layerID} 
+                    on:calciteCheckboxChange={subtopicSelected}
+                />
                 {layer.subLayerName}
             </calcite-label>
         {/if}

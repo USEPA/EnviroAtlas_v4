@@ -10,10 +10,6 @@ export const mapState = writable({
     map: null
 })
 
-export const climate = writable({
-    climateVar: [],
-})
-
 type SmaViewModel = {
     indicator: string;
     landcoverYear: number;
@@ -173,25 +169,25 @@ export const totalVisibleMaps = derived([geography, filteredNationalItems], ([$g
   // Simulate an asynchronous operation (e.g., API call)
   async function fetchData() {
     if ($geography != '') {
-    let visibleMapsCount = 0
-    if ($filteredNationalItems != undefined) {
-        $filteredNationalItems.map(category => {
-            if (category.subtopic != undefined) {
-            const subObj = category.subtopic.map(subtopic => {
-                if (subtopic.isVisible) {
-                    const lyrObj = subtopic.layers.map(layers => {  
-                        if (layers.isVisible) {
-                            visibleMapsCount += 1
-                        }
-                    });
+        let visibleMapsCount = 0
+        if ($filteredNationalItems != undefined) {
+            $filteredNationalItems.map(category => {
+                if (category.subtopic != undefined) {
+                const subObj = category.subtopic.map(subtopic => {
+                    if (subtopic.isVisible) {
+                        const lyrObj = subtopic.layers.map(layers => {  
+                            if (layers.isVisible) {
+                                visibleMapsCount += 1
+                            }
+                        });
+                    }
+                });
                 }
-            });
-            }
-        })    
+            })    
+        }
+        console.log(visibleMapsCount)
+        set(visibleMapsCount)
     }
-    console.log(visibleMapsCount)
-    set(visibleMapsCount)
-  }
 }
 
 fetchData();

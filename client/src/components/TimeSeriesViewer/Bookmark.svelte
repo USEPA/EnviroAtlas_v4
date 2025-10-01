@@ -1,10 +1,11 @@
 <script>
-    import { filteredNationalItems, geography } from "src/store.ts";
+    import { geography } from "src/store.ts";
     import Extent from "@arcgis/core/geometry/Extent";
     import "@esri/calcite-components/dist/components/calcite-combobox-item";
 
     export let view;
 
+    let bookmarkPopupButton;
     let bookmarks = [
         { name: "CONUS", text: "Continental US", selected: true, extentObj: {xmax: -5347672, xmin: -15914327, ymax: 7733573, ymin: 1853426}}, 
         { name: "Alaska", text: "Alaska", extentObj: { xmax: -15876210.0, xmin: -19061453.32, ymax: 12511315.0, ymin: 6923265.0}},
@@ -22,38 +23,44 @@
             }
         });
 
-        //TODO: only one bookmark can be active at a time. No "clear" or "none" option. Conus is default.
-        //document.querySelector('[id="popover-button"]').indicator = true;
-
-        bookmark.element.active = true;
- 
         //TODO: put in all stuff that changes this dataList Query Store we are creating that triggers dataList refresh in that comopnent
        
         $geography = bookmark.name
-        console.log($geography)
-        console.log($filteredNationalItems)
     };
-
 </script>
 
-{#each bookmarks as bm}
-    <calcite-combobox-item
-        selected={bm.selected}
-        bind:this={bm.element}
-        label={bm.name}
-        tabindex="0"
-        role="button"
-        scale="s"
-        textLabel={bm.text}
-        value={bm.name}
-        on:click={()=>onGeogChange(bm)}
-        on:keypress={()=>onGeogChange(bm)}
-    ></calcite-combobox-item>
-{/each}
+<calcite-popover
+    placement="trailing-start"
+    overlay-positioning="fixed"
+    scale="s"
+    heading="Filter options"
+    label="Filter options"
+    reference-element="domain-popover-ref"
+    id="popover-button"
+    bind:this={bookmarkPopupButton}
+    closable
+>
+    <calcite-action-group id="bookmark-action-group" scale="s">
+        {#each bookmarks as bm}
+            <calcite-action
+                bind:this={bm.element}
+                label={bm.name}
+                tabindex="0"
+                role="button"
+                scale="s"
+                text={bm.text}
+                text-enabled
+                on:click={()=>onGeogChange(bm)}
+                on:keypress={()=>onGeogChange(bm)}
+                active={bm.name == $geography}
+                indicator={bm.name == $geography}
+            ></calcite-action>
+        {/each}
+    </calcite-action-group>
+</calcite-popover>
 
 <style>
-    calcite-combobox-item {
-        --calcite-combobox-heading-text-color: #151515;
-        --calcite-color-text-1: #151515;
+    calcite-action {
+        --calcite-ui-focus-color: none !important;
     }
 </style>
