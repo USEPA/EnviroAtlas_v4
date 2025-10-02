@@ -57,6 +57,11 @@
 
   catalog.subscribe;
 
+  const actionsDict = {
+    "national": "globe", 
+    "time-series-viewer": "clock-forward", 
+    "add-data": "add-layer"
+  }
   async function setupPopup() {
     reactiveUtils.on(
       () => view,
@@ -148,38 +153,25 @@
     shell.removeAttribute("collapsed");
   };
 
+  /**
+   * The on:click function for the left side action bar.
+   * Expands the shell panel, and hides or shows the selected 
+   * action's panel. Also, sets the catalog.type store value to
+   * selected action's id, which controls many parts of the app. 
+   * @param target html element
+   */
   const handleCatalogActionClick = ({ target }) => {
-    if (target.tagName !== "CALCITE-ACTION") {
-      return;
-    }
-
     handleExpandClick();
-    
     const nextDataCatalog = target.dataset.actionId;
-
     if (nextDataCatalog !== $catalog.type) {
-      let activeAction = document.querySelectorAll(`[data-action-id=${$catalog.type}]`);
-      activeAction.forEach((action) => {
-        action.removeAttribute("active")
-      });
       document.querySelector(`[data-panel-id=${$catalog.type}]`).setAttribute("hidden", "");
-      let nextAction = document.querySelectorAll(`[data-action-id=${nextDataCatalog}]`);
-      nextAction.forEach((action) => {
-        action.setAttribute("active", "");
-      });
       document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
       $catalog.type = nextDataCatalog;
-    } 
-
-    nextDataCatalog == 'add-data' 
-      ? document.querySelector(`[id=catalog-search-filter]`).setAttribute("hidden", "") 
-      : document.querySelector(`[id=catalog-search-filter]`).removeAttribute("hidden");
+    }
   };
 
   const handleOtherActionBarClick = ({ target }) => {
-    if (target.tagName !== "CALCITE-ACTION") {
-      return;
-    }
+
     // If there's one already active, close things.
     if ($activeWidget.right) {
       document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
@@ -284,34 +276,18 @@
       tabindex="-1"
       bind:this={leftActionBar}
     >
+    {#each Object.entries(actionsDict) as [action, icon]}
       <calcite-action
         tabindex="-1"
         role="button"
-        data-action-id="national"
-        text="national"
-        icon="globe"
-        active
+        data-action-id={action}
+        text={action}
+        icon={icon}
+        active={action == $catalog.type}
         on:click={handleCatalogActionClick}
         on:keypress={handleCatalogActionClick}
       />
-      <calcite-action
-        tabindex="-1"
-        role="button"  
-        data-action-id="time-series-viewer"
-        text="time-series-viewer"
-        icon="clock-forward"
-        on:click={handleCatalogActionClick}
-        on:keypress={handleCatalogActionClick}
-      />
-      <calcite-action
-        tabindex="-1"
-        role="button"
-        data-action-id="add-data"
-        text="add-data"
-        icon="add-layer"
-        on:click={handleCatalogActionClick}
-        on:keypress={handleCatalogActionClick}
-      />
+    {/each}
       <calcite-action
         slot="actions-end"
         tabindex="-1"
@@ -344,7 +320,11 @@
     on:click={handleOtherActionBarClick} 
     on:keypress={handleOtherActionBarClick}
   >
-    <calcite-action data-action-id="layers" icon="layers" text="Active Layer List" />
+    <calcite-action 
+      data-action-id="layers" 
+      icon="layers" 
+      text="Active Layer List"
+    />
     <calcite-action
       data-action-id="basemaps"
       icon="basemap"

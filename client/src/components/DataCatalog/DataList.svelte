@@ -185,22 +185,13 @@
     };
 
     const handleCatalogActionClick = ({ target }) => {
-        if (target.tagName !== "CALCITE-ACTION") {
-            return;
-        }
-
         const nextDataCatalog = target.dataset.actionId;
-
         if (nextDataCatalog !== $catalog.type) {
             let activeDataCatalog = $catalog.type;
             document.querySelector(`[data-panel-id=${activeDataCatalog}]`).setAttribute("hidden", "");
             document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
             $catalog.type = nextDataCatalog;
-        } 
-
-        nextDataCatalog == 'add-data' 
-            ? document.querySelector(`[id=catalog-search-filter]`).setAttribute("hidden", "")
-            : document.querySelector(`[id=catalog-search-filter]`).removeAttribute("hidden");  
+        }
     };
 
     function listItemExpand() {
