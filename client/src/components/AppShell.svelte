@@ -403,7 +403,7 @@
   }
 
   calcite-shell-panel {
-    --calcite-shell-panel-min-width: 340px;
+    --calcite-shell-panel-min-width: 360px;
   }
 
   calcite-navigation {

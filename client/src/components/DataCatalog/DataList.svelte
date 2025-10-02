@@ -260,20 +260,26 @@
                 {/await}
             </calcite-list>
         </calcite-block>
-        <calcite-fab
-            slot="fab"
-            role="button"
-            tabindex="-1"
-            id="data-catalog-fab" 
-            data-testid="data-catalog-fab" 
-            icon="chevrons-left" 
-            on:click={handleFabClick}
-            on:keypress={handleFabClick}
-        ></calcite-fab>
+
     </calcite-flow-item>
 </calcite-flow>
+<calcite-fab
+    role="button"
+    tabindex="-1"
+    id="data-catalog-fab" 
+    data-testid="data-catalog-fab" 
+    icon="chevrons-left" 
+    on:click={handleFabClick}
+    on:keypress={handleFabClick}
+></calcite-fab>
 
 <style>
+    calcite-fab {
+        place-content: center;
+        padding-top: 4px;
+        padding-bottom: 4px;
+    }
+
     calcite-list-item, #ESB {
         --calcite-list-background-color: #adbb9a;
         --calcite-list-background-color-press: #cdd6c2;
