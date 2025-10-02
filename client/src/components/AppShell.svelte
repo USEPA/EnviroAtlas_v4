@@ -116,7 +116,6 @@
   }
 
   function layerListAction(e) {
-    console.log(e)
     const id = e.detail.action.id;
     if (id === "trash") {
       const title = e.detail.item.layer.title;
@@ -171,7 +170,6 @@
   };
 
   const handleOtherActionBarClick = ({ target }) => {
-
     // If there's one already active, close things.
     if ($activeWidget.right) {
       document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;

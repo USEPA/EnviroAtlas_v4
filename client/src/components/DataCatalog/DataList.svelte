@@ -52,11 +52,13 @@
 
     $: domain = domainMap[$geography]
 
-    const actionsDict = {
-        "national": "globe", 
-        "time-series-viewer": "clock-forward", 
-        "add-data": "add-layer"
-    }
+    const catalogActions = [
+        {name: "Data Catalog", id: "national", icon: "globe", color: '#ebebeb'},
+        {name: "Time Series Catalog", id: "time-series-viewer", icon: "clock-forward"},
+        {name: "External Data", id: "add-data", icon: "add-layer"}
+    ]
+
+    let actionRefs = [];
 
     async function countMaps() {
         console.log($filteredNationalItems)
@@ -188,10 +190,14 @@
         const nextDataCatalog = target.dataset.actionId;
         if (nextDataCatalog !== $catalog.type) {
             let activeDataCatalog = $catalog.type;
+            let actionLabel = document.querySelector(`#catalog-actions[data-action-id=${activeDataCatalog}]`).nextElementSibling
+            actionLabel.setAttribute('style', 'background-color: none');
             document.querySelector(`[data-panel-id=${activeDataCatalog}]`).setAttribute("hidden", "");
             document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
             $catalog.type = nextDataCatalog;
         }
+        const sibling = target.nextElementSibling
+        sibling.style.backgroundColor = "#ebebeb";
     };
 
     function listItemExpand() {
@@ -214,14 +220,21 @@
             on:click={handleCatalogActionClick}
             on:keypress={handleCatalogActionClick}
         >
-        {#each Object.entries(actionsDict) as [action, icon]}
+        {#each catalogActions as cat, c (cat.name)}
+            <div>
             <calcite-action
-                data-action-id={action}
-                text={action}
-                icon={icon}
+                bind:this={actionRefs[c]}
+                id="catalog-actions"
+                alignment="center"
+                data-action-id={cat.id}
+                text={cat.id}
+                icon={cat.icon}
                 scale="l"
-                active={action == $catalog.type}
-            />
+                active={cat.id == $catalog.type}
+            >
+            </calcite-action>
+            <calcite-label style="background-color:{cat.color}" alignment="center">{cat.name}</calcite-label>
+            </div>
         {/each}
         </calcite-action-bar>
         <TimeSeriesViewer view={view} geography={$geography}/>
@@ -305,9 +318,13 @@
     }
 
     calcite-action-bar {
-        --calcite-action-bar-items-space: 61px;
+        --calcite-action-bar-items-space: 32px;
         --calcite-ui-focus-color: none !important;
         display: grid;
         place-items: center;
+    }
+
+    calcite-label {
+        --calcite-label-text-color: #6b6b6b
     }
 </style>
