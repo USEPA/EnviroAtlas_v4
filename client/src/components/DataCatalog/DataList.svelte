@@ -53,9 +53,9 @@
     $: domain = domainMap[$geography]
 
     const catalogActions = [
-        {name: "Data Catalog", id: "national", icon: "globe", color: '#ebebeb'},
-        {name: "Time Series Catalog", id: "time-series-viewer", icon: "clock-forward"},
-        {name: "External Data", id: "add-data", icon: "add-layer"}
+        {name: "Data Catalog", id: "national", icon: "globe", color: '#ebebeb', label1: "Data", label2: "Catalog"},
+        {name: "Time Series Catalog", id: "time-series-viewer", icon: "clock-forward", label1: "Time Series", label2: "Catalog"},
+        {name: "External Data", id: "add-data", icon: "add-layer", label1: "External", label2: "Data"}
     ]
 
     let actionRefs = [];
@@ -233,7 +233,7 @@
                 active={cat.id == $catalog.type}
             >
             </calcite-action>
-            <calcite-label style="background-color:{cat.color}" alignment="center">{cat.name}</calcite-label>
+            <calcite-label style="background-color:{cat.color}" layout="block" alignment="center">{cat.label1}<br>{cat.label2}</calcite-label>
             </div>
         {/each}
         </calcite-action-bar>
@@ -318,7 +318,7 @@
     }
 
     calcite-action-bar {
-        --calcite-action-bar-items-space: 32px;
+        --calcite-action-bar-items-space: 51px;
         --calcite-ui-focus-color: none !important;
         display: grid;
         place-items: center;
