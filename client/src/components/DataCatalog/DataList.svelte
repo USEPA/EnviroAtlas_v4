@@ -52,11 +52,13 @@
 
     $: domain = domainMap[$geography]
 
-    const actionsDict = {
-        "national": "globe", 
-        "time-series-viewer": "clock-forward", 
-        "add-data": "add-layer"
-    }
+    const catalogActions = [
+        {name: "Data Catalog", id: "national", icon: "globe", color: '#ebebeb', label1: "Data", label2: "Catalog"},
+        {name: "Time Series Catalog", id: "time-series-viewer", icon: "clock-forward", label1: "Time Series", label2: "Catalog"},
+        {name: "External Data", id: "add-data", icon: "add-layer", label1: "External", label2: "Data"}
+    ]
+
+    let actionRefs = [];
 
     async function countMaps() {
         console.log($filteredNationalItems)
@@ -185,22 +187,17 @@
     };
 
     const handleCatalogActionClick = ({ target }) => {
-        if (target.tagName !== "CALCITE-ACTION") {
-            return;
-        }
-
         const nextDataCatalog = target.dataset.actionId;
-
         if (nextDataCatalog !== $catalog.type) {
             let activeDataCatalog = $catalog.type;
+            let actionLabel = document.querySelector(`#catalog-actions[data-action-id=${activeDataCatalog}]`).nextElementSibling
+            actionLabel.setAttribute('style', 'background-color: none');
             document.querySelector(`[data-panel-id=${activeDataCatalog}]`).setAttribute("hidden", "");
             document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
             $catalog.type = nextDataCatalog;
-        } 
-
-        nextDataCatalog == 'add-data' 
-            ? document.querySelector(`[id=catalog-search-filter]`).setAttribute("hidden", "")
-            : document.querySelector(`[id=catalog-search-filter]`).removeAttribute("hidden");  
+        }
+        const sibling = target.nextElementSibling
+        sibling.style.backgroundColor = "#ebebeb";
     };
 
     function listItemExpand() {
@@ -220,22 +217,29 @@
             tabindex="-1"
             slot="action-bar"
             expand-disabled
-            on:click={handleCatalogActionClick}
-            on:keypress={handleCatalogActionClick}
         >
-        {#each Object.entries(actionsDict) as [action, icon]}
+        {#each catalogActions as cat, c (cat.name)}
+            <div>
             <calcite-action
-                data-action-id={action}
-                text={action}
-                icon={icon}
+                bind:this={actionRefs[c]}
+                id="catalog-actions"
+                alignment="center"
+                data-action-id={cat.id}
+                text={cat.id}
+                icon={cat.icon}
                 scale="l"
-                active={action == $catalog.type}
-            />
+                active={cat.id == $catalog.type}
+                on:click={handleCatalogActionClick}
+                on:keypress={handleCatalogActionClick}
+            >
+            </calcite-action>
+            <calcite-label style="background-color:{cat.color}" layout="block" alignment="center">{cat.label1}<br>{cat.label2}</calcite-label>
+            </div>
         {/each}
         </calcite-action-bar>
         <TimeSeriesViewer view={view} geography={$geography}/>
         <AddData map={map} />
-        <calcite-block data-panel-id="national" heading="EnviroAtlas Catalog" description="Explore the relationships between land use, environment, health, safety, and economy" open data-testid="national">
+        <calcite-block data-panel-id="national" heading="EnviroAtlas Data Catalog" description="Explore the relationships between land use, environment, health, safety, and economy" open data-testid="national">
             <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
             <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>
                 {#await eaTopics}
@@ -260,20 +264,26 @@
                 {/await}
             </calcite-list>
         </calcite-block>
-        <calcite-fab
-            slot="fab"
-            role="button"
-            tabindex="-1"
-            id="data-catalog-fab" 
-            data-testid="data-catalog-fab" 
-            icon="chevrons-left" 
-            on:click={handleFabClick}
-            on:keypress={handleFabClick}
-        ></calcite-fab>
+
     </calcite-flow-item>
 </calcite-flow>
+<calcite-fab
+    role="button"
+    tabindex="-1"
+    id="data-catalog-fab" 
+    data-testid="data-catalog-fab" 
+    icon="chevrons-left" 
+    on:click={handleFabClick}
+    on:keypress={handleFabClick}
+></calcite-fab>
 
 <style>
+    calcite-fab {
+        place-content: center;
+        padding-top: 4px;
+        padding-bottom: 4px;
+    }
+
     calcite-list-item, #ESB {
         --calcite-list-background-color: #adbb9a;
         --calcite-list-background-color-press: #cdd6c2;
@@ -308,9 +318,13 @@
     }
 
     calcite-action-bar {
-        --calcite-action-bar-items-space: 61px;
+        --calcite-action-bar-items-space: 51px;
         --calcite-ui-focus-color: none !important;
         display: grid;
         place-items: center;
+    }
+
+    calcite-label {
+        --calcite-label-text-color: #6b6b6b
     }
 </style>

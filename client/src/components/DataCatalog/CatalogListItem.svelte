@@ -7,6 +7,7 @@
     export let view;
     export let layerID = null;
     let detailsObj = {};
+    let detailsArray = [];
 
     async function getEALayerId() {
         if (subtopic.layers.length < 2) {
@@ -50,26 +51,41 @@
         // Use api to get detailsObj and pass to the SubtopicDetails component with subtopic 
         if (subtopic.layers.length < 2) {
             layerID = subtopic.layers[0].layerID
+            let detailsParams = {
+                select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"DownloadSource":1,"metadataID":1}`)
+            };
+            let detailsObj = await getEaData(`/ea/api/layers/${layerID}`, detailsParams);
+            let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
+            if (!findPopover) {
+                new SubtopicDetails({
+                    target: document.body,
+                    props: { subtopic, detailsObj },
+                });
+                console.log(detailsObj)
+            }
+            let popover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
+            popover.setAttribute("open", "true");
+            return detailsObj
         } else {
-            // TODO: write logic for subtopics with 2 or more layers (show all?)
-            layerID = subtopic.layers[0].layerID
+            for (const lyr of subtopic.layers) {
+                layerID = lyr.layerID
+                let detailsParams = {
+                    select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"DownloadSource":1,"metadataID":1,"subLayerName":1}`)
+                };
+                let details = await getEaData(`/ea/api/layers/${layerID}`, detailsParams);
+                detailsArray.push(details)
+            }
+            let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
+            if (!findPopover) {
+                new SubtopicDetails({
+                    target: document.body,
+                    props: { subtopic, detailsArray },
+                });
+            }
+            let popover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
+            popover.setAttribute("open", "true");
+            return detailsArray
         }
-        let detailsParams = {
-            select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"DownloadSource":1,"metadataID":1}`)
-        };
-        let detailsObj = await getEaData(`/ea/api/layers/${layerID}`, detailsParams);
-        console.log(detailsObj);
-        let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
-        if (!findPopover) {
-            new SubtopicDetails({
-                target: document.body,
-                props: { subtopic, detailsObj },
-            });
-        }
-        // Workaround for calcite v2.9. 
-        let popover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
-        popover.setAttribute("open", "true");
-        return detailsObj
     }
 
     let dataTypeDict = {
@@ -123,112 +139,6 @@
         {/each}
     </div>
     {/if}
-    <!-- <calcite-chip-group
-            slot="content-bottom"
-            id="ea-chip-group"
-            scale="s"
-            selection-mode="none"
-            label="ea-chip-group"
-        >
-            {#if subtopic.eaCA}
-                <calcite-chip
-                    scale="s"
-                    value="eaCA"
-                    class="eaCA"
-                    label="eaCA"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/air.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaCPW}
-                <calcite-chip
-                    scale="s"
-                    value="eaCPW"
-                    class="eaCPW"
-                    label="eaCPW"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/water.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaCS}
-                <calcite-chip
-                    scale="s"
-                    value="eaCS"
-                    class="eaCS"
-                    label="eaCS"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/clim.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaNHM}
-                <calcite-chip
-                    scale="s"
-                    value="eaNHM"
-                    class="eaNHM"
-                    label="eaNHM"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/haz.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaRCA}
-                <calcite-chip
-                    scale="s"
-                    value="eaRCA"
-                    class="eaRCA"
-                    label="eaRCA"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/rec.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaFFM}
-                <calcite-chip
-                    scale="s"
-                    value="eaFFM"
-                    class="eaFFM"
-                    label="eaFFM"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/food.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaBC}
-                <calcite-chip
-                    scale="s"
-                    value="eaBC"
-                    class="eaBC"
-                    label="eaBC"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/bio.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if} 
-            </calcite-chip-group> -->
 </calcite-list-item>
     {/if}
 {/each}

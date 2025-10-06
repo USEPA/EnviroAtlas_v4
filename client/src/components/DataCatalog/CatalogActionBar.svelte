@@ -17,9 +17,9 @@
         { name: "eaCPW", icon: "water", label: " Clean Water", color: "#74CCD1" }, 
         { name: "eaRCA", icon: "rec", label: " Recreation & Culture", color: "#C770B4" }, 
         { name: "eaFFM", icon: "food", label: " Food, Fuel & Materials", color: "#F0E024" }, 
-        //{ name: "eaBC", icon: "bio", label: "Biodiversity Conservation", color: "#2EAE4A" }, 
+        { name: "eaBC", icon: "bio", label: "Biodiversity Conservation", color: "#2EAE4A" }, 
     ];
-
+    let moreFilters = "eaBC"
     /**
      * The on:calciteInputInput function for search filtering.
      * Has basic debounce by setting a timer and waiting 0.5 seconds 
@@ -77,13 +77,33 @@
         Maps</calcite-button>   
 </calcite-action-bar>
     <calcite-chip-group scale="s" slot="footer-start">
-       {#each categories as cat, c (cat.name)}
-        <calcite-button bind:this={catRefs[c]} alignment="start" class={cat.name} id="catFilter" round appearance="outline" on:click={()=>onCatChange(cat)}>
-            <img alt={cat.name} style="width:20px;height:20px;background-color:{cat.color};border-radius:50%" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
-            {cat.label}
-        </calcite-button>    
+        {#each categories as cat, c (cat.name)}
+            {#if cat.name !== moreFilters}
+                <calcite-button bind:this={catRefs[c]} alignment="start" class={cat.name} id="catFilter" round appearance="outline" on:click={()=>onCatChange(cat)}>
+                    <img alt={cat.name} style="width:20px;height:20px;background-color:{cat.color};border-radius:50%" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
+                    {cat.label}
+                </calcite-button>    
+            {/if}
         {/each}
-        <calcite-button id="catFilter" icon-start="plus-circle" round appearance="outline">More Filters</calcite-button>
+        <calcite-button id="catFilter-popover-ref" icon-start="plus-circle" round appearance="outline">More Filters</calcite-button>
+        <calcite-popover
+            placement="trailing-start"
+            overlay-positioning="fixed"
+            scale="s"
+            label="catFilter-popover-ref"
+            reference-element="catFilter-popover-ref"
+            closable
+            heading="More Filters"
+        >
+                    {#each categories as cat, c (cat.name)}
+                    {#if cat.name === moreFilters}
+                    <calcite-button bind:this={catRefs[c]} alignment="start" class={cat.name} id="catFilter" round appearance="outline" on:click={()=>onCatChange(cat)}>
+                        <img alt={cat.name} style="width:20px;height:20px;background-color:{cat.color};border-radius:50%" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
+                        {cat.label}
+                    </calcite-button>
+                    {/if}
+                    {/each}
+        </calcite-popover>
     </calcite-chip-group>
  </calcite-card>
 {/if}
@@ -106,6 +126,12 @@
     }
 
     calcite-button#catFilter {
+        --calcite-button-text-color: black;
+        --calcite-button-border-color: black;
+        --calcite-ui-focus-color: none !important;
+    }
+
+    calcite-button#catFilter-popover-ref {
         --calcite-button-text-color: black;
         --calcite-button-border-color: black;
         --calcite-ui-focus-color: none !important;
