@@ -1,6 +1,7 @@
 <script>
     export let subtopic;
     export let detailsObj;
+    export let detailsArray;
 
     export const openFactSheet = (factSheetsnippet) => {
         let url = "https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/";
@@ -63,7 +64,8 @@
                 </span>
                 {/if}
             </span>
-        <span slot="content-top">
+        {#if detailsObj}
+            <span slot="content-top">
             <h4 style="margin:0;line-height:1.1em">{subtopic.name}</h4>
             <p style="margin-top:5px;margin-bottom:0;font-size:12px;line-height:1.1em">{detailsObj.description}</p>
         </span>    
@@ -83,6 +85,33 @@
                 >Data Access
             </calcite-button>
         </div>
+        {/if}
+        {#if detailsArray}
+            {#each detailsArray as d}
+            <calcite-card>
+            <span slot="description">
+                <h4 style="margin:0;line-height:1.1em">{d.subLayerName}</h4>
+                <p style="margin-top:5px;margin-bottom:0;font-size:12px;line-height:1.1em">{d.description}</p>
+            </span>    
+            <div slot="footer-end">
+                <calcite-button
+                    icon-start="file"
+                    label="{d.layerID}-pdf"
+                    tabindex="0"
+                    role="button"
+                    round
+                    scale="s"
+                    on:click={openFactSheet(d.dfsLink)}
+                    on:keypress={openFactSheet(d.dfsLink)}
+                    >Fact Sheet
+                </calcite-button>
+                <calcite-button icon-start="download-to" round scale="s"
+                    >Data Access
+                </calcite-button>
+            </div>
+            </calcite-card>
+            {/each}
+        {/if}
         </calcite-flow-item>
     </calcite-flow>
 </calcite-popover>
@@ -92,6 +121,11 @@
         width: 310px;
         --calcite-ui-focus-color: none !important;
     }
+
+    calcite-card {
+        padding-bottom: 2px;
+    }
+
     .dot#eaCA {
         background-color: #7f81ba;
     }

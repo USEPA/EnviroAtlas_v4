@@ -217,8 +217,6 @@
             tabindex="-1"
             slot="action-bar"
             expand-disabled
-            on:click={handleCatalogActionClick}
-            on:keypress={handleCatalogActionClick}
         >
         {#each catalogActions as cat, c (cat.name)}
             <div>
@@ -231,6 +229,8 @@
                 icon={cat.icon}
                 scale="l"
                 active={cat.id == $catalog.type}
+                on:click={handleCatalogActionClick}
+                on:keypress={handleCatalogActionClick}
             >
             </calcite-action>
             <calcite-label style="background-color:{cat.color}" layout="block" alignment="center">{cat.label1}<br>{cat.label2}</calcite-label>
