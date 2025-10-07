@@ -4,18 +4,10 @@
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
     import "@esri/calcite-components/dist/components/calcite-button";
-    import "@esri/calcite-components/dist/components/calcite-segmented-control";
-    import "@esri/calcite-components/dist/components/calcite-segmented-control-item";
     import "@esri/calcite-components/dist/components/calcite-list";
     import "@esri/calcite-components/dist/components/calcite-list-item";
-    import "@esri/calcite-components/dist/components/calcite-stepper";
-    import "@esri/calcite-components/dist/components/calcite-stepper-item";
     import "@esri/calcite-components/dist/components/calcite-notice";
-    import "@esri/calcite-components/dist/components/calcite-chip-group";
-    import "@esri/calcite-components/dist/components/calcite-chip";
     import "@esri/calcite-components/dist/components/calcite-action";
-    import "@esri/calcite-components/dist/components/calcite-action-group";
-    import "@esri/calcite-components/dist/components/calcite-tooltip";
     
     import { hasValueUndefined, largestAbsVal, openLayerList } from "src/shared/utilities.js";
     import { activeWidget } from "src/store.ts";

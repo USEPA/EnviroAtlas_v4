@@ -49,10 +49,9 @@
   })
 
   const basemap = new Basemap({
-    style: new BasemapStyle({
-      id: "arcgis/topographic",
-      worldview: "unitedStatesOfAmerica"
-    })
+    portalItem: {
+      id: "7a4aa667d61541c583d9a723c8b349da"
+    }
   })
 
   catalog.subscribe;

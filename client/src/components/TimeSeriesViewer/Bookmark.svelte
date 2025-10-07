@@ -33,8 +33,8 @@
     placement="trailing-start"
     overlay-positioning="fixed"
     scale="s"
-    heading="Filter options"
-    label="Filter options"
+    heading="Geography"
+    label="Geography"
     reference-element="domain-popover-ref"
     id="popover-button"
     bind:this={bookmarkPopupButton}

@@ -205,11 +205,10 @@
     }
 </script>
 
-<calcite-flow data-panel-id="data-catalog" id="data-catalog" open>
-    <calcite-flow-item heading={domain} height-scale="l">
+    <calcite-panel data-panel-id="data-catalog" id="data-catalog" heading={domain}>
         <calcite-action 
             id="domain-popover-ref" 
-            icon="chevron-right" 
+            icon="chevrons-right" 
             slot="header-actions-end"/>
         <Bookmark view={view}/>
         <calcite-action-bar
@@ -264,9 +263,7 @@
                 {/await}
             </calcite-list>
         </calcite-block>
-
-    </calcite-flow-item>
-</calcite-flow>
+    </calcite-panel>
 <calcite-fab
     role="button"
     tabindex="-1"
