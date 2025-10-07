@@ -22,13 +22,6 @@ body {
   width: 100%;
 }
 
-calcite-block {
-  margin-top: 4px;
-  margin-left: 4px;
-  margin-right: 4px;
-  margin-bottom: 0px;
-}
-
 .esri-ui {
   inset: 0px !important;
 }

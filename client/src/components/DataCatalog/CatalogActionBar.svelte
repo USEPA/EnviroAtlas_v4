@@ -125,9 +125,10 @@
     }
 
     calcite-chip {
-        --calcite-chip-border-color: black
+        --calcite-chip-border-color: black;
+        --calcite-ui-focus-color: none !important;
     }
-    
+
     calcite-button#count {
         width:25%;
         margin: 3px;
