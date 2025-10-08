@@ -1,5 +1,5 @@
 <script>
-    import "@esri/calcite-components/dist/components/calcite-filter";
+
     import { categoryFilter, searchTerm } from "/src/store.ts";
     import { expandTopics } from "/src/shared/utilities.js"
 
@@ -35,9 +35,7 @@
             if (searchInput.value.length > 2 ) {
                 $searchTerm = searchInput.value;
                 $categoryFilter = '';
-                catRefs.forEach(elem => {
-                    elem.classList.remove('filtered')
-                });
+                // TODO: Need to clear category filter chips 
                 expandTopics();
             } else {
                 $searchTerm = '';
@@ -60,7 +58,11 @@
             $categoryFilter = '';
             expandTopics(false);
         }
+        //TODO: Build logic for selecting category filter between the two chip groups
     };
+
+    //TODO: set a max width on "More filters" popover, so 
+    // the eaBC and eaCS stack vertically
 </script>
 
 {#if type=='national'}
@@ -87,35 +89,34 @@
                 on:calciteChipSelect={()=>onCatChange(cat)}
             >
                 <img slot="image" alt={cat.name} style="width:20x;height:20px;background-color:{cat.color};border-radius:50%" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">{cat.label}
-        </calcite-chip>
+            </calcite-chip>
         {/if}
         {/each}
-        <calcite-chip id="catFilter-popover-ref" icon="plus-circle" round appearance="outline">More Filters</calcite-chip>
+            <calcite-chip id="catFilter-popover-ref" icon="plus-circle" round appearance="outline">More Filters</calcite-chip>
         </calcite-chip-group> 
-        <calcite-popover
-            placement="trailing-start"
-            overlay-positioning="fixed"
-            scale="s"
-            label="catFilter-popover-ref"
-            reference-element="catFilter-popover-ref"
-            closable
-            heading="More Filters"
-        >
-            <calcite-chip-group 
-                scale='s' selection-mode="single" 
-                label="cat-filter-chip-group">
-                {#each categories as cat, c (cat.name)}
-                {#if cat.name === moreFilters || cat.name === moreFilter2}
-                    <calcite-chip scale="s" bind:this={catRefs[c]} id="catFilter" round appearance="outline" on:click={()=>onCatChange(cat)}>
-                        <img slot="image" alt={cat.name} style="width:20px;height:20px;background-color:{cat.color};border-radius:50%" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
-                        {cat.label}
-                    </calcite-chip>
-                {/if}
-                {/each}
-            </calcite-chip-group> 
-        </calcite-popover>
-    
- </calcite-card>
+    <calcite-popover
+        placement="trailing-start"
+        overlay-positioning="fixed"
+        scale="s"
+        label="catFilter-popover-ref"
+        reference-element="catFilter-popover-ref"
+        closable
+        heading="More Filters"
+    >
+        <calcite-chip-group 
+            scale='s' selection-mode="single" 
+            label="cat-filter-chip-group">
+            {#each categories as cat, c (cat.name)}
+            {#if cat.name === moreFilters || cat.name === moreFilter2}
+                <calcite-chip scale="s" bind:this={catRefs[c]} id="catFilter" round appearance="outline" on:click={()=>onCatChange(cat)}>
+                    <img slot="image" alt={cat.name} style="width:20px;height:20px;background-color:{cat.color};border-radius:50%" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
+                    {cat.label}
+                </calcite-chip>
+            {/if}
+            {/each}
+        </calcite-chip-group> 
+    </calcite-popover>
+</calcite-card>
 {/if}
 
 <style>

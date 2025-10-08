@@ -38,7 +38,6 @@
     reference-element="domain-popover-ref"
     id="popover-button"
     bind:this={bookmarkPopupButton}
-    closable
 >
     <calcite-action-group id="bookmark-action-group" scale="s">
         {#each bookmarks as bm}
@@ -62,5 +61,18 @@
 <style>
     calcite-action {
         --calcite-ui-focus-color: none !important;
+        --calcite-action-background-color: #63778c;
+        --calcite-action-text-color: white !important;
+        --calcite-action-background-color-hover: #8091a2;
+        --calcite-action-text-color-press: white;
+        --calcite-action-background-color-press: #8091a2;
+        --calcite-action-indicator-color: yellow;
+    }
+
+    calcite-popover {
+        --calcite-popover-background-color: #63778c;
+        --calcite-popover-text-color: white;
+        --calcite-internal-action-text-color: white !important;
+        --calcite-popover-icon-color: white
     }
 </style>

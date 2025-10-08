@@ -201,6 +201,10 @@
     function listItemExpand() {
         !this.open ? this.setAttribute("expanded", "") : this.removeAttribute("expanded")
     }
+
+    function toggleChevron() {
+        this.icon == 'chevrons-right' ? this.setAttribute("icon", "chevrons-left") : this.setAttribute("icon", "chevrons-right")
+    }
 </script>
 
 <calcite-block scale="l" id="domainHeader" heading={domain} style="background-color:#63778c">
@@ -208,6 +212,7 @@
         id="domain-popover-ref" 
         icon="chevrons-right"
         slot="actions-end"
+        on:click={toggleChevron}
         />
 </calcite-block>
 <Bookmark view={view}/>
