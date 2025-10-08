@@ -97,6 +97,7 @@
         '': ''
     }
 </script>
+
 {#if subtopic.isVisible}
 {#each Object.entries(dataTypeDict) as [dTypeLabel, dTypeValue] (dTypeLabel)}
     {#if subtopic.sourceType == dTypeValue}
@@ -149,14 +150,17 @@
         --calcite-list-background-color: #fff;
         --calcite-list-background-color-hover: none;
         --calcite-list-background-color-press: none;
+        --calcite-spacing-xxs: 0
     } 
 
     #concernFilterDiv {
-        padding-left: 24px;
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		grid-gap: 5px;
+        padding-left: 16px;
+		display: inline-flex;
+		grid-template-columns: repeat(3, 1fr);
 		max-width: 400px;
-        font-size: 11px !important;
+    }
+
+    calcite-label {
+        padding-right: 15px
     }
 </style>

@@ -62,6 +62,13 @@
                         style="width:24px;height:24px;padding-left:3px;padding-top:3px" 
                         src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/bio.png">
                 </span>
+                {/if}                
+                {#if subtopic.eaCS}
+                <span class="dot" id=eaCS>
+                    <img alt="eaCS" 
+                        style="width:24px;height:24px;padding-left:3px;padding-top:3px" 
+                        src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/clim.png">
+                </span>
                 {/if}
             </span>
         {#if detailsObj}
@@ -155,5 +162,9 @@
 
     .dot#eaRCA {
         background-color: #c770b4;
+    }
+
+    .dot#eaCS {
+        background-color: #F99F1F;
     }
 </style>
