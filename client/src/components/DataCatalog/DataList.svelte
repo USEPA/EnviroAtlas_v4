@@ -2,8 +2,6 @@
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
     import "@esri/calcite-components/dist/components/calcite-avatar";
-    import "@esri/calcite-components/dist/components/calcite-flow";
-    import "@esri/calcite-components/dist/components/calcite-flow-item";
     import "@esri/calcite-components/dist/components/calcite-card";
     import "@esri/calcite-components/dist/components/calcite-popover";
     import "@esri/calcite-components/dist/components/calcite-action-group";
@@ -205,65 +203,68 @@
     }
 </script>
 
-    <calcite-panel data-panel-id="data-catalog" id="data-catalog" heading={domain}>
-        <calcite-action 
-            id="domain-popover-ref" 
-            icon="chevrons-right" 
-            slot="header-actions-end"/>
-        <Bookmark view={view}/>
-        <calcite-action-bar
-            role="menu" 
-            tabindex="-1"
-            slot="action-bar"
-            expand-disabled
+<calcite-block scale="l" id="domainHeader" heading={domain} style="background-color:#63778c">
+    <calcite-action 
+        id="domain-popover-ref" 
+        icon="chevrons-right"
+        slot="actions-end"
+        />
+</calcite-block>
+<Bookmark view={view}/>
+<calcite-panel data-panel-id="data-catalog" id="data-catalog">
+    <calcite-action-bar
+        role="menu" 
+        tabindex="-1"
+        slot="action-bar"
+        expand-disabled
+    >
+    {#each catalogActions as cat, c (cat.name)}
+        <div>
+        <calcite-action
+            bind:this={actionRefs[c]}
+            id="catalog-actions"
+            alignment="center"
+            data-action-id={cat.id}
+            text={cat.id}
+            icon={cat.icon}
+            scale="l"
+            active={cat.id == $catalog.type}
+            on:click={handleCatalogActionClick}
+            on:keypress={handleCatalogActionClick}
         >
-        {#each catalogActions as cat, c (cat.name)}
-            <div>
-            <calcite-action
-                bind:this={actionRefs[c]}
-                id="catalog-actions"
-                alignment="center"
-                data-action-id={cat.id}
-                text={cat.id}
-                icon={cat.icon}
-                scale="l"
-                active={cat.id == $catalog.type}
-                on:click={handleCatalogActionClick}
-                on:keypress={handleCatalogActionClick}
-            >
-            </calcite-action>
-            <calcite-label style="background-color:{cat.color}" layout="block" alignment="center">{cat.label1}<br>{cat.label2}</calcite-label>
-            </div>
-        {/each}
-        </calcite-action-bar>
-        <TimeSeriesViewer view={view} geography={$geography}/>
-        <AddData map={map} />
-        <calcite-block data-panel-id="national" heading="EnviroAtlas Data Catalog" description="Explore the relationships between land use, environment, health, safety, and economy" open data-testid="national">
-            <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
-            <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>
-                {#await eaTopics}
-                    <p>...loading</p>
-                {:then}
-                    {#each $filteredNationalItems as ea (ea.topic)}
-                    {#if ea.isVisible}
-                    <calcite-list-item
-                        id={ea.categoryTab}
-                        label={ea.topic}
-                        value={ea.topic}
-                        on:calciteListItemSelect={listItemExpand}
-                    >
-                        {#if ea.subtopic}
-                            {#each ea.subtopic as subtopic (subtopic.subTopicID)}
-                                <CatalogListItem {subtopic} {view} />
-                            {/each}
-                        {/if}
-                    </calcite-list-item>
+        </calcite-action>
+        <calcite-label style="background-color:{cat.color}" layout="block" alignment="center">{cat.label1}<br>{cat.label2}</calcite-label>
+        </div>
+    {/each}
+    </calcite-action-bar>
+    <TimeSeriesViewer view={view} geography={$geography}/>
+    <AddData map={map} />
+    <calcite-block data-panel-id="national" heading="EnviroAtlas Data Catalog" description="Explore the relationships between land use, environment, health, safety, and economy" open data-testid="national">
+        <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
+        <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>
+            {#await eaTopics}
+                <p>...loading</p>
+            {:then}
+                {#each $filteredNationalItems as ea (ea.topic)}
+                {#if ea.isVisible}
+                <calcite-list-item
+                    id={ea.categoryTab}
+                    label={ea.topic}
+                    value={ea.topic}
+                    on:calciteListItemSelect={listItemExpand}
+                >
+                    {#if ea.subtopic}
+                        {#each ea.subtopic as subtopic (subtopic.subTopicID)}
+                            <CatalogListItem {subtopic} {view} />
+                        {/each}
                     {/if}
-                    {/each}
-                {/await}
-            </calcite-list>
-        </calcite-block>
-    </calcite-panel>
+                </calcite-list-item>
+                {/if}
+                {/each}
+            {/await}
+        </calcite-list>
+    </calcite-block>
+</calcite-panel>
 <calcite-fab
     role="button"
     tabindex="-1"
@@ -323,5 +324,17 @@
 
     calcite-label {
         --calcite-label-text-color: #6b6b6b
+    }
+
+    calcite-block#domainHeader {
+        --calcite-block-heading-text-color:white;
+    }
+
+    calcite-action#domain-popover-ref {
+        --calcite-action-background-color: #63778c;
+        --calcite-action-text-color: white;
+        --calcite-action-background-color-hover: #8091a2;
+        --calcite-action-text-color-press: white;
+        --calcite-action-background-color-press: #8091a2
     }
 </style>
