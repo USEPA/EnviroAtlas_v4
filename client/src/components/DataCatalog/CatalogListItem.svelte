@@ -52,7 +52,7 @@
         if (subtopic.layers.length < 2) {
             layerID = subtopic.layers[0].layerID
             let detailsParams = {
-                select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"DownloadSource":1,"metadataID":1}`)
+                select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"agoID":1,"metadataID":1,"url":1}`)
             };
             let detailsObj = await getEaData(`/ea/api/layers/${layerID}`, detailsParams);
             let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
@@ -70,7 +70,7 @@
             for (const lyr of subtopic.layers) {
                 layerID = lyr.layerID
                 let detailsParams = {
-                    select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"DownloadSource":1,"metadataID":1,"subLayerName":1}`)
+                    select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"DownloadSource":1,"metadataID":1,"subLayerName":1,"agoID":1,"url":1}`)
                 };
                 let details = await getEaData(`/ea/api/layers/${layerID}`, detailsParams);
                 detailsArray.push(details)

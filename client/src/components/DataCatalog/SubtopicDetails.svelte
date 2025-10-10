@@ -1,12 +1,24 @@
 <script>
+    import { isStringNotEmpty } from "src/shared/utilities.js";
+
     export let subtopic;
     export let detailsObj;
     export let detailsArray;
-
+    
     export const openFactSheet = (factSheetsnippet) => {
         let url = "https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/";
         window.open(url + factSheetsnippet);
     };
+
+    export const openDataAccess = (d) => {
+        console.log(d)
+        if (isStringNotEmpty(d.agoID)) {
+            let url = "https://epa.maps.arcgis.com/home/item.html?id="
+            window.open(url + d.agoID)
+        } else {
+            window.open(d.url)
+        }
+    }
 </script>
 
 <calcite-popover
@@ -88,7 +100,7 @@
                 on:keypress={openFactSheet(detailsObj.dfsLink)}
                 >Fact Sheet
             </calcite-button>
-            <calcite-button icon-start="download-to" round scale="s"
+            <calcite-button icon-start="download-to" round scale="s" on:click={openDataAccess(detailsObj)}
                 >Data Access
             </calcite-button>
         </div>
@@ -112,7 +124,7 @@
                     on:keypress={openFactSheet(d.dfsLink)}
                     >Fact Sheet
                 </calcite-button>
-                <calcite-button icon-start="download-to" round scale="s"
+                <calcite-button icon-start="download-to" round scale="s" on:click={openDataAccess(d)}
                     >Data Access
                 </calcite-button>
             </div>
@@ -125,7 +137,7 @@
 
 <style>
     calcite-flow-item {
-        width: 310px;
+        width: 330px;
         --calcite-ui-focus-color: none !important;
     }
 

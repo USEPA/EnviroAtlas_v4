@@ -384,7 +384,7 @@
   }
 
   calcite-navigation {
-    --calcite-navigation-background-color: #005ea2;
+    --calcite-navigation-background-color: #2F3540;
     --calcite-color-text-1: white;
     --calcite-color-foreground-2: none;
     --calcite-color-foreground-3: none;

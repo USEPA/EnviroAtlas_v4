@@ -25,15 +25,6 @@ export async function getEaData(url, params) {
     }
 };
 
-export function getQueryStringParams(urlObj=window.location.href) {
-    if (typeof(urlObj)=="string") urlObj = new URL(urlObj);
-    let params = {};
-    for (let [key,value] of urlObj.searchParams.entries()) {
-        params[key] = value;
-    }
-    return params;
-};
-
 // TEST: is it faster to load data from portal item metadata instead of EAAPI?
 export function addLayer(lObj, view) {
     // Look for the layer already in the view
@@ -281,3 +272,7 @@ export function openLayerList(activeWidget) {
         shell.removeAttribute("collapsed");
     }
 };
+
+export function isStringNotEmpty(str) {
+  return typeof str === 'string' && str.trim().length > 0;
+}

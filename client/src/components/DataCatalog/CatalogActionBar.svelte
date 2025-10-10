@@ -134,10 +134,10 @@
         width:25%;
         margin: 3px;
         --calcite-ui-focus-color: none !important;
-        --calcite-color-brand-hover: #005ea2;
-        --calcite-color-brand-press: #005ea2; 
+        --calcite-color-brand-hover: #2F3540;
+        --calcite-color-brand-press: 2F3540; 
         --calcite-button-background-color: white;
-        --calcite-button-text-color: #005ea2;
+        --calcite-button-text-color: 2F3540;
         --calcite-button-border-color:#6a6a6a
     }
 </style> 
