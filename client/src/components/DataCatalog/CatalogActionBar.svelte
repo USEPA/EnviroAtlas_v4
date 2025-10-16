@@ -10,6 +10,9 @@
     let searchInput;
     let catRefs = [];
     let timer;
+    let moreFiltersChip;
+    let moreFiltersGroup;
+    let moreFiltersPopover;
     
     let categories = [
         { name: "eaCA", icon: "air", label: " Clean Air", color: "#7f81ba" }, 
@@ -20,8 +23,9 @@
         { name: "eaBC", icon: "bio", label: "Biodiversity Conservation", color: "#2EAE4A" },
         { name: "eaCS", icon: "clim", label: "Climate Stabilization", color: "#F99F1F"}
     ];
-    let moreFilters = "eaBC"
-    let moreFilter2 = "eaCS"
+    let moreFilters = categories[5].name
+    let moreFilter2 = categories[6].name
+
     /**
      * The on:calciteInputInput function for search filtering.
      * Has basic debounce by setting a timer and waiting 0.5 seconds 
@@ -45,24 +49,54 @@
     };
 
     /**
-     * The on:click function for category filter chips. 
+     * The on:click function for category filter chips.
+     * Helps control UI for selecting category filter between the two chip groups,
+     * main chip group and "More Filters" chip group.
      * Controls the categoryFilter store value for catalog filtering.
      * Expands or collapses the topics in the list.
      * @param {object} cat - the selected category data dictionary
      */
     const onCatChange = (cat) => {
         if ($categoryFilter != cat.name) {
+            if ($categoryFilter === 'eaBC' || $categoryFilter === 'eaCS') {
+                if ($categoryFilter === 'eaBC') {
+                    catRefs[5].removeAttribute("selected")
+                    moreFiltersPopover.removeAttribute("open")
+                };
+                if ($categoryFilter === 'eaCS') {
+                    catRefs[6].removeAttribute("selected")
+                    moreFiltersPopover.removeAttribute("open")
+                };
+            }
             $categoryFilter = cat.name;
             expandTopics();
         } else if ($categoryFilter === cat.name) {
             $categoryFilter = '';
             expandTopics(false);
         }
-        //TODO: Build logic for selecting category filter between the two chip groups
     };
 
-    //TODO: set a max width on "More filters" popover, so 
-    // the eaBC and eaCS stack vertically
+    const clearCatFilter = () => {
+        if ($categoryFilter !== 'eaBC' && $categoryFilter !== 'eaCS') {
+            $categoryFilter = '';
+            expandTopics(false);
+        }
+    }
+
+    const popoverClose = () => {
+        console.log(moreFiltersGroup.selectedItems)
+        if (moreFiltersGroup.selectedItems[0]) {
+            moreFiltersChip.setAttribute("selected", "")
+        } else if (!moreFiltersGroup.selectedItems[0]) {
+            moreFiltersChip.removeAttribute("selected")
+        }
+    }
+
+    const popoverOpen = () => {
+        if (moreFiltersGroup.selectedItems[0]) {
+            moreFiltersChip.setAttribute("selected", "")
+        }
+    }
 </script>
 
 {#if type=='national'}
@@ -88,13 +122,27 @@
                 appearance='outline-fill'
                 on:calciteChipSelect={()=>onCatChange(cat)}
             >
-                <img slot="image" alt={cat.name} style="width:20x;height:20px;background-color:{cat.color};border-radius:50%" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">{cat.label}
+                <img 
+                    slot="image" 
+                    alt={cat.name} 
+                    style="width:20x;height:20px;background-color:{cat.color};border-radius:50%" 
+                    src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png"
+                >{cat.label}
             </calcite-chip>
         {/if}
         {/each}
-            <calcite-chip id="catFilter-popover-ref" icon="plus-circle" round appearance="outline">More Filters</calcite-chip>
+            <calcite-chip
+                bind:this={moreFiltersChip} 
+                id="catFilter-popover-ref" 
+                icon="plus-circle" 
+                round 
+                appearance="outline" 
+                on:calciteChipSelect={clearCatFilter}
+            >More Filters</calcite-chip>
         </calcite-chip-group> 
     <calcite-popover
+        bind:this={moreFiltersPopover}
+        id="morefilters"
         placement="trailing-start"
         overlay-positioning="fixed"
         scale="s"
@@ -102,17 +150,31 @@
         reference-element="catFilter-popover-ref"
         closable
         heading="More Filters"
+        on:calcitePopoverClose={popoverClose}
+        on:calcitePopoverOpen={popoverOpen}
     >
         <calcite-chip-group 
+            bind:this={moreFiltersGroup}
             scale='s' selection-mode="single" 
             label="cat-filter-chip-group">
             {#each categories as cat, c (cat.name)}
-            {#if cat.name === moreFilters || cat.name === moreFilter2}
-                <calcite-chip scale="s" bind:this={catRefs[c]} id="catFilter" round appearance="outline" on:click={()=>onCatChange(cat)}>
-                    <img slot="image" alt={cat.name} style="width:20px;height:20px;background-color:{cat.color};border-radius:50%" src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
-                    {cat.label}
-                </calcite-chip>
-            {/if}
+                {#if cat.name === moreFilters || cat.name === moreFilter2}
+                    <calcite-chip 
+                        scale="s" 
+                        bind:this={catRefs[c]} 
+                        id="catFilter" 
+                        round 
+                        appearance="outline" 
+                        on:click={()=>onCatChange(cat)}
+                    >
+                        <img 
+                            slot="image" 
+                            alt={cat.name} 
+                            style="width:20px;height:20px;background-color:{cat.color};border-radius:50%" 
+                            src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png"
+                        >{cat.label}
+                    </calcite-chip>
+                {/if}
             {/each}
         </calcite-chip-group> 
     </calcite-popover>
@@ -120,6 +182,9 @@
 {/if}
 
 <style>
+    calcite-popover#morefilters {
+        --calcite-popover-max-size-x: 210px
+    }
     calcite-input {
         width: 75%;
         margin: 3px;
