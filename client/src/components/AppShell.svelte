@@ -13,7 +13,6 @@
   import Basemap from "@arcgis/core/Basemap.js";
   import PortalBasemapsSource from "@arcgis/core/widgets/BasemapGallery/support/PortalBasemapsSource.js";
   import Portal from "@arcgis/core/portal/Portal.js";
-  import BasemapStyle from "@arcgis/core/support/BasemapStyle.js";
   import * as reactiveUtils from "@arcgis/core/core/reactiveUtils.js";
   //import FeatureTable from "@arcgis/core/widgets/FeatureTable";
 
@@ -24,6 +23,7 @@
   import "@arcgis/map-components/components/arcgis-layer-list";
   import "@arcgis/map-components/components/arcgis-zoom";
   import "@arcgis/map-components/components/arcgis-search";
+  import "@arcgis/map-components/components/arcgis-sketch";
   import "@arcgis/map-components/components/arcgis-features";
 
   // Import components and store
@@ -327,6 +327,11 @@
       icon="basemap"
       text="Basemaps"
     />
+    <calcite-action
+      data-action-id="maptools"
+      icon="system-management"
+      text="Other Map Tools"
+    />
   </calcite-action-bar>
   <calcite-panel
     heading="Active Layer List"
@@ -357,6 +362,18 @@
       bind:this={bmgContainer}
       referenceElement={view}
       source={portalBasemapsSource}
+    />
+  </calcite-panel>
+    <calcite-panel
+    heading="Other Map Tools"
+    height-scale="l"
+    data-panel-id="maptools"
+    hidden
+    closed
+  >
+    <arcgis-sketch
+      position="manual"
+      referenceElement={view}
     />
   </calcite-panel>
   <SummarizeMyArea /> 
