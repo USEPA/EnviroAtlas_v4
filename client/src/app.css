@@ -3,7 +3,7 @@
 
 html,
 body {
-  --calcite-color-brand: #005ea2;
+  --calcite-color-brand: #2F3540;
   --calcite-color-brand-hover: #1a4480;
   --calcite-color-brand-press: #162e51;
   --calcite-color-text-link: #1a4480;
@@ -28,5 +28,26 @@ body {
 
 calcite-list-item {
   --calcite-list-spacing-indent: none !important;
-  
+}
+
+.esri-coordinate-conversion {
+  background-color: #ffffff54;
+  width: 180px;
+  top: 0px;
+  height: 19px;
+  font-weight: 600;
+  font-size: 11px;
+  color: #323232;
+  box-shadow: none !important;
+  pointer-events: none !important;
+  user-select: text;
+}
+
+.esri-coordinate-conversion__conversion-list {
+  position: relative;
+  top: -13px;
+}
+
+.esri-coordinate-conversion__select-row, .esri-coordinate-conversion__input-select {
+  display:none;
 }

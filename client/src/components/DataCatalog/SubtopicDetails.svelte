@@ -1,12 +1,34 @@
 <script>
+    import { isStringNotEmpty } from "src/shared/utilities.js";
+
     export let subtopic;
     export let detailsObj;
     export let detailsArray;
 
+    let categories = [
+        { name: "eaCA", icon: "air" }, 
+        { name: "eaNHM", icon: "haz" }, 
+        { name: "eaCPW", icon: "water" }, 
+        { name: "eaRCA", icon: "rec" }, 
+        { name: "eaFFM", icon: "food" }, 
+        { name: "eaBC", icon: "bio" },
+        { name: "eaCS", icon: "clim" }
+    ];
+    
     export const openFactSheet = (factSheetsnippet) => {
         let url = "https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/";
         window.open(url + factSheetsnippet);
     };
+
+    export const openDataAccess = (d) => {
+        console.log(d)
+        if (isStringNotEmpty(d.agoID)) {
+            let url = "https://epa.maps.arcgis.com/home/item.html?id="
+            window.open(url + d.agoID)
+        } else {
+            window.open(d.url)
+        }
+    }
 </script>
 
 <calcite-popover
@@ -21,55 +43,15 @@
     <calcite-flow>
         <calcite-flow-item heading="Details">
             <span slot="header-actions-end" style="display:inline-block;align-content:center;">
-                {#if subtopic.eaCA}
-                <span class="dot" id=eaCA>
-                    <img alt="eaCA" 
-                        style="width:24px;height:24px;padding-left:3px;padding-top:3px" 
-                        src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/air.png">
-                </span>
-                {/if}
-                {#if subtopic.eaCPW}
-                <span class="dot" id=eaCPW>
-                    <img alt="eaCPW" 
-                        style="width:24px;height:24px;padding-left:3px;padding-top:3px" 
-                        src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/water.png">
-                </span>
-                {/if}
-                {#if subtopic.eaNHM}
-                <span class="dot" id=eaNHM>
-                    <img alt="eaNHM" 
-                        style="width:24px;height:24px;padding-left:3px;padding-top:3px" 
-                        src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/haz.png">
-                </span>
-                {/if}
-                {#if subtopic.eaRCA}
-                <span class="dot" id=eaRCA>
-                    <img alt="eaRCA" 
-                        style="width:24px;height:24px;padding-left:3px;padding-top:3px" 
-                        src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/rec.png">
-                </span>
-                {/if}
-                {#if subtopic.eaFFM}
-                <span class="dot" id=eaFFM>
-                    <img alt="eaFFM" 
-                        style="width:24px;height:24px;padding-left:3px;padding-top:3px" 
-                        src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/food.png">
-                </span>
-                {/if}
-                {#if subtopic.eaBC}
-                <span class="dot" id=eaBC>
-                    <img alt="eaBC" 
-                        style="width:24px;height:24px;padding-left:3px;padding-top:3px" 
-                        src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/bio.png">
-                </span>
-                {/if}                
-                {#if subtopic.eaCS}
-                <span class="dot" id=eaCS>
-                    <img alt="eaCS" 
-                        style="width:24px;height:24px;padding-left:3px;padding-top:3px" 
-                        src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/clim.png">
-                </span>
-                {/if}
+                {#each categories as cat (cat.name)}
+                    {#if subtopic[cat.name]}
+                    <span class="dot" id={cat.name}>
+                        <img alt={cat.name} 
+                            style="width:24px;height:24px;padding-left:3px;padding-top:3px" 
+                            src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
+                    </span>
+                    {/if}
+                {/each}
             </span>
         {#if detailsObj}
             <span slot="content-top">
@@ -88,7 +70,7 @@
                 on:keypress={openFactSheet(detailsObj.dfsLink)}
                 >Fact Sheet
             </calcite-button>
-            <calcite-button icon-start="download-to" round scale="s"
+            <calcite-button icon-start="download-to" round scale="s" on:click={openDataAccess(detailsObj)}
                 >Data Access
             </calcite-button>
         </div>
@@ -112,7 +94,7 @@
                     on:keypress={openFactSheet(d.dfsLink)}
                     >Fact Sheet
                 </calcite-button>
-                <calcite-button icon-start="download-to" round scale="s"
+                <calcite-button icon-start="download-to" round scale="s" on:click={openDataAccess(d)}
                     >Data Access
                 </calcite-button>
             </div>
@@ -125,7 +107,7 @@
 
 <style>
     calcite-flow-item {
-        width: 310px;
+        width: 330px;
         --calcite-ui-focus-color: none !important;
     }
 

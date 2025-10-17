@@ -273,12 +273,14 @@
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal).toFixed(1)), 
                     maxValue: Number((smallestVal + negativeBreakDiff).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [61, 92, 164, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [61, 92, 164, 0.6], outline: sls}),
+                    label: Number((smallestVal).toFixed(1)) + ' – ' + Number((smallestVal + negativeBreakDiff).toFixed(1)), 
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal + negativeBreakDiff).toFixed(1)), 
                     maxValue: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [104, 159, 201, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [104, 159, 201, 0.6], outline: sls}),
+                    label: Number((smallestVal + negativeBreakDiff).toFixed(1)) + ' – ' + Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)),
@@ -303,22 +305,26 @@
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), 
                     maxValue: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [250, 157, 91, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [250, 157, 91, 0.6], outline: sls}),
+                    label: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), 
                     maxValue: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [233, 92, 59, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [233, 92, 59, 0.6], outline: sls}),
+                    label: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), 
                     maxValue: Number((largestVal - positiveBreakDiff).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [206, 45, 43, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [206, 45, 43, 0.6], outline: sls}),
+                    label: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - positiveBreakDiff).toFixed(1)), 
                     maxValue: Number(largestVal.toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [165, 0, 38, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [165, 0, 38, 0.6], outline: sls}),
+                    label: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1))
                 });
             }
             if (clim.value == "PRin" || clim.value == "PEin") {
@@ -331,12 +337,14 @@
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal).toFixed(1)), 
                     maxValue: Number((smallestVal + negativeBreakDiff).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [133, 46, 4, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [133, 46, 4, 0.6], outline: sls}),
+                    label: Number((smallestVal).toFixed(1)) + ' – ' + Number((smallestVal + negativeBreakDiff).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal + negativeBreakDiff).toFixed(1)), 
                     maxValue: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [218, 92, 10, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [218, 92, 10, 0.6], outline: sls}),
+                    label: Number((smallestVal + negativeBreakDiff).toFixed(1)) + ' – ' + Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)), 
@@ -361,22 +369,26 @@
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
                     maxValue: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)),
-                    symbol: new SimpleFillSymbol({color: [79, 280, 252, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [79, 280, 252, 0.6], outline: sls}),
+                    label: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), 
                     maxValue: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [0, 127, 216, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [0, 127, 216, 0.6], outline: sls}),
+                    label: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), 
                     maxValue: Number((largestVal - positiveBreakDiff).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [0, 0, 139, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [0, 0, 139, 0.6], outline: sls}),
+                    label: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - positiveBreakDiff).toFixed(1)), 
                     maxValue: Number(largestVal.toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [175, 21, 137, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [175, 21, 137, 0.6], outline: sls}),
+                    label: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1))
                 });
             }
         } else if (minVal > 0 && maxVal > 0) { // when the max and min value is greater than 0
@@ -460,22 +472,26 @@
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), 
                     maxValue: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [250, 157, 91, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [250, 157, 91, 0.6], outline: sls}),
+                    label: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), 
                     maxValue: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [233, 92, 59, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [233, 92, 59, 0.6], outline: sls}),
+                    label: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), 
                     maxValue: Number((largestVal - positiveBreakDiff).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [206, 45, 43, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [206, 45, 43, 0.6], outline: sls}),
+                    label: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - positiveBreakDiff).toFixed(1)), 
                     maxValue: Number(largestVal.toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [165, 0, 38, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [165, 0, 38, 0.6], outline: sls}),
+                    label: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1))
                 });
             }
             if (clim.value == "PRin" || clim.value == "PEin") {
@@ -507,22 +523,26 @@
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), 
                     maxValue: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [79, 280, 252, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [79, 280, 252, 0.6], outline: sls}),
+                    label: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), 
                     maxValue: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [0, 127, 216, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [0, 127, 216, 0.6], outline: sls}),
+                    label: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), 
                     maxValue: Number((largestVal - positiveBreakDiff).toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [0, 0, 139, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [0, 0, 139, 0.6], outline: sls}),
+                    label: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1))
                 });
                 renderer.addClassBreakInfo({
                     minValue: Number((largestVal - positiveBreakDiff).toFixed(1)), 
                     maxValue: Number(largestVal.toFixed(1)), 
-                    symbol: new SimpleFillSymbol({color: [175, 21, 137, 0.6], outline: sls})
+                    symbol: new SimpleFillSymbol({color: [175, 21, 137, 0.6], outline: sls}),
+                    label: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1))
                 });
             }
         } else { // all negative
@@ -583,26 +603,30 @@
                 var smallestVal = Math.floor(minVal);
                 var negativeBreakDiff = (smallestVal / 5);
                 // negative (5 classes)
-                renderer.addClassBreakInfo(
-                    Number(smallestVal.toFixed(1)), 
-                    Number((smallestVal - negativeBreakDiff).toFixed(1)), 
-                    new SimpleFillSymbol({color: [54, 75, 38, 0.6], outline: sls})
-                ); //blue
-                renderer.addClassBreakInfo(
-                    Number((smallestVal - negativeBreakDiff).toFixed(1)), 
-                    Number((smallestVal - (2 * negativeBreakDiff)).toFixed(1)), 
-                    new SimpleFillSymbol({color: [61, 92, 164, 0.6], outline: sls})
-                ); //blue
-                renderer.addClassBreakInfo(
-                    Number((smallestVal - (2 * negativeBreakDiff)).toFixed(1)), 
-                    Number((smallestVal - (3 * negativeBreakDiff)).toFixed(1)), 
-                    new SimpleFillSymbol({color: [104, 159, 201, 0.6], outline: sls})
-                ); //blue
-                renderer.addClassBreakInfo(
-                    Number((smallestVal - (3 * negativeBreakDiff)).toFixed(1)), 
-                    Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1)), 
-                    new SimpleFillSymbol({color: [165, 210, 229, 0.6], outline: sls})
-                ); //blue
+                renderer.addClassBreakInfo({
+                    minValue: Number(smallestVal.toFixed(1)), 
+                    maxValue: Number((smallestVal - negativeBreakDiff).toFixed(1)), 
+                    symbol: new SimpleFillSymbol({color: [54, 75, 38, 0.6], outline: sls}),
+                    label: Number(smallestVal.toFixed(1)) + ' – ' + Number((smallestVal - negativeBreakDiff).toFixed(1))
+                });
+                renderer.addClassBreakInfo({
+                    minValue: Number((smallestVal - negativeBreakDiff).toFixed(1)), 
+                    maxValue: Number((smallestVal - (2 * negativeBreakDiff)).toFixed(1)), 
+                    symbol: new SimpleFillSymbol({color: [61, 92, 164, 0.6], outline: sls}),
+                    label: Number((smallestVal - negativeBreakDiff).toFixed(1)) + ' – ' + Number((smallestVal - (2 * negativeBreakDiff)).toFixed(1))
+                });
+                renderer.addClassBreakInfo({
+                    minValue: Number((smallestVal - (2 * negativeBreakDiff)).toFixed(1)), 
+                    maxValue: Number((smallestVal - (3 * negativeBreakDiff)).toFixed(1)), 
+                    symbol: new SimpleFillSymbol({color: [104, 159, 201, 0.6], outline: sls}),
+                    label: Number((smallestVal - (2 * negativeBreakDiff)).toFixed(1)) + ' – ' + Number((smallestVal - (3 * negativeBreakDiff)).toFixed(1))
+                });
+                renderer.addClassBreakInfo({
+                    minValue: Number((smallestVal - (3 * negativeBreakDiff)).toFixed(1)), 
+                    maxValue: Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1)), 
+                    symbol: new SimpleFillSymbol({color: [165, 210, 229, 0.6], outline: sls}),
+                    label: Number((smallestVal - (3 * negativeBreakDiff)).toFixed(1)) + ' – ' + Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1))
+                });
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1)),
                     maxValue: 0.001,
@@ -630,26 +654,30 @@
                 var smallestVal = Math.floor(minVal);
                 var negativeBreakDiff = (smallestVal / 5);
                 // negative (5 classes)
-                renderer.addClassBreakInfo(
-                    Number(smallestVal.toFixed(1)), 
-                    Number((smallestVal - negativeBreakDiff).toFixed(1)), 
-                    new SimpleFillSymbol({color: [102, 37, 6, 0.6], outline: sls})
-                ); //dark brown
-                renderer.addClassBreakInfo(
-                    Number((smallestVal - negativeBreakDiff).toFixed(1)), 
-                    Number((smallestVal - (2 * negativeBreakDiff)).toFixed(1)), 
-                    new SimpleFillSymbol({color: [196, 72, 2, 0.6], outline: sls})
-                ); //dark orange
-                renderer.addClassBreakInfo(
-                    Number((smallestVal - (2 * negativeBreakDiff)).toFixed(1)), 
-                    Number((smallestVal - (3 * negativeBreakDiff)).toFixed(1)), 
-                    new SimpleFillSymbol({color: [251, 166, 52, 0.6], outline: sls})
-                ); //orange
-                renderer.addClassBreakInfo(
-                    Number((smallestVal - (3 * negativeBreakDiff)).toFixed(1)), 
-                    Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1)), 
-                    new SimpleFillSymbol({color: [253, 192, 76, 0.6], outline: sls})
-                ); //light orange
+                renderer.addClassBreakInfo({
+                    minValue: Number(smallestVal.toFixed(1)), 
+                    maxValue: Number((smallestVal - negativeBreakDiff).toFixed(1)), 
+                    symbol: new SimpleFillSymbol({color: [102, 37, 6, 0.6], outline: sls}),
+                    label: Number(smallestVal.toFixed(1)) + ' – ' + Number((smallestVal - negativeBreakDiff).toFixed(1))
+                });
+                renderer.addClassBreakInfo({
+                    minValue: Number((smallestVal - negativeBreakDiff).toFixed(1)), 
+                    maxValue: Number((smallestVal - (2 * negativeBreakDiff)).toFixed(1)), 
+                    symbol: new SimpleFillSymbol({color: [196, 72, 2, 0.6], outline: sls}),
+                    label: Number((smallestVal - negativeBreakDiff).toFixed(1)) + ' – ' + Number((smallestVal - (2 * negativeBreakDiff)).toFixed(1))
+                });
+                renderer.addClassBreakInfo({
+                    minValue: Number((smallestVal - (2 * negativeBreakDiff)).toFixed(1)), 
+                    maxValue: Number((smallestVal - (3 * negativeBreakDiff)).toFixed(1)), 
+                    symbol: new SimpleFillSymbol({color: [251, 166, 52, 0.6], outline: sls}),
+                    label: Number((smallestVal - (2 * negativeBreakDiff)).toFixed(1)) + ' – ' + Number((smallestVal - (3 * negativeBreakDiff)).toFixed(1))
+                });
+                renderer.addClassBreakInfo({
+                    minValue: Number((smallestVal - (3 * negativeBreakDiff)).toFixed(1)), 
+                    maxValue: Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1)), 
+                    symbol: new SimpleFillSymbol({color: [253, 192, 76, 0.6], outline: sls}),
+                    label: Number((smallestVal - (3 * negativeBreakDiff)).toFixed(1)) + ' – ' + Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1))
+                });
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal - (4 * negativeBreakDiff)).toFixed(1)),
                     maxValue: 0.001,

@@ -317,7 +317,7 @@
 
     calcite-list-item {
         --calcite-ui-focus-color: none !important;
-        --calcite-color-text-2: #005ea2;
+        --calcite-color-text-2: #2F3540;
     }
 
     calcite-action-bar {
