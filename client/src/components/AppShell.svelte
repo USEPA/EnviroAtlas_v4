@@ -13,7 +13,6 @@
   import Basemap from "@arcgis/core/Basemap.js";
   import PortalBasemapsSource from "@arcgis/core/widgets/BasemapGallery/support/PortalBasemapsSource.js";
   import Portal from "@arcgis/core/portal/Portal.js";
-  import BasemapStyle from "@arcgis/core/support/BasemapStyle.js";
   import * as reactiveUtils from "@arcgis/core/core/reactiveUtils.js";
   //import FeatureTable from "@arcgis/core/widgets/FeatureTable";
 
@@ -24,7 +23,10 @@
   import "@arcgis/map-components/components/arcgis-layer-list";
   import "@arcgis/map-components/components/arcgis-zoom";
   import "@arcgis/map-components/components/arcgis-search";
+  import "@arcgis/map-components/components/arcgis-sketch";
   import "@arcgis/map-components/components/arcgis-features";
+  import "@arcgis/map-components/components/arcgis-legend";
+  import "@arcgis/map-components/components/arcgis-area-measurement-2d";
 
   // Import components and store
   import { catalog, activeWidget } from "src/store.ts";
@@ -327,6 +329,11 @@
       icon="basemap"
       text="Basemaps"
     />
+    <calcite-action
+      data-action-id="maptools"
+      icon="system-management"
+      text="Other Map Tools"
+    />
   </calcite-action-bar>
   <calcite-panel
     heading="Active Layer List"
@@ -359,12 +366,37 @@
       source={portalBasemapsSource}
     />
   </calcite-panel>
-  <SummarizeMyArea /> 
+    <calcite-panel
+    heading="Other Map Tools"
+    height-scale="l"
+    data-panel-id="maptools"
+    hidden
+    closed
+  >
+    <calcite-block collapsible expanded heading="Sketch" label="Sketch">
+      <arcgis-sketch
+        position="manual"
+        referenceElement={view}
+        layout="horizontal"
+      />
+    </calcite-block>
+    <calcite-block collapsible expanded heading="Measure" label="Measure">
+      <arcgis-area-measurement-2d
+        referenceElement={view}
+      />
+    </calcite-block>
+    <calcite-block collapsible expanded heading="Legend" label="Legend">
+      <arcgis-legend
+        referenceElement={view}
+      />
+    </calcite-block>
+  </calcite-panel>
+  <SummarizeMyArea />
   </calcite-shell-panel>
   <calcite-shell-panel
-    slot="panel-bottom" 
-    layout="horizontal" 
-    position="end" 
+    slot="panel-bottom"
+    layout="horizontal"
+    position="end"
     id="shell-panel-table"
     collapsed
   >

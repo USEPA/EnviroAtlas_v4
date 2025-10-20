@@ -138,42 +138,6 @@
     // wait for eaTopics to finish before updating data for catalog UI
     eaTopics.then((result) => getEaSubtopics(result)).then(() => $geography = 'CONUS').then(() => countMaps());
 
-    // async function updateListStyle(elem) {
-    //     const shadow = elem.shadowRoot;
-    //     const stylesheet = new CSSStyleSheet();
-    //     stylesheet.replaceSync(`
-    //         .content-container, .container {
-    //             height: 19px;
-    //         }
-    //     `);
-    //     shadow.adoptedStyleSheets = [stylesheet];
-    // }
-
-    // // Need to wait for eaTopics to load before styling list
-    // eaTopics.then(() => styleList());
-
-    // async function styleList() {
-    //     await customElements
-    //     .whenDefined("calcite-list-item");
-    //         // TODO: tidy this up.
-    //         const listESB = await document.querySelectorAll("calcite-list-item.ESB");
-    //         listESB.forEach((elem) => {
-    //             updateListStyle(elem);
-    //         });
-    //         const listPSI = await document.querySelectorAll("calcite-list-item.PSI");
-    //         listPSI.forEach((elem) => {
-    //             updateListStyle(elem);
-    //         });
-    //         const listPBS = await document.querySelectorAll("calcite-list-item.PBS");
-    //         listPBS.forEach((elem) => {
-    //             updateListStyle(elem);
-    //         });
-    //         const listBNF = await document.querySelectorAll("calcite-list-item.BNF");
-    //         listBNF.forEach((elem) => {
-    //             updateListStyle(elem);
-    //         });
-    // };
-
     const handleFabClick = () => {
         let leftActionBar = document.getElementById("left-action-bar");
         let panel = document.getElementById("data-catalog");

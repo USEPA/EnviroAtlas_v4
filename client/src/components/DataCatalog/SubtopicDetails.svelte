@@ -68,11 +68,18 @@
                 scale="s"
                 on:click={openFactSheet(detailsObj.dfsLink)}
                 on:keypress={openFactSheet(detailsObj.dfsLink)}
+                href={detailsObj.dfsLink}
+                target="_blank"
                 >Fact Sheet
             </calcite-button>
-            <calcite-button icon-start="download-to" round scale="s" on:click={openDataAccess(detailsObj)}
-                >Data Access
-            </calcite-button>
+            <calcite-button 
+                icon-start="download-to" 
+                round 
+                scale="s" 
+                on:click={openDataAccess(detailsObj)}
+                target="_blank"
+                href={isStringNotEmpty(detailsObj.agoID) ? "https://epa.maps.arcgis.com/home/item.html?id="+detailsObj.agoID : detailsObj.url}
+            >Data Access</calcite-button>
         </div>
         {/if}
         {#if detailsArray}
@@ -90,13 +97,20 @@
                     role="button"
                     round
                     scale="s"
+                    href={d.dfsLink}
+                    target="_blank"
                     on:click={openFactSheet(d.dfsLink)}
                     on:keypress={openFactSheet(d.dfsLink)}
                     >Fact Sheet
                 </calcite-button>
-                <calcite-button icon-start="download-to" round scale="s" on:click={openDataAccess(d)}
-                    >Data Access
-                </calcite-button>
+                <calcite-button 
+                    icon-start="download-to" 
+                    round 
+                    scale="s" 
+                    target="_blank"
+                    href={isStringNotEmpty(d.agoID) ? "https://epa.maps.arcgis.com/home/item.html?id="+d.agoID : d.url}
+                    on:click={openDataAccess(d)}
+                >Data Access</calcite-button>
             </div>
             </calcite-card>
             {/each}
