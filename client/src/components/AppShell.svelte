@@ -25,6 +25,8 @@
   import "@arcgis/map-components/components/arcgis-search";
   import "@arcgis/map-components/components/arcgis-sketch";
   import "@arcgis/map-components/components/arcgis-features";
+  import "@arcgis/map-components/components/arcgis-legend";
+  import "@arcgis/map-components/components/arcgis-area-measurement-2d";
 
   // Import components and store
   import { catalog, activeWidget } from "src/store.ts";
@@ -371,17 +373,30 @@
     hidden
     closed
   >
-    <arcgis-sketch
-      position="manual"
-      referenceElement={view}
-    />
+    <calcite-block collapsible expanded heading="Sketch" label="Sketch">
+      <arcgis-sketch
+        position="manual"
+        referenceElement={view}
+        layout="horizontal"
+      />
+    </calcite-block>
+    <calcite-block collapsible expanded heading="Measure" label="Measure">
+      <arcgis-area-measurement-2d
+        referenceElement={view}
+      />
+    </calcite-block>
+    <calcite-block collapsible expanded heading="Legend" label="Legend">
+      <arcgis-legend
+        referenceElement={view}
+      />
+    </calcite-block>
   </calcite-panel>
-  <SummarizeMyArea /> 
+  <SummarizeMyArea />
   </calcite-shell-panel>
   <calcite-shell-panel
-    slot="panel-bottom" 
-    layout="horizontal" 
-    position="end" 
+    slot="panel-bottom"
+    layout="horizontal"
+    position="end"
     id="shell-panel-table"
     collapsed
   >
