@@ -7,6 +7,8 @@
   import "@esri/calcite-components/dist/components/calcite-panel";
   import "@esri/calcite-components/dist/components/calcite-navigation";
   import "@esri/calcite-components/dist/components/calcite-navigation-logo";
+  import "@esri/calcite-components/dist/components/calcite-chip";
+  import "@esri/calcite-components/dist/components/calcite-chip-group";
 
   // Import arcgis js api
   import esriConfig from "@arcgis/core/config.js";  
