@@ -303,7 +303,6 @@
     </calcite-action-bar>
     <DataCatalog view={view}/>
   </calcite-shell-panel>
-  <slot></slot>
   <Modal />
   <calcite-shell-panel
     component-id="shell-panel-end"
