@@ -1,104 +1,83 @@
-<script lang="ts">
-  // Import calcite components
-  import '@esri/calcite-components/dist/components/calcite-label';
-  import '@esri/calcite-components/dist/components/calcite-chip-group';
-  import '@esri/calcite-components/dist/components/calcite-chip';
-  import '@esri/calcite-components/dist/components/calcite-modal';
-  import '@esri/calcite-components/dist/components/calcite-button';
-  import '@esri/calcite-components/dist/components/calcite-notice';
-  import '@esri/calcite-components/dist/components/calcite-card';
+<script>
+	// Import calcite components
+	import "@esri/calcite-components/dist/components/calcite-dialog";
+
+	let modal;
 </script>
 
-<calcite-modal aria-labelledby="modal-title" id="example-modal" scale='s'>
-    <div slot="header" id="modal-title">
-      Explore EnviroAtlas
-    </div>
-    <div id='modal-content' slot="content">
-      <calcite-card>
-        <img slot="thumbnail" alt="EA Communities" src='/ea/client/images/EACommunities.png'>
-        <span slot="title">EnviroAtlas Communities</span>
-        <span slot="subtitle">This tool focuses the interactive map display on an EnviroAtlas community selected by the user. The tool zooms the map to the community and tailors community-level map layers to represent only the selected community.
-        </span>
-        <div slot="footer-start" id="example-slotted-footer">
-            <calcite-chip id="badge-1" value="calcite chip" icon="information" scale="s"></calcite-chip>
-            <calcite-chip id="badge-2" value="calcite chip" icon="launch" scale="s"></calcite-chip>
-        </div>
-        <div slot="footer-end">
-            <calcite-action scale="s" icon="ellipsis" id="example-slotted-action"></calcite-action>
-        </div>
-      </calcite-card>
-      <calcite-card>
-        <img slot="thumbnail" alt="EA Climate" src='/ea/client/images/EAClimate.png'>
-        <span slot="title">EnviroAtlas Climate Viewer</span>
-        <span slot="subtitle">This tool allows for exploration of modeled future climate scenarios. User selections for each variable control the climate scenario displayed.
-        </span>
-        <div slot="footer-start" id="example-slotted-footer">
-            <calcite-chip id="badge-1" value="calcite chip" icon="information" scale="s"></calcite-chip>
-            <calcite-chip id="badge-2" value="calcite chip" icon="launch" scale="s"></calcite-chip>
-        </div>
-        <div slot="footer-end">
-            <calcite-action scale="s" icon="ellipsis" id="example-slotted-action"></calcite-action>
-        </div>
-      </calcite-card>
-      <calcite-card>
-        <img slot="thumbnail" alt="EA Compare My Area" src='/ea/client/images/EACompareMyArea.png'>
-        <span slot="title">EnviroAtlas Compare My Area</span>
-        <span slot="subtitle">This tool allows users to obtain a report that details characteristics about a location selected in the EnviroAtlas interactive map.
-        </span>
-        <div slot="footer-start" id="example-slotted-footer">
-            <calcite-chip id="badge-1" value="calcite chip" icon="information" scale="s"></calcite-chip>
-            <calcite-chip id="badge-2" value="calcite chip" icon="launch" scale="s"></calcite-chip>
-        </div>
-        <div slot="footer-end">
-            <calcite-action scale="s" icon="ellipsis" id="example-slotted-action"></calcite-action>
-        </div>
-      </calcite-card>
-        <calcite-tooltip reference-element="badge-1">Information</calcite-tooltip>
-        <calcite-tooltip reference-element="badge-2">Launch</calcite-tooltip>
-      <calcite-card>
-        <img slot="thumbnail" alt="EA Huc 12 Nav" src='/ea/client/images/EAHuc12Nav.png'>
-        <span slot="title">EnviroAtlas HUC 12 Navigator</span>
-        <span slot="subtitle"></span>
-        <calcite-chip slot="footer-start" value="calcite chip" kind="brand" icon="information">
-            Details
-        </calcite-chip>
-        <calcite-chip slot="footer-end" value="calcite chip" icon="launch">
-            Launch
-        </calcite-chip>
-      </calcite-card>
-      <calcite-card>
-        <img slot="thumbnail" alt="EA Raindrop" src='/ea/client/images/EARaindrop.png'>
-        <span slot="title">EnviroAtlas Raindrop</span>
-        <span slot="subtitle"></span>
-        <calcite-chip slot="footer-start" value="calcite chip" kind="brand" icon="information">
-            Details
-        </calcite-chip>
-        <calcite-chip slot="footer-end" value="calcite chip" icon="launch">
-            Launch
-        </calcite-chip>
-      </calcite-card>
-      <calcite-card>
-        <img slot="thumbnail" alt="EA Summarize My Area" src='/ea/client/images/EASummMyArea.png'>
-        <span slot="title">EnviroAtlas Summarize My Area</span>
-        <span slot="subtitle"></span>
-        <calcite-chip slot="footer-start" value="calcite chip" kind="brand" icon="information">
-            Details
-        </calcite-chip>
-        <calcite-chip slot="footer-end" value="calcite chip" icon="launch">
-            Launch
-        </calcite-chip>
-      </calcite-card>
-    </div>
-</calcite-modal>
+<calcite-dialog
+	bind:this={modal}
+	open
+	modal
+	closeDisabled
+	id="example-modal"
+	scale="s"
+>
+	<calcite-tabs layout="center">
+		<calcite-tab-nav slot="title-group">
+			<calcite-tab-title selected> Welcome </calcite-tab-title>
+			<calcite-tab-title>Disclaimer</calcite-tab-title>
+		</calcite-tab-nav>
+		<calcite-tab selected
+			><div style="margin: 0px 15px 0px 15px">
+				<br />
+				<p style="font-size:14px; text-align:center">
+					Welcome! The EnviroAtlas Interactive Map is a discovery and
+					analysis tool for hundreds of data layers relating to
+					ecosystem services, biodiversity, people, and the built
+					environment.
+				</p>
+				<br /><br />
+				By using the EnviroAtlas interactive map, you acknowledge the limitations
+				outlined in our disclaimer.
+			</div>
+		</calcite-tab>
+		<calcite-tab
+			><ul>
+				<li>
+					<b
+						>It is the responsibility of the user to read and
+						evaluate data limitations and restrictions especially
+						with regard to intended use.</b
+					> To the best of our knowledge, the data and information on this
+					website are as accurate as possible, but no warranty expressed
+					or implied is made regarding the accuracy or utility of the data
+					for general or scientific purposes, nor shall the act of distribution
+					constitute any such warranty. All modeled geographic data are,
+					by their nature, imperfect; the data provided in EnviroAtlas
+					should not be taken as absolute truth but as the best approximation
+					of the truth based on best available data.
+				</li>
+				<li>
+					<b
+						>Neither EPA, EPA contractors, nor any other
+						organizations cooperating with EPA assume any
+						responsibility for damages or other liabilities</b
+					> related to the accuracy, availability, use or misuse of the
+					information provided on this website. EPA reserves the right
+					to change information at any time without public notice. Any
+					errors or omissions should be reported to the EnviroAtlas Team.
+					We are always happy to hear your feedback and use that feedback
+					for future enhancements.
+				</li>
+				<li>
+					<b
+						>For site-specific data, EnviroAtlas data will not
+						replace “boots-on-the-ground measurements” or local
+						knowledge.
+					</b>Better data may be available from local sources.
+				</li>
+			</ul>
+		</calcite-tab>
+	</calcite-tabs>
+	<calcite-button
+		slot="footer-end"
+		on:click={() => modal.removeAttribute("open")}>OK</calcite-button
+	>
+</calcite-dialog>
 
 <style>
-  calcite-modal {
-    --calcite-modal-scrim-background: rgba(83, 83, 83, 0.75);
-  }
-
-  #modal-content {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
+	calcite-dialog {
+		--calcite-dialog-scrim-background-color: rgba(83, 83, 83, 0.75);
+	}
 </style>
