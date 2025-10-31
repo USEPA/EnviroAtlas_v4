@@ -32,7 +32,8 @@
 
   // Import components and store
   import { catalog, activeWidget } from "src/store.ts";
-  import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
+  // use npm published version now (in development used linked version via devLink utility
+  import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
 
@@ -41,6 +42,15 @@
   let layerListContainer;
   let fTableContainer;
   let leftActionBar;
+  let map;
+
+  $: {
+    if (view && !map) {
+        view.addEventListener("arcgisViewReadyChange", () => {
+            map = view.map;
+        });
+    }
+  }
 
   esriConfig.portalUrl = "https://epa.maps.arcgis.com/";
 
@@ -63,7 +73,7 @@
   const actionsDict = {
     "national": "globe", 
     "time-series-viewer": "clock-forward", 
-    "add-data": "add-layer"
+    "sma": "mosaic-method-sum"
   }
   async function setupPopup() {
     reactiveUtils.on(
@@ -325,6 +335,11 @@
       icon="layers" 
       text="Active Layer List"
     />
+    <calcite-action 
+      data-action-id="add-data" 
+      icon="add-layer"
+      text="Add Data"
+    />
     <calcite-action
       data-action-id="basemaps"
       icon="basemap"
@@ -392,7 +407,7 @@
       />
     </calcite-block>
   </calcite-panel>
-  <SummarizeMyArea />
+  <AddData map={map} />
   </calcite-shell-panel>
   <calcite-shell-panel
     slot="panel-bottom"

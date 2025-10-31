@@ -27,15 +27,22 @@
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
 
     // Import store and configuration
-    import { smaViewModel, smaInputs, viewState, resetSMA } from "src/store";
+    import { smaViewModel, smaInputs } from "src/store";
     import { smaConfig } from "../shared/smaConfig";
 
+    export let view;
+
+    let indicator;
+    let landcoverYear = null;
+    let sumUnit = '';
+    let geographyLabel = '';
+
     // Store indicator inputs as view model values
-    const updateIndicator = (e) => {
-        //console.log("event is: ", e);
-        e.target.value == "nlcd"
-            ? ($smaViewModel.indicator = "nlcd")
-            : ($smaViewModel.indicator = "nlcd-change");
+    const updateIndicator = () => {
+        console.log(indicator.value);
+        // e.target.value == "nlcd"
+        //     ? ($smaViewModel.indicator = "nlcd")
+        //     : ($smaViewModel.indicator = "nlcd-change");
         //console.log("view model indicator value is: ", $smaViewModel.indicator);
     };
 
@@ -71,13 +78,13 @@
     // Add the appropriate raster to the map
     const _initIndicatorLayer = (indicator) => {
         // Remove existing indicator from map and set values to null
-        let toRemove = $viewState.view.map.layers.items?.filter(
+        let toRemove = view.map.layers.items?.filter(
             function (item) {
                 return item.title.includes("Summarize My Area Indicator:");
             },
         );
 
-        $viewState.view.map.removeMany(toRemove);
+        view.map.removeMany(toRemove);
 
         // Make mosaic rule work for land cover and land cover change variables
         let mosaicRule = new MosaicRule({
@@ -117,19 +124,19 @@
             popupEnabled: false,
         });
 
-        $viewState.view.map.add(indicatorLayer);
+        view.map.add(indicatorLayer);
     };
 
     // Store summary unit input as view model value
     const updateSumUnit = (e) => {
         // Remove existing summary unit geometry from map
-        let toRemove = $viewState.view.map.layers.items?.filter(
+        let toRemove = view.map.layers.items?.filter(
             function (item) {
                 return item.title.includes("Summarize My Area Unit:");
             },
         );
 
-        $viewState.view.map.removeMany(toRemove);
+        view.map.removeMany(toRemove);
 
         console.log("event is: ", e);
         $smaViewModel.sumUnit = e.target.value;
@@ -175,14 +182,14 @@
         });
 
         console.log(geometryLayer);
-        $viewState.view.map.add(geometryLayer);
+        view.map.add(geometryLayer);
 
         //TODO: Create zoom service message based on scale of layer...see lines 1250-1259 of old widget code
 
         // Add mapClickEvent functionality
         // Only propogate event when geometry layer is added
-        $viewState.view.whenLayerView(geometryLayer).then((layerView) => {
-            $viewState.view.on("click", eventHandler);
+        view.whenLayerView(geometryLayer).then((layerView) => {
+            view.on("click", eventHandler);
 
             function eventHandler(e) {
                 const eMapPoint = e.mapPoint;
@@ -192,7 +199,7 @@
                 };
 
                 // The hitTest() checks to see if any graphics from the geometryLayer
-                $viewState.view.hitTest(e, opts).then((response) => {
+                view.hitTest(e, opts).then((response) => {
                     if (response.results.length) {
                         let query = geometryLayer.createQuery();
                         query.geometry = eMapPoint;
@@ -289,7 +296,7 @@
         //     this.drawLayer.clear(); //clear graphic if needs be, so only 1 on map at a time
         // }
 
-        $viewState.view.graphics.add(graphic);
+        view.graphics.add(graphic);
 
         // if (this.indicatorLayer) {
         //     this._clipLayerToGeometry(this.indicatorLayer, geometry);
@@ -299,39 +306,19 @@
         //     this._clipLayer(geometry);
         // }
     };
-
-    export const handlePanelClose = function (e) {
-        const target = e.target;
-        const shellElement = target.parentElement;
-        shellElement.collapsed = !shellElement.collapsed;
-        document.querySelector('[data-action-id="summarize-my-area"]').active =
-            false;
-    };
-
-    // TODO: handle resets
-    const resetSMAInputs = () => {
-        resetSMA();
-    };
 </script>
 
 <calcite-panel
     heading="Summarize My Area"
-    data-panel-id="summarize-my-area"
+    data-panel-id="sma"
     hidden
-    closable
     overlayPositioning="fixed"
-    on:calcitePanelClose={handlePanelClose}
 >
-    <calcite-action icon="information" text="Favorite" slot="header-actions-end"
-    ></calcite-action>
     <calcite-button
         tabindex="0"
         role="button"
-        round
-        width="half"
+        width="full"
         slot="footer"
-        on:click={resetSMAInputs}
-        on:keypress={resetSMAInputs}
     >
         Calculate
     </calcite-button>
@@ -349,21 +336,27 @@
                 <calcite-segmented-control
                     width="full"
                     scale="s"
+                    bind:this={indicator}
+                    value="nlcd"
                     on:calciteSegmentedControlChange={updateIndicator}
                 >
                     <calcite-segmented-control-item
-                        bind:this={$smaInputs.landcover}
                         role="radio"
                         aria-checked="true"
                         checked
                         value="nlcd">Land Cover</calcite-segmented-control-item
                     >
                     <calcite-segmented-control-item
-                        bind:this={$smaInputs.landcoverChange}
                         role="radio"
                         aria-checked="true"
                         value="nlcd-change"
                         >Land Cover Change</calcite-segmented-control-item
+                    >
+                    <calcite-segmented-control-item
+                        role="radio"
+                        aria-checked="true"
+                        value="permafrost"
+                        >Permafrost Probability</calcite-segmented-control-item
                     >
                 </calcite-segmented-control>
                 <br />

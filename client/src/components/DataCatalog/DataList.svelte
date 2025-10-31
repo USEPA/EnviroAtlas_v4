@@ -11,21 +11,11 @@
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
     import TimeSeriesViewer from "src/components/TimeSeriesViewer/TimeSeriesViewer.svelte";
-    // use npm published version now (in development used linked version via devLink utility
-    import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
+    import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
     import { getEaData } from "src/shared/utilities.js"
     import Bookmark from "../TimeSeriesViewer/Bookmark.svelte";
 
     export let view;
-    export let map;
-
-    $: {
-        if (view && !map) {
-            view.addEventListener("arcgisViewReadyChange", () => {
-                map = view.map;
-            });
-        }
-    }
 
     catalog.subscribe;
     nationalItems.subscribe;
@@ -53,7 +43,7 @@
     const catalogActions = [
         {name: "Data Catalog", id: "national", icon: "globe", color: '#ebebeb', label1: "Data", label2: "Catalog"},
         {name: "Time Series Catalog", id: "time-series-viewer", icon: "clock-forward", label1: "Time Series", label2: "Catalog"},
-        {name: "External Data", id: "add-data", icon: "add-layer", label1: "External", label2: "Data"}
+        {name: "Summarize My Area", id: "sma", icon: "mosaic-method-sum", label1: "Summarize", label2: "My Area"}
     ]
 
     let actionRefs = [];
@@ -207,7 +197,7 @@
     {/each}
     </calcite-action-bar>
     <TimeSeriesViewer view={view} geography={$geography}/>
-    <AddData map={map} />
+    <SummarizeMyArea {view}/>
     <calcite-block data-panel-id="national" heading="EnviroAtlas Data Catalog" description="Explore the relationships between land use, environment, health, safety, and economy" open data-testid="national">
         <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
         <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>

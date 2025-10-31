@@ -51,15 +51,6 @@ smaInputs.subscribe(value => {
     summaryUnitCombobox = value.summaryUnitCombobox;
 });
 
-export function resetSMA(): void {
-    landcover.checked = true;
-    landcoverChange.checked = false;
-    //TODO: Reset values and UI
-    // nlcdYearCombobox.value = '';
-    // nlcdChange1Combobox.value = '';
-    // nlcdChange2Combobox.value = '';
-    // summaryUnitCombobox.value = '';
-};
 
 export const catalog = writable({
     type: "national",
