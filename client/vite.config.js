@@ -7,7 +7,8 @@ const projectRootDir = path.resolve(__dirname);
 
 let proxy = {
     '/ea/api/': {
-        target: 'http://localhost'
+        target: 'https://awseastaging.epa.gov',
+        changeOrigin: true
     },
 //Could use this to work on client if didn't have local version of api running
 /*
