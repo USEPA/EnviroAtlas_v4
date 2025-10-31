@@ -25,25 +25,33 @@
     import DimensionalDefinition from "@arcgis/core/layers/support/DimensionalDefinition";
     import MosaicRule from "@arcgis/core/layers/support/MosaicRule";
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
+    import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 
     // Import store and configuration
     import { smaViewModel, smaInputs } from "src/store";
     import { smaConfig } from "../shared/smaConfig";
+    import { addLayer, getEALayerObject } from "src/shared/utilities.js";
 
     export let view;
 
-    let indicator;
+    let indicatorElem;
+    $: indicatorValue = ''
     let landcoverYear = null;
     let sumUnit = '';
     let geographyLabel = '';
 
-    // Store indicator inputs as view model values
+    const indicatorsDict = [
+        {name: "Land Cover", value: "nlcd"}, 
+        {name: "Land Cover Change", value: "nlcd-change"}, 
+        {name: "Permafrost Probability", value: "permafrost"}
+    ]
+    
     const updateIndicator = () => {
-        console.log(indicator.value);
-        // e.target.value == "nlcd"
-        //     ? ($smaViewModel.indicator = "nlcd")
-        //     : ($smaViewModel.indicator = "nlcd-change");
-        //console.log("view model indicator value is: ", $smaViewModel.indicator);
+        indicatorValue = indicatorElem.value
+        console.log("sma indicator value is: ", indicatorValue);
+        if (indicatorValue == 'permafrost') {
+            _initIndicatorLayer(indicatorValue)
+        }
     };
 
     // Store indicator year as view model value and add the appropriate raster to the map
@@ -76,7 +84,7 @@
     };
 
     // Add the appropriate raster to the map
-    const _initIndicatorLayer = (indicator) => {
+    async function _initIndicatorLayer(indicator) {
         // Remove existing indicator from map and set values to null
         let toRemove = view.map.layers.items?.filter(
             function (item) {
@@ -105,26 +113,31 @@
                     smaConfig.nlcd.OBJECTIDS[$smaViewModel.nlcdChange2Combobox],
                 ];
                 indicatorUrl = smaConfig.nlcd.layer;
+            case "permafrost":
+                let lObject = await getEALayerObject(552);
+                // TODO: error handle if lObject is empty 
+                console.log(lObject)
+                addLayer(lObject, view);
         }
 
-        //TODO: Fix legend appearance
-        const indicatorLayer = new ImageryLayer({
-            url: indicatorUrl,
-            blendMode: "multiply",
-            format: "jpg",
-            mosaicRule: mosaicRule,
-            id: `sma-${indicator}-layer`,
-            noData: 0, // set no data params
-            opacity: 0.5,
-            title:
-                "Summarize My Area Indicator: " +
-                $smaViewModel.indicator + // TO DO: format
-                " , " +
-                $smaViewModel.landcoverYear,
-            popupEnabled: false,
-        });
+        // //TODO: Fix legend appearance
+        // const indicatorLayer = new ImageryLayer({
+        //     url: indicatorUrl,
+        //     blendMode: "multiply",
+        //     format: "jpg",
+        //     mosaicRule: mosaicRule,
+        //     id: `sma-${indicator}-layer`,
+        //     noData: 0, // set no data params
+        //     opacity: 0.5,
+        //     title:
+        //         "Summarize My Area Indicator: " +
+        //         $smaViewModel.indicator + // TO DO: format
+        //         " , " +
+        //         $smaViewModel.landcoverYear,
+        //     popupEnabled: false,
+        // });
 
-        view.map.add(indicatorLayer);
+        // view.map.add(indicatorLayer);
     };
 
     // Store summary unit input as view model value
@@ -189,7 +202,15 @@
         // Add mapClickEvent functionality
         // Only propogate event when geometry layer is added
         view.whenLayerView(geometryLayer).then((layerView) => {
-            view.on("click", eventHandler);
+            reactiveUtils.on(
+            () => view,
+            "arcgisViewClick",
+            async (e) => {
+                const res = await view.hitTest(e.detail, { include: geometryLayer })
+                if (res.results.length) {
+                    console.log(res.results)
+                }         
+            });
 
             function eventHandler(e) {
                 const eMapPoint = e.mapPoint;
@@ -333,34 +354,27 @@
             <calcite-block open heading="Select an indicator">
                 <calcite-icon scale="m" slot="icon" icon="number-circle-1"
                 ></calcite-icon>
-                <calcite-segmented-control
-                    width="full"
-                    scale="s"
-                    bind:this={indicator}
-                    value="nlcd"
-                    on:calciteSegmentedControlChange={updateIndicator}
-                >
-                    <calcite-segmented-control-item
-                        role="radio"
-                        aria-checked="true"
-                        checked
-                        value="nlcd">Land Cover</calcite-segmented-control-item
+                <calcite-label layout="inline">
+                    <calcite-combobox
+                        scale="s"
+                        placeholder-icon="calendar"
+                        placeholder=" Select one"
+                        selection-mode="single"
+                        max-items="0"
+                        overlay-positioning="absolute"
+                        value="nlcd"
+                        bind:this={indicatorElem}
+                        on:calciteComboboxChange={updateIndicator}
                     >
-                    <calcite-segmented-control-item
-                        role="radio"
-                        aria-checked="true"
-                        value="nlcd-change"
-                        >Land Cover Change</calcite-segmented-control-item
-                    >
-                    <calcite-segmented-control-item
-                        role="radio"
-                        aria-checked="true"
-                        value="permafrost"
-                        >Permafrost Probability</calcite-segmented-control-item
-                    >
-                </calcite-segmented-control>
-                <br />
-                {#if $smaViewModel.indicator == "nlcd"}
+                        {#each indicatorsDict as ind}
+                            <calcite-combobox-item
+                                value={ind.value}
+                                heading={ind.name}
+                            ></calcite-combobox-item>
+                        {/each}
+                    </calcite-combobox>
+                </calcite-label>
+                {#if indicatorValue == "nlcd"}
                     <calcite-label layout="inline" scale="s">
                         NLCD Year:
                         <calcite-combobox
@@ -376,17 +390,16 @@
                             {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcYear}
                                 <calcite-combobox-item
                                     value={lcYear}
-                                    text-label={lcYear}
+                                    heading={lcYear}
                                 ></calcite-combobox-item>
                             {/each}
                         </calcite-combobox>
                     </calcite-label>
-                {:else}
+                {:else if indicatorValue == "nlcd-change"}
                     <calcite-label layout="inline" scale="s">
                         NLCD Year 1:
                         <calcite-combobox
                             scale="s"
-                            placeholder-icon="calendar"
                             placeholder=" Select one"
                             selection-mode="single"
                             max-items="0"
@@ -398,7 +411,7 @@
                             {#each ["2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc1Year}
                                 <calcite-combobox-item
                                     value={lcc1Year}
-                                    text-label={lcc1Year}
+                                    heading={lcc1Year}
                                 ></calcite-combobox-item>
                             {/each}
                         </calcite-combobox>
@@ -419,7 +432,7 @@
                             {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc2Year}
                                 <calcite-combobox-item
                                     value={lcc2Year}
-                                    text-label={lcc2Year}
+                                    heading={lcc2Year}
                                 ></calcite-combobox-item>
                             {/each}
                         </calcite-combobox>
@@ -443,7 +456,7 @@
                         {#each ["County", "Congressional District", "HUC-8", "HUC-12", "Draw a point", "Draw a line", "Draw an area"] as sumUnit}
                             <calcite-combobox-item
                                 value={sumUnit}
-                                text-label={sumUnit}
+                                heading={sumUnit}
                             ></calcite-combobox-item>
                         {/each}
                     </calcite-combobox>

@@ -1,5 +1,5 @@
 <script>
-    import { addLayer, getEaData, removeLayer, openLayerList } from "src/shared/utilities.js";
+    import { addLayer, getEaData, removeLayer, openLayerList, getEALayerObject } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import { activeWidget } from "src/store.ts";
 
@@ -21,18 +21,6 @@
         if (lObject) {
             openLayerList($activeWidget);
         }
-    }
-
-    // When Add to Map button is clicked, get object from the mapping config
-    function getEALayerObject(id) {
-        // use api to fetch layer object
-        let layerParams = {
-            //TODO: where did type go?
-            //TODO: test out using code like, select = JSON.stringify( {layerID:1,name:1,etc etc} )
-            select: encodeURIComponent(`{"layerID":1,"name":1,"lyrNum":1,"popup":1,"tileLink":1,"tileURL":1,"type":1,"url":1,"serviceType":1,"sourceType":1}`)
-        }
-        let lObj = getEaData(`/ea/api/layers/${id}`, layerParams)
-        return lObj
     }
 
     function subtopicSelected(event) {
