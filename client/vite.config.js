@@ -6,17 +6,14 @@ import path from 'path';
 const projectRootDir = path.resolve(__dirname);
 
 let proxy = {
-    '/ea/api/': {
-        target: 'https://awseastaging.epa.gov',
-        changeOrigin: true
-    },
+    // '/ea/api/': {
+    //     target: 'http://localhost'
+    // },
 //Could use this to work on client if didn't have local version of api running
-/*
     '/ea/api/': {
         target: 'https://awseastaging.epa.gov',
         changeOrigin: true
     }
-*/
 };
 
 // set up client side route proxy that translates /blt/client/* -> /*
