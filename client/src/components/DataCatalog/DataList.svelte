@@ -5,27 +5,18 @@
     import "@esri/calcite-components/dist/components/calcite-card";
     import "@esri/calcite-components/dist/components/calcite-popover";
     import "@esri/calcite-components/dist/components/calcite-action-group";
+    import { globe32, clockForward32, mosaicMethodSum32 } from "@esri/calcite-ui-icons";
 
     // Import components and store
     import { catalog, nationalItems, filteredNationalItems, geography, totalMaps, totalVisibleMaps } from "src/store.ts";
     import CatalogListItem from "src/components/DataCatalog/CatalogListItem.svelte";
     import CatalogActionBar from "src/components/DataCatalog/CatalogActionBar.svelte";
     import TimeSeriesViewer from "src/components/TimeSeriesViewer/TimeSeriesViewer.svelte";
-    // use npm published version now (in development used linked version via devLink utility
-    import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
+    import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
     import { getEaData } from "src/shared/utilities.js"
     import Bookmark from "../TimeSeriesViewer/Bookmark.svelte";
 
     export let view;
-    export let map;
-
-    $: {
-        if (view && !map) {
-            view.addEventListener("arcgisViewReadyChange", () => {
-                map = view.map;
-            });
-        }
-    }
 
     catalog.subscribe;
     nationalItems.subscribe;
@@ -51,12 +42,9 @@
     $: domain = domainMap[$geography]
 
     const catalogActions = [
-        {name: "Data Catalog", id: "national", icon: "./node_modules/@esri/calcite-ui-icons/icons/globe-32.svg", 
-        color: '#ebebeb', label1: "Data", label2: "Catalog"},
-        {name: "Time Series Catalog", id: "time-series-viewer", icon: "./node_modules/@esri/calcite-ui-icons/icons/clock-forward-32.svg", 
-        label1: "Time Series", label2: "Catalog"},
-        {name: "External Data", id: "add-data", icon: "./node_modules/@esri/calcite-ui-icons/icons/add-layer-32.svg", 
-        label1: "External", label2: "Data"}
+        {name: "Data Catalog", id: "national", icon: "globe", color: '#ebebeb', label1: "Data", label2: "Catalog"},
+        {name: "Time Series Catalog", id: "time-series-viewer", icon: "clock-forward", label1: "Time Series", label2: "Catalog"},
+        {name: "Summarize My Area", id: "sma", icon: "mosaic-method-sum", label1: "Summarize", label2: "My Area"}
     ]
 
     let actionRefs = [];
@@ -151,17 +139,20 @@
         shell.setAttribute("collapsed", "");    
     };
 
-    function handleCatalogActionClick( target ) {
-        catalogActions.forEach(function(item) {
-            document.querySelector(`[data-panel-id=${item.id}]`).setAttribute("hidden", "");
-            document.querySelector(`#catalog-button-${item.id}`).style.borderBottom ="none"
-        });
-        
-        const dataPanelId = this.id.replace('catalog-button-', '')
+    function handleCatalogActionClick() {
+        const nextDataCatalog = this.dataset.actionId
+        console.log(this.dataset.actionId)
+        if (nextDataCatalog != $catalog.type) {
+            let activeDataCatalog = $catalog.type;
+            document.querySelector(`[data-panel-id=${activeDataCatalog}]`).setAttribute("hidden", "");
+            //TODO: do this with svelte bindings
+            document.querySelector(`#catalog-button-${activeDataCatalog}`).style.borderBottom ="none"
 
-        document.querySelector(`[data-panel-id=${dataPanelId}]`).removeAttribute("hidden");
-        document.querySelector(`#${this.id}`).style.borderBottom ="3px solid #162e51"
-       
+            document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
+            //TODO: do this with svelte bindings
+            document.querySelector(`#${this.id}`).style.borderBottom ="3px solid #162e51";
+            $catalog.type = nextDataCatalog
+       }
     };
 
     function listItemExpand() {
@@ -177,20 +168,20 @@
 <Bookmark view={view}/>
 <div style="display:flex; justify-content: space-around width:100%">
     {#each catalogActions as cat, i}
-        <div 
+        <div
+            bind:this={actionRefs[i]}
             on:click={handleCatalogActionClick}
-            class=catalog-button
+            data-action-id={cat.id}
+            class="catalog-button"
             style={i === 0 ? 'border-bottom: 3px solid #162e51;' : 'border-bottom: none'}
-            id=catalog-button-{cat.id}>
-
-            <img style='margin-top: 5px; margin-bottom: 5px; height:25px; width: 33%;' src={cat.icon}>
-            <p style="line-height: 0.33em; margin: 0">{cat.label1}</p>
+            id="catalog-button-{cat.id}">
+            <calcite-icon icon={cat.icon}></calcite-icon>
+            
+            <p style="line-height: 0.33em; margin: 0; padding-top:5px">{cat.label1}</p>
             <p style="margin: 0">{cat.label2}</p>
         </div>
-    
-
         <!-- <calcite-action
-            bind:this={actionRefs[c]}
+            
             id="catalog-actions"
             alignment="center"
             data-action-id={cat.id}
@@ -219,24 +210,14 @@
         on:click={toggleChevron}
         />
     </calcite-block>
-    <!-- <calcite-action-bar
-        role="menu" 
-        tabindex="-1"
-        slot="action-bar"
-        expand-disabled
-    > -->
-    
-    <!-- </calcite-action-bar> -->
     <TimeSeriesViewer view={view} geography={$geography}/>
-    <AddData map={map} />
+    <SummarizeMyArea {view}/>
     <calcite-block id="national" data-panel-id="national" heading="" description="" open data-testid="national">
-            <calcite-block scale="m" id="domainHeader" heading="2. Explore Map Layers"
-            description="Search, filter by benefit categories <i>, or explore EnviroAtlas map layers by topic below"
+        <calcite-block scale="m" id="domainHeader" heading="2. Explore Map Layers"
+            description="Search, filter by benefit categories, or explore EnviroAtlas map layers by topic below"
             style="border-bottom: none">
         </calcite-block>
-    
-            <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
-   
+        <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
         <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='auto' style="border-top: 1px solid #dedede; padding-top: 3px">
             {#await eaTopics}
                 <p>...loading</p>
@@ -260,7 +241,6 @@
             {/await}
         </calcite-list>
     </calcite-block>
-   
 </calcite-panel>
 <calcite-fab
     role="button"
@@ -284,8 +264,6 @@
         --calcite-list-background-color-press: #cdd6c2;
         --calcite-list-background-color-hover: #cdd6c2;
         --calcite-list-border-color: #adbb9a;
-        
-
     }
 
     calcite-list-item, #PSI {
@@ -313,26 +291,13 @@
         --calcite-ui-focus-color: none !important;
         --calcite-color-text-2: #162e51;
         --calcite-list-background-color: white ;
-        /* --calcite-font-weight-normal: 500; */
         font-size: var(--calcite-font-size--1);
         border-bottom: 1px solid grey;
-
-    }
-
-    calcite-action-bar {
-        --calcite-action-bar-items-space: 51px;
-        --calcite-ui-focus-color: none !important;
-        display: grid;
-        place-items: center;
-    }
-
-    calcite-label {
-        --calcite-label-text-color: #6b6b6b
     }
 
     calcite-block#domainHeader {
         --calcite-block-heading-text-color:black;
-        background-color:#white;
+        background-color: white;
     }
 
     calcite-block#national {
@@ -349,7 +314,6 @@
 
     calcite-panel#data-catalog {
         --calcite-block-padding: 0em;
-
     }
 
     .catalog-button { 
@@ -359,5 +323,7 @@
         cursor: pointer;
     }
 
-    
+    calcite-icon {
+        padding-top: 8px;
+    }
 </style>

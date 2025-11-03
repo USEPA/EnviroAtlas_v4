@@ -1,5 +1,5 @@
 <script>
-    import { addLayer, getEaData, removeLayer, openLayerList } from "src/shared/utilities.js";
+    import { addLayer, getEaData, removeLayer, openLayerList, getEALayerObject } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import { activeWidget } from "src/store.ts";
 
@@ -21,18 +21,6 @@
         if (lObject) {
             openLayerList($activeWidget);
         }
-    }
-
-    // When Add to Map button is clicked, get object from the mapping config
-    function getEALayerObject(id) {
-        // use api to fetch layer object
-        let layerParams = {
-            //TODO: where did type go?
-            //TODO: test out using code like, select = JSON.stringify( {layerID:1,name:1,etc etc} )
-            select: encodeURIComponent(`{"layerID":1,"name":1,"lyrNum":1,"popup":1,"tileLink":1,"tileURL":1,"type":1,"url":1,"serviceType":1,"sourceType":1}`)
-        }
-        let lObj = getEaData(`/ea/api/layers/${id}`, layerParams)
-        return lObj
     }
 
     function subtopicSelected(event) {
@@ -134,7 +122,7 @@
         <div slot="content-bottom" id="concernFilterDiv">
             {#each subtopic.layers as layer (layer.layerID)}
             {#if layer.isVisible}
-                <calcite-label scale='m' layout="inline">
+                <calcite-label scale='s' layout="inline">
                     <calcite-checkbox 
                         name={layer.name} 
                         value={layer.layerID} 
@@ -158,8 +146,7 @@
         --calcite-list-background-color-press: none;
         --calcite-spacing-xxs: 0;
         --calcite-font-weight-normal: 400;
-        font-size: var(--calcite-font-size--2)
-        
+        font-size: var(--calcite-font-size--2)  
     } 
 
     #not-header-subtopic {
@@ -167,19 +154,10 @@
         --calcite-list-background-color-hover: none;
         --calcite-list-background-color-press: none;
         --calcite-spacing-xxs: 0;
-        margin-left: 34px;
+        margin-left: 10px;
         --calcite-font-weight-normal: 400;
-        font-size: var(--calcite-font-size--2)
-        
+        font-size: var(--calcite-font-size--2)  
     } 
-
-    calcite-list-item#not-header div.description {
-        font-size: var(--calcite-font-size--3)
-    }
-
-    #not-header div.description {
-        font-size: 24px;
-    }
 
     #concernFilterDiv {
         padding-left: 16px;
@@ -189,6 +167,6 @@
     }
 
     calcite-label {
-        padding-right: 15px
+        padding-right: 15px;
     }
 </style>

@@ -32,7 +32,8 @@
 
   // Import components and store
   import { catalog, activeWidget } from "src/store.ts";
-  import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
+  // use npm published version now (in development used linked version via devLink utility
+  import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
 
@@ -41,6 +42,15 @@
   let layerListContainer;
   let fTableContainer;
   let leftActionBar;
+  let map;
+
+  $: {
+    if (view && !map) {
+        view.addEventListener("arcgisViewReadyChange", () => {
+            map = view.map;
+        });
+    }
+  }
 
   esriConfig.portalUrl = "https://epa.maps.arcgis.com/";
 
@@ -63,7 +73,7 @@
   const actionsDict = {
     "national": "globe", 
     "time-series-viewer": "clock-forward", 
-    "add-data": "add-layer"
+    "sma": "mosaic-method-sum"
   }
   async function setupPopup() {
     reactiveUtils.on(
@@ -157,8 +167,9 @@
 
   /**
    * The on:click function for the left side action bar.
-   * Expands the shell panel, and hides or shows the selected 
-   * action's panel. Also, sets the catalog.type store value to
+   * Expands the shell panel, adds or removes the tab active UI,
+   * and hides or shows the selected action's panel. 
+   * Also, sets the catalog.type store value to
    * selected action's id, which controls many parts of the app. 
    * @param target html element
    */
@@ -166,6 +177,9 @@
     handleExpandClick();
     const nextDataCatalog = target.dataset.actionId;
     if (nextDataCatalog !== $catalog.type) {
+      document.querySelector(`#catalog-button-${$catalog.type}`).style.borderBottom ="none"
+      document.querySelector(`#catalog-button-${nextDataCatalog}`).style.borderBottom ="3px solid #162e51";
+
       document.querySelector(`[data-panel-id=${$catalog.type}]`).setAttribute("hidden", "");
       document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
       $catalog.type = nextDataCatalog;
@@ -325,6 +339,11 @@
       icon="layers" 
       text="Active Layer List"
     />
+    <calcite-action 
+      data-action-id="add-data" 
+      icon="add-layer"
+      text="Add Data"
+    />
     <calcite-action
       data-action-id="basemaps"
       icon="basemap"
@@ -392,7 +411,7 @@
       />
     </calcite-block>
   </calcite-panel>
-  <SummarizeMyArea />
+  <AddData map={map} />
   </calcite-shell-panel>
   <calcite-shell-panel
     slot="panel-bottom"
@@ -436,8 +455,4 @@
     --calcite-chip-text-color: rgb(236, 235, 235);
     --calcite-chip-background-color:#024f86;
   }
-
-
-
-
 </style>
