@@ -5,6 +5,7 @@
     import "@esri/calcite-components/dist/components/calcite-card";
     import "@esri/calcite-components/dist/components/calcite-popover";
     import "@esri/calcite-components/dist/components/calcite-action-group";
+    import { globe32, clockForward32, mosaicMethodSum32 } from "@esri/calcite-ui-icons";
 
     // Import components and store
     import { catalog, nationalItems, filteredNationalItems, geography, totalMaps, totalVisibleMaps } from "src/store.ts";
@@ -138,18 +139,20 @@
         shell.setAttribute("collapsed", "");    
     };
 
-    const handleCatalogActionClick = ({ target }) => {
-        const nextDataCatalog = target.dataset.actionId;
-        if (nextDataCatalog !== $catalog.type) {
+    function handleCatalogActionClick() {
+        const nextDataCatalog = this.dataset.actionId
+        console.log(this.dataset.actionId)
+        if (nextDataCatalog != $catalog.type) {
             let activeDataCatalog = $catalog.type;
-            let actionLabel = document.querySelector(`#catalog-actions[data-action-id=${activeDataCatalog}]`).nextElementSibling
-            actionLabel.setAttribute('style', 'background-color: none');
             document.querySelector(`[data-panel-id=${activeDataCatalog}]`).setAttribute("hidden", "");
+            //TODO: do this with svelte bindings
+            document.querySelector(`#catalog-button-${activeDataCatalog}`).style.borderBottom ="none"
+
             document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
-            $catalog.type = nextDataCatalog;
-        }
-        const sibling = target.nextElementSibling
-        sibling.style.backgroundColor = "#ebebeb";
+            //TODO: do this with svelte bindings
+            document.querySelector(`#${this.id}`).style.borderBottom ="3px solid #162e51";
+            $catalog.type = nextDataCatalog
+       }
     };
 
     function listItemExpand() {
@@ -161,46 +164,61 @@
     }
 </script>
 
-<calcite-block scale="l" id="domainHeader" heading={domain} style="background-color:#63778c">
-    <calcite-action 
-        id="domain-popover-ref" 
-        icon="chevrons-right"
-        slot="actions-end"
-        on:click={toggleChevron}
-        />
-</calcite-block>
+
 <Bookmark view={view}/>
-<calcite-panel data-panel-id="data-catalog" id="data-catalog">
-    <calcite-action-bar
-        role="menu" 
-        tabindex="-1"
-        slot="action-bar"
-        expand-disabled
-    >
-    {#each catalogActions as cat, c (cat.name)}
-        <div>
-        <calcite-action
-            bind:this={actionRefs[c]}
+<div style="display:flex; justify-content: space-around width:100%">
+    {#each catalogActions as cat, i}
+        <div
+            bind:this={actionRefs[i]}
+            on:click={handleCatalogActionClick}
+            data-action-id={cat.id}
+            class="catalog-button"
+            style={i === 0 ? 'border-bottom: 3px solid #162e51;' : 'border-bottom: none'}
+            id="catalog-button-{cat.id}">
+            <calcite-icon icon={cat.icon}></calcite-icon>
+            
+            <p style="line-height: 0.33em; margin: 0; padding-top:5px">{cat.label1}</p>
+            <p style="margin: 0">{cat.label2}</p>
+        </div>
+        <!-- <calcite-action
+            
             id="catalog-actions"
             alignment="center"
             data-action-id={cat.id}
             text={cat.id}
             icon={cat.icon}
-            scale="l"
+            scale="s"
             active={cat.id == $catalog.type}
             on:click={handleCatalogActionClick}
             on:keypress={handleCatalogActionClick}
         >
         </calcite-action>
         <calcite-label style="background-color:{cat.color}" layout="block" alignment="center">{cat.label1}<br>{cat.label2}</calcite-label>
-        </div>
+        </div> -->
     {/each}
-    </calcite-action-bar>
+</div>
+
+<calcite-panel data-panel-id="data-catalog" id="data-catalog" >
+     
+    <calcite-block scale="m" id="domainHeader" heading="1. Select Geography"
+    description="Current selection: {domain}"
+    >
+    <calcite-action 
+        id="domain-popover-ref" 
+        icon="chevrons-right"
+        slot="actions-end"
+        on:click={toggleChevron}
+        />
+    </calcite-block>
     <TimeSeriesViewer view={view} geography={$geography}/>
     <SummarizeMyArea {view}/>
-    <calcite-block data-panel-id="national" heading="EnviroAtlas Data Catalog" description="Explore the relationships between land use, environment, health, safety, and economy" open data-testid="national">
+    <calcite-block id="national" data-panel-id="national" heading="" description="" open data-testid="national">
+        <calcite-block scale="m" id="domainHeader" heading="2. Explore Map Layers"
+            description="Search, filter by benefit categories, or explore EnviroAtlas map layers by topic below"
+            style="border-bottom: none">
+        </calcite-block>
         <CatalogActionBar totalVisibleMaps={$totalVisibleMaps} totalMapsCount={$totalMaps} type={$catalog.type} />
-        <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='s'>
+        <calcite-list label="toc" display-mode="nested" selection-mode="none" scale='auto' style="border-top: 1px solid #dedede; padding-top: 3px">
             {#await eaTopics}
                 <p>...loading</p>
             {:then}
@@ -271,29 +289,41 @@
 
     calcite-list-item {
         --calcite-ui-focus-color: none !important;
-        --calcite-color-text-2: #2F3540;
-    }
-
-    calcite-action-bar {
-        --calcite-action-bar-items-space: 51px;
-        --calcite-ui-focus-color: none !important;
-        display: grid;
-        place-items: center;
-    }
-
-    calcite-label {
-        --calcite-label-text-color: #6b6b6b
+        --calcite-color-text-2: #162e51;
+        --calcite-list-background-color: white ;
+        font-size: var(--calcite-font-size--1);
+        border-bottom: 1px solid grey;
     }
 
     calcite-block#domainHeader {
-        --calcite-block-heading-text-color:white;
+        --calcite-block-heading-text-color:black;
+        background-color: white;
+    }
+
+    calcite-block#national {
+        margin-block: 0px;
     }
 
     calcite-action#domain-popover-ref {
-        --calcite-action-background-color: #63778c;
+        --calcite-action-background-color: #162e51;
         --calcite-action-text-color: white;
         --calcite-action-background-color-hover: #8091a2;
         --calcite-action-text-color-press: white;
-        --calcite-action-background-color-press: #8091a2
+        --calcite-action-background-color-press: #8091a2;
+    }
+
+    calcite-panel#data-catalog {
+        --calcite-block-padding: 0em;
+    }
+
+    .catalog-button { 
+        width: 100%; 
+        margin: 0 20px; 
+        text-align: center;
+        cursor: pointer;
+    }
+
+    calcite-icon {
+        padding-top: 8px;
     }
 </style>

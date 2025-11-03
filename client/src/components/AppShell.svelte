@@ -167,8 +167,9 @@
 
   /**
    * The on:click function for the left side action bar.
-   * Expands the shell panel, and hides or shows the selected 
-   * action's panel. Also, sets the catalog.type store value to
+   * Expands the shell panel, adds or removes the tab active UI,
+   * and hides or shows the selected action's panel. 
+   * Also, sets the catalog.type store value to
    * selected action's id, which controls many parts of the app. 
    * @param target html element
    */
@@ -176,6 +177,9 @@
     handleExpandClick();
     const nextDataCatalog = target.dataset.actionId;
     if (nextDataCatalog !== $catalog.type) {
+      document.querySelector(`#catalog-button-${$catalog.type}`).style.borderBottom ="none"
+      document.querySelector(`#catalog-button-${nextDataCatalog}`).style.borderBottom ="3px solid #162e51";
+
       document.querySelector(`[data-panel-id=${$catalog.type}]`).setAttribute("hidden", "");
       document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
       $catalog.type = nextDataCatalog;
@@ -227,7 +231,7 @@
   <calcite-navigation id="header" slot="header">
     <calcite-navigation-logo
       slot="content-start"
-      heading="v4"
+      heading="Interactive Map"
       thumbnail="/ea/client/images/logo.png"
       href="https://www.epa.gov/enviroatlas"
       target="_blank"
@@ -239,7 +243,7 @@
         {label:'Contact Us', icon:'envelope', link:'https://www.epa.gov/enviroatlas/forms/contact-us-about-enviroatlas'}
         ] as link}
         <calcite-button scale="s" target="_blank" id='linkbtns' href={link.link}>
-          <calcite-chip icon={link.icon} scale="l">{link.label}</calcite-chip>
+          <calcite-chip icon={link.icon} scale="m">{link.label}</calcite-chip>
         </calcite-button>
         {/each}
     </calcite-chip-group>
@@ -428,11 +432,11 @@
   }
 
   calcite-shell-panel {
-    --calcite-shell-panel-min-width: 360px;
+    --calcite-shell-panel-min-width: 420px;
   }
 
   calcite-navigation {
-    --calcite-navigation-background-color: #2F3540;
+    --calcite-navigation-background-color: #162e51;
     --calcite-color-text-1: white;
     --calcite-color-foreground-2: none;
     --calcite-color-foreground-3: none;
@@ -451,5 +455,4 @@
     --calcite-chip-text-color: rgb(236, 235, 235);
     --calcite-chip-background-color:#024f86;
   }
-
 </style>

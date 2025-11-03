@@ -89,45 +89,51 @@
 {#if subtopic.isVisible}
 {#each Object.entries(dataTypeDict) as [dTypeLabel, dTypeValue] (dTypeLabel)}
     {#if subtopic.sourceType == dTypeValue}
-<calcite-list-item id="not-header" label={subtopic.name} description={dTypeLabel} on:calciteListItemSelect={e=>e.stopPropagation()}>
-    {#if subtopic.layers.length == 1}
-    <calcite-checkbox 
-        slot="actions-start" 
-        aria-checked="false" 
-        role="checkbox" 
-        tabindex="0"
-        value={subtopic.layers[0].layerID}
-        name={subtopic.layers[0].name}
-        on:calciteCheckboxChange={subtopicSelected}
-    ></calcite-checkbox>
-    {/if}
-    <calcite-action 
-        tabindex="-1"
-        role="button"
-        text="Details" 
-        icon="information" 
-        scale="m" 
-        slot="actions-end" 
-        id="{subtopic.subTopicID}-details-popover-button"
-        on:click={detailsObj = () => getSubtopicDetails()}
-        on:keypress={detailsObj = () => getSubtopicDetails()}>
-    </calcite-action>
-    {#if subtopic.layers.length > 1}
-    <div slot="content-bottom" id="concernFilterDiv">
-        {#each subtopic.layers as layer (layer.layerID)}
-        {#if layer.isVisible}
-            <calcite-label scale='s' layout="inline">
-                <calcite-checkbox 
-                    name={layer.name} 
-                    value={layer.layerID} 
-                    on:calciteCheckboxChange={subtopicSelected}
-                />
-                {layer.subLayerName}
-            </calcite-label>
+<calcite-list-item 
+    id={subtopic.layers.length > 1 ? 'not-header-subtopic' : 'not-header'}
+    label={subtopic.name} 
+    description={dTypeLabel} 
+    on:calciteListItemSelect={e=>e.stopPropagation()}
+    >
+        {#if subtopic.layers.length == 1}
+        <calcite-checkbox 
+            slot="actions-start" 
+            aria-checked="false" 
+            role="checkbox" 
+            style="padding: 0 10px;"
+            tabindex="0"
+            value={subtopic.layers[0].layerID}
+            name={subtopic.layers[0].name}
+            on:calciteCheckboxChange={subtopicSelected}
+        ></calcite-checkbox>
         {/if}
-        {/each}
-    </div>
-    {/if}
+        <calcite-action 
+            tabindex="-1"
+            role="button"
+            text="Details" 
+            icon="information" 
+            scale="m" 
+            slot="actions-end" 
+            id="{subtopic.subTopicID}-details-popover-button"
+            on:click={detailsObj = () => getSubtopicDetails()}
+            on:keypress={detailsObj = () => getSubtopicDetails()}>
+        </calcite-action>
+        {#if subtopic.layers.length > 1}
+        <div slot="content-bottom" id="concernFilterDiv">
+            {#each subtopic.layers as layer (layer.layerID)}
+            {#if layer.isVisible}
+                <calcite-label scale='s' layout="inline">
+                    <calcite-checkbox 
+                        name={layer.name} 
+                        value={layer.layerID} 
+                        on:calciteCheckboxChange={subtopicSelected}
+                    />
+                    {layer.subLayerName}
+                </calcite-label>
+            {/if}
+            {/each}
+        </div>
+        {/if}
 </calcite-list-item>
     {/if}
 {/each}
@@ -138,7 +144,19 @@
         --calcite-list-background-color: #fff;
         --calcite-list-background-color-hover: none;
         --calcite-list-background-color-press: none;
-        --calcite-spacing-xxs: 0
+        --calcite-spacing-xxs: 0;
+        --calcite-font-weight-normal: 400;
+        font-size: var(--calcite-font-size--2)  
+    } 
+
+    #not-header-subtopic {
+        --calcite-list-background-color: #fff;
+        --calcite-list-background-color-hover: none;
+        --calcite-list-background-color-press: none;
+        --calcite-spacing-xxs: 0;
+        margin-left: 10px;
+        --calcite-font-weight-normal: 400;
+        font-size: var(--calcite-font-size--2)  
     } 
 
     #concernFilterDiv {
@@ -149,6 +167,6 @@
     }
 
     calcite-label {
-        padding-right: 15px
+        padding-right: 15px;
     }
 </style>
