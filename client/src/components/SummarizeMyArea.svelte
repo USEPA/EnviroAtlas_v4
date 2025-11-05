@@ -1,4 +1,14 @@
 <script>
+    //Behavior Questions:
+    // 1. Are indicators available in the dropdown depending on Geography? 
+    //    Or all options are available, and once permafrost is selected, it zooms to Alaska?
+
+    //TODO: how to draw summary units with just a black outline without using "renderer" in feature layer?
+    //TODO: when summary unit is removed from map, remove any previous selection graphics
+    //TODO: summary unit dropdown opens above and hides "county" option
+    //TODO: check layer in data catalog if opened in SMA?
+    //TODO: change out store inputs for bindings
+
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
     import "@esri/calcite-components/dist/components/calcite-shell-panel";
@@ -28,7 +38,7 @@
     import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 
     // Import store and configuration
-    import { smaViewModel, smaInputs } from "src/store";
+    import { smaInputs } from "src/store";
     import { smaConfig } from "../shared/smaConfig";
     import { addLayer, getEALayerObject } from "src/shared/utilities.js";
 
@@ -36,7 +46,9 @@
 
     let indicatorElem;
     $: indicatorValue = ''
-    let landcoverYear = null;
+    $: landcoverYear = null;
+    $: nlcdChange1Combobox = '';
+    $: nlcdChange2Combobox = '';
     let sumUnit = '';
     let geographyLabel = '';
 
@@ -57,15 +69,15 @@
     // Store indicator year as view model value and add the appropriate raster to the map
     const updateLCYear = (e) => {
         console.log("event is: ", e);
-        $smaViewModel.landcoverYear = e.target.value;
-        if ($smaViewModel.landcoverYear) {
+        landcoverYear = e.target.value;
+        if (landcoverYear) {
             console.log("target year is: ", e.target.value);
             console.log(
                 "target year from VM is: ",
-                $smaViewModel.landcoverYear,
+                landcoverYear,
             );
             // load the imagery on the map
-            _initIndicatorLayer($smaViewModel.indicator);
+            _initIndicatorLayer(indicatorValue);
         }
     };
 
@@ -73,14 +85,14 @@
     const updateLCChangeYears = (e) => {
         console.log("event is: ", e);
         if (e.target.id == "nlcd-change-year-1") {
-            $smaViewModel.nlcdChange1Combobox = e.target.value;
+            nlcdChange1Combobox = e.target.value;
         }
         if (e.target.id == "nlcd-change-year-2") {
-            $smaViewModel.nlcdChange2Combobox = e.target.value;
-            _initIndicatorLayer($smaViewModel.indicator);
+            nlcdChange2Combobox = e.target.value;
+            _initIndicatorLayer(indicatorValue);
         }
-        console.log("year1: ", $smaViewModel.nlcdChange1Combobox);
-        console.log("year2: ", $smaViewModel.nlcdChange2Combobox);
+        console.log("year1: ", nlcdChange1Combobox);
+        console.log("year2: ", nlcdChange2Combobox);
     };
 
     // Add the appropriate raster to the map
@@ -104,13 +116,13 @@
         switch (indicator) {
             case "nlcd":
                 mosaicRule.lockRasterIds =
-                    smaConfig.nlcd.OBJECTIDS[$smaViewModel.landcoverYear];
+                    smaConfig.nlcd.OBJECTIDS[landcoverYear];
                 indicatorUrl = smaConfig.nlcd.layer;
                 break;
             case "nlcd-change":
                 mosaicRule.lockRasterIds = [
-                    smaConfig.nlcd.OBJECTIDS[$smaViewModel.nlcdChange1Combobox],
-                    smaConfig.nlcd.OBJECTIDS[$smaViewModel.nlcdChange2Combobox],
+                    smaConfig.nlcd.OBJECTIDS[nlcdChange1Combobox],
+                    smaConfig.nlcd.OBJECTIDS[nlcdChange2Combobox],
                 ];
                 indicatorUrl = smaConfig.nlcd.layer;
             case "permafrost":
@@ -152,13 +164,12 @@
         view.map.removeMany(toRemove);
 
         console.log("event is: ", e);
-        $smaViewModel.sumUnit = e.target.value;
-        console.log("Input sumUnit: ", $smaInputs.summaryUnitCombobox);
-        console.log("VM sumUnit: ", $smaViewModel.sumUnit);
+        sumUnit = e.target.value;
+        console.log("VM sumUnit: ", sumUnit);
 
         //TODO: Add Draw functionality
 
-        _initGeometryLayer($smaViewModel.sumUnit);
+        _initGeometryLayer(sumUnit);
     };
 
     // Add summary unit geometry to the map based on configurations
@@ -168,30 +179,26 @@
         let url = smaConfig.sum_units[`${sumUnit}`].url;
         let outfields = smaConfig.sum_units[`${sumUnit}`].outfields;
 
-        let unitSymbol = new SimpleFillSymbol({
-            color: [0, 0, 0, 0],
-            outline: {
-                color: [0, 0, 0],
-                width: 1,
-            },
-            style: "none",
-        });
-
         let unitRenderer = new SimpleRenderer({
-            symbol: unitSymbol,
-            label: `${sumUnit}`,
+            symbol: new SimpleFillSymbol({
+                color: [0, 0, 0, 0],
+                outline: {
+                    color: [255, 255, 255],
+                    width: 1,
+                }
+            })
         });
 
         let geometryLayer = new FeatureLayer({
             url: url,
-            opacity: 0.5,
+            opacity: 0.7,
             id: `${sumUnit}Layer`, //TODO: name id and title similar to indicator layer
             minScale: unitMinScale,
             title:
                 "Summarize My Area Unit: " +
                 smaConfig.sum_units[`${sumUnit}`].name,
             outFields: smaConfig.sum_units[`${sumUnit}`].outfields,
-            renderer: unitRenderer,
+            renderer: unitRenderer
         });
 
         console.log(geometryLayer);
@@ -201,81 +208,71 @@
 
         // Add mapClickEvent functionality
         // Only propogate event when geometry layer is added
-        view.whenLayerView(geometryLayer).then((layerView) => {
-            reactiveUtils.on(
-            () => view,
-            "arcgisViewClick",
-            async (e) => {
-                const res = await view.hitTest(e.detail, { include: geometryLayer })
+        reactiveUtils.on(
+        () => view,
+        "arcgisViewClick",
+        async (e) => {
+            const eMapPoint = e.detail.screenPoint;
+            // Invoke option to only include graphics from geometryLayer in the hitTest
+            const opts = {
+                include: geometryLayer,
+            };
+            // The hitTest() checks to see if any graphics from the geometryLayer
+            view.hitTest(eMapPoint, opts).then((res) => {
                 if (res.results.length) {
-                    console.log(res.results)
-                }         
-            });
-
-            function eventHandler(e) {
-                const eMapPoint = e.mapPoint;
-                // Invoke option to only include graphics from geometryLayer in the hitTest
-                const opts = {
-                    include: geometryLayer,
-                };
-
-                // The hitTest() checks to see if any graphics from the geometryLayer
-                view.hitTest(e, opts).then((response) => {
-                    if (response.results.length) {
-                        let query = geometryLayer.createQuery();
-                        query.geometry = eMapPoint;
-                        query.outFields = outfields;
-                        query.returnGeometry = true;
-                        geometryLayer
-                            .queryFeatures(query)
-                            .then((result) => {
-                                let geometry = result.features[0].geometry;
-                                let geographyAttributes =
-                                    result.features[0].attributes;
-                                buildGeographyLabel(geographyAttributes);
-                                const symbol = new SimpleFillSymbol();
-                                symbol.style = "none";
-                                _addGraphicToMap(symbol, geometry);
-                            })
-                            .catch((error) => {
-                                console.log(error);
-                            });
-                    }
-                });
-            }
-
-            // Build string that displays attributes of the summary unit selection geography
-            function buildGeographyLabel(geographyAttributes) {
-                switch ($smaViewModel.sumUnit) {
-                    case "County":
-                        $smaViewModel.geographyLabel =
-                            geographyAttributes.NAME +
-                            ", " +
-                            geographyAttributes.STATE_NAME;
-                        break;
-                    case "Congressional District":
-                        $smaViewModel.geographyLabel =
-                            "Congressional District " +
-                            geographyAttributes.STATE_ABBR +
-                            geographyAttributes.DISTRICTID;
-                        break;
-                    case "HUC-12":
-                        $smaViewModel.geographyLabel =
-                            geographyAttributes.HU_12_Name +
-                            " (" +
-                            geographyAttributes.HUC_12 +
-                            ")";
-                        break;
-                    case "HUC-8":
-                        $smaViewModel.geographyLabel =
-                            geographyAttributes.HU_8_Name +
-                            " (" +
-                            geographyAttributes.HUC8 +
-                            ")";
-                        break;
+                    let query = geometryLayer.createQuery();
+                    query.geometry = res['results'][0].mapPoint;
+                    query.outFields = outfields;
+                    query.returnGeometry = true;
+                    geometryLayer
+                        .queryFeatures(query)
+                        .then((result) => {
+                            let geometry = result.features[0].geometry;
+                            let geographyAttributes =
+                                result.features[0].attributes;
+                            buildGeographyLabel(geographyAttributes);
+                            const symbol = new SimpleFillSymbol();
+                            symbol.style = "none";
+                            _addGraphicToMap(symbol, geometry);
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                        });
                 }
-            }
+            });
         });
+
+        // Build string that displays attributes of the summary unit selection geography
+        function buildGeographyLabel(geographyAttributes) {
+            switch (sumUnit) {
+                case "County":
+                    geographyLabel =
+                        geographyAttributes.CountyName +
+                        ", " +
+                        geographyAttributes.STATE_NAME;
+                    break;
+                case "Congressional District":
+                    geographyLabel =
+                        "Congressional District " +
+                        geographyAttributes.STATE_ABBR +
+                        geographyAttributes.DISTRICTID;
+                    break;
+                case "HUC-12":
+                    geographyLabel =
+                        geographyAttributes.HU_12_Name +
+                        " (" +
+                        geographyAttributes.HUC_12 +
+                        ")";
+                    break;
+                case "HUC-8":
+                    geographyLabel =
+                        geographyAttributes.HU_8_Name +
+                        " (" +
+                        geographyAttributes.HUC8 +
+                        ")";
+                    break;
+            }
+        }
     };
 
     //TODO: Add buffer functionality
@@ -461,7 +458,7 @@
                         {/each}
                     </calcite-combobox>
                 </calcite-label>
-                {#if $smaViewModel.sumUnit == "Draw a point" || $smaViewModel.sumUnit == "Draw a line" || $smaViewModel.sumUnit == "Draw an area"}
+                {#if sumUnit == "Draw a point" || sumUnit == "Draw a line" || sumUnit == "Draw an area"}
                     <calcite-label layout="inline" scale="s"
                         >Buffer distance:
                         <calcite-input-number
@@ -477,7 +474,7 @@
             <calcite-block open heading="Select your geography">
                 <calcite-icon scale="m" slot="icon" icon="number-circle-3"
                 ></calcite-icon>
-                {#if $smaViewModel.sumUnit == "HUC-8" || $smaViewModel.sumUnit == "HUC-12"}
+                {#if sumUnit == "HUC-8" || sumUnit == "HUC-12"}
                     <calcite-notice
                         open
                         icon="exclamation-mark-triangle"
@@ -486,9 +483,9 @@
                         <div slot="message">Zoom in to see HUC boundaries</div>
                     </calcite-notice>
                 {/if}
-                {#if $smaViewModel.geographyLabel}
+                {#if geographyLabel}
                     <calcite-notice open kind="success">
-                        <div slot="message">{$smaViewModel.geographyLabel}</div>
+                        <div slot="message">{geographyLabel}</div>
                     </calcite-notice>
                 {/if}
             </calcite-block>
