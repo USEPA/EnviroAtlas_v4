@@ -3,11 +3,9 @@
     // 1. Are indicators available in the dropdown depending on Geography? 
     //    Or all options are available, and once permafrost is selected, it zooms to Alaska?
 
-    //TODO: how to draw summary units with just a black outline without using "renderer" in feature layer?
     //TODO: when summary unit is removed from map, remove any previous selection graphics
     //TODO: summary unit dropdown opens above and hides "county" option
     //TODO: check layer in data catalog if opened in SMA?
-    //TODO: change out store inputs for bindings
 
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
@@ -38,7 +36,6 @@
     import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 
     // Import store and configuration
-    import { smaInputs } from "src/store";
     import { smaConfig } from "../shared/smaConfig";
     import { addLayer, getEALayerObject } from "src/shared/utilities.js";
 
@@ -46,9 +43,13 @@
 
     let indicatorElem;
     $: indicatorValue = ''
+    let nlcdYearCombobox;
     $: landcoverYear = null;
+    let nlcdChange1Combo;
     $: nlcdChange1Combobox = '';
+    let nlcdChange2Combo;
     $: nlcdChange2Combobox = '';
+    let summaryUnitCombobox;
     let sumUnit = '';
     let geographyLabel = '';
 
@@ -59,12 +60,27 @@
     ]
     
     const updateIndicator = () => {
+        //TODO: If indicator value is empty, remove sma indicator layer from map
         indicatorValue = indicatorElem.value
+        if (indicatorValue = '') {
+            removeIndicator()
+        }
         console.log("sma indicator value is: ", indicatorValue);
         if (indicatorValue == 'permafrost') {
             _initIndicatorLayer(indicatorValue)
         }
     };
+
+    function removeIndicator() {
+        // Remove existing indicator from map and set values to null
+        let toRemove = view.map.layers.items?.filter(
+            function (item) {
+                return item.title.includes("Summarize My Area Indicator:");
+            },
+        );
+
+        view.map.removeMany(toRemove);
+    }
 
     // Store indicator year as view model value and add the appropriate raster to the map
     const updateLCYear = (e) => {
@@ -72,10 +88,6 @@
         landcoverYear = e.target.value;
         if (landcoverYear) {
             console.log("target year is: ", e.target.value);
-            console.log(
-                "target year from VM is: ",
-                landcoverYear,
-            );
             // load the imagery on the map
             _initIndicatorLayer(indicatorValue);
         }
@@ -97,15 +109,7 @@
 
     // Add the appropriate raster to the map
     async function _initIndicatorLayer(indicator) {
-        // Remove existing indicator from map and set values to null
-        let toRemove = view.map.layers.items?.filter(
-            function (item) {
-                return item.title.includes("Summarize My Area Indicator:");
-            },
-        );
-
-        view.map.removeMany(toRemove);
-
+        removeIndicator()
         // Make mosaic rule work for land cover and land cover change variables
         let mosaicRule = new MosaicRule({
             method: "lock-raster",
@@ -129,23 +133,22 @@
                 let lObject = await getEALayerObject(552);
                 // TODO: error handle if lObject is empty 
                 console.log(lObject)
+                lObject.name = "Summarize My Area Indicator: Near-surface permafrost probability";
                 addLayer(lObject, view);
         }
 
         // //TODO: Fix legend appearance
         // const indicatorLayer = new ImageryLayer({
         //     url: indicatorUrl,
-        //     blendMode: "multiply",
-        //     format: "jpg",
         //     mosaicRule: mosaicRule,
         //     id: `sma-${indicator}-layer`,
         //     noData: 0, // set no data params
-        //     opacity: 0.5,
+        //     opacity: 0.6,
         //     title:
         //         "Summarize My Area Indicator: " +
-        //         $smaViewModel.indicator + // TO DO: format
-        //         " , " +
-        //         $smaViewModel.landcoverYear,
+        //         indicator + // TO DO: format
+        //         ", " +
+        //         landcoverYear,
         //     popupEnabled: false,
         // });
 
@@ -165,7 +168,6 @@
 
         console.log("event is: ", e);
         sumUnit = e.target.value;
-        console.log("VM sumUnit: ", sumUnit);
 
         //TODO: Add Draw functionality
 
@@ -381,7 +383,7 @@
                             selection-mode="single"
                             max-items="0"
                             overlay-positioning="absolute"
-                            bind:this={$smaInputs.nlcdYearCombobox}
+                            bind:this={nlcdYearCombobox}
                             on:calciteComboboxChange={updateLCYear}
                         >
                             {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcYear}
@@ -402,7 +404,7 @@
                             max-items="0"
                             overlay-positioning="absolute"
                             id="nlcd-change-year-1"
-                            bind:this={$smaInputs.nlcdChange1Combobox}
+                            bind:this={nlcdChange1Combo}
                             on:calciteComboboxChange={updateLCChangeYears}
                         >
                             {#each ["2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc1Year}
@@ -423,7 +425,7 @@
                             max-items="0"
                             overlay-positioning="absolute"
                             id="nlcd-change-year-2"
-                            bind:this={$smaInputs.nlcdChange2Combobox}
+                            bind:this={nlcdChange2Combo}
                             on:calciteComboboxChange={updateLCChangeYears}
                         >
                             {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc2Year}
@@ -447,7 +449,7 @@
                         selection-mode="single"
                         max-items="0"
                         overlay-positioning="absolute"
-                        bind:this={$smaInputs.summaryUnitCombobox}
+                        bind:this={summaryUnitCombobox}
                         on:calciteComboboxChange={updateSumUnit}
                     >
                         {#each ["County", "Congressional District", "HUC-8", "HUC-12", "Draw a point", "Draw a line", "Draw an area"] as sumUnit}

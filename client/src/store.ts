@@ -10,48 +10,6 @@ export const mapState = writable({
     map: null
 })
 
-type SmaViewModel = {
-    indicator: string;
-    landcoverYear: number;
-    sumUnit: string;
-    geographyLabel: string;
-}
-
-export const smaViewModel = writable<SmaViewModel>({
-    indicator: "nlcd",
-    landcoverYear: null,
-    sumUnit: '',
-    geographyLabel: '',
-});
-
-export const smaInputs = writable({
-    landcover: Object({}),
-    landcoverChange: Object({}),
-    nlcdYearCombobox: Object({}),
-    nlcdChange1Combobox: Object({}),
-    nlcdChange2Combobox: Object({}),
-    summaryUnitCombobox: Object({}),
-    bufferDistance: Object({}),
-});
-
-let landcover;
-let landcoverChange;
-let nlcdYearCombobox;
-let nlcdChange1Combobox;
-let nlcdChange2Combobox;
-let summaryUnitCombobox;
-// let bufferDistance,
-
-smaInputs.subscribe(value => {
-    landcover = value.landcover;
-    landcoverChange = value.landcoverChange;
-    nlcdYearCombobox = value.nlcdYearCombobox;
-    nlcdChange1Combobox = value.nlcdChange1Combobox;
-    nlcdChange2Combobox = value.nlcdChange2Combobox;
-    summaryUnitCombobox = value.summaryUnitCombobox;
-});
-
-
 export const catalog = writable({
     type: "national",
 });
