@@ -136,13 +136,13 @@ export const smaConfig = {
       }
     },
     "County": {
-      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Counties/FeatureServer/0',
+      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_and_States_with_PR/FeatureServer/0',
       "minScale": '300000000',
       "name": "County",
-      "outfields": ['STATE_NAME', 'NAME'],
+      "outfields": ['STATE_NAME', 'CountyName'],
       "outdesc": {
         'Geometry Type': 'US County',
-        'County': "results.NAME + ', ' + results.STATE_NAME"
+        'County': "results.CountyName + ', ' + results.STATE_NAME"
       }
     },
     "blockgroupLayer": {
