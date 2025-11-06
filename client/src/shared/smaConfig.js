@@ -124,6 +124,10 @@ export const smaConfig = {
     layersUsedURL: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/NationalLandCover.pdf'],
     resolution: 30
   },
+  "permafrost": {
+    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Permafrost_Probability_Near_the_Surface/ImageServer',
+    resolution: 30
+  },
   sum_units: {
     "stateLayer": {
       "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_States_Non_Generalized/FeatureServer/0',
@@ -168,25 +172,25 @@ export const smaConfig = {
       }
     },
     "HUC-12": {
-      "url": 'https://enviroatlas.epa.gov/arcgis/rest/services/Other/HydrologicUnits/MapServer/4',
+      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/Watershed_Boundary_Dataset_HUC_12s/FeatureServer',
       "minScale": "5000000",
       "name": "HUC-12",
-      "outfields": ['HUC_12', 'HU_12_Name'],
+      "outfields": ['HUC12', 'Name'],
       "outdesc": {
         'Geometry Type': 'Sub-watershed (HUC-12)',
-        'HUC-12 ID': "results.HUC_12",
-        'HUC-12 Name': "results.HU_12_Name"
+        'HUC-12 ID': "results.HUC12",
+        'HUC-12 Name': "results.Name"
       }
     },
     "HUC-8": {
-      "url": 'https://enviroatlas.epa.gov/arcgis/rest/services/Other/HydrologicUnits/MapServer/2',
+      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/Watershed_Boundary_Dataset_HUC_8s/FeatureServer',
       "minScale": "5000000",
       "name": "HUC-8",
-      "outfields": ['HUC8', 'HU_8_Name'],
+      "outfields": ['HUC8', 'Name'],
       "outdesc": {
         'Geometry Type': 'Subbasin (HUC-8)',
         'HUC-8 ID': "results.HUC8",
-        'HUC-8 Name': "results.HU_8_Name"
+        'HUC-8 Name': "results.Name"
       }
     }
   },
@@ -195,6 +199,6 @@ export const smaConfig = {
   blockgroupLayer: 'https://ejscreen.epa.gov/arcgis/rest/services/ejscreen/census2020acs/MapServer/0',
   districtLayer: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_118th_Congressional_Districts/FeatureServer/0',
   districtVersion: '118th Congressional District',
-  "huc-12Layer": 'https://enviroatlas.epa.gov/arcgis/rest/services/Other/HydrologicUnits/MapServer/4',
-  "huc-8Layer": 'https://enviroatlas.epa.gov/arcgis/rest/services/Other/HydrologicUnits/MapServer/2'
+  "huc-12Layer": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/Watershed_Boundary_Dataset_HUC_12s/FeatureServer',
+  "huc-8Layer": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/Watershed_Boundary_Dataset_HUC_8s/FeatureServer'
 }
