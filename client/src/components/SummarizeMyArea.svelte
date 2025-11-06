@@ -1,12 +1,4 @@
 <script>
-    //Behavior Questions:
-    // 1. Are indicators available in the dropdown depending on Geography? 
-    //    Or all options are available, and once permafrost is selected, it zooms to Alaska?
-
-    //TODO: when summary unit is removed from map, remove any previous selection graphics
-    //TODO: summary unit dropdown opens above and hides "county" option
-    //TODO: check layer in data catalog if opened in SMA?
-
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
     import "@esri/calcite-components/dist/components/calcite-shell-panel";
@@ -38,6 +30,7 @@
     // Import store and configuration
     import { smaConfig } from "../shared/smaConfig";
     import { addLayer, getEALayerObject } from "src/shared/utilities.js";
+    import { geography } from "../store";
 
     export let view;
 
@@ -62,12 +55,13 @@
     const updateIndicator = () => {
         //TODO: If indicator value is empty, remove sma indicator layer from map
         indicatorValue = indicatorElem.value
-        if (indicatorValue = '') {
-            removeIndicator()
-        }
         console.log("sma indicator value is: ", indicatorValue);
         if (indicatorValue == 'permafrost') {
+            $geography = 'Alaska'
+            document.getElementById("Alaska-bookmark").click()
             _initIndicatorLayer(indicatorValue)
+        } else if (indicatorValue = '') {
+            removeIndicator()
         }
     };
 
@@ -168,10 +162,14 @@
 
         console.log("event is: ", e);
         sumUnit = e.target.value;
-
+        console.log("sumUnit is ", sumUnit)
         //TODO: Add Draw functionality
-
-        _initGeometryLayer(sumUnit);
+        if (sumUnit != '') {
+            _initGeometryLayer(sumUnit);
+        } else {
+            view.graphics.removeAll()
+            geographyLabel = ''
+        }
     };
 
     // Add summary unit geometry to the map based on configurations
@@ -222,6 +220,7 @@
             // The hitTest() checks to see if any graphics from the geometryLayer
             view.hitTest(eMapPoint, opts).then((res) => {
                 if (res.results.length) {
+                    view.graphics.removeAll()
                     let query = geometryLayer.createQuery();
                     query.geometry = res['results'][0].mapPoint;
                     query.outFields = outfields;
@@ -233,8 +232,9 @@
                             let geographyAttributes =
                                 result.features[0].attributes;
                             buildGeographyLabel(geographyAttributes);
-                            const symbol = new SimpleFillSymbol();
-                            symbol.style = "none";
+                            const symbol = new SimpleFillSymbol({
+                                outline: {color: [23, 203, 232, 0.4], width: 2}
+                            });
                             _addGraphicToMap(symbol, geometry);
                         })
                         .catch((error) => {
@@ -447,8 +447,7 @@
                         placeholder-icon="calendar"
                         placeholder=" Select one"
                         selection-mode="single"
-                        max-items="0"
-                        overlay-positioning="absolute"
+                        overlay-positioning="fixed"
                         bind:this={summaryUnitCombobox}
                         on:calciteComboboxChange={updateSumUnit}
                     >
