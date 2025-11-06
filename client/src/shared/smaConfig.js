@@ -169,7 +169,7 @@ export const smaConfig = {
     },
     "HUC-12": {
       "url": 'https://enviroatlas.epa.gov/arcgis/rest/services/Other/HydrologicUnits/MapServer/4',
-      "minScale": "2000000",
+      "minScale": "5000000",
       "name": "HUC-12",
       "outfields": ['HUC_12', 'HU_12_Name'],
       "outdesc": {
@@ -180,7 +180,7 @@ export const smaConfig = {
     },
     "HUC-8": {
       "url": 'https://enviroatlas.epa.gov/arcgis/rest/services/Other/HydrologicUnits/MapServer/2',
-      "minScale": "2000000",
+      "minScale": "5000000",
       "name": "HUC-8",
       "outfields": ['HUC8', 'HU_8_Name'],
       "outdesc": {

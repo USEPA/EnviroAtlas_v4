@@ -43,6 +43,7 @@
         {#each bookmarks as bm}
             <calcite-action
                 bind:this={bm.element}
+                id="{bm.name}-bookmark"
                 label={bm.name}
                 tabindex="0"
                 role="button"
