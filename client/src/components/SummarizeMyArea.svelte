@@ -1,4 +1,12 @@
 <script>
+    //TODO: install and use nvm 20.19.0, then install d3 
+    //TODO: when indicator dropdown is X'd, remove imagery layer from map
+    //TODO: when sum unit is selected, clip the geometry layer
+    //TODO: figure out how to use rft as basis for computing stats & histograms
+    //TODO: add indices to permafrost layer in smaConfig.js
+    //TODO: try imageryLayer computeStatisticsHistograms() method
+    //https://developers.arcgis.com/javascript/latest/api-reference/esri-layers-ImageryLayer.html#computeStatisticsHistograms
+
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
     import "@esri/calcite-components/dist/components/calcite-shell-panel";
@@ -26,11 +34,13 @@
     import MosaicRule from "@arcgis/core/layers/support/MosaicRule";
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
     import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
+    import esriRequest from "@arcgis/core/request.js";
+    import * as d3 from 'd3';
 
     // Import store and configuration
-    import { smaConfig } from "../shared/smaConfig";
+    import { smaConfig } from "src/shared/smaConfig";
     import { addLayer, getEALayerObject } from "src/shared/utilities.js";
-    import { geography } from "../store";
+    import { geography } from "src/store.ts";
 
     export let view;
 
@@ -45,10 +55,11 @@
     let summaryUnitCombobox;
     let sumUnit = '';
     let geographyLabel = '';
+    let geometry;
 
     const indicatorsDict = [
-        {name: "Land Cover", value: "nlcd"}, 
-        {name: "Land Cover Change", value: "nlcd-change"}, 
+        // {name: "Land Cover", value: "nlcd"}, 
+        // {name: "Land Cover Change", value: "nlcd-change"}, 
         {name: "Permafrost Probability", value: "permafrost"}
     ]
     
@@ -167,6 +178,7 @@
         if (sumUnit != '') {
             _initGeometryLayer(sumUnit);
         } else {
+            // Clear graphics from map if the sum unit changes.
             view.graphics.removeAll()
             geographyLabel = ''
         }
@@ -220,6 +232,7 @@
             // The hitTest() checks to see if any graphics from the geometryLayer
             view.hitTest(eMapPoint, opts).then((res) => {
                 if (res.results.length) {
+                    //Clear graphic from the map if a new one is clicked
                     view.graphics.removeAll()
                     let query = geometryLayer.createQuery();
                     query.geometry = res['results'][0].mapPoint;
@@ -228,7 +241,7 @@
                     geometryLayer
                         .queryFeatures(query)
                         .then((result) => {
-                            let geometry = result.features[0].geometry;
+                            geometry = result.features[0].geometry;
                             let geographyAttributes =
                                 result.features[0].attributes;
                             buildGeographyLabel(geographyAttributes);
@@ -242,10 +255,12 @@
                         });
                 }
             });
+            //_clipLayerToGeometry(geometry)
         });
 
         // Build string that displays attributes of the summary unit selection geography
         function buildGeographyLabel(geographyAttributes) {
+            console.log(geographyAttributes)
             switch (sumUnit) {
                 case "County":
                     geographyLabel =
@@ -261,16 +276,16 @@
                     break;
                 case "HUC-12":
                     geographyLabel =
-                        geographyAttributes.HU_12_Name +
+                        geographyAttributes.name +
                         " (" +
-                        geographyAttributes.HUC_12 +
+                        geographyAttributes.huc12 +
                         ")";
                     break;
                 case "HUC-8":
                     geographyLabel =
-                        geographyAttributes.HU_8_Name +
+                        geographyAttributes.name +
                         " (" +
-                        geographyAttributes.HUC8 +
+                        geographyAttributes.huc8 +
                         ")";
                     break;
             }
@@ -280,35 +295,37 @@
     //TODO: Add buffer functionality
 
     //TODO: ClipLayer to Geometry
-    // const _clipLayerToGeometry = (indicatorLayer, geometry) => {
-    //     let renderingrule;
+    const _clipLayerToGeometry = (geometry) => {
+        let renderingrule;
 
-    //     const clipFunction = new RasterFunction();
-    //     clipFunction.functionName = "Clip";
-    //     clipFunction.outputPixelType = "U8";
-    //     clipFunction.functionArguments = {
-    //         ClippingGeometry: geometry,
-    //         ClippingType: 1,
-    //     };
+        const clipFunction = new RasterFunction();
+        clipFunction.functionName = "Clip";
+        clipFunction.outputPixelType = "u8";
+        clipFunction.functionArguments = {
+            ClippingGeometry: geometry,
+            ClippingType: 1,
+        };
 
-    //     switch (this.indicator) {
-    //         case "nlcd":
-    //         case "nlcd-change":
-    //         default:
-    //             renderingrule = clipFunction;
-    //             clipFunction.functionArguments.Raster = "$$";
-    //             break;
-    //     }
-
-    //     indicatorLayer.setRenderingRule(renderingrule);
-    //     var extent = geometry.getExtent();
-    //     //this._customZoomExtent(extent);
-    //     this.map.setExtent(extent, true);
-    //     this.calculateButton.disabled = false;
-    //     this.areaSelected = true;
-    // };
-
-    //TODO: Clear graphic from the map if a new one is clicked, or if the sum unit changes.
+        switch (indicatorValue) {
+            case "nlcd":
+            case "nlcd-change":
+            default:
+                renderingrule = clipFunction;
+                clipFunction.functionArguments.Raster = "$$";
+                break;
+        }
+        let indicatorLayer = view.map.layers.items?.filter(
+            function (item) {
+                return item.title.includes("Summarize My Area Indicator:");
+            },
+        );
+        //indicatorLayer.renderer(renderingrule);
+        let extent = geometry.getExtent();
+        //this._customZoomExtent(extent);
+        view.map.setExtent(extent, true);
+        //this.calculateButton.disabled = false;
+        //this.areaSelected = true;
+    };
 
     const _addGraphicToMap = (symbol, geometry, isBuffer = false) => {
         const graphic = new Graphic({ geometry, symbol });
@@ -326,6 +343,145 @@
         //     this._clipLayer(geometry);
         // }
     };
+
+    async function calculate() {
+        // loading image on button
+        // conditionality on what is geo depending on sum unit (point/line/area)
+        //default let geo=geometry (selected area)
+        let geo = geometry
+        const pixel_size = smaConfig[indicatorValue].resolution;
+        let compHistEndpoint = `${smaConfig[indicatorValue].layer}/computeStatisticsHistograms`;
+    
+        let compHistObject = {
+            f: 'json',
+            geometryType: 'esriGeometryPolygon',
+            geometry: JSON.stringify(geo),
+            pixelSize: pixel_size,
+            noData: 0
+        }
+        
+        let results 
+        switch(indicatorValue) {
+            case 'permafrost':
+                results = await _computeHistograms(compHistEndpoint, compHistObject);
+                if (results) {
+                    const totalCount = results.data.statistics[0].count;
+                    let area = totalCount * (pixel_size * pixel_size) / 1000000
+                    let pResults = {}
+                    results.data.histograms[0].counts.forEach((count, index) => {
+                        if (count > 0) {
+                            pResults[index] = {
+                                area: _calculatePermArea(totalCount, count, area),
+                                perc: calculatePercentages(totalCount, count),
+                                //name: smaConfig.permafrost.indices[index]
+                            }
+                        }
+                    });
+                    let data = Object.entries(pResults).map(([k, v]) => (v));
+                    var headers = [
+                        { head: '', cl: 'title', d: 'legend' },
+                        { head: 'Land Cover Type', cl: 'nlcd_title', d: 'name' },
+                        { head: this.nlcdYear + ' Area (' + this._getMetricString(this.pointMetric) + '2)', cl: '', d: 'year1_area' },
+                        { head: 'Percentage', cl: '', d: 'year1_perc' }
+                    ]
+                    let table = _renderTable(headers, data)
+                    //replace jquery below...
+                    //$('#gridded-map-output-table-wrapper').append(table);
+
+                    //not sure what domClass is doing below...
+                    // if (Object.keys(pResults).length > 3) {
+                    //     domClass.add(this.tabNode2, 'overflow');
+                    // } else {
+                    //     domClass.remove(this.tabNode2, 'overflow');
+                    // }
+                }
+        }
+    }
+
+    async function _computeHistograms(url, post_data) {
+        // if (this.errorMessage.innerHTML !== "") {
+        //   this.errorMessage.innerHTML = "";
+        //   let image = '<img src="./configs/loading/images/predefined_loading_1.gif"/>';
+        //   this.calculateButton.innerHTML = image;
+        // }
+
+        const compHistRequest = esriRequest(url, {
+          responseType : "json",
+          method: "post",
+          query: post_data,
+        });
+
+        try {
+            const results = await compHistRequest;
+        //   if (this.calculateButton.disabled) {
+        //     this.calculateButton.innerHTML = this.nls.calculate;
+        //     return;
+        //   }
+            console.log(results)
+            return results;
+        } catch (err) {
+            console.log(err)
+        //   this.calculateButton.innerHTML = this.nls.calculate;
+        //   if (err.details && err.details[0] === 'The requested image exceeds the size limit.') {
+        //     this.errorMessage.innerHTML = this.nls.sizeError;
+        //   } else {
+        //     this.errorMessage.innerHTML = this.nls.genericError;
+        //   }
+        }
+    };
+    function _calculatePermArea(total, count, area) {
+        return Number((this.calculatePercentages(total, count) / 100) * area).toFixed(2);
+    };
+
+    function calculatePercentages(totalCount, count) {
+        return (count / totalCount * 100).toFixed(2);
+    }
+
+    function _getMetricString(metric) {
+        switch (metric) {
+          case 'kilometers':
+            return 'km';
+          case 'miles':
+            return 'mi';
+          default:
+            return 'km';
+        }
+    }
+
+    function _renderTable(headers, data) {
+        var table_wrapper = d3.create('div')
+          .attr('class', 'table-wrapper');
+
+        var table = table_wrapper.append('table');
+
+        // create table header
+        table.append('thead').append('tr')
+          .selectAll('th')
+          .data(headers).enter()
+          .append('th')
+          .attr('class', d => d.cl)
+          .text(d => d.head);
+
+        // create table body
+        table.append('tbody')
+          .selectAll('tr')
+          .data(data).enter()
+          .append('tr')
+          .selectAll('td')
+          .data(function (row, i) {
+            cells = []
+            for (var ii = 0; ii < headers.length; ii++) {
+              cells.push(row[headers[ii].d])
+            }
+            return cells;
+          })
+          .enter()
+          .append('td')
+          .html(function (cell) {
+            return cell
+          });
+        return table_wrapper.node();
+    }
 </script>
 
 <calcite-panel
@@ -339,6 +495,7 @@
         role="button"
         width="full"
         slot="footer"
+        on:click={calculate}
     >
         Calculate
     </calcite-button>
