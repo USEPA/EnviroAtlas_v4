@@ -253,17 +253,17 @@
     >
     <arcgis-search 
       position="top-right"
-    />
+   ></arcgis-search>
     <arcgis-zoom 
       position="top-right" 
       layout="vertical" 
       referenceElement={view}
-    />
+   ></arcgis-zoom>
     <arcgis-scale-bar
       position="bottom-left"
       bar-style="line"
       unit="dual"
-    />
+   ></arcgis-scale-bar>
     <arcgis-coordinate-conversion
       position="bottom-left"
       mode="live"
@@ -274,7 +274,7 @@
       hide-settings-button
       multiple-conversions-disabled
       storage-disabled
-    />
+   ></arcgis-coordinate-conversion>
   </arcgis-map>
   <calcite-shell-panel
     component-id="shell-panel-start"
@@ -301,7 +301,7 @@
         active={action == $catalog.type}
         on:click={handleCatalogActionClick}
         on:keypress={handleCatalogActionClick}
-      />
+     ></calcite-action>
     {/each}
       <calcite-action
         slot="actions-end"
@@ -313,7 +313,7 @@
         text="open data catalog"
         on:click={handleExpandClick}
         on:keypress={handleExpandClick}
-      />
+     ></calcite-action>
     </calcite-action-bar>
     <DataCatalog view={view}/>
   </calcite-shell-panel>
@@ -338,22 +338,22 @@
       data-action-id="layers" 
       icon="layers" 
       text="Active Layer List"
-    />
+   ></calcite-action>
     <calcite-action 
       data-action-id="add-data" 
       icon="add-layer"
       text="Add Data"
-    />
+   ></calcite-action>
     <calcite-action
       data-action-id="basemaps"
       icon="basemap"
       text="Basemaps"
-    />
+   ></calcite-action>
     <calcite-action
       data-action-id="maptools"
       icon="system-management"
       text="Other Map Tools"
-    />
+   ></calcite-action>
   </calcite-action-bar>
   <calcite-panel
     heading="Active Layer List"
@@ -370,7 +370,7 @@
       bind:this={layerListContainer}
       listItemCreatedFunction={listItemCreatedFunction}
       on:arcgisTriggerAction={layerListAction}
-    />
+   ></arcgis-layer-list>
   </calcite-panel>
   <calcite-panel
     heading="Basemaps"
@@ -384,7 +384,7 @@
       bind:this={bmgContainer}
       referenceElement={view}
       source={portalBasemapsSource}
-    />
+   ></arcgis-basemap-gallery>
   </calcite-panel>
     <calcite-panel
     heading="Other Map Tools"
@@ -398,17 +398,17 @@
         position="manual"
         referenceElement={view}
         layout="horizontal"
-      />
+     ></arcgis-sketch>
     </calcite-block>
     <calcite-block collapsible expanded heading="Measure" label="Measure">
       <arcgis-area-measurement-2d
         referenceElement={view}
-      />
+     ></arcgis-area-measurement-2d>
     </calcite-block>
     <calcite-block collapsible expanded heading="Legend" label="Legend">
       <arcgis-legend
         referenceElement={view}
-      />
+     ></arcgis-legend>
     </calcite-block>
   </calcite-panel>
   <AddData map={map} />
@@ -421,7 +421,7 @@
     collapsed
   >
   <calcite-panel closable class="fTable" id="panel-start" on:calcitePanelClose={closeShellElement}>
-    <div id="fTable-container" bind:this={fTableContainer} />
+    <div id="fTable-container" bind:this={fTableContainer}></div>
   </calcite-panel>
   </calcite-shell-panel>
 </calcite-shell>

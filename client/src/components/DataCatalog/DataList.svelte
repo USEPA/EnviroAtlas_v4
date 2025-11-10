@@ -208,7 +208,7 @@
         icon="chevrons-right"
         slot="actions-end"
         on:click={toggleChevron}
-        />
+       ></calcite-action>
     </calcite-block>
     <TimeSeriesViewer view={view} geography={$geography}/>
     <SummarizeMyArea {view}/>
