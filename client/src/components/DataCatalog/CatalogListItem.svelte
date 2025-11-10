@@ -127,7 +127,7 @@
                         name={layer.name} 
                         value={layer.layerID} 
                         on:calciteCheckboxChange={subtopicSelected}
-                    />
+                   ></calcite-checkbox>
                     {layer.subLayerName}
                 </calcite-label>
             {/if}
