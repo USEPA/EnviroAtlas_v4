@@ -125,8 +125,11 @@ export const smaConfig = {
     resolution: 30
   },
   "permafrost": {
+    layersUsed: ['Near-surface permafrost probability'],
+    layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/MissingFactSheet.pdf'],
     layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Permafrost_Probability_Near_the_Surface/ImageServer',
-    resolution: 30
+    resolution: 30,
+    columnHeaders: ['Near-surface permafrost probability', 'Area (km2)', 'Percentage']
   },
   sum_units: {
     "stateLayer": {

@@ -1,10 +1,9 @@
 <script>
-    //TODO: install and use nvm 20.19.0, then install d3 
     //TODO: when indicator dropdown is X'd, remove imagery layer from map
     //TODO: when sum unit is selected, clip the geometry layer
     //TODO: figure out how to use rft as basis for computing stats & histograms
-    //TODO: add indices to permafrost layer in smaConfig.js
-    //TODO: try imageryLayer computeStatisticsHistograms() method
+    //TODO: add indices and colors to permafrost layer in smaConfig.js
+    //TODO: try imageryLayer computeStatisticsHistograms() method? Or get rest call to work with rft
     //https://developers.arcgis.com/javascript/latest/api-reference/esri-layers-ImageryLayer.html#computeStatisticsHistograms
 
     // Import calcite components
@@ -55,7 +54,9 @@
     let summaryUnitCombobox;
     let sumUnit = '';
     let geographyLabel = '';
+    let geographyAttributes;
     let geometry;
+    let pointMetric = "kilometers";
 
     const indicatorsDict = [
         // {name: "Land Cover", value: "nlcd"}, 
@@ -351,22 +352,27 @@
         let geo = geometry
         const pixel_size = smaConfig[indicatorValue].resolution;
         let compHistEndpoint = `${smaConfig[indicatorValue].layer}/computeStatisticsHistograms`;
-    
+
+        const serviceRFT = new RasterFunction({
+            functionName: "None",
+            variableName: "Raster",
+        });
+
         let compHistObject = {
             f: 'json',
             geometryType: 'esriGeometryPolygon',
             geometry: JSON.stringify(geo),
             pixelSize: pixel_size,
-            noData: 0
+            renderingRule: serviceRFT
         }
         
-        let results 
+        let results, area
         switch(indicatorValue) {
             case 'permafrost':
                 results = await _computeHistograms(compHistEndpoint, compHistObject);
                 if (results) {
                     const totalCount = results.data.statistics[0].count;
-                    let area = totalCount * (pixel_size * pixel_size) / 1000000
+                    area = totalCount * (pixel_size * pixel_size) / 1000000
                     let pResults = {}
                     results.data.histograms[0].counts.forEach((count, index) => {
                         if (count > 0) {
@@ -381,12 +387,12 @@
                     var headers = [
                         { head: '', cl: 'title', d: 'legend' },
                         { head: 'Land Cover Type', cl: 'nlcd_title', d: 'name' },
-                        { head: this.nlcdYear + ' Area (' + this._getMetricString(this.pointMetric) + '2)', cl: '', d: 'year1_area' },
+                        { head: indicatorValue + ' Area (' + _getMetricString(pointMetric) + '2)', cl: '', d: 'year1_area' },
                         { head: 'Percentage', cl: '', d: 'year1_perc' }
                     ]
                     let table = _renderTable(headers, data)
                     //replace jquery below...
-                    //$('#gridded-map-output-table-wrapper').append(table);
+                    document.getElementById('gridded-map-output-table-wrapper').append(table);
 
                     //not sure what domClass is doing below...
                     // if (Object.keys(pResults).length > 3) {
@@ -394,8 +400,58 @@
                     // } else {
                     //     domClass.remove(this.tabNode2, 'overflow');
                     // }
-                }
+                }     
         }
+        _renderResults(results, area);
+    }
+
+    function _renderResults(results, area, line) {
+        console.log("area: " + area + " line: " + line)
+        _renderInputTable(geographyAttributes, area, line);
+        //this.calculateButton.innerHTML = this.nls.calculate;
+        //this.resultsLoaded = true;
+        //this.tabContainer.selectTab(this.tabNode2); //manually switch tabs when results are ready
+    }
+
+    function _renderInputTable(results, area, line) {
+        //document.getElementById('gridded-map-output-table-wrapper').innerHTML('');
+        let inputTableData = []
+
+        let indicatorLabel = indicatorsDict.find(indicator => indicator.value === indicatorValue).name
+        inputTableData.push({ 'attribute': 'Analysis', 'value': indicatorLabel });
+
+        inputTableData.push({
+          'attribute': 'Source Data',
+          'value': '<a target= _blank" style="text-decoration:none" href="' +
+            smaConfig[indicatorValue].layersUsedURL + '">' +
+            (smaConfig[indicatorValue].layersUsed) + '</a>'
+        });
+
+        switch (sumUnit) {
+          default:
+            let inputTableFields = smaConfig.sum_units[sumUnit].outdesc;
+            for (const k in inputTableFields) {
+                let value;
+                let v = inputTableFields[k];
+                //if (v.includes('results.')) {
+                    //value = Function("return " + inputTableFields[k])();
+                //} else {
+                    value = inputTableFields[k];
+                //}
+                inputTableData.push({ 'attribute': k, 'value': value })
+            }
+            break;
+        }
+
+        const pretty_area = Math.round(area * 10) / 10;
+        inputTableData.push({ 'attribute': 'Area', 'value': pretty_area + ' ' + _getMetricString(pointMetric) + '2' });
+
+        var headers = [
+          { head: 'Input Paramaters', cl: '', d: 'attribute' },
+          { head: ' ', cl: '', d: 'value' }]
+        let table = _renderTable(headers, inputTableData)
+
+        document.getElementById('gridded-map-input-table-wrapper').append(table)
     }
 
     async function _computeHistograms(url, post_data) {
@@ -430,7 +486,8 @@
         }
     };
     function _calculatePermArea(total, count, area) {
-        return Number((this.calculatePercentages(total, count) / 100) * area).toFixed(2);
+        let calcPercentage = calculatePercentages(total, count)
+        return Number(( calcPercentage / 100) * area).toFixed(2);
     };
 
     function calculatePercentages(totalCount, count) {
@@ -443,16 +500,14 @@
             return 'km';
           case 'miles':
             return 'mi';
-          default:
-            return 'km';
         }
     }
 
     function _renderTable(headers, data) {
-        var table_wrapper = d3.create('div')
+        let table_wrapper = d3.create('div')
           .attr('class', 'table-wrapper');
 
-        var table = table_wrapper.append('table');
+        let table = table_wrapper.append('table');
 
         // create table header
         table.append('thead').append('tr')
@@ -469,7 +524,7 @@
           .append('tr')
           .selectAll('td')
           .data(function (row, i) {
-            cells = []
+            let cells = []
             for (var ii = 0; ii < headers.length; ii++) {
               cells.push(row[headers[ii].d])
             }
@@ -649,9 +704,15 @@
             </calcite-block>
         </calcite-tab>
         <calcite-tab tab="resultsTab">
-            <calcite-notice icon="car" open>
-                <div slot="message">Results!</div>
-            </calcite-notice>
+            <div id="gridded-map-results" class="widget-gridded-map profile-tab-node" data-dojo-attach-point="tabNode2">
+                <div style="margin-bottom:10px" id="gridded-map-title">
+                    <div>
+                        <img alt="https://www.epa.gov/enviroatlas" src="images/logo.png" style="height: 33px; margin-top: 7px; display:inline-block; position:relative; left:50%; transform: translate(-50%); margin-bottom:-3px">
+                    </div>
+                    <div style="display:block; margin:0 auto; text-align: center; font-size:18px; color:darkgray;">Summarize My Area</div>
+                </div>
+            <div id="gridded-map-input-table-wrapper" class="table-wrapper"></div>
+            <div id="gridded-map-output-table-wrapper" class="table-wrapper"></div>
         </calcite-tab>
     </calcite-tabs>
 </calcite-panel>
