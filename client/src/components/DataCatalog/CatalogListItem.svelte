@@ -1,224 +1,172 @@
 <script>
-    import { getEALayerObject, addLayer } from "src/shared/addtoMap.js";
+    import { addLayer, getEaData, removeLayer, openLayerList, getEALayerObject } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
-    import detailConfig from "src/shared/dataCatalog_details_1layer.json";
-    import { onMount } from "svelte";
+    import { activeWidget } from "src/store.ts";
 
     export let subtopic;
     export let view;
     export let layerID = null;
-    let detailsFiltered = false;
     let detailsObj = {};
+    let detailsArray = [];
 
-    // TODO: Should these be destroyed too?
-    onMount(() => {
-        new SubtopicDetails({
-            target: document.body,
-            props: { subtopic, detailsObj },
-        });
-    });
-
-    function getEALayerId() {
+    async function getEALayerId() {
         if (subtopic.layers.length < 2) {
-            layerID = subtopic.layers[0].eaID
+            layerID = subtopic.layers[0].layerID
         }
         console.log('EA Layer: ', layerID)
-        let lObject = getEALayerObject(layerID);
+        let lObject = await getEALayerObject(layerID);
         // TODO: error handle if lObject is empty 
         addLayer(lObject, view);
+        // If there is a layer added, open the Layer List
+        if (lObject) {
+            openLayerList($activeWidget);
+        }
     }
 
     function subtopicSelected(event) {
         layerID = event.target.value;
         console.log(layerID);
+        if (this.checked) {
+            console.log('checked!')
+            getEALayerId()
+        } if (!this.checked) {
+            console.log('unchecked!')
+            removeLayer(event.target.name, view)
+        }
     }
 
-    export const getSubtopicDetails = (sortId) => {
-        // Get the object and pass to the SubtopicDetails component
-        //TODO: Use api to get detailsObj
-        detailsObj = detailConfig.filter(lyr => lyr.sortId == sortId)[0];
-        detailsFiltered = true;
-        return detailsObj
+    async function getSubtopicDetails () {
+        // Use api to get detailsObj and pass to the SubtopicDetails component with subtopic 
+        if (subtopic.layers.length < 2) {
+            layerID = subtopic.layers[0].layerID
+            let detailsParams = {
+                select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"agoID":1,"metadataID":1,"url":1}`)
+            };
+            let detailsObj = await getEaData(`/ea/api/layers/${layerID}`, detailsParams);
+            let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
+            if (!findPopover) {
+                new SubtopicDetails({
+                    target: document.body,
+                    props: { subtopic, detailsObj },
+                });
+                console.log(detailsObj)
+            }
+            let popover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
+            popover.setAttribute("open", "true");
+            return detailsObj
+        } else {
+            for (const lyr of subtopic.layers) {
+                layerID = lyr.layerID
+                let detailsParams = {
+                    select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"DownloadSource":1,"metadataID":1,"subLayerName":1,"agoID":1,"url":1}`)
+                };
+                let details = await getEaData(`/ea/api/layers/${layerID}`, detailsParams);
+                detailsArray.push(details)
+            }
+            let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
+            if (!findPopover) {
+                new SubtopicDetails({
+                    target: document.body,
+                    props: { subtopic, detailsArray },
+                });
+            }
+            let popover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
+            popover.setAttribute("open", "true");
+            return detailsArray
+        }
     }
 
+    let dataTypeDict = {
+        'Summarized by Census Block Group': 'cbg', 
+        'Summarized by Census Tracts': 'ctr',
+        'Points, Lines, or Polygons': 'plp',
+        'Non-summarized grid data':'grid',
+        'Summarized by HUC12':'huc12',
+        '': ''
+    }
 </script>
 
-<calcite-list-item label={subtopic.name}>
-    {#key detailsObj}
-        <SubtopicDetails {subtopic} {detailsObj}/>
-    {/key}
-    <calcite-action 
-        text="Details" 
-        icon="information" 
-        scale="s" 
-        slot="actions-end" 
-        id="{subtopic.sortId}-details-popover-button"
-        on:click={detailsObj = () => getSubtopicDetails(subtopic.sortId)}
-        on:keypress={detailsObj = () => getSubtopicDetails(subtopic.sortId)}></calcite-action>
-    {#if subtopic.layers.length > 1}
-        <calcite-combobox
-            scale="s"
-            slot="content-bottom"
-            selection-mode="single-persist"
-            label={subtopic.name}
-            name={subtopic.name}
-            required
-            placeholder="Select a layer"
-            on:calciteComboboxChange={subtopicSelected}
-        >
-            {#each subtopic.layers as layer}
-                <calcite-combobox-item
-                    value={layer.eaID}
-                    text-label={layer.title}
-                ></calcite-combobox-item>
-            {/each}
-        </calcite-combobox>
-    {/if}
-
-    <calcite-action-bar
-        slot="content-bottom"
-        layout="horizontal"
-        expand-disabled
+{#if subtopic.isVisible}
+{#each Object.entries(dataTypeDict) as [dTypeLabel, dTypeValue] (dTypeLabel)}
+    {#if subtopic.sourceType == dTypeValue}
+<calcite-list-item 
+    id={subtopic.layers.length > 1 ? 'not-header-subtopic' : 'not-header'}
+    label={subtopic.name} 
+    description={dTypeLabel} 
+    on:calciteListItemSelect={e=>e.stopPropagation()}
     >
-    <calcite-chip-group
-            id="ea-chip-group"
-            scale="s"
-            selection-mode="none"
-            label="ea-chip-group"
-        >
-            {#if subtopic.eaCA}
-                <calcite-chip
-                    scale="s"
-                    value="eaCA"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/air.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
+        {#if subtopic.layers.length == 1}
+        <calcite-checkbox 
+            slot="actions-start" 
+            aria-checked="false" 
+            role="checkbox" 
+            style="padding: 0 10px;"
+            tabindex="0"
+            value={subtopic.layers[0].layerID}
+            name={subtopic.layers[0].name}
+            on:calciteCheckboxChange={subtopicSelected}
+        ></calcite-checkbox>
+        {/if}
+        <calcite-action 
+            tabindex="-1"
+            role="button"
+            text="Details" 
+            icon="information" 
+            scale="m" 
+            slot="actions-end" 
+            id="{subtopic.subTopicID}-details-popover-button"
+            on:click={detailsObj = () => getSubtopicDetails()}
+            on:keypress={detailsObj = () => getSubtopicDetails()}>
+        </calcite-action>
+        {#if subtopic.layers.length > 1}
+        <div slot="content-bottom" id="concernFilterDiv">
+            {#each subtopic.layers as layer (layer.layerID)}
+            {#if layer.isVisible}
+                <calcite-label scale='s' layout="inline">
+                    <calcite-checkbox 
+                        name={layer.name} 
+                        value={layer.layerID} 
+                        on:calciteCheckboxChange={subtopicSelected}
+                   ></calcite-checkbox>
+                    {layer.subLayerName}
+                </calcite-label>
             {/if}
-            {#if subtopic.eaCPW}
-                <calcite-chip
-                    scale="s"
-                    value="eaCPW"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/water.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaCS}
-                <calcite-chip
-                    scale="s"
-                    value="eaCS"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/clim.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaNHM}
-                <calcite-chip
-                    scale="s"
-                    value="eaNHM"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/haz.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaRCA}
-                <calcite-chip
-                    scale="s"
-                    value="eaRCA"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/rec.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaFFM}
-                <calcite-chip
-                    scale="s"
-                    value="eaFFM"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/food.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#if subtopic.eaBC}
-                <calcite-chip
-                    scale="s"
-                    value="eaBC"
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/bio.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-            {/if}
-            {#each ['cbg', 'plp', 'grid', 'huc12'] as sType}
-                {#if subtopic.sourceType == sType}
-                    <calcite-chip
-                    scale="s"
-                    value={sType}
-                >
-                    <calcite-avatar
-                        slot="image"
-                        thumbnail="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{sType}.png"
-                    >
-                    </calcite-avatar>
-                </calcite-chip>
-                {/if}
             {/each}
-        </calcite-chip-group>
-        <calcite-button
-            scale="s"
-            round
-            label="Add to map"
-            slot="actions-end"
-            appearance='transparent'
-            on:click={getEALayerId}
-            on:keypress={getEALayerId}
-            >Add to map</calcite-button
-        >
-    </calcite-action-bar>
+        </div>
+        {/if}
 </calcite-list-item>
+    {/if}
+{/each}
+{/if}
 
 <style>
-    calcite-button {
-        margin-left: 5px;
-        margin-bottom: 5px;
-        margin-top: 5px;
-    }
-    
-    calcite-combobox {
-        margin-top: 5px;
+    #not-header {
+        --calcite-list-background-color: #fff;
+        --calcite-list-background-color-hover: none;
+        --calcite-list-background-color-press: none;
+        --calcite-spacing-xxs: 0;
+        --calcite-font-weight-normal: 400;
+        font-size: var(--calcite-font-size--2)  
+    } 
+
+    #not-header-subtopic {
+        --calcite-list-background-color: #fff;
+        --calcite-list-background-color-hover: none;
+        --calcite-list-background-color-press: none;
+        --calcite-spacing-xxs: 0;
+        margin-left: 10px;
+        --calcite-font-weight-normal: 400;
+        font-size: var(--calcite-font-size--2)  
+    } 
+
+    #concernFilterDiv {
+        padding-left: 16px;
+		display: inline-flex;
+		grid-template-columns: repeat(3, 1fr);
+		max-width: 400px;
     }
 
-    calcite-list-item {
-        padding-left: 18px;
-        --calcite-color-focus-color: none !important;
-        --calcite-color-foreground-2: none !important;
+    calcite-label {
+        padding-right: 15px;
     }
-
-    /* This won't work until upgrading to calcite 2.13 
-    https://github.com/Esri/calcite-design-system/commit/f8f881b9bb164d482cb2a77b1f7b1ba3125e1719
-    calcite-avatar {
-        --calcite-avatar-background-color: blue;
-    }
-    */
 </style>

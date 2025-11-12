@@ -1,0 +1,290 @@
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import TileLayer from "@arcgis/core/layers/TileLayer"
+import PopupTemplate from "@arcgis/core/PopupTemplate";
+import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
+import MapImageLayer from "@arcgis/core/layers/MapImageLayer";
+import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
+
+
+export let view;
+
+// When Add to Map button is clicked, get object from the mapping config
+export function getEALayerObject(id) {
+    // use api to fetch layer object
+    let layerParams = {
+        //TODO: where did type go?
+        //TODO: test out using code like, select = JSON.stringify( {layerID:1,name:1,etc etc} )
+        select: encodeURIComponent(`{"layerID":1,"name":1,"lyrNum":1,"popup":1,"tileLink":1,"tileURL":1,"type":1,"url":1,"serviceType":1,"sourceType":1}`)
+    }
+    let lObj = getEaData(`/ea/api/layers/${id}`, layerParams)
+    return lObj
+}
+
+// Generic ea api call function
+export async function getEaData(url, params) {
+    //TODO: check if params is string or object
+    //TODO: if object, JSON.stringify
+    let paramText = '';
+    for (const [key] of Object.entries(params)) {
+        paramText += `${key}=${params[key]}&`
+    }
+    let constructedUrl = `${url}?${paramText.slice(0, -1)}`;
+    try {
+        let res = await fetch(constructedUrl);
+        return await res.json()
+    } catch (e) {
+        console.error("Error fetching data: ", e)
+    }
+};
+
+// TEST: is it faster to load data from portal item metadata instead of EAAPI?
+export function addLayer(lObj, view) {
+    // Look for the layer already in the view
+    // TODO: find a way to check this before sending request to API for lyrObject?
+    if (isLayerInMap(lObj.url, view)) {
+        console.log("Layer is already in map!")
+        return 
+    }
+    console.log(lObj);
+    if (isFeatureorMapService(lObj.url)) {
+        addFeatureLayer(lObj, view)
+    }
+    if (lObj.tileLink === 'yes') {
+        addTileLayer(lObj, view)
+    }
+    if (isImageService(lObj.url)) {
+        if (lObj.tileLink == 'renderer') {
+            console.log('render this!')
+            let rfRule = new RasterFunction({
+                functionName: lObj.tileURL
+            })
+            addImageryLayer(lObj, view, rfRule)
+        } else {
+            addImageryLayer(lObj, view)
+        }
+    }
+    // TODO: Add EA Boundaries and locations when community data is added to the map
+    // Maybe don't have to do this if EA is dropping Community data from the app?
+};
+
+/** 
+ * Boolean test for Feature or Map service type
+ * @param {string} url
+ * @return {boolean} Is the url an Feature or Map Service?
+ */
+export function isFeatureorMapService(url) {
+    let match = url.substring(url.lastIndexOf('/') + 1);
+    return match === 'FeatureServer' || match === 'MapServer'
+};
+
+/** 
+ * Boolean test for Image service type
+ * @param {string} url
+ * @return {boolean} Is the url an Imager Service?
+ */
+export function isImageService(url) {
+    return url.substring(url.lastIndexOf('/') + 1) === 'ImageServer'
+};
+
+/**
+ * Boolean test for object with undefined values
+ * @param {Object} obj
+ * @return {boolean} Does object have undefined value?
+ */
+export function hasValueUndefined(obj) {
+    return Object.values(obj).some(value => value.value === undefined)
+};
+
+/** 
+ * Returns largest absolute value of two numbers
+ * @param {number} num1
+ * @param {number} num2
+ * @returns {number} largest absolute value of num1, num2
+*/
+export function largestAbsVal(num1, num2) {
+    return Math.max(Math.abs(num1), Math.abs(num2))
+};
+
+export function isLayerInMap(url, view) {
+    const foundLayer = view.map.allLayers.find(function(lyr) {
+        // TODO: For RFTs, the url may be the same, but the viz will be different, 
+        // so will need to update this helper function
+        return lyr.url === url
+    });
+    return foundLayer
+};
+
+/**
+ * Remove the layer(s) from map based on the title.
+ * @param {string} lyrName 
+ * @param {object} view 
+ */
+export function removeLayer(lyrName, view) {
+    const foundLyr = view.map.allLayers.filter(function(layer) {
+        return layer.title === lyrName;
+    });
+    if (foundLyr) {
+        foundLyr.forEach((lyr) => {
+            view.map.remove(lyr);
+        }) 
+    };         
+};
+
+export function addFeatureLayer(lObj, view) {
+    const url = Object.hasOwn(lObj, 'lyrNum') ? `${lObj.url}/${~~lObj.lyrNum}` : lObj.url;
+    console.log(url);
+    // feature server URL
+    var copiedLayer = new FeatureLayer({
+        url,
+        title: lObj.name,
+        opacity: 0.6, // apply defaults, like opacity=0.6
+    });
+
+    // catch error on instantiating the new Feature Layer
+    copiedLayer.when(function () {
+        // if it has a popup property, build the popup template
+        if (lObj.popup != null) {
+            copiedLayer.popupTemplate = buildFSPopupTemp(lObj);
+        }
+    }, function (error) {
+        // This function will execute if the promise is rejected due to an error
+        // This is a workaround not having serviceType='dynamic' from API
+        // TODO: Update serviceType with data in DB
+        if (error.message === 'Source type "Raster Layer" is not supported') {
+            console.log('this is a dynamic map service')
+            let miLyr = new MapImageLayer({
+                url: lObj.url
+            });
+            view.map.add(miLyr);
+        }
+    });
+
+    setupErrorHandling(copiedLayer);
+
+    view.map.add(copiedLayer);
+};
+
+export function addImageryLayer(lObj, view, rfRule) {
+    let iLyr = new ImageryLayer({
+        url: lObj.url,
+        format: "lerc", // for possible client side rendering or pixelfilter
+        popupEnabled: true,
+        opacity: 0.6,
+        title: lObj.name,
+    }); 
+    if (rfRule) {
+        iLyr.rasterFunction = rfRule
+    }
+    iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "Pixel Value: {Raster.ServicePixelValue.Raw}" }
+    console.log("imageryLayer: ", iLyr);
+    view.map.add(iLyr);
+    view.whenLayerView(iLyr).then((layerView) => {
+        layerView.highlightOptions = {
+            color: [0,0,0,0],
+            haloOpacity: 0, 
+            fillOpacity: 0
+        }
+    }) 
+};
+
+export function addTileLayer(lObj, view) {
+    // Scale for block group vs huc12 layers
+    let mxScale = lObj.sourceType == "cbg" ? 577790 : 4622324;
+    let tLyr = new TileLayer({
+        title: lObj.name,
+        url: lObj.tileURL,
+        legendEnabled: false, // hide from legend not honored in layer list...
+        opacity: 0.6, // set opacity
+        // TODO: revist scale level...seems like cacheNatLevel isn't synced with the feature layer scales.
+        maxScale: mxScale
+    });
+    tLyr.listMode = "hide"; // hide from layer list...or "hide-children"
+    //console.log(view.zoom);
+    view.map.add(tLyr);
+};
+
+// TODO: error catching / email broken layers
+export function setupErrorHandling(errorObj) {
+    errorObj.on("layerview-create-error", function (evt) {
+        console.error("Failed to create layer: ", errorObj.title, ". Error is: ", evt.error.message, ". Details: ", evt.error.details);
+        // TODO: alert messaging
+    });
+};
+
+// TODO: build popup template without the DB popup json object? 
+export function buildFSPopupTemp(lObj) {
+    let pTemplate;
+    // Add popup title data to the front of fieldInfos array
+    let popupTitle = lObj.popup.title?.split(":");
+    popupTitle[1] = popupTitle[1].replace('{', '').replace('}', '').trim();
+    lObj.popup.fieldInfos.unshift({
+        fieldName: popupTitle[1],
+        label: popupTitle[0],
+        visible: true
+    });
+
+    // Instantiate popup template 
+    if (lObj.popup.fieldInfos != null) {
+        pTemplate = new PopupTemplate({
+            //title: lObj.name,
+            overwriteActions: true,
+            content: [
+                {
+                    type: 'text',
+                    text: '<b>' + lObj.name + '</b>'
+                },
+                {
+                    type: 'fields',
+                    fieldInfos: lObj.popup.fieldInfos
+                }]
+        });
+        return pTemplate
+    }
+}
+
+/** 
+ * Expand or collapse the topic headers in the data catalog.
+ * @param {boolean} expand - default is true
+ */
+export function expandTopics(expand = true) {
+    const ids = ["ESB", "PSI", "PBS", "BNF"]
+    ids.forEach(id => {
+        document.querySelectorAll(`calcite-list-item#${id}`).forEach(elem => {
+            expand ? elem.setAttribute("expanded", "") : elem.removeAttribute("expanded")   
+        });
+    });
+};
+
+/**
+ * Opens Layer List widget and closes others on right side, if applicable.
+ * Used when data is added to the map.
+ * @param {object} activeWidget - this value comes from the store
+ */
+export function openLayerList(activeWidget) {
+    let shell = document.querySelector(`[component-id="shell-panel-end"]`);
+    let layerPanel = document.querySelector(`[data-panel-id="layers"]`)
+    // Given the right side panel is closed, when Add to map is clicked, 
+    // the right side panel opens with the layer list visible
+    if (!activeWidget.right) {
+        layerPanel.removeAttribute("hidden");
+        layerPanel.removeAttribute("closed");
+        shell.removeAttribute("collapsed");
+        activeWidget.right = "layers";
+        document.querySelector(`[data-action-id=${activeWidget.right}]`).active = true;
+    } else if (activeWidget.right !== "layers") {
+        // Given the right side panel is open, when Add to map is clicked, 
+        // the right side panel remains open and has layer list visible
+        layerPanel.removeAttribute("hidden");
+        layerPanel.removeAttribute("closed");
+        document.querySelector(`[data-action-id=${activeWidget.right}]`).active = false;
+        document.querySelector(`[data-panel-id=${activeWidget.right}]`).hidden = true;
+        document.querySelector(`[data-panel-id=${activeWidget.right}]`).closed = true;
+        activeWidget.right = "layers";
+        document.querySelector(`[data-action-id=${activeWidget.right}]`).active = true;
+        shell.removeAttribute("collapsed");
+    }
+};
+
+export function isStringNotEmpty(str) {
+  return typeof str === 'string' && str.trim().length > 0;
+}

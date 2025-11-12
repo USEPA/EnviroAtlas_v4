@@ -1,0 +1,7 @@
+error:
+  type: object
+  properties:
+    message:
+      type: string
+    stack:
+      type: string

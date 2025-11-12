@@ -1,0 +1,54 @@
+.swagger-ui .topbar {
+    background: #0066CC;
+}
+
+/* npm swagger-ui-express 4.6.3 depends on swagger-ui-dist >=5.0.0
+on BLT when swagger-ui-express 4.6.3 was installed swagger-ui-dist 5.4.2 was installed
+5.4.2 uses an img for the swagger ui header
+on EA when swagger-ui-express 4.6.3 was installed swagger-ui-dist 5.17.14 was installed
+5.17.14 uses an svg for the swagger ui header
+Not sure how to force the "sub" depenency in npm.
+Found a work around that also works for svg so will just add that below
+ */
+
+/* this worked on swagger-ui-dist 5.4.2 on BLT that has img in header */
+.topbar-wrapper img {
+    height:2em;
+    content:url('/ea/swagger/custom/header.png');
+}
+
+/* this worked on swagger-ui-dist 5.17.14 on EA that has svg in header */
+.topbar-wrapper a svg {
+    visibility: hidden;
+    width:0px;
+}
+
+.topbar-wrapper a::before {
+    content: "";
+    background-image:url('/ea/swagger/custom/header.png');
+    background-size: 100% 100%;
+    display: inline-block;
+
+    /*scale down original size of image*/
+    height: calc(.5*104px);
+    width:calc(.5*543px);
+
+    /*if you want to change the position you can use margins or:
+    position:relative;
+    top:5px;
+*/
+}
+
+
+.swagger-ui .topbar .download-url-wrapper input[type=text] {
+    width:50%
+}
+
+.swagger-ui .info {
+    margin: 1em 0;
+}
+
+.swagger-ui .scheme-container {
+    margin: 0 0 1em;
+    padding: 1em 0;
+}

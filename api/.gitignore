@@ -42,3 +42,6 @@ Thumbs.db
 
 #ignore script output sent to scripts/out
 scripts/out/*
+
+#don't check in .dev-link config file because only want to use them to link locally
+.dev-link

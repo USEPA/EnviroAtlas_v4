@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 
@@ -5,8 +6,13 @@ import path from 'path';
 const projectRootDir = path.resolve(__dirname);
 
 let proxy = {
+    // '/ea/api/': {
+    //     target: 'http://localhost'
+    // },
+//Could use this to work on client if didn't have local version of api running
     '/ea/api/': {
-        target: 'http://localhost'
+        target: 'https://awseastaging.epa.gov',
+        changeOrigin: true
     }
 };
 
@@ -42,6 +48,11 @@ export default defineConfig({
   },
   server: {
       proxy
+  },
+  test: {
+    root: './tests/unit',
+    //https://vitest.dev/config/#environment
+    environment: 'jsdom',
   },
   plugins: [svelte()],
 })

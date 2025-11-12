@@ -12,3 +12,7 @@
 
 #ignore Thumbs.db that windows creates
 Thumbs.db
+
+#don't check in .dev-link config file because only want to use them to link locally
+.dev-link
+client/vite.config.js

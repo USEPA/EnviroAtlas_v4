@@ -1,9 +1,9 @@
-@import "https://js.arcgis.com/calcite-components/2.8.5/calcite.css";
-@import "https://js.arcgis.com/4.29/esri/themes/light/main.css";
+@import "https://js.arcgis.com/calcite-components/3.3.0/calcite.css";
+@import "https://js.arcgis.com/4.33/esri/themes/light/main.css";
 
 html,
 body {
-  --calcite-color-brand: #005ea2;
+  --calcite-color-brand: #162e51;
   --calcite-color-brand-hover: #1a4480;
   --calcite-color-brand-press: #162e51;
   --calcite-color-text-link: #1a4480;
@@ -22,9 +22,46 @@ body {
   width: 100%;
 }
 
-calcite-block {
-  margin-top: 4px;
-  margin-left: 4px;
-  margin-right: 4px;
-  margin-bottom: 0px;
+.esri-ui {
+  inset: 0px !important;
+}
+
+calcite-list-item {
+  --calcite-list-spacing-indent: none !important;
+}
+
+.esri-coordinate-conversion {
+  background-color: #ffffff54;
+  width: 180px;
+  top: -1px;
+  height: 16px;
+  font-weight: 600;
+  font-size: 11px;
+  color: #323232;
+  box-shadow: none !important;
+  pointer-events: none !important;
+  user-select: text;
+}
+
+.esri-coordinate-conversion__conversion-list {
+  position: relative;
+  top: -15px;
+}
+
+.esri-coordinate-conversion__select-row, .esri-coordinate-conversion__input-select {
+  display:none;
+}
+
+.esri-legend__layer-cell {
+  padding: 1px 0;
+
+}
+
+.esri-legend__layer-cell--info {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.esri-layer-list__item-content-bottom {
+  margin: 5px;
 }
