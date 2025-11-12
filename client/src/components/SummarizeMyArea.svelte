@@ -1,10 +1,6 @@
 <script>
     //TODO: when indicator dropdown is X'd, remove imagery layer from map
     //TODO: when sum unit is selected, clip the geometry layer
-    //TODO: figure out how to use rft as basis for computing stats & histograms
-    //TODO: add indices and colors to permafrost layer in smaConfig.js
-    //TODO: try imageryLayer computeStatisticsHistograms() method? Or get rest call to work with rft
-    //https://developers.arcgis.com/javascript/latest/api-reference/esri-layers-ImageryLayer.html#computeStatisticsHistograms
 
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
