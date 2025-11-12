@@ -353,17 +353,21 @@
         const pixel_size = smaConfig[indicatorValue].resolution;
         let compHistEndpoint = `${smaConfig[indicatorValue].layer}/computeStatisticsHistograms`;
 
-        const serviceRFT = new RasterFunction({
-            functionName: "None",
-            variableName: "Raster",
-        });
+        let remapRF = new RasterFunction();
+        remapRF.functionName = "Remap";
+        remapRF.functionArguments = {
+            InputRanges: [-1,-0.001,0,11,11,21,21,31,31,41,41,51,51,61,61,71,71,81,81,91,91,101],
+            OutputValues: [0,1,2,3,4,5,6,7,8,9,10],
+            Raster: "$$"
+        };
+        remapRF.outputPixelType = "u8";
 
         let compHistObject = {
             f: 'json',
             geometryType: 'esriGeometryPolygon',
             geometry: JSON.stringify(geo),
             pixelSize: pixel_size,
-            renderingRule: serviceRFT
+            renderingRule: JSON.stringify(remapRF)
         }
         
         let results, area
@@ -379,7 +383,8 @@
                             pResults[index] = {
                                 area: _calculatePermArea(totalCount, count, area),
                                 perc: calculatePercentages(totalCount, count),
-                                //name: smaConfig.permafrost.indices[index]
+                                name: smaConfig.permafrost.indices[index],
+                                legend: `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig.permafrost.colors[index]}"></div>`
                             }
                         }
                     });
@@ -387,8 +392,8 @@
                     var headers = [
                         { head: '', cl: 'title', d: 'legend' },
                         { head: 'Land Cover Type', cl: 'nlcd_title', d: 'name' },
-                        { head: indicatorValue + ' Area (' + _getMetricString(pointMetric) + '2)', cl: '', d: 'year1_area' },
-                        { head: 'Percentage', cl: '', d: 'year1_perc' }
+                        { head: indicatorValue + ' Area (' + _getMetricString(pointMetric) + '2)', cl: '', d: 'area' },
+                        { head: 'Percentage', cl: '', d: 'perc' }
                     ]
                     let table = _renderTable(headers, data)
                     //replace jquery below...

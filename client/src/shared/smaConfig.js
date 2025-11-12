@@ -125,11 +125,37 @@ export const smaConfig = {
     resolution: 30
   },
   "permafrost": {
+    indices: {
+      0: "Not Modeled",
+      1: "0 - 10%",
+      2: "10.1 - 20%",
+      3: "20.1 - 30%",
+      4: "30.1 - 40%",
+      5: "40.1 - 50%",
+      6: "50.1 - 60%",
+      7: "60.1 - 70%",
+      8: "70.1 - 80%",
+      9: "80.1 - 90%",
+      10: "90.1 - 100%"
+    },
     layersUsed: ['Near-surface permafrost probability'],
     layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/MissingFactSheet.pdf'],
     layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Permafrost_Probability_Near_the_Surface/ImageServer',
     resolution: 30,
-    columnHeaders: ['Near-surface permafrost probability', 'Area (km2)', 'Percentage']
+    columnHeaders: ['Near-surface permafrost probability', 'Area (km2)', 'Percentage'],
+    colors: {
+      0: "#CCCCCC",
+      1: "#FFFEB9",
+      2: "#EFF9B5",
+      3: "#CFECB2",
+      4: "#97D69B",
+      5: "#5DC0C0",
+      6: "#31A6C2",
+      7: "#1F80B8",
+      8: "#2367A4",
+      9: "#234E8D",
+      10: "#23318D"
+    },
   },
   sum_units: {
     "stateLayer": {
