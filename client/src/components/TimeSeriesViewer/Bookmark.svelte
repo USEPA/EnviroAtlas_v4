@@ -7,7 +7,7 @@
 
     let bookmarkPopupButton;
     let bookmarks = [
-        { name: "CONUS", text: "Continental US", selected: true, extentObj: {xmax: -5347672, xmin: -15914327, ymax: 7733573, ymin: 1853426}}, 
+        { name: "CONUS", text: "Continental 48", selected: true, extentObj: {xmax: -5347672, xmin: -15914327, ymax: 7733573, ymin: 1853426}}, 
         { name: "Alaska", text: "Alaska", extentObj: { xmax: -15876210.0, xmin: -19061453.32, ymax: 12511315.0, ymin: 6923265.0}},
         { name: "Hawaii", text: "Hawaii", extentObj: { xmax: -17232996.3537, xmin: -17838620.5975, ymax: 2539458.2165, ymin: 2144428.1256}},
         { name: "AmericanSamoa", text: "American Samoa", extentObj: { xmax: -18844510.286599636, xmin: -19163997.22517633, ymax: -1444391.585028562, ymin: -1774134.0808157807}},
@@ -26,6 +26,7 @@
         //TODO: put in all stuff that changes this dataList Query Store we are creating that triggers dataList refresh in that comopnent
        
         $geography = bookmark.name
+        bookmarkPopupButton.removeAttribute("open")
     };
 </script>
 

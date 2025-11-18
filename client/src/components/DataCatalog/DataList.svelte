@@ -31,7 +31,7 @@
     };
 
     const domainMap = {
-        "CONUS": "Continental US",
+        "CONUS": "Continental 48",
         "Puerto Rico,Virgin Islands": "Puerto Rico & Virgin Islands",
         "Guam": "Guam & Northern Mariana Islands",
         "AmericanSamoa": "American Samoa",

@@ -1,6 +1,5 @@
 <script>
-    //TODO: when indicator dropdown is X'd, remove imagery layer from map
-    //TODO: when sum unit is selected, clip the geometry layer
+    //TODO: when sum unit is selected, gray out all other features
 
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
@@ -68,7 +67,7 @@
             $geography = 'Alaska'
             document.getElementById("Alaska-bookmark").click()
             _initIndicatorLayer(indicatorValue)
-        } else if (indicatorValue = '') {
+        } else if (!indicatorValue) {
             removeIndicator()
         }
     };
@@ -192,7 +191,7 @@
             symbol: new SimpleFillSymbol({
                 color: [0, 0, 0, 0],
                 outline: {
-                    color: [255, 255, 255],
+                    color: [65, 65, 65],
                     width: 1,
                 }
             })
@@ -200,7 +199,7 @@
 
         let geometryLayer = new FeatureLayer({
             url: url,
-            opacity: 0.7,
+            // opacity: 0.7,
             id: `${sumUnit}Layer`, //TODO: name id and title similar to indicator layer
             minScale: unitMinScale,
             title:
