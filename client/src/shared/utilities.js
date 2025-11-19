@@ -80,7 +80,7 @@ export function isFeatureorMapService(url) {
 /** 
  * Boolean test for Image service type
  * @param {string} url
- * @return {boolean} Is the url an Imager Service?
+ * @return {boolean} Is the url an Image Service?
  */
 export function isImageService(url) {
     return url.substring(url.lastIndexOf('/') + 1) === 'ImageServer'
@@ -170,7 +170,7 @@ export function addImageryLayer(lObj, view, rfRule) {
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
         //opacity: 0.6,
-        title: lObj.name,
+        title: lObj.name
     }); 
     if (rfRule) {
         iLyr.rasterFunction = rfRule
