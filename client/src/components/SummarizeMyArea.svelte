@@ -236,7 +236,7 @@
                     geometryLayer
                         .queryFeatures(query)
                         .then((result) => {
-                            let geometry = result.features[0].geometry;
+                            geometry = result.features[0].geometry;
                             let geographyAttributes =
                                 result.features[0].attributes;
                             buildGeographyLabel(geographyAttributes);
