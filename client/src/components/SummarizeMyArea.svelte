@@ -1,5 +1,7 @@
 <script>
     //research in 4x how to draw a point/line/polygon and add a buffer input
+    //https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-Sketch-SketchViewModel.html
+    //https://developers.arcgis.com/javascript/latest/api-reference/esri-views-draw-Draw.html
 
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
@@ -31,11 +33,12 @@
     import esriRequest from "@arcgis/core/request.js";
     import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
     import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
+    import Draw from "@arcgis/core/views/draw/Draw.js";
     import * as d3 from 'd3';
 
     // Import store and configuration
     import { smaConfig } from "src/shared/smaConfig";
-    import { addLayer, getEALayerObject } from "src/shared/utilities.js";
+    import { addLayer, getEALayerObject, isLayerTitleInMap } from "src/shared/utilities.js";
     import { geography } from "src/store.ts";
 
     export let view;
@@ -60,6 +63,11 @@
         // {name: "Land Cover Change", value: "nlcd-change"}, 
         {name: "Permafrost Probability", value: "permafrost"}
     ]
+
+    const drawLayer = new GraphicsLayer({
+        title: "griddedMapDrawLayer",
+        id: "griddedMapDrawLayer"
+    });
 
     const updateIndicator = () => {
         indicatorValue = indicatorElem.value
@@ -156,18 +164,17 @@
     };
 
     // Store summary unit input as view model value
-    const updateSumUnit = (e) => {
+    function updateSumUnit() {
+        let drawCheck = isLayerTitleInMap('griddedMapDrawLayer', view)
+        !drawCheck ? view.map.add(drawLayer) : null;
         // Remove existing summary unit geometry from map
-        let toRemove = view.map.layers.items?.filter(
-            function (item) {
+        let toRemove = view.map.layers.items?.filter(function (item) {
                 return item.title.includes("Summarize My Area Unit:");
-            },
-        );
+        });
 
         view.map.removeMany(toRemove);
 
-        console.log("event is: ", e);
-        sumUnit = e.target.value;
+        sumUnit = summaryUnitCombobox.value;
         console.log("sumUnit is ", sumUnit)
         //TODO: Add Draw functionality
         if (sumUnit != '') {
@@ -181,105 +188,120 @@
 
     // Add summary unit geometry to the map based on configurations
     const _initGeometryLayer = (sumUnit) => {
-        // Get unitMinScale, url, outfields from the smaConfig
-        let unitMinScale = smaConfig.sum_units[`${sumUnit}`].minScale;
-        let url = smaConfig.sum_units[`${sumUnit}`].url;
-        let outfields = smaConfig.sum_units[`${sumUnit}`].outfields;
+        geometry = null;
+        drawLayer.removeAll();
 
-        let unitRenderer = new SimpleRenderer({
-            symbol: new SimpleFillSymbol({
-                color: [128, 128, 128, 0],
-                outline: {
-                    color: [65, 65, 65],
-                    width: 2,
-                }
-            })
-        });
+        //TODO: drawn layers follow pattern below.
+        if (sumUnit == "Draw an area" || sumUnit == "Draw a point" || sumUnit == "Draw a line") {
+            //this.bufferRadius = option === 'area' ? 0 : 1;
+            // this.unitDetails.style.display = "flex";
+            // this.bufferInput.value = this.bufferRadius;
+            // this.bufferInput.min = this.bufferRadius;
+            // if (sumUnit === 'Draw an area') {
+            //     this.excludeInnerFeatureWrapper.style.display = "flex";
+            // }
+            _initDrawTool(sumUnit)
+        } else {
+            // Get unitMinScale, url, outfields from the smaConfig
+            let unitMinScale = smaConfig.sum_units[`${sumUnit}`].minScale;
+            let url = smaConfig.sum_units[`${sumUnit}`].url;
+            let outfields = smaConfig.sum_units[`${sumUnit}`].outfields;
 
-        let geometryLayer = new FeatureLayer({
-            url: url,
-            // opacity: 0.7,
-            id: `${sumUnit}Layer`, //TODO: name id and title similar to indicator layer
-            minScale: unitMinScale,
-            title:
-                "Summarize My Area Unit: " +
-                smaConfig.sum_units[`${sumUnit}`].name,
-            outFields: smaConfig.sum_units[`${sumUnit}`].outfields,
-            renderer: unitRenderer
-        });
-
-        console.log(geometryLayer);
-        view.map.add(geometryLayer);
-
-        //TODO: Create zoom service message based on scale of layer...see lines 1250-1259 of old widget code
-
-        // Add mapClickEvent functionality
-        // Only propogate event when geometry layer is added
-        reactiveUtils.on(
-        () => view,
-        "arcgisViewClick",
-        async (e) => {
-            const eMapPoint = e.detail.screenPoint;
-            // Invoke option to only include graphics from geometryLayer in the hitTest
-            const opts = {
-                include: geometryLayer,
-            };
-            // The hitTest() checks to see if any graphics from the geometryLayer
-            view.hitTest(eMapPoint, opts).then((res) => {
-                if (res.results.length) {
-                    //Clear graphic from the map if a new one is clicked
-                    view.graphics.removeAll()
-                    let query = geometryLayer.createQuery();
-                    query.geometry = res['results'][0].mapPoint;
-                    query.outFields = outfields;
-                    query.returnGeometry = true;
-                    geometryLayer
-                        .queryFeatures(query)
-                        .then((result) => {
-                            geometry = result.features[0].geometry;
-                            let geographyAttributes =
-                                result.features[0].attributes;
-                            buildGeographyLabel(geographyAttributes);
-                            const symbol = new SimpleFillSymbol({
-                                color: [0, 0, 0, 0],
-                                outline: {color: [0, 0, 0], 
-                                width: 2}
-                            });
-                            const graphic = new Graphic({ geometry, symbol });
-                            view.graphics.add(graphic);
-                            console.log(geometry)
-                            view.goTo({
-                                target: geometry,
-                                extent: geometry.clone()
-                            },
-                            { duration: 1000 },
-                            );
-                            let whereKey = Object.keys(geographyAttributes)[0]
-                            let whereVal = Object.values(geographyAttributes)[0]
-                            const where = `${whereKey} = '${whereVal}'`
-                            geometryLayer.renderer = new SimpleRenderer({
-                                symbol: new SimpleFillSymbol({
-                                    color: [128, 128, 128],
-                                    outline: {
-                                        color: [65, 65, 65],
-                                        width: 2,
-                                    }
-                                })
-                            });
-                            geometryLayer.featureEffect = {
-                                filter: new FeatureFilter({
-                                    where,
-                                }),
-                                includedEffect: "brightness(300) opacity(0.01%) drop-shadow(3px, 3px, 12px, black)",
-                                excludedEffect: "opacity(0.5) blur(1px)"
-                            }
-                        })
-                        .catch((error) => {
-                            console.log(error);
-                        });
-                }
+            let unitRenderer = new SimpleRenderer({
+                symbol: new SimpleFillSymbol({
+                    color: [128, 128, 128, 0],
+                    outline: {
+                        color: [65, 65, 65],
+                        width: 2,
+                    }
+                })
             });
-        });
+
+            let geometryLayer = new FeatureLayer({
+                url: url,
+                // opacity: 0.7,
+                id: `${sumUnit}Layer`, //TODO: name id and title similar to indicator layer
+                minScale: unitMinScale,
+                title:
+                    "Summarize My Area Unit: " +
+                    smaConfig.sum_units[`${sumUnit}`].name,
+                outFields: smaConfig.sum_units[`${sumUnit}`].outfields,
+                renderer: unitRenderer
+            });
+
+            console.log(geometryLayer);
+            view.map.add(geometryLayer);
+
+            //TODO: Create zoom service message based on scale of layer...see lines 1250-1259 of old widget code
+
+            // Add mapClickEvent functionality
+            // Only propogate event when geometry layer is added
+            reactiveUtils.on(
+            () => view,
+            "arcgisViewClick",
+            async (e) => {
+                const eMapPoint = e.detail.screenPoint;
+                // Invoke option to only include graphics from geometryLayer in the hitTest
+                const opts = {
+                    include: geometryLayer,
+                };
+                // The hitTest() checks to see if any graphics from the geometryLayer
+                view.hitTest(eMapPoint, opts).then((res) => {
+                    if (res.results.length) {
+                        //Clear graphic from the map if a new one is clicked
+                        view.graphics.removeAll()
+                        let query = geometryLayer.createQuery();
+                        query.geometry = res['results'][0].mapPoint;
+                        query.outFields = outfields;
+                        query.returnGeometry = true;
+                        geometryLayer
+                            .queryFeatures(query)
+                            .then((result) => {
+                                geometry = result.features[0].geometry;
+                                let geographyAttributes =
+                                    result.features[0].attributes;
+                                buildGeographyLabel(geographyAttributes);
+                                const symbol = new SimpleFillSymbol({
+                                    color: [0, 0, 0, 0],
+                                    outline: {color: [0, 0, 0], 
+                                    width: 2}
+                                });
+                                const graphic = new Graphic({ geometry, symbol });
+                                view.graphics.add(graphic);
+                                console.log(geometry)
+                                view.goTo({
+                                    target: geometry,
+                                    extent: geometry.clone()
+                                },
+                                { duration: 1000 },
+                                );
+                                let whereKey = Object.keys(geographyAttributes)[0]
+                                let whereVal = Object.values(geographyAttributes)[0]
+                                const where = `${whereKey} = '${whereVal}'`
+                                geometryLayer.renderer = new SimpleRenderer({
+                                    symbol: new SimpleFillSymbol({
+                                        color: [128, 128, 128],
+                                        outline: {
+                                            color: [65, 65, 65],
+                                            width: 2,
+                                        }
+                                    })
+                                });
+                                geometryLayer.featureEffect = {
+                                    filter: new FeatureFilter({
+                                        where,
+                                    }),
+                                    includedEffect: "brightness(300) opacity(0.01%) drop-shadow(3px, 3px, 12px, black)",
+                                    excludedEffect: "opacity(0.5) blur(1px)"
+                                }
+                            })
+                            .catch((error) => {
+                                console.log(error);
+                            });
+                    }
+                });
+            });
+        }
 
         // Build string that displays attributes of the summary unit selection geography
         function buildGeographyLabel(geographyAttributes) {
@@ -314,6 +336,42 @@
             }
         }
     };
+
+    //TODO: read up of sketchviewmodel to see if it is a better fit for the draw tools
+    //https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-Sketch-SketchViewModel.html
+    function _initDrawTool (type) {
+        let drawTool = new Draw({view: view.map});
+        let action;
+        switch (type) {
+            case 'area':
+                // this.symbol = new SimpleFillSymbol();
+                // this.symbol.style = 'none';
+                drawTool.create(Draw['FREEHAND_POLYGON']);
+                break;
+            case 'point':
+                // this.symbol = new SimpleMarkerSymbol();
+                // this.symbol.setSize(22);
+                // this.symbol.setStyle(SimpleMarkerSymbol.STYLE_CROSS);
+                action = drawTool.create("point");
+                break;
+            case 'line':
+                // this.symbol = new CartographicLineSymbol();
+                // this.symbol.setWidth(1.33);
+                // this.symbol.setStyle(CartographicLineSymbol.STYLE_SOLID);
+                // this.symbol.setCap(CartographicLineSymbol.CAP_ROUND);
+                // this.symbol.setJoin(CartographicLineSymbol.JOIN_ROUND)
+                // this.drawTool.activate(Draw['FREEHAND_POLYLINE']);
+                // break;
+            default:
+            break;
+        }
+
+        action.on("draw-complete", e => {
+            console.log(e)
+            //this._handleDrawComplete(e);
+            this.pointReSelected = false;
+        });
+    }
 
     //TODO: Add buffer functionality
 
@@ -405,18 +463,11 @@
         });
 
         switch (sumUnit) {
-          default:
-            let inputTableFields = smaConfig.sum_units[sumUnit].outdesc;
-            for (const k in inputTableFields) {
-                let value;
-                let v = inputTableFields[k];
-                //if (v.includes('results.')) {
-                    //value = Function("return " + inputTableFields[k])();
-                //} else {
-                    value = inputTableFields[k];
-                //}
-                inputTableData.push({ 'attribute': k, 'value': value })
-            }
+            default:
+                const inputTableData = Object.entries(smaConfig.sum_units[sumUnit].outdesc).map(([k, v]) => ({
+                    k,
+                    value: v.includes('results.') ? v.replace(/^[^.]+\./, "") : v
+                }))
             break;
         }
 
