@@ -136,7 +136,7 @@
         let oconusSelections = buildOconusId(selections);
         let oLayer = new FeatureLayer({
             url: oconusUrl, 
-            opacity: 0.6, 
+            //opacity: 0.6, 
             id: oLayerId, 
             definitionExpression: "domain = '" + `${domain}` + "' AND " + `${fieldname}` + " IS NOT NULL",
             title: geography.replaceAll(",", " & ").replace(/([a-z])([A-Z])/g, '$1 $2') + ', ' + selections['Scenario'].value.toUpperCase() + ', ' + oconusSelections,

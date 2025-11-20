@@ -1,6 +1,5 @@
 <script>
-    //TODO: when indicator dropdown is X'd, remove imagery layer from map
-    //TODO: when sum unit is selected, clip the geometry layer
+    //research in 4x how to draw a point/line/polygon and add a buffer input
 
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
@@ -30,6 +29,8 @@
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
     import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
     import esriRequest from "@arcgis/core/request.js";
+    import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
+    import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
     import * as d3 from 'd3';
 
     // Import store and configuration
@@ -59,27 +60,24 @@
         // {name: "Land Cover Change", value: "nlcd-change"}, 
         {name: "Permafrost Probability", value: "permafrost"}
     ]
-    
+
     const updateIndicator = () => {
-        //TODO: If indicator value is empty, remove sma indicator layer from map
         indicatorValue = indicatorElem.value
-        console.log("sma indicator value is: ", indicatorValue);
+        // console.log("sma indicator value is: ", indicatorValue);
         if (indicatorValue == 'permafrost') {
             $geography = 'Alaska'
             document.getElementById("Alaska-bookmark").click()
             _initIndicatorLayer(indicatorValue)
-        } else if (indicatorValue = '') {
+        } else if (!indicatorValue) {
             removeIndicator()
         }
     };
 
     function removeIndicator() {
         // Remove existing indicator from map and set values to null
-        let toRemove = view.map.layers.items?.filter(
-            function (item) {
+        let toRemove = view.map.layers.items?.filter(function (item) {
                 return item.title.includes("Summarize My Area Indicator:");
-            },
-        );
+        });
 
         view.map.removeMany(toRemove);
     }
@@ -190,17 +188,17 @@
 
         let unitRenderer = new SimpleRenderer({
             symbol: new SimpleFillSymbol({
-                color: [0, 0, 0, 0],
+                color: [128, 128, 128, 0],
                 outline: {
-                    color: [255, 255, 255],
-                    width: 1,
+                    color: [65, 65, 65],
+                    width: 2,
                 }
             })
         });
 
         let geometryLayer = new FeatureLayer({
             url: url,
-            opacity: 0.7,
+            // opacity: 0.7,
             id: `${sumUnit}Layer`, //TODO: name id and title similar to indicator layer
             minScale: unitMinScale,
             title:
@@ -238,21 +236,49 @@
                     geometryLayer
                         .queryFeatures(query)
                         .then((result) => {
-                            geometry = result.features[0].geometry;
+                            let geometry = result.features[0].geometry;
                             let geographyAttributes =
                                 result.features[0].attributes;
                             buildGeographyLabel(geographyAttributes);
                             const symbol = new SimpleFillSymbol({
-                                outline: {color: [23, 203, 232, 0.4], width: 2}
+                                color: [0, 0, 0, 0],
+                                outline: {color: [0, 0, 0], 
+                                width: 2}
                             });
-                            _addGraphicToMap(symbol, geometry);
+                            const graphic = new Graphic({ geometry, symbol });
+                            view.graphics.add(graphic);
+                            console.log(geometry)
+                            view.goTo({
+                                target: geometry,
+                                extent: geometry.clone()
+                            },
+                            { duration: 1000 },
+                            );
+                            let whereKey = Object.keys(geographyAttributes)[0]
+                            let whereVal = Object.values(geographyAttributes)[0]
+                            const where = `${whereKey} = '${whereVal}'`
+                            geometryLayer.renderer = new SimpleRenderer({
+                                symbol: new SimpleFillSymbol({
+                                    color: [128, 128, 128],
+                                    outline: {
+                                        color: [65, 65, 65],
+                                        width: 2,
+                                    }
+                                })
+                            });
+                            geometryLayer.featureEffect = {
+                                filter: new FeatureFilter({
+                                    where,
+                                }),
+                                includedEffect: "brightness(300) opacity(0.01%) drop-shadow(3px, 3px, 12px, black)",
+                                excludedEffect: "opacity(0.5) blur(1px)"
+                            }
                         })
                         .catch((error) => {
                             console.log(error);
                         });
                 }
             });
-            //_clipLayerToGeometry(geometry)
         });
 
         // Build string that displays attributes of the summary unit selection geography
@@ -290,56 +316,6 @@
     };
 
     //TODO: Add buffer functionality
-
-    //TODO: ClipLayer to Geometry
-    const _clipLayerToGeometry = (geometry) => {
-        let renderingrule;
-
-        const clipFunction = new RasterFunction();
-        clipFunction.functionName = "Clip";
-        clipFunction.outputPixelType = "u8";
-        clipFunction.functionArguments = {
-            ClippingGeometry: geometry,
-            ClippingType: 1,
-        };
-
-        switch (indicatorValue) {
-            case "nlcd":
-            case "nlcd-change":
-            default:
-                renderingrule = clipFunction;
-                clipFunction.functionArguments.Raster = "$$";
-                break;
-        }
-        let indicatorLayer = view.map.layers.items?.filter(
-            function (item) {
-                return item.title.includes("Summarize My Area Indicator:");
-            },
-        );
-        //indicatorLayer.renderer(renderingrule);
-        let extent = geometry.getExtent();
-        //this._customZoomExtent(extent);
-        view.map.setExtent(extent, true);
-        //this.calculateButton.disabled = false;
-        //this.areaSelected = true;
-    };
-
-    const _addGraphicToMap = (symbol, geometry, isBuffer = false) => {
-        const graphic = new Graphic({ geometry, symbol });
-        // if (this.drawLayer.graphics.length > 0 && !isBuffer) {
-        //     this.drawLayer.clear(); //clear graphic if needs be, so only 1 on map at a time
-        // }
-
-        view.graphics.add(graphic);
-
-        // if (this.indicatorLayer) {
-        //     this._clipLayerToGeometry(this.indicatorLayer, geometry);
-        // }
-
-        // if (this.layer) {
-        //     this._clipLayer(geometry);
-        // }
-    };
 
     async function calculate() {
         // loading image on button

@@ -80,7 +80,7 @@ export function isFeatureorMapService(url) {
 /** 
  * Boolean test for Image service type
  * @param {string} url
- * @return {boolean} Is the url an Imager Service?
+ * @return {boolean} Is the url an Image Service?
  */
 export function isImageService(url) {
     return url.substring(url.lastIndexOf('/') + 1) === 'ImageServer'
@@ -137,7 +137,7 @@ export function addFeatureLayer(lObj, view) {
     var copiedLayer = new FeatureLayer({
         url,
         title: lObj.name,
-        opacity: 0.6, // apply defaults, like opacity=0.6
+        //opacity: 0.6,
     });
 
     // catch error on instantiating the new Feature Layer
@@ -169,8 +169,8 @@ export function addImageryLayer(lObj, view, rfRule) {
         url: lObj.url,
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
-        opacity: 0.6,
-        title: lObj.name,
+        //opacity: 0.6,
+        title: lObj.name
     }); 
     if (rfRule) {
         iLyr.rasterFunction = rfRule
@@ -194,7 +194,7 @@ export function addTileLayer(lObj, view) {
         title: lObj.name,
         url: lObj.tileURL,
         legendEnabled: false, // hide from legend not honored in layer list...
-        opacity: 0.6, // set opacity
+        //opacity: 0.6,
         // TODO: revist scale level...seems like cacheNatLevel isn't synced with the feature layer scales.
         maxScale: mxScale
     });
