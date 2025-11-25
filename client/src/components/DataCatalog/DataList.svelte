@@ -107,7 +107,7 @@
             // apply topic to subtopic params
             let subtopicParams = {
                 select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"areaGeog":1,"name":1,"tags":1}}`),
-                where: encodeURIComponent(`{"topic":"${data[prop].topic}","scale":"NATIONAL"}`) // Drop Community layers
+                where: encodeURIComponent(`{"topic":"${data[prop].topic}"}`) //',"scale":"NATIONAL"}`) // Drop Community layers
             };
             // return promise object resolve, not the whole promise object
             let res = await getEaData("/ea/api/subtopics", subtopicParams);
