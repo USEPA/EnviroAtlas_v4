@@ -41,7 +41,7 @@ export async function getEaData(url, params) {
 export function addLayer(lObj, view) {
     // Look for the layer already in the view
     // TODO: find a way to check this before sending request to API for lyrObject?
-    if (isLayerInMap(lObj.url, view)) {
+    if (isLayerUrlInMap(lObj.url, view)) {
         console.log("Layer is already in map!")
         return 
     }
@@ -105,11 +105,18 @@ export function largestAbsVal(num1, num2) {
     return Math.max(Math.abs(num1), Math.abs(num2))
 };
 
-export function isLayerInMap(url, view) {
+export function isLayerUrlInMap(url, view) {
     const foundLayer = view.map.allLayers.find(function(lyr) {
         // TODO: For RFTs, the url may be the same, but the viz will be different, 
         // so will need to update this helper function
         return lyr.url === url
+    });
+    return foundLayer
+};
+
+export function isLayerTitleInMap(title, view) {
+    const foundLayer = view.map.allLayers.find(function(lyr) {
+        return lyr.title === title
     });
     return foundLayer
 };
