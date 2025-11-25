@@ -39,19 +39,44 @@ let config = {
     defaultType:'crud'
 };
 
+//can set up a type of resource that does standard behavior like crud
+//can set default values for that type
+config.types = {
+    crud: {
+        routes: {
+//route to be read only
+            get: {rolesAllowed:null},
+            getById: {rolesAllowed:null},
+//for future if we want to open up to everybody
+//    post: {rolesAllowed:['ADMIN']},
+//    put: {rolesAllowed:['ADMIN']},
+//    delete: {rolesAllowed:['ADMIN']}
+            post: {rolesAllowed:[]},
+            put: {rolesAllowed:[]},
+            delete: {rolesAllowed:[]}
+        }
+    }
+};
+
+
+let layersRoutes = merge.recursive(true,config.types.crud.routes);
+layersRoutes.get.description = 'layers route does not contains layers that are legacy only (layers can technically be both)';
+
 config.resources = {
     subtopics: {
         table: 'subtopics',
+        description: 'Sub Topics describing layers',
         arrays: {layers:{
 // Was just testing changing the nanme of layers array
 //            fieldAlias:"layers2"
         }},
-        description: 'Sub Topics describing layers',
         defaultOptions: {
         }
     },
     layers:{
         description: 'Enviro Atlas Layers',
+        type: 'custom',
+        routes: layersRoutes,
         procedures: {
 //            query: 'getLayers'
         },
@@ -100,27 +125,9 @@ config.resources = {
     }
 };
 
-//can set up a type of resource that does standard behavior like crud
-//can set default values for that type
-config.types = {
-    crud: {
-        routes : {
-//route to be read only
-            get: {rolesAllowed:null},
-            getById: {rolesAllowed:null},
-//for future if we want to open up to everybody
-//    post: {rolesAllowed:['ADMIN']},
-//    put: {rolesAllowed:['ADMIN']},
-//    delete: {rolesAllowed:['ADMIN']}
-            post: {rolesAllowed:[]},
-            put: {rolesAllowed:[]},
-            delete: {rolesAllowed:[]}
-        }
-    }
-};
-
 //transform field configs to so easy to get all field value for routes by field name
 let routeSettingsByField = {};
+
 for (let [resource,resourceConfig] of Object.entries(config.resources)) {
     routeSettingsByField[resource] = {};
     //if no type set up then set type equal to default type
