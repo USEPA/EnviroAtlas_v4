@@ -182,7 +182,9 @@ export function addImageryLayer(lObj, view, rfRule) {
     if (rfRule) {
         iLyr.rasterFunction = rfRule
     }
-    iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "Pixel Value: {Raster.ServicePixelValue.Raw}" }
+    if (!lObj.name.includes("Summarize My Area")) {
+        iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "Pixel Value: {Raster.ServicePixelValue.Raw}" }
+    }
     console.log("imageryLayer: ", iLyr);
     view.map.add(iLyr);
     view.whenLayerView(iLyr).then((layerView) => {
