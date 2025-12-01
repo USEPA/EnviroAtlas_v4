@@ -11,7 +11,7 @@ module.exports = function({app,resource}) {
 
     //Not sure if this is bad idea but instead of copying over all the crud paths, just overwrite the one route that needs it
     //To do this we just find existing route in stack and remove before adding new route handler
-    removeRoutePath({router,path:'/'});
+    routesLib.removeRoutePath({router,path:'/',method:'get'});
     router.get(`/`, async function(req, res, next) {
         let inputs = inputProcessor.getRequestInputs(req,{slice:['where'],parse:true});
         if (!inputs.where) inputs.where = {};
@@ -29,22 +29,3 @@ module.exports = function({app,resource}) {
 
     return router;
 };
-
-//Add this to db-api module shared/routes at some point
-function removeRoutePath({router,path}) {
-    let stackIndex = getStackIndexByRoutePath({router,path});
-    router.stack.splice(stackIndex,1);
-}
-
-function getStackIndexByRoutePath({router,path}) {
-    let stackIndex = null;
-    let i=0;
-    for (let stackItem of router.stack) {
-        if (stackItem.route.path===path) {
-            stackIndex = i;
-            break;
-        }
-        i += 1;
-    }
-    return stackIndex;
-}
