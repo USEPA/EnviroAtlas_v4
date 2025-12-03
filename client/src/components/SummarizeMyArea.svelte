@@ -32,6 +32,7 @@
     import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
     import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
     import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel";
+    import * as geodesicBufferOperator from "@arcgis/core/geometry/operators/geodesicBufferOperator";
     import * as d3 from "d3";
 
     // Import store and configuration
@@ -61,6 +62,8 @@
     let pointMetric = "kilometers";
     let sketchGeometry = null;
     let sketchViewModel;
+    let bufferInput;
+    let inputTableData = [];
 
     const indicatorsDict = [
         // {name: "Land Cover", value: "nlcd"},
@@ -69,25 +72,50 @@
     ];
 
     const sketchLayer = new GraphicsLayer({
-        title: "griddedMapSketchLayer",
+        title: "Summarize My Area: User defined geometry",
         id: "griddedMapSketchLayer",
     });
-
-    // use SketchViewModel to draw polygons that are used as a filter
+    const bufferLayer = new GraphicsLayer();
 
     function geometryButtonsClickHandler(event) {
+        geodesicBufferOperator.load()
         const geometryType = event.target.value;
         clearSketch();
         sketchViewModel.create(geometryType);
+        if (geometryType == 'polygon') {
+            bufferInput.value = "0"
+        }
     }
 
     function clearSketch() {
         sketchGeometry = null;
         sketchLayer.removeAll();
-        //bufferLayer.removeAll();
+        bufferLayer.removeAll();
     }
 
-    function updateSketchGeometry() {}
+    function updateSketchGeometry() {
+        console.log(geodesicBufferOperator.isLoaded());
+        console.log("buffer: ", bufferInput.value)
+        if (sketchGeometry) {
+            if (bufferInput.value > 0) {
+                console.log(pointMetric)
+                const bufferGeometry = geodesicBufferOperator.execute(sketchGeometry, bufferInput.value, {unit: "kilometers"});
+                if (bufferLayer.graphics.length === 0) {
+                    bufferLayer.add(new Graphic({
+                        geometry: bufferGeometry,
+                        symbol: sketchViewModel.polygonSymbol
+                    })
+                );
+                } else {
+                    bufferLayer.graphics.getItemAt(0).geometry = bufferGeometry
+                }
+                geometry = bufferGeometry
+            } else {
+                bufferLayer.removeAll();
+                geometry = sketchGeometry
+            }
+        }
+    }
 
     const updateIndicator = () => {
         indicatorValue = indicatorElem.value;
@@ -186,12 +214,10 @@
 
     // Store summary unit input as view model value
     function updateSumUnit() {
-        let drawCheck = isLayerTitleInMap("griddedMapSketchLayer", view);
-        !drawCheck ? view.map.add(sketchLayer) : null;
         // Remove existing summary unit geometry from map
-        let toRemove = view.map.layers.items?.filter(function (item) {
-            return item.title.includes("Summarize My Area Unit:");
-        });
+        let toRemove = view.map.layers.items?.filter(item => 
+            item.title && item.title.includes("Summarize My Area Unit:")
+        );
 
         view.map.removeMany(toRemove);
 
@@ -200,9 +226,13 @@
         //TODO: Add Draw functionality
         if (sumUnit != "") {
             _initGeometryLayer(sumUnit);
+            clearSketch();
+        } if (sumUnit == "Draw a geometry") {
+            let drawCheck = isLayerTitleInMap("Summarize My Area: User defined geometry", view);
+            !drawCheck ? view.map.addMany([bufferLayer,sketchLayer]) : null;
         } else {
             // Clear graphics from map if the sum unit changes.
-            view.graphics.removeAll();
+            view.map.removeMany([bufferLayer,sketchLayer]);
             geographyLabel = "";
         }
     }
@@ -528,7 +558,6 @@
 
     function _renderInputTable(results, area, line) {
         //document.getElementById('gridded-map-output-table-wrapper').innerHTML('');
-        let inputTableData = [];
 
         let indicatorLabel = indicatorsDict.find(
             (indicator) => indicator.value === indicatorValue,
@@ -546,6 +575,25 @@
         });
 
         switch (sumUnit) {
+            case 'polygon':
+                inputTableData.push({ attribute: 'Geometry Type', value: 'User provided area' });
+                if (this.bufferRadius > 0) {
+                    inputTableData.push({ attribute: 'Buffer', 'value': this.formatLargeNumber(this.bufferRadius) + this._getMetricString(this.pointMetric) });
+                //inputTableData.push({ attribute: 'Area inside buffer excluded', value: 'True' ? this.excludeInnerFeatureCheckbox.checked : 'False' });
+                }
+            break;
+            case 'point':
+                inputTableData.push({ attribute: 'Geometry Type', value: 'User provided point' });
+                inputTableData.push({ attribute: 'Lat/Lon', value: this.bufferGeometry.getCentroid().getLatitude().toFixed(4) + ', ' +
+                    this.bufferGeometry.getCentroid().getLongitude().toFixed(4)
+                });
+                inputTableData.push({ attribute: 'Buffer Radius', value: this.formatLargeNumber(this.bufferRadius) + ' ' + this._getMetricString(this.pointMetric) });
+            break;
+            case 'polyline':
+                inputTableData.push({ attribute: 'Geometry Type', value: 'User provided line' });
+                inputTableData.push({ attribute: 'Length', value: line + ' ' + this._getMetricString(this.pointMetric) });
+                inputTableData.push({ attribute: 'Buffer', value: this.formatLargeNumber(this.bufferRadius) + ' ' + this._getMetricString(this.pointMetric) });
+            break;
             default:
                 const inputTableData = Object.entries(
                     smaConfig.sum_units[sumUnit].outdesc,
@@ -693,7 +741,6 @@
                 <calcite-label layout="inline">
                     <calcite-combobox
                         scale="s"
-                        placeholder-icon="calendar"
                         placeholder=" Select one"
                         selection-mode="single"
                         max-items="0"
@@ -715,7 +762,6 @@
                         NLCD Year:
                         <calcite-combobox
                             scale="s"
-                            placeholder-icon="calendar"
                             placeholder=" Select one"
                             selection-mode="single"
                             max-items="0"
@@ -756,7 +802,6 @@
                         NLCD Year 2:
                         <calcite-combobox
                             scale="s"
-                            placeholder-icon="calendar"
                             placeholder=" Select one"
                             selection-mode="single"
                             max-items="0"
@@ -781,7 +826,6 @@
                 <calcite-label layout="inline">
                     <calcite-combobox
                         scale="s"
-                        placeholder-icon="calendar"
                         placeholder=" Select one"
                         selection-mode="single"
                         overlay-positioning="fixed"
@@ -823,11 +867,13 @@
                     <calcite-label layout="inline" scale="s"
                         >Buffer distance:
                         <calcite-input-number
+                            suffix-text="km"
                             min="0"
-                            placeholder="0.5"
                             step="1"
                             scale="s"
+                            value="1"
                             number-button-type="vertical"
+                            bind:this={bufferInput}
                         ></calcite-input-number>
                     </calcite-label>
                 {/if}
