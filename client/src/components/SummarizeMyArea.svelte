@@ -67,6 +67,8 @@
     let inputTableData = [];
     let bufferGeometry;
     let geometryType;
+    
+    $: isDisabled = !indicatorValue || !geometry;
 
     const indicatorsDict = [
         // {name: "Land Cover", value: "nlcd"},
@@ -91,6 +93,7 @@
     }
 
     function clearSketch() {
+        geometry = null;
         sketchGeometry = null;
         sketchLayer.removeAll();
         bufferLayer.removeAll();
@@ -237,6 +240,7 @@
             // Clear graphics from map if the sum unit changes.
             view.map.removeMany([bufferLayer,sketchLayer]);
             geographyLabel = "";
+            geometry = null;
         }
     }
 
@@ -584,7 +588,7 @@
             inputTableData.push({ attribute: 'Geometry Type', value: 'User provided line' });
             inputTableData.push({ attribute: 'Length', value: line + ' ' + _getMetricString(pointMetric) });
             inputTableData.push({ attribute: 'Buffer', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
-        } else {
+        } else if (sumUnit != "Draw a geometry") {
             inputTableData = Object.entries(
                 smaConfig.sum_units[sumUnit].outdesc,
             ).map(([k, v]) => ({
@@ -747,6 +751,7 @@
         role="button"
         width="full"
         slot="footer"
+        disabled={isDisabled}
         on:click={calculate}
     >
         Calculate
