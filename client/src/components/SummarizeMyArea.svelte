@@ -33,6 +33,7 @@
     import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
     import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel";
     import * as geodesicBufferOperator from "@arcgis/core/geometry/operators/geodesicBufferOperator";
+    import * as centroidOperator from "@arcgis/core/geometry/operators/centroidOperator";
     import * as d3 from "d3";
 
     // Import store and configuration
@@ -64,6 +65,8 @@
     let sketchViewModel;
     let bufferInput;
     let inputTableData = [];
+    let bufferGeometry;
+    let geometryType;
 
     const indicatorsDict = [
         // {name: "Land Cover", value: "nlcd"},
@@ -79,7 +82,7 @@
 
     function geometryButtonsClickHandler(event) {
         geodesicBufferOperator.load()
-        const geometryType = event.target.value;
+        geometryType = event.target.value;
         clearSketch();
         sketchViewModel.create(geometryType);
         if (geometryType == 'polygon') {
@@ -99,7 +102,7 @@
         if (sketchGeometry) {
             if (bufferInput.value > 0) {
                 console.log(pointMetric)
-                const bufferGeometry = geodesicBufferOperator.execute(sketchGeometry, bufferInput.value, {unit: "kilometers"});
+                bufferGeometry = geodesicBufferOperator.execute(sketchGeometry, bufferInput.value, {unit: "kilometers"});
                 if (bufferLayer.graphics.length === 0) {
                     bufferLayer.add(new Graphic({
                         geometry: bufferGeometry,
@@ -242,15 +245,7 @@
         geometry = null;
         sketchLayer.removeAll();
 
-        //TODO: drawn layers follow pattern below.
         if (sumUnit == "Draw a geometry") {
-            //this.bufferRadius = option === 'area' ? 0 : 1;
-            // this.unitDetails.style.display = "flex";
-            // this.bufferInput.value = this.bufferRadius;
-            // this.bufferInput.min = this.bufferRadius;
-            // if (sumUnit === 'Draw an area') {
-            //     this.excludeInnerFeatureWrapper.style.display = "flex";
-            // }
             _initSketchTool(sumUnit);
         } else {
             // Get unitMinScale, url, outfields from the smaConfig
@@ -452,8 +447,6 @@
         });
     }
 
-    //TODO: Add buffer functionality
-
     async function calculate() {
         // loading image on button
         // conditionality on what is geo depending on sum unit (point/line/area)
@@ -574,36 +567,32 @@
                 "</a>",
         });
 
-        switch (sumUnit) {
-            case 'polygon':
-                inputTableData.push({ attribute: 'Geometry Type', value: 'User provided area' });
-                if (this.bufferRadius > 0) {
-                    inputTableData.push({ attribute: 'Buffer', 'value': this.formatLargeNumber(this.bufferRadius) + this._getMetricString(this.pointMetric) });
+        if (sumUnit == "Draw a geometry" && geometryType == 'polygon') {
+            inputTableData.push({ attribute: 'Geometry Type', value: 'User provided area' });
+            if (bufferInput.value > 0) {
+                inputTableData.push({ attribute: 'Buffer', 'value': formatLargeNumber(bufferInput.value) + _getMetricString(pointMetric) });
                 //inputTableData.push({ attribute: 'Area inside buffer excluded', value: 'True' ? this.excludeInnerFeatureCheckbox.checked : 'False' });
-                }
-            break;
-            case 'point':
-                inputTableData.push({ attribute: 'Geometry Type', value: 'User provided point' });
-                inputTableData.push({ attribute: 'Lat/Lon', value: this.bufferGeometry.getCentroid().getLatitude().toFixed(4) + ', ' +
-                    this.bufferGeometry.getCentroid().getLongitude().toFixed(4)
-                });
-                inputTableData.push({ attribute: 'Buffer Radius', value: this.formatLargeNumber(this.bufferRadius) + ' ' + this._getMetricString(this.pointMetric) });
-            break;
-            case 'polyline':
-                inputTableData.push({ attribute: 'Geometry Type', value: 'User provided line' });
-                inputTableData.push({ attribute: 'Length', value: line + ' ' + this._getMetricString(this.pointMetric) });
-                inputTableData.push({ attribute: 'Buffer', value: this.formatLargeNumber(this.bufferRadius) + ' ' + this._getMetricString(this.pointMetric) });
-            break;
-            default:
-                const inputTableData = Object.entries(
-                    smaConfig.sum_units[sumUnit].outdesc,
-                ).map(([k, v]) => ({
-                    k,
-                    value: v.includes("results.")
-                        ? v.replace(/^[^.]+\./, "")
-                        : v,
-                }));
-                break;
+            }
+        } else if (sumUnit == "Draw a geometry" && geometryType == 'point') {
+            inputTableData.push({ attribute: 'Geometry Type', value: 'User provided point' });
+            const centroid = centroidOperator.execute(bufferGeometry);
+            inputTableData.push({ attribute: 'Lat/Lon', value: centroid.latitude.toFixed(4) + ', ' +
+                centroid.longitude.toFixed(4)
+            });
+            inputTableData.push({ attribute: 'Buffer Radius', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
+        } else if (sumUnit == "Draw a geometry" && geometryType == "polyline") {
+            inputTableData.push({ attribute: 'Geometry Type', value: 'User provided line' });
+            inputTableData.push({ attribute: 'Length', value: line + ' ' + _getMetricString(pointMetric) });
+            inputTableData.push({ attribute: 'Buffer', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
+        } else {
+            inputTableData = Object.entries(
+                smaConfig.sum_units[sumUnit].outdesc,
+            ).map(([k, v]) => ({
+                k,
+                value: v.includes("results.")
+                    ? v.replace(/^[^.]+\./, "")
+                    : v,
+            }));
         }
 
         const pretty_area = Math.round(area * 10) / 10;
@@ -710,6 +699,41 @@
             });
         return table_wrapper.node();
     }
+
+    function formatLargeNumber(number) {
+        const splitNumber = String(number).split('.');
+        const beforeDecimal = splitNumber[0];
+        const afterDecimal = splitNumber[1];
+
+        const numberString = beforeDecimal;
+
+        if (number >= 1000) {
+          const stringArray = [];
+          for (let i = 0; i < numberString.length; i++) {
+            stringArray.push(numberString[i]);
+          }
+          stringArray.reverse();
+          const stringWithExtras = [];
+
+          for (let i = 0; i < stringArray.length; i++) {
+            if (i !== 0 && i % 3 === 0) {
+              stringWithExtras.push(',');
+            }
+            stringWithExtras.push(stringArray[i]);
+          }
+          stringWithExtras.reverse();
+
+          if (afterDecimal) {
+            return stringWithExtras.join('') + '.' + afterDecimal;
+          }
+          return stringWithExtras.join('');
+        }
+
+        if (afterDecimal) {
+          return numberString + '.' + afterDecimal;
+        }
+        return numberString;
+      }
 </script>
 
 <calcite-panel
