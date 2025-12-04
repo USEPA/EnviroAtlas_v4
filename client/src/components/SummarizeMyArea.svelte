@@ -67,6 +67,8 @@
     let inputTableData = [];
     let bufferGeometry;
     let geometryType;
+    let resultsTab;
+    let selectionsTab;
     
     $: isDisabled = !indicatorValue || !geometry;
 
@@ -614,6 +616,9 @@
         document
             .getElementById("gridded-map-input-table-wrapper")
             .append(table);
+            
+        resultsTab.selected = false;
+        resultsTab.selected = true;
     }
 
     async function _computeHistograms(url, post_data) {
@@ -758,10 +763,10 @@
     </calcite-button>
     <calcite-tabs layout="center">
         <calcite-tab-nav slot="title-group">
-            <calcite-tab-title selected tab="selectionsTab">
+            <calcite-tab-title bind:this={selectionsTab} selected tab="selectionsTab">
                 Select Layer Area
             </calcite-tab-title>
-            <calcite-tab-title tab="resultsTab">Results</calcite-tab-title>
+            <calcite-tab-title bind:this={resultsTab} tab="resultsTab">Results</calcite-tab-title>
         </calcite-tab-nav>
         <calcite-tab selected tab="selectionsTab">
             <calcite-block open heading="Select an indicator">
