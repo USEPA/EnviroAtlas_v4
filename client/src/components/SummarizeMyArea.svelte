@@ -1,6 +1,4 @@
 <script>
-    //add a buffer input to sketchviewmodel
-
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
     import "@esri/calcite-components/dist/components/calcite-shell-panel";
@@ -132,7 +130,6 @@
 
     const updateIndicator = () => {
         indicatorValue = indicatorElem.value;
-        // console.log("sma indicator value is: ", indicatorValue);
         if (indicatorValue == "permafrost") {
             if ($geography != "Alaska") {
                 $geography = "Alaska";
@@ -149,7 +146,6 @@
         let toRemove = view.map.layers.items?.filter(function (item) {
             return item.title.includes("Summarize My Area Indicator:");
         });
-        console.log(indicatorValue)
         view.map.removeMany(toRemove);
     }
 
@@ -288,7 +284,6 @@
                 renderer: unitRenderer,
             });
 
-            console.log(geometryLayer);
             view.map.add(geometryLayer);
 
             //TODO: Create zoom service message based on scale of layer...see lines 1250-1259 of old widget code
@@ -374,7 +369,6 @@
 
         // Build string that displays attributes of the summary unit selection geography
         function buildGeographyLabel(geographyAttributes) {
-            console.log(geographyAttributes);
             switch (sumUnit) {
                 case "County":
                     geographyLabel =
@@ -407,7 +401,7 @@
     };
 
     //sketchviewmodel is a better fit for the draw tools
-    function _initSketchTool(type) {
+    function _initSketchTool() {
         sketchViewModel = new SketchViewModel({
             layer: sketchLayer,
             view: view.view,
@@ -440,7 +434,6 @@
         console.log(sketchViewModel);
         console.log(view.view);
         sketchViewModel.on(["create"], (event) => {
-            // update the filter every time the user finishes drawing the filtergeometry
             if (event.state == "complete") {
                 sketchGeometry = event.graphic.geometry;
                 updateSketchGeometry();
@@ -449,7 +442,6 @@
 
         sketchViewModel.on(["update"], (event) => {
             const eventInfo = event.toolEventInfo;
-            // update the filter every time the user moves the filtergeometry
             if (
                 event.toolEventInfo &&
                 event.toolEventInfo.type.includes("stop")
@@ -465,6 +457,7 @@
         // conditionality on what is geo depending on sum unit (point/line/area)
         //default let geo=geometry (selected area)
         let geo = geometry;
+        let line;
         const pixel_size = smaConfig[indicatorValue].resolution;
         let compHistEndpoint = `${smaConfig[indicatorValue].layer}/computeStatisticsHistograms`;
 
@@ -538,23 +531,16 @@
                         { head: "Percentage", cl: "", d: "perc" },
                     ];
                     let table = _renderTable(headers, data);
-                    //replace jquery below...
+                    //TODO: replace jquery below...
                     document
                         .getElementById("gridded-map-output-table-wrapper")
                         .append(table);
-
-                    //not sure what domClass is doing below...
-                    // if (Object.keys(pResults).length > 3) {
-                    //     domClass.add(this.tabNode2, 'overflow');
-                    // } else {
-                    //     domClass.remove(this.tabNode2, 'overflow');
-                    // }
                 }
         }
-        _renderInputTable(area);
+        _renderInputTable(area, line);
     }
 
-    function _renderInputTable(area) {
+    function _renderInputTable(area, line) {
         //TODO: clear the table
         //document.getElementById('gridded-map-output-table-wrapper').innerHTML('');
         let indicatorLabel = indicatorsDict.find(
