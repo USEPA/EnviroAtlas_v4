@@ -82,8 +82,12 @@
         title: "Summarize My Area: User defined geometry",
         id: "griddedMapSketchLayer",
     });
-    const bufferLayer = new GraphicsLayer();
-    const sumUnitgraphic = new GraphicsLayer();
+    const bufferLayer = new GraphicsLayer({
+        title: "Summarize My Area: User defined geometry with buffer",
+    });
+    const sumUnitgraphic = new GraphicsLayer({
+        title: "Summarize My Area: User selected area"
+    });
 
     function geometryButtonsClickHandler(event) {
         geodesicBufferOperator.load()
@@ -130,8 +134,10 @@
         indicatorValue = indicatorElem.value;
         // console.log("sma indicator value is: ", indicatorValue);
         if (indicatorValue == "permafrost") {
-            $geography = "Alaska";
-            document.getElementById("Alaska-bookmark").click();
+            if ($geography != "Alaska") {
+                $geography = "Alaska";
+                document.getElementById("Alaska-bookmark").click();
+            }
             _initIndicatorLayer(indicatorValue);
         } else if (!indicatorValue) {
             removeIndicator();
@@ -143,7 +149,7 @@
         let toRemove = view.map.layers.items?.filter(function (item) {
             return item.title.includes("Summarize My Area Indicator:");
         });
-
+        console.log(indicatorValue)
         view.map.removeMany(toRemove);
     }
 
@@ -293,6 +299,7 @@
                 () => view,
                 "arcgisViewClick",
                 async (e) => {
+                    sumUnitgraphic.removeAll();
                     const eMapPoint = e.detail.screenPoint;
                     // Invoke option to only include graphics from geometryLayer in the hitTest
                     const opts = {
