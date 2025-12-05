@@ -83,6 +83,7 @@
         id: "griddedMapSketchLayer",
     });
     const bufferLayer = new GraphicsLayer();
+    const sumUnitgraphic = new GraphicsLayer();
 
     function geometryButtonsClickHandler(event) {
         geodesicBufferOperator.load()
@@ -240,7 +241,7 @@
             !drawCheck ? view.map.addMany([bufferLayer,sketchLayer]) : null;
         } else {
             // Clear graphics from map if the sum unit changes.
-            view.map.removeMany([bufferLayer,sketchLayer]);
+            view.map.removeMany([bufferLayer,sketchLayer,sumUnitgraphic]);
             geographyLabel = "";
             geometry = null;
         }
@@ -310,19 +311,18 @@
                                 .queryFeatures(query)
                                 .then((result) => {
                                     geometry = result.features[0].geometry;
-                                    let geographyAttributes =
+                                    geographyAttributes =
                                         result.features[0].attributes;
                                     buildGeographyLabel(geographyAttributes);
                                     const symbol = new SimpleFillSymbol({
                                         color: [0, 0, 0, 0],
                                         outline: { color: [0, 0, 0], width: 2 },
                                     });
-                                    const graphic = new Graphic({
+                                    sumUnitgraphic.add(new Graphic({
                                         geometry,
                                         symbol,
-                                    });
-                                    view.graphics.add(graphic);
-                                    console.log(geometry);
+                                    }));
+                                    view.map.add(sumUnitgraphic);
                                     view.goTo(
                                         {
                                             target: geometry,
@@ -544,20 +544,12 @@
                     // }
                 }
         }
-        _renderResults(results, area);
+        _renderInputTable(area);
     }
 
-    function _renderResults(results, area, line) {
-        console.log("area: " + area + " line: " + line);
-        _renderInputTable(geographyAttributes, area, line);
-        //this.calculateButton.innerHTML = this.nls.calculate;
-        //this.resultsLoaded = true;
-        //this.tabContainer.selectTab(this.tabNode2); //manually switch tabs when results are ready
-    }
-
-    function _renderInputTable(results, area, line) {
+    function _renderInputTable(area) {
+        //TODO: clear the table
         //document.getElementById('gridded-map-output-table-wrapper').innerHTML('');
-
         let indicatorLabel = indicatorsDict.find(
             (indicator) => indicator.value === indicatorValue,
         ).name;
@@ -566,7 +558,7 @@
         inputTableData.push({
             attribute: "Source Data",
             value:
-                '<a target= _blank" style="text-decoration:none" href="' +
+                '<a target="_blank" style="text-decoration:none" href="' +
                 smaConfig[indicatorValue].layersUsedURL +
                 '">' +
                 smaConfig[indicatorValue].layersUsed +
@@ -591,14 +583,17 @@
             inputTableData.push({ attribute: 'Length', value: line + ' ' + _getMetricString(pointMetric) });
             inputTableData.push({ attribute: 'Buffer', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
         } else if (sumUnit != "Draw a geometry") {
-            inputTableData = Object.entries(
-                smaConfig.sum_units[sumUnit].outdesc,
-            ).map(([k, v]) => ({
-                k,
-                value: v.includes("results.")
-                    ? v.replace(/^[^.]+\./, "")
-                    : v,
-            }));
+            let inputTableFields = smaConfig.sum_units[sumUnit].outdesc;
+            for (const k in inputTableFields) {
+                let v = inputTableFields[k];
+                if (v.includes("results.")) {
+                    let attr = v.replace("results.", "")
+                    if (geographyAttributes.hasOwnProperty(attr)) {
+                        v = geographyAttributes[attr]
+                    }
+                } 
+                inputTableData.push({ 'attribute': k, 'value': v })
+            }
         }
 
         const pretty_area = Math.round(area * 10) / 10;
