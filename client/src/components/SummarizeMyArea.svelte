@@ -67,7 +67,9 @@
     let geometryType;
     let resultsTab;
     let selectionsTab;
-    
+    let smaAnalysisOutputs;
+    let smaAnalysisInputs
+
     $: isDisabled = !indicatorValue || !geometry;
 
     const indicatorsDict = [
@@ -234,7 +236,6 @@
 
         sumUnit = summaryUnitCombobox.value;
         console.log("sumUnit is ", sumUnit);
-        //TODO: Add Draw functionality
         if (sumUnit != "") {
             _initGeometryLayer(sumUnit);
             clearSketch();
@@ -255,7 +256,7 @@
         sketchLayer.removeAll();
 
         if (sumUnit == "Draw a geometry") {
-            _initSketchTool(sumUnit);
+            _initSketchTool();
         } else {
             // Get unitMinScale, url, outfields from the smaConfig
             let unitMinScale = smaConfig.sum_units[`${sumUnit}`].minScale;
@@ -274,8 +275,7 @@
 
             let geometryLayer = new FeatureLayer({
                 url: url,
-                // opacity: 0.7,
-                id: `${sumUnit}Layer`, //TODO: name id and title similar to indicator layer
+                id: `${sumUnit}Layer`, 
                 minScale: unitMinScale,
                 title:
                     "Summarize My Area Unit: " +
@@ -453,6 +453,9 @@
     }
 
     async function calculate() {
+        //TODO: clear the table
+        smaAnalysisOutputs.innerHTML = "";
+        smaAnalysisInputs.innerHTML = "";
         // loading image on button
         // conditionality on what is geo depending on sum unit (point/line/area)
         //default let geo=geometry (selected area)
@@ -531,18 +534,14 @@
                         { head: "Percentage", cl: "", d: "perc" },
                     ];
                     let table = _renderTable(headers, data);
-                    //TODO: replace jquery below...
-                    document
-                        .getElementById("gridded-map-output-table-wrapper")
-                        .append(table);
+                    smaAnalysisOutputs.append(table);
                 }
         }
         _renderInputTable(area, line);
     }
 
     function _renderInputTable(area, line) {
-        //TODO: clear the table
-        //document.getElementById('gridded-map-output-table-wrapper').innerHTML('');
+        inputTableData = [];
         let indicatorLabel = indicatorsDict.find(
             (indicator) => indicator.value === indicatorValue,
         ).name;
@@ -601,9 +600,7 @@
         ];
         let table = _renderTable(headers, inputTableData);
 
-        document
-            .getElementById("gridded-map-input-table-wrapper")
-            .append(table);
+        smaAnalysisInputs.append(table);
             
         resultsTab.selected = false;
         resultsTab.selected = true;
@@ -920,35 +917,38 @@
             </calcite-block>
         </calcite-tab>
         <calcite-tab tab="resultsTab">
-            <div
-                id="gridded-map-results"
-                class="widget-gridded-map profile-tab-node"
-                data-dojo-attach-point="tabNode2"
-            >
-                <div style="margin-bottom:10px" id="gridded-map-title">
-                    <div>
-                        <img
-                            alt="https://www.epa.gov/enviroatlas"
-                            src="images/logo.png"
-                            style="height: 33px; margin-top: 7px; display:inline-block; position:relative; left:50%; transform: translate(-50%); margin-bottom:-3px"
-                        />
+            <calcite-block>
+                <div
+                    slot="content-start"
+                    class="widget-gridded-map profile-tab-node"
+                >
+                    <div style="margin-bottom:10px" id="gridded-map-title">
+                        <div>
+                            <img
+                                alt="https://www.epa.gov/enviroatlas"
+                                src="images/logo.png"
+                                style="height: 33px; margin-top: 7px; display:inline-block; position:relative; left:50%; transform: translate(-50%); margin-bottom:-3px"
+                            />
+                        </div>
+                        <div
+                            style="display:block; margin:0 auto; text-align: center; font-size:18px; color:darkgray;"
+                        >
+                            Summarize My Area
+                        </div>
                     </div>
                     <div
-                        style="display:block; margin:0 auto; text-align: center; font-size:18px; color:darkgray;"
-                    >
-                        Summarize My Area
-                    </div>
+                        id="gridded-map-input-table-wrapper"
+                        bind:this={smaAnalysisInputs}
+                        class="table-wrapper"
+                    ></div>
+                    <div
+                        id="gridded-map-output-table-wrapper"
+                        bind:this={smaAnalysisOutputs}
+                        class="table-wrapper"
+                    ></div>
                 </div>
-                <div
-                    id="gridded-map-input-table-wrapper"
-                    class="table-wrapper"
-                ></div>
-                <div
-                    id="gridded-map-output-table-wrapper"
-                    class="table-wrapper"
-                ></div>
-            </div></calcite-tab
-        >
+            </calcite-block>
+        </calcite-tab>
     </calcite-tabs>
 </calcite-panel>
 
