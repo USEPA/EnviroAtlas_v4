@@ -68,7 +68,9 @@
     let resultsTab;
     let selectionsTab;
     let smaAnalysisOutputs;
-    let smaAnalysisInputs
+    let smaAnalysisInputs;
+    let messages;
+    let smaPanel;
 
     $: isDisabled = !indicatorValue || !geometry;
 
@@ -453,7 +455,7 @@
     }
 
     async function calculate() {
-        //TODO: clear the table
+        smaPanel.loading = true;
         smaAnalysisOutputs.innerHTML = "";
         smaAnalysisInputs.innerHTML = "";
         // loading image on button
@@ -601,7 +603,8 @@
         let table = _renderTable(headers, inputTableData);
 
         smaAnalysisInputs.append(table);
-            
+        
+        smaPanel.loading = false;
         resultsTab.selected = false;
         resultsTab.selected = true;
     }
@@ -731,6 +734,7 @@
 </script>
 
 <calcite-panel
+    bind:this={smaPanel}
     heading="Summarize My Area"
     data-panel-id="sma"
     hidden
