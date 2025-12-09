@@ -66,7 +66,7 @@
             }
             let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
             if (!findPopover) {
-                new SubtopicDetails({
+                mount(SubtopicDetails,{
                     target: document.body,
                     props: { subtopic, detailsArray },
                 });
