@@ -53,7 +53,7 @@ export function addLayer(lObj, view) {
         addTileLayer(lObj, view)
     }
     if (isImageService(lObj.url)) {
-        if (lObj.renderer != '') {
+        if (lObj.renderer) {
             console.log('render this!')
             let rfRule = new RasterFunction({
                 functionName: lObj.renderer
@@ -183,7 +183,7 @@ export function addImageryLayer(lObj, view, rfRule) {
         iLyr.rasterFunction = rfRule
     }
     if (!lObj.name.includes("Summarize My Area")) {
-        iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "Pixel Value: {Raster.ServicePixelValue.Raw}" }
+        iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "{Raster.ServicePixelValue.Raw}" }
     }
     console.log("imageryLayer: ", iLyr);
     view.map.add(iLyr);

@@ -402,7 +402,6 @@
         }
     };
 
-    //sketchviewmodel is a better fit for the draw tools
     function _initSketchTool() {
         sketchViewModel = new SketchViewModel({
             layer: sketchLayer,
@@ -610,12 +609,6 @@
     }
 
     async function _computeHistograms(url, post_data) {
-        // if (this.errorMessage.innerHTML !== "") {
-        //   this.errorMessage.innerHTML = "";
-        //   let image = '<img src="./configs/loading/images/predefined_loading_1.gif"/>';
-        //   this.calculateButton.innerHTML = image;
-        // }
-
         const compHistRequest = esriRequest(url, {
             responseType: "json",
             method: "post",
@@ -624,10 +617,6 @@
 
         try {
             const results = await compHistRequest;
-            //   if (this.calculateButton.disabled) {
-            //     this.calculateButton.innerHTML = this.nls.calculate;
-            //     return;
-            //   }
             console.log(results);
             return results;
         } catch (err) {
