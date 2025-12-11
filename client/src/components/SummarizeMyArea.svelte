@@ -71,6 +71,7 @@
     let smaAnalysisInputs;
     let messages;
     let smaPanel;
+    let selectionsTabOpen = true;
 
     $: isDisabled = !indicatorValue || !geometry;
 
@@ -604,8 +605,9 @@
         smaAnalysisInputs.append(table);
         
         smaPanel.loading = false;
-        resultsTab.selected = false;
+        selectionsTab.selected = false;
         resultsTab.selected = true;
+        selectionsTabOpen = false;
     }
 
     async function _computeHistograms(url, post_data) {
@@ -729,6 +731,7 @@
     hidden
     overlayPositioning="fixed"
 >
+    {#if selectionsTabOpen}
     <calcite-button
         tabindex="0"
         role="button"
@@ -739,12 +742,13 @@
     >
         Calculate
     </calcite-button>
+    {/if}
     <calcite-tabs layout="center">
         <calcite-tab-nav slot="title-group">
-            <calcite-tab-title bind:this={selectionsTab} selected tab="selectionsTab">
+            <calcite-tab-title on:click={() => selectionsTabOpen = true} bind:this={selectionsTab} selected tab="selectionsTab">
                 Select Layer Area
             </calcite-tab-title>
-            <calcite-tab-title bind:this={resultsTab} tab="resultsTab">Results</calcite-tab-title>
+            <calcite-tab-title on:click={() => selectionsTabOpen = false} bind:this={resultsTab} tab="resultsTab">Results</calcite-tab-title>
         </calcite-tab-nav>
         <calcite-tab selected tab="selectionsTab">
             <calcite-block open heading="Select an indicator">
