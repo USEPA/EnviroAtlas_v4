@@ -38,7 +38,7 @@ export async function getEaData(url, params) {
 };
 
 // TEST: is it faster to load data from portal item metadata instead of EAAPI?
-export function addLayer(lObj, view) {
+export function addLayer(lObj, view, index) {
     // Look for the layer already in the view
     // TODO: find a way to check this before sending request to API for lyrObject?
     if (isLayerUrlInMap(lObj.url, view)) {
@@ -58,9 +58,9 @@ export function addLayer(lObj, view) {
             let rfRule = new RasterFunction({
                 functionName: lObj.renderer
             })
-            addImageryLayer(lObj, view, rfRule)
+            addImageryLayer(lObj, view, rfRule, index)
         } else {
-            addImageryLayer(lObj, view)
+            addImageryLayer(lObj, view, index)
         }
     }
     // TODO: Add EA Boundaries and locations when community data is added to the map
@@ -121,6 +121,15 @@ export function isLayerTitleInMap(title, view) {
     return foundLayer
 };
 
+export function findLayersByTitle(view, title) {
+    const foundLayers = view.map.allLayers.findIndex(function(lyr, index, lyrs) {
+        if (lyr.title && lyr.title.includes(title)) {
+            return index
+        }
+    });
+    return foundLayers
+}
+
 /**
  * Remove the layer(s) from map based on the title.
  * @param {string} lyrName 
@@ -171,7 +180,8 @@ export function addFeatureLayer(lObj, view) {
     view.map.add(copiedLayer);
 };
 
-export function addImageryLayer(lObj, view, rfRule) {
+//TODO: options object?
+export function addImageryLayer(lObj, view, rfRule, index) {
     let iLyr = new ImageryLayer({
         url: lObj.url,
         format: "lerc", // for possible client side rendering or pixelfilter
@@ -185,8 +195,7 @@ export function addImageryLayer(lObj, view, rfRule) {
     if (!lObj.name.includes("Summarize My Area")) {
         iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "{Raster.ServicePixelValue.Raw}" }
     }
-    console.log("imageryLayer: ", iLyr);
-    view.map.add(iLyr);
+    view.map.add(iLyr, index);
     view.whenLayerView(iLyr).then((layerView) => {
         layerView.highlightOptions = {
             color: [0,0,0,0],

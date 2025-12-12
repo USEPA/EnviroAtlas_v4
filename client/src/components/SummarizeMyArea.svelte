@@ -41,6 +41,7 @@
         addLayer,
         getEALayerObject,
         isLayerTitleInMap,
+        findLayersByTitle
     } from "src/shared/utilities.js";
     import { geography } from "src/store.ts";
 
@@ -184,6 +185,10 @@
     // Add the appropriate raster to the map
     async function _initIndicatorLayer(indicator) {
         removeIndicator();
+
+        // Look for SMA sum unit layers and find index where imagery is just below it.
+        let smaLayersInMapHighestIndex = findLayersByTitle(view, "Summarize My Area") - 1;
+
         // Make mosaic rule work for land cover and land cover change variables
         let mosaicRule = new MosaicRule({
             method: "lock-raster",
@@ -209,7 +214,7 @@
                 console.log(lObject);
                 lObject.name =
                     "Summarize My Area Indicator: Near-surface permafrost probability";
-                addLayer(lObject, view);
+                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
         }
 
         // //TODO: Fix legend appearance
