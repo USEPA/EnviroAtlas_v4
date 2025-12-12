@@ -137,6 +137,7 @@
     }
 
     const updateIndicator = () => {
+        messages = null;
         indicatorValue = indicatorElem.value;
         if (indicatorValue == "permafrost") {
             if ($geography != "Alaska") {
@@ -557,9 +558,9 @@
                     ];
                     let table = _renderTable(headers, data);
                     smaAnalysisOutputs.append(table);
+                    _renderInputTable(area, line);
                 }
-        }
-        _renderInputTable(area, line);
+        }   
     }
 
     function _renderInputTable(area, line) {
@@ -643,12 +644,13 @@
             return results;
         } catch (err) {
             console.log(err);
-            //   this.calculateButton.innerHTML = this.nls.calculate;
-            //   if (err.details && err.details[0] === 'The requested image exceeds the size limit.') {
-            //     this.errorMessage.innerHTML = this.nls.sizeError;
-            //   } else {
-            //     this.errorMessage.innerHTML = this.nls.genericError;
-            //   }
+            //TODO: add too large messages here
+            if (err.details && err.details.messages[0] === 'The requested image exceeds the size limit.') {
+                messages = smaConfig.sizeError;
+            } else {
+                messages = smaConfig.genericError;
+            }
+            smaPanel.loading = false;
         }
     }
     function _calculatePermArea(total, count, area) {
