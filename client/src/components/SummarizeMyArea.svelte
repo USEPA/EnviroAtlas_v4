@@ -32,6 +32,7 @@
     import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel";
     import * as geodesicBufferOperator from "@arcgis/core/geometry/operators/geodesicBufferOperator";
     import * as centroidOperator from "@arcgis/core/geometry/operators/centroidOperator";
+    import Handles from "@arcgis/core/core/Handles";
     import * as d3 from "d3";
 
     // Import store and configuration
@@ -75,6 +76,7 @@
 
     $: isDisabled = !indicatorValue || !geometry;
 
+    const handles = new Handles();
     const indicatorsDict = [
         // {name: "Land Cover", value: "nlcd"},
         // {name: "Land Cover Change", value: "nlcd-change"},
@@ -231,6 +233,8 @@
     // Store summary unit input as view model value
     function updateSumUnit() {
         // Remove existing summary unit geometry from map
+        handles?.removeAll();
+        messages = null;
         let toRemove = view.map.layers.items?.filter(item => 
             item.title && item.title.includes("Summarize My Area Unit:")
         );
@@ -287,9 +291,22 @@
                 renderer: unitRenderer,
             });
 
-            view.map.add(geometryLayer);
+            //Create zoom service message based on zoom of view
+            if (sumUnit === "HUC-12" || sumUnit === "HUC-8") {
+                const zoomHandle = reactiveUtils.watch(
+                    () => [view.stationary, view.zoom],
+                    ([stationary, zoom]) => {
+                        if(stationary && zoom < 7){
+                            messages = smaConfig['zoomServiceMsg'];
+                        } else if (stationary && zoom > 6){
+                            messages = null
+                        }
+                    }
+                );
+                handles.add(zoomHandle)
+            }
 
-            //TODO: Create zoom service message based on scale of layer...see lines 1250-1259 of old widget code
+            view.map.add(geometryLayer);
 
             // Add mapClickEvent functionality
             // Only propogate event when geometry layer is added
@@ -432,9 +449,7 @@
             },
             defaultCreateOptions: { hasZ: false },
         });
-
-        console.log(sketchViewModel);
-        console.log(view.view);
+        
         sketchViewModel.on(["create"], (event) => {
             if (event.state == "complete") {
                 sketchGeometry = event.graphic.geometry;
@@ -897,13 +912,13 @@
             <calcite-block open heading="Select your geography">
                 <calcite-icon scale="m" slot="icon" icon="number-circle-3"
                 ></calcite-icon>
-                {#if sumUnit == "HUC-8" || sumUnit == "HUC-12"}
+                {#if messages}
                     <calcite-notice
                         open
                         icon="exclamation-mark-triangle"
                         kind="danger"
                     >
-                        <div slot="message">Zoom in to see HUC boundaries</div>
+                        <div slot="message">{messages}</div>
                     </calcite-notice>
                 {/if}
                 {#if geographyLabel}
