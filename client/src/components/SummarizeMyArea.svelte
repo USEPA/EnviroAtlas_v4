@@ -32,6 +32,7 @@
     import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel";
     import * as geodesicBufferOperator from "@arcgis/core/geometry/operators/geodesicBufferOperator";
     import * as centroidOperator from "@arcgis/core/geometry/operators/centroidOperator";
+    import Handles from "@arcgis/core/core/Handles";
     import * as d3 from "d3";
 
     // Import store and configuration
@@ -40,6 +41,7 @@
         addLayer,
         getEALayerObject,
         isLayerTitleInMap,
+        findLayersByTitle
     } from "src/shared/utilities.js";
     import { geography } from "src/store.ts";
 
@@ -67,9 +69,15 @@
     let geometryType;
     let resultsTab;
     let selectionsTab;
-    
+    let smaAnalysisOutputs;
+    let smaAnalysisInputs;
+    let messages;
+    let smaPanel;
+    let selectionsTabOpen = true;
+
     $: isDisabled = !indicatorValue || !geometry;
 
+    const handles = new Handles();
     const indicatorsDict = [
         // {name: "Land Cover", value: "nlcd"},
         // {name: "Land Cover Change", value: "nlcd-change"},
@@ -129,6 +137,7 @@
     }
 
     const updateIndicator = () => {
+        messages = null;
         indicatorValue = indicatorElem.value;
         if (indicatorValue == "permafrost") {
             if ($geography != "Alaska") {
@@ -177,6 +186,10 @@
     // Add the appropriate raster to the map
     async function _initIndicatorLayer(indicator) {
         removeIndicator();
+
+        // Look for SMA sum unit layers and find index where imagery is just below it.
+        let smaLayersInMapHighestIndex = findLayersByTitle(view, "Summarize My Area") - 1;
+
         // Make mosaic rule work for land cover and land cover change variables
         let mosaicRule = new MosaicRule({
             method: "lock-raster",
@@ -202,7 +215,7 @@
                 console.log(lObject);
                 lObject.name =
                     "Summarize My Area Indicator: Near-surface permafrost probability";
-                addLayer(lObject, view);
+                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
         }
 
         // //TODO: Fix legend appearance
@@ -226,6 +239,8 @@
     // Store summary unit input as view model value
     function updateSumUnit() {
         // Remove existing summary unit geometry from map
+        handles?.removeAll();
+        messages = null;
         let toRemove = view.map.layers.items?.filter(item => 
             item.title && item.title.includes("Summarize My Area Unit:")
         );
@@ -234,7 +249,6 @@
 
         sumUnit = summaryUnitCombobox.value;
         console.log("sumUnit is ", sumUnit);
-        //TODO: Add Draw functionality
         if (sumUnit != "") {
             _initGeometryLayer(sumUnit);
             clearSketch();
@@ -255,7 +269,7 @@
         sketchLayer.removeAll();
 
         if (sumUnit == "Draw a geometry") {
-            _initSketchTool(sumUnit);
+            _initSketchTool();
         } else {
             // Get unitMinScale, url, outfields from the smaConfig
             let unitMinScale = smaConfig.sum_units[`${sumUnit}`].minScale;
@@ -274,8 +288,7 @@
 
             let geometryLayer = new FeatureLayer({
                 url: url,
-                // opacity: 0.7,
-                id: `${sumUnit}Layer`, //TODO: name id and title similar to indicator layer
+                id: `${sumUnit}Layer`, 
                 minScale: unitMinScale,
                 title:
                     "Summarize My Area Unit: " +
@@ -284,9 +297,22 @@
                 renderer: unitRenderer,
             });
 
-            view.map.add(geometryLayer);
+            //Create zoom service message based on zoom of view
+            if (sumUnit === "HUC-12" || sumUnit === "HUC-8") {
+                const zoomHandle = reactiveUtils.watch(
+                    () => [view.stationary, view.zoom],
+                    ([stationary, zoom]) => {
+                        if(stationary && zoom < 7){
+                            messages = smaConfig['zoomServiceMsg'];
+                        } else if (stationary && zoom > 6){
+                            messages = null
+                        }
+                    }
+                );
+                handles.add(zoomHandle)
+            }
 
-            //TODO: Create zoom service message based on scale of layer...see lines 1250-1259 of old widget code
+            view.map.add(geometryLayer);
 
             // Add mapClickEvent functionality
             // Only propogate event when geometry layer is added
@@ -400,7 +426,6 @@
         }
     };
 
-    //sketchviewmodel is a better fit for the draw tools
     function _initSketchTool() {
         sketchViewModel = new SketchViewModel({
             layer: sketchLayer,
@@ -430,9 +455,7 @@
             },
             defaultCreateOptions: { hasZ: false },
         });
-
-        console.log(sketchViewModel);
-        console.log(view.view);
+        
         sketchViewModel.on(["create"], (event) => {
             if (event.state == "complete") {
                 sketchGeometry = event.graphic.geometry;
@@ -453,6 +476,9 @@
     }
 
     async function calculate() {
+        smaPanel.loading = true;
+        smaAnalysisOutputs.innerHTML = "";
+        smaAnalysisInputs.innerHTML = "";
         // loading image on button
         // conditionality on what is geo depending on sum unit (point/line/area)
         //default let geo=geometry (selected area)
@@ -531,18 +557,14 @@
                         { head: "Percentage", cl: "", d: "perc" },
                     ];
                     let table = _renderTable(headers, data);
-                    //TODO: replace jquery below...
-                    document
-                        .getElementById("gridded-map-output-table-wrapper")
-                        .append(table);
+                    smaAnalysisOutputs.append(table);
+                    _renderInputTable(area, line);
                 }
-        }
-        _renderInputTable(area, line);
+        }   
     }
 
     function _renderInputTable(area, line) {
-        //TODO: clear the table
-        //document.getElementById('gridded-map-output-table-wrapper').innerHTML('');
+        inputTableData = [];
         let indicatorLabel = indicatorsDict.find(
             (indicator) => indicator.value === indicatorValue,
         ).name;
@@ -601,21 +623,15 @@
         ];
         let table = _renderTable(headers, inputTableData);
 
-        document
-            .getElementById("gridded-map-input-table-wrapper")
-            .append(table);
-            
-        resultsTab.selected = false;
+        smaAnalysisInputs.append(table);
+        
+        smaPanel.loading = false;
+        selectionsTab.selected = false;
         resultsTab.selected = true;
+        selectionsTabOpen = false;
     }
 
     async function _computeHistograms(url, post_data) {
-        // if (this.errorMessage.innerHTML !== "") {
-        //   this.errorMessage.innerHTML = "";
-        //   let image = '<img src="./configs/loading/images/predefined_loading_1.gif"/>';
-        //   this.calculateButton.innerHTML = image;
-        // }
-
         const compHistRequest = esriRequest(url, {
             responseType: "json",
             method: "post",
@@ -624,20 +640,17 @@
 
         try {
             const results = await compHistRequest;
-            //   if (this.calculateButton.disabled) {
-            //     this.calculateButton.innerHTML = this.nls.calculate;
-            //     return;
-            //   }
             console.log(results);
             return results;
         } catch (err) {
             console.log(err);
-            //   this.calculateButton.innerHTML = this.nls.calculate;
-            //   if (err.details && err.details[0] === 'The requested image exceeds the size limit.') {
-            //     this.errorMessage.innerHTML = this.nls.sizeError;
-            //   } else {
-            //     this.errorMessage.innerHTML = this.nls.genericError;
-            //   }
+            //TODO: add too large messages here
+            if (err.details && err.details.messages[0] === 'The requested image exceeds the size limit.') {
+                messages = smaConfig.sizeError;
+            } else {
+                messages = smaConfig.genericError;
+            }
+            smaPanel.loading = false;
         }
     }
     function _calculatePermArea(total, count, area) {
@@ -734,11 +747,13 @@
 </script>
 
 <calcite-panel
+    bind:this={smaPanel}
     heading="Summarize My Area"
     data-panel-id="sma"
     hidden
     overlayPositioning="fixed"
 >
+    {#if selectionsTabOpen}
     <calcite-button
         tabindex="0"
         role="button"
@@ -749,12 +764,13 @@
     >
         Calculate
     </calcite-button>
+    {/if}
     <calcite-tabs layout="center">
         <calcite-tab-nav slot="title-group">
-            <calcite-tab-title bind:this={selectionsTab} selected tab="selectionsTab">
+            <calcite-tab-title on:click={() => selectionsTabOpen = true} bind:this={selectionsTab} selected tab="selectionsTab">
                 Select Layer Area
             </calcite-tab-title>
-            <calcite-tab-title bind:this={resultsTab} tab="resultsTab">Results</calcite-tab-title>
+            <calcite-tab-title on:click={() => selectionsTabOpen = false} bind:this={resultsTab} tab="resultsTab">Results</calcite-tab-title>
         </calcite-tab-nav>
         <calcite-tab selected tab="selectionsTab">
             <calcite-block open heading="Select an indicator">
@@ -903,13 +919,13 @@
             <calcite-block open heading="Select your geography">
                 <calcite-icon scale="m" slot="icon" icon="number-circle-3"
                 ></calcite-icon>
-                {#if sumUnit == "HUC-8" || sumUnit == "HUC-12"}
+                {#if messages}
                     <calcite-notice
                         open
                         icon="exclamation-mark-triangle"
                         kind="danger"
                     >
-                        <div slot="message">Zoom in to see HUC boundaries</div>
+                        <div slot="message">{messages}</div>
                     </calcite-notice>
                 {/if}
                 {#if geographyLabel}
@@ -920,35 +936,38 @@
             </calcite-block>
         </calcite-tab>
         <calcite-tab tab="resultsTab">
-            <div
-                id="gridded-map-results"
-                class="widget-gridded-map profile-tab-node"
-                data-dojo-attach-point="tabNode2"
-            >
-                <div style="margin-bottom:10px" id="gridded-map-title">
-                    <div>
-                        <img
-                            alt="https://www.epa.gov/enviroatlas"
-                            src="images/logo.png"
-                            style="height: 33px; margin-top: 7px; display:inline-block; position:relative; left:50%; transform: translate(-50%); margin-bottom:-3px"
-                        />
+            <calcite-block>
+                <div
+                    slot="content-start"
+                    class="widget-gridded-map profile-tab-node"
+                >
+                    <div style="margin-bottom:10px" id="gridded-map-title">
+                        <div>
+                            <img
+                                alt="https://www.epa.gov/enviroatlas"
+                                src="images/logo.png"
+                                style="height: 33px; margin-top: 7px; display:inline-block; position:relative; left:50%; transform: translate(-50%); margin-bottom:-3px"
+                            />
+                        </div>
+                        <div
+                            style="display:block; margin:0 auto; text-align: center; font-size:18px; color:darkgray;"
+                        >
+                            Summarize My Area
+                        </div>
                     </div>
                     <div
-                        style="display:block; margin:0 auto; text-align: center; font-size:18px; color:darkgray;"
-                    >
-                        Summarize My Area
-                    </div>
+                        id="gridded-map-input-table-wrapper"
+                        bind:this={smaAnalysisInputs}
+                        class="table-wrapper"
+                    ></div>
+                    <div
+                        id="gridded-map-output-table-wrapper"
+                        bind:this={smaAnalysisOutputs}
+                        class="table-wrapper"
+                    ></div>
                 </div>
-                <div
-                    id="gridded-map-input-table-wrapper"
-                    class="table-wrapper"
-                ></div>
-                <div
-                    id="gridded-map-output-table-wrapper"
-                    class="table-wrapper"
-                ></div>
-            </div></calcite-tab
-        >
+            </calcite-block>
+        </calcite-tab>
     </calcite-tabs>
 </calcite-panel>
 
