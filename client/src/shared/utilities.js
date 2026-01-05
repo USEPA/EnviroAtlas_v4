@@ -40,10 +40,11 @@ export async function getEaData(url, params) {
 // TEST: is it faster to load data from portal item metadata instead of EAAPI?
 export function addLayer(lObj, view, index) {
     // Look for the layer already in the view
-    // TODO: find a way to check this before sending request to API for lyrObject?
     if (isLayerUrlInMap(lObj.url, view)) {
-        console.log("Layer is already in map!")
-        return 
+        if (isLayerTitleInMap(lObj.name, view)) {
+            console.log("Layer is already in map!")
+            return 
+        }
     }
     console.log(lObj);
     if (isFeatureorMapService(lObj.url)) {
@@ -63,8 +64,6 @@ export function addLayer(lObj, view, index) {
             addImageryLayer(lObj, view, index)
         }
     }
-    // TODO: Add EA Boundaries and locations when community data is added to the map
-    // Maybe don't have to do this if EA is dropping Community data from the app?
 };
 
 /** 
