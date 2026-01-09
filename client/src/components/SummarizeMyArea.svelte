@@ -81,6 +81,7 @@
     const indicatorsDict = [
         // {name: "Land Cover", value: "nlcd"},
         // {name: "Land Cover Change", value: "nlcd-change"},
+        { name: "Dasymetric Population", value: "dasy"},
         { name: "Permafrost Probability", value: "permafrost" },
     ];
 
@@ -145,6 +146,8 @@
                 document.getElementById("Alaska-bookmark").click();
             }
             _initIndicatorLayer(indicatorValue);
+        } else if (indicatorValue) {
+            _initIndicatorLayer(indicatorValue);
         } else if (!indicatorValue) {
             removeIndicator();
         }
@@ -196,6 +199,7 @@
         });
 
         let indicatorUrl;
+        let lObject
 
         switch (indicator) {
             case "nlcd":
@@ -209,13 +213,21 @@
                     smaConfig.nlcd.OBJECTIDS[nlcdChange2Combobox],
                 ];
                 indicatorUrl = smaConfig.nlcd.layer;
+                break;
             case "permafrost":
-                let lObject = await getEALayerObject(552);
+                lObject = await getEALayerObject(552);
                 // TODO: error handle if lObject is empty
-                console.log(lObject);
                 lObject.name =
                     "Summarize My Area Indicator: Near-surface permafrost probability";
                 smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
+                break;
+            case "dasy":
+                lObject = await getEALayerObject(518);
+                console.log(lObject)
+                lObject.name =
+                    "Summarize My Area Indicator: 2020 Dasymetric Population";
+                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
+                break;
         }
 
         // //TODO: Fix legend appearance
@@ -488,16 +500,34 @@
         let compHistEndpoint = `${smaConfig[indicatorValue].layer}/computeStatisticsHistograms`;
 
         let remapRF = new RasterFunction();
-        remapRF.functionName = "Remap";
-        remapRF.functionArguments = {
-            InputRanges: [
-                -1, -0.001, 0, 11, 11, 21, 21, 31, 31, 41, 41, 51, 51, 61, 61,
-                71, 71, 81, 81, 91, 91, 101,
-            ],
-            OutputValues: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            Raster: "$$",
-        };
-        remapRF.outputPixelType = "u8";
+
+        switch (indicatorValue) {
+            case "permafrost":
+                remapRF.functionName = "Remap";
+                remapRF.functionArguments = {
+                    InputRanges: [
+                        -1, -0.001, 0, 11, 11, 21, 21, 31, 31, 41, 41, 51, 51, 61, 61,
+                        71, 71, 81, 81, 91, 91, 101,
+                    ],
+                    OutputValues: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    Raster: "$$",
+                };
+                remapRF.outputPixelType = "u8";
+                break;
+            case "dasy":
+                //TODO: what rfxns need to go here?
+                remapRF.functionName = "Remap";
+                remapRF.functionArguments = {
+                    InputRanges: [
+                        0, 0, 0.000000001, 1.99999999999, 2, 9.9999999999, 10, 1000,
+                    ],
+                    OutputValues: [0, 1, 2, 3],
+                    Raster: "$$",
+                };
+                remapRF.outputPixelType = "u8";
+                console.log('running')
+                break;
+        }
 
         let compHistObject = {
             f: "json",
@@ -507,13 +537,55 @@
             renderingRule: JSON.stringify(remapRF),
         };
 
-        let results, area;
+        let results = await _computeHistograms(
+            compHistEndpoint,
+            compHistObject,
+        );
+        let area;
         switch (indicatorValue) {
+            case "dasy":
+                console.log(results)
+                if (results) {
+                    const totalCount = results.data.statistics[0].count;
+                    area = (totalCount * (pixel_size * pixel_size)) / 1000000;
+                    let pResults = {};
+                    results.data.histograms[0].counts.forEach(
+                        (count, index) => {
+                            if (count > 0) {
+                                pResults[index] = {
+                                    area: count,
+                                    perc: calculatePercentages(
+                                        totalCount,
+                                        count,
+                                    ),
+                                    name: smaConfig[indicatorValue].indices[index],
+                                    legend: `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig[indicatorValue].colors[index]}"></div>`,
+                                };
+                            }
+                        },
+                    );
+                    let data = Object.entries(pResults).map(([k, v]) => v);
+                    let headers = [
+                        { head: "", cl: "title", d: "legend" },
+                        {
+                            head: smaConfig[indicatorValue].classLabel,
+                            cl: "nlcd_title",
+                            d: "name",
+                        },
+                        {
+                            head: smaConfig[indicatorValue].statLabel,
+                            cl: "",
+                            d: "area",
+                        },
+                        { head: "Percentage", cl: "", d: "perc" },
+                    ];
+                    let table = _renderTable(headers, data);
+                    smaAnalysisOutputs.append(table);
+                    _renderInputTable(area, line);
+                }
+                break;
             case "permafrost":
-                results = await _computeHistograms(
-                    compHistEndpoint,
-                    compHistObject,
-                );
+                console.log(results)
                 if (results) {
                     const totalCount = results.data.statistics[0].count;
                     area = (totalCount * (pixel_size * pixel_size)) / 1000000;
@@ -531,26 +603,22 @@
                                         totalCount,
                                         count,
                                     ),
-                                    name: smaConfig.permafrost.indices[index],
-                                    legend: `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig.permafrost.colors[index]}"></div>`,
+                                    name: smaConfig[indicatorValue].indices[index],
+                                    legend: `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig[indicatorValue].colors[index]}"></div>`,
                                 };
                             }
                         },
                     );
                     let data = Object.entries(pResults).map(([k, v]) => v);
-                    var headers = [
+                    let headers = [
                         { head: "", cl: "title", d: "legend" },
                         {
-                            head: "Land Cover Type",
+                            head: smaConfig[indicatorValue].classLabel,
                             cl: "nlcd_title",
                             d: "name",
                         },
                         {
-                            head:
-                                indicatorValue +
-                                " Area (" +
-                                _getMetricString(pointMetric) +
-                                "2)",
+                            head: smaConfig[indicatorValue].statLabel,
                             cl: "",
                             d: "area",
                         },
@@ -560,6 +628,7 @@
                     smaAnalysisOutputs.append(table);
                     _renderInputTable(area, line);
                 }
+                break;
         }   
     }
 
@@ -601,6 +670,12 @@
             let inputTableFields = smaConfig.sum_units[sumUnit].outdesc;
             for (const k in inputTableFields) {
                 let v = inputTableFields[k];
+                if (k == "District"){
+                    v = geographyAttributes['STATE_ABBR'] + geographyAttributes['DISTRICTID']
+                }
+                if (k == "Representative"){
+                    v = geographyAttributes['NAME'] + ' - ' + geographyAttributes['PARTY']
+                }
                 if (v.includes("results.")) {
                     let attr = v.replace("results.", "")
                     if (geographyAttributes.hasOwnProperty(attr)) {

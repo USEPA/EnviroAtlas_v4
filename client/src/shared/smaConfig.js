@@ -156,6 +156,29 @@ export const smaConfig = {
       9: "#234E8D",
       10: "#23318D"
     },
+    classLabel: "Land Cover Type",
+    statLabel: "Permafrost Area (km2)"
+  },
+  "dasy": {
+    indices: {
+      0: "No population (0)",
+      1: "Low population (<2)",
+      2: "Moderately populated (2-10)",
+      3: "Densely populated (>10)"
+    },
+    layersUsed: ['2020 Dasymetric Population'],
+    layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/ESN/NearSurfacePermafrostProbability.pdf'],
+    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Dasymetric_2020/ImageServer',
+    resolution: 30,
+    columnHeaders: ['2020 Dasymetric Population', 'Sum', 'Percentage'],
+    colors: {
+      0: "#FFEBD6",
+      1: "#F0BC9A",
+      2: "#DA674C",
+      3: "#C40D0A"
+    },
+    classLabel: "Class Name",
+    statLabel: "Population Sum"
   },
   sum_units: {
     "stateLayer": {
@@ -196,8 +219,8 @@ export const smaConfig = {
       "outfields": ['DISTRICTID', 'NAME', 'PARTY', 'STATE_ABBR'],
       "outdesc": {
         'Geometry Type': '118th US Congressional Districts',
-        'District': 'results.STATE_ABBR+results.DISTRICTID',
-        'Representative': "results.NAME + ' - ' +results.PARTY"
+        'District': 'custom', //results.STATE_ABBR+results.DISTRICTID
+        'Representative': "custom" //results.NAME + ' - ' +results.PARTY
       }
     },
     "HUC-12": {
