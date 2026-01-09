@@ -537,14 +537,54 @@
             renderingRule: JSON.stringify(remapRF),
         };
 
-        let results, area;
+        let results = await _computeHistograms(
+            compHistEndpoint,
+            compHistObject,
+        );
+        let area;
         switch (indicatorValue) {
             case "dasy":
+                console.log(results)
+                if (results) {
+                    const totalCount = results.data.statistics[0].count;
+                    area = (totalCount * (pixel_size * pixel_size)) / 1000000;
+                    let pResults = {};
+                    results.data.histograms[0].counts.forEach(
+                        (count, index) => {
+                            if (count > 0) {
+                                pResults[index] = {
+                                    area: count,
+                                    perc: calculatePercentages(
+                                        totalCount,
+                                        count,
+                                    ),
+                                    name: smaConfig[indicatorValue].indices[index],
+                                    legend: `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig[indicatorValue].colors[index]}"></div>`,
+                                };
+                            }
+                        },
+                    );
+                    let data = Object.entries(pResults).map(([k, v]) => v);
+                    let headers = [
+                        { head: "", cl: "title", d: "legend" },
+                        {
+                            head: smaConfig[indicatorValue].classLabel,
+                            cl: "nlcd_title",
+                            d: "name",
+                        },
+                        {
+                            head: smaConfig[indicatorValue].statLabel,
+                            cl: "",
+                            d: "area",
+                        },
+                        { head: "Percentage", cl: "", d: "perc" },
+                    ];
+                    let table = _renderTable(headers, data);
+                    smaAnalysisOutputs.append(table);
+                    _renderInputTable(area, line);
+                }
+                break;
             case "permafrost":
-                results = await _computeHistograms(
-                    compHistEndpoint,
-                    compHistObject,
-                );
                 console.log(results)
                 if (results) {
                     const totalCount = results.data.statistics[0].count;
@@ -570,7 +610,7 @@
                         },
                     );
                     let data = Object.entries(pResults).map(([k, v]) => v);
-                    var headers = [
+                    let headers = [
                         { head: "", cl: "title", d: "legend" },
                         {
                             head: smaConfig[indicatorValue].classLabel,
@@ -588,6 +628,7 @@
                     smaAnalysisOutputs.append(table);
                     _renderInputTable(area, line);
                 }
+                break;
         }   
     }
 
@@ -629,6 +670,12 @@
             let inputTableFields = smaConfig.sum_units[sumUnit].outdesc;
             for (const k in inputTableFields) {
                 let v = inputTableFields[k];
+                if (k == "District"){
+                    v = geographyAttributes['STATE_ABBR'] + geographyAttributes['DISTRICTID']
+                }
+                if (k == "Representative"){
+                    v = geographyAttributes['NAME'] + ' - ' + geographyAttributes['PARTY']
+                }
                 if (v.includes("results.")) {
                     let attr = v.replace("results.", "")
                     if (geographyAttributes.hasOwnProperty(attr)) {

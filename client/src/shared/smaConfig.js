@@ -219,8 +219,8 @@ export const smaConfig = {
       "outfields": ['DISTRICTID', 'NAME', 'PARTY', 'STATE_ABBR'],
       "outdesc": {
         'Geometry Type': '118th US Congressional Districts',
-        'District': 'results.STATE_ABBR+results.DISTRICTID',
-        'Representative': "results.NAME + ' - ' +results.PARTY"
+        'District': 'custom', //results.STATE_ABBR+results.DISTRICTID
+        'Representative': "custom" //results.NAME + ' - ' +results.PARTY
       }
     },
     "HUC-12": {
