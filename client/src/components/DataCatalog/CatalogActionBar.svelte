@@ -100,13 +100,43 @@
 </script>
 
 {#if type=='national'}
-<calcite-card>
+<calcite-card id=national-search-filter-card>
 <calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>    
-    <calcite-input alignment='start' maxLength=20 type='text' scale='l' icon='search' bind:this={searchInput} on:calciteInputInput={()=>onSearch()} placeholder="Try searching"></calcite-input>
-    <calcite-button id='count' scale='s'>{totalVisibleMaps} / {totalMapsCount} <br>
-        Maps</calcite-button>   
-</calcite-action-bar>
-    <calcite-chip-group 
+    
+    <calcite-input 
+        alignment='start' 
+        maxLength=20 
+        type='text' 
+        scale='s' 
+        icon='search' 
+        bind:this={searchInput} 
+        on:calciteInputInput={()=>onSearch()} placeholder="Search Map Layers">
+    </calcite-input>
+    
+      <!-- <calcite-chip 
+                        scale="s" 
+                        bind:this={catRefs[c]} 
+                        id="catFilter" 
+                        label="Clear search or filters" 
+                        appearance="outline" 
+                        on:click={()=>onCatChange(cat)}
+                    >Clear search or filters</calcite-chip> -->
+    
+    <!-- <div class="bc-icon-group">
+        {#each categories as cat, c (cat.name)}
+        <div style="display:block">   
+             <div  
+                bind:this={catRefs[c]}
+                style="background-color: {cat.color}; 
+                background-image: url(https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png)" 
+                class="bc-icon {cat.name}"
+                on:click={()=>onCatChange(cat)}>
+                
+            </div> 
+        </div> 
+        {/each}
+    
+     <calcite-chip-group 
         scale='s' slot="footer-start" selection-mode="single" 
         label="cat-filter-chip-group">
         {#each categories as cat, c (cat.name)}
@@ -115,7 +145,7 @@
             bind:this={catRefs[c]}
                 type="radio"
                 id='{cat.name}' 
-                scale='s' 
+                scale='l' 
                 value={cat.name}
                 label={cat.name}
                 kind='brand' 
@@ -125,21 +155,25 @@
                 <img 
                     slot="image" 
                     alt={cat.name} 
-                    style="width:20x;height:20px;background-color:{cat.color};border-radius:50%" 
+                    style="width:25x;height:25px;background-color:{cat.color};border-radius:50%" 
                     src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png"
-                >{cat.label}
+                >
             </calcite-chip>
         {/if}
         {/each}
-            <calcite-chip
+            
+    </div> -->
+    
+    <calcite-chip
                 bind:this={moreFiltersChip} 
                 id="catFilter-popover-ref" 
                 icon="plus-circle" 
+                scale="s"
                 round 
                 appearance="outline" 
                 on:calciteChipSelect={clearCatFilter}
-            >More Filters</calcite-chip>
-        </calcite-chip-group> 
+            >Filters</calcite-chip>
+        <!-- </calcite-chip-group>  -->
     <calcite-popover
         bind:this={moreFiltersPopover}
         id="morefilters"
@@ -149,16 +183,16 @@
         label="catFilter-popover-ref"
         reference-element="catFilter-popover-ref"
         closable
-        heading="More Filters"
+        heading="Filters"
         on:calcitePopoverClose={popoverClose}
         on:calcitePopoverOpen={popoverOpen}
     >
         <calcite-chip-group 
             bind:this={moreFiltersGroup}
+            style="margin: 5px"
             scale='s' selection-mode="single" 
             label="cat-filter-chip-group">
             {#each categories as cat, c (cat.name)}
-                {#if cat.name === moreFilters || cat.name === moreFilter2}
                     <calcite-chip 
                         scale="s" 
                         bind:this={catRefs[c]} 
@@ -170,24 +204,34 @@
                         <img 
                             slot="image" 
                             alt={cat.name} 
-                            style="width:20px;height:20px;background-color:{cat.color};border-radius:50%" 
+                            style="width:17px;height:17px;background-color:{cat.color};border-radius:50%" 
                             src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png"
                         >{cat.label}
                     </calcite-chip>
-                {/if}
+                <!-- {/if} -->
             {/each}
         </calcite-chip-group> 
     </calcite-popover>
+    </calcite-action-bar>
+<p style="margin-block: 5px;">Showing {totalVisibleMaps} map layers</p> 
 </calcite-card>
 {/if}
 
 <style>
+
+                
+   
+    calcite-action-bar#catalog-search-filter {
+        width: 100%;
+    }
+    
     calcite-popover#morefilters {
         --calcite-popover-max-size-x: 210px
     }
     calcite-input {
-        width: 75%;
-        margin: 3px;
+        width: 100%;
+        margin-right: 15px;
+        border-radius: 7px;
     }
 
     calcite-chip {
@@ -195,14 +239,43 @@
         --calcite-ui-focus-color: none !important;
     }
 
-    calcite-button#count {
-        width:25%;
-        margin: 3px;
-        --calcite-ui-focus-color: none !important;
-        --calcite-color-brand-hover: #2F3540;
-        --calcite-color-brand-press: 2F3540; 
-        --calcite-button-background-color: white;
-        --calcite-button-text-color: 2F3540;
-        --calcite-button-border-color:#6a6a6a
+    calcite-chip#catFilter-popover-ref {
+        --calcite-chip-border-color: #949494;
+        --calcite-chip-corner-radius: 7px;
+        --calcite-chip-text-color: #6b6b6b;
+        /* --calcite-button-border-color:#949494; */
+        
+    }
+
+    calcite-card#national-search-filter-card {
+        --calcite-card-border-color: none;
+        margin-bottom: 0px;
+    }
+
+    div.bc-icon-group {
+        display: flex; 
+        padding-top: 10px;
+        justify-content: center;
+
+    }
+
+    div.bc-icon {
+        width: 25px;
+        height: 25px;
+        border-radius: 20px;
+        margin-right: 7px;
+        background-size: 80% auto;
+        background-position: center;
+        background-repeat: no-repeat; 
+
+    }
+
+    .map-counter {
+        margin-left: 10px;
+        padding-left: 20px;
+        border: 1px solid black;
+        font-size: 11px;
+        line-height: 0.15in;
+        text-align: left;
     }
 </style> 

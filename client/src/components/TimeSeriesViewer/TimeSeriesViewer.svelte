@@ -143,7 +143,7 @@
         let oconusSelections = buildOconusId(selections);
         let oLayer = new FeatureLayer({
             url: oconusUrl, 
-            opacity: 0.6, 
+            //opacity: 0.6, 
             id: oLayerId, 
             definitionExpression: "domain = '" + `${domain}` + "' AND " + `${fieldname}` + " IS NOT NULL",
             title: geography.replaceAll(",", " & ").replace(/([a-z])([A-Z])/g, '$1 $2') + ', ' + selections['Scenario'].value.toUpperCase() + ', ' + oconusSelections,
@@ -208,10 +208,10 @@
         if (minVal < 0 && maxVal > 0) {
             if (clim.value == "PRfr" || clim.value == "PEfr") {
                 // compare the min and max of to domain, then whichever is largest number, the other side of break is max/min (9 total classes)
-                var largestVal = largestAbsVal(maxVal, minVal); // don't round fractions until the end
-                var smallestVal = (-1 * largestVal);
-                var positiveBreakDiff = (largestVal / 5);
-                var negativeBreakDiff = (largestVal / 3);
+                let largestVal = largestAbsVal(maxVal, minVal); // don't round fractions until the end
+                let smallestVal = (-1 * largestVal);
+                let positiveBreakDiff = (largestVal / 5);
+                let negativeBreakDiff = (largestVal / 3);
                 // negative (3 classes)
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal).toFixed(3)),
@@ -272,10 +272,10 @@
             }
             if (clim.value == "miTF" || clim.value == "mxTF") {
                 // compare the min and max of to domain, then whichever is largest number, the other side of break is max/min (9 total classes)
-                var largestVal = largestAbsVal(Math.ceil(maxVal), Math.floor(minVal));
-                var smallestVal = (-1 * largestVal);
-                var positiveBreakDiff = (largestVal / 5);
-                var negativeBreakDiff = (largestVal / 3);
+                let largestVal = largestAbsVal(Math.ceil(maxVal), Math.floor(minVal));
+                let smallestVal = (-1 * largestVal);
+                let positiveBreakDiff = (largestVal / 5);
+                let negativeBreakDiff = (largestVal / 3);
                 // negative (3 classes)
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal).toFixed(1)), 
@@ -336,10 +336,10 @@
             }
             if (clim.value == "PRin" || clim.value == "PEin") {
                 // compare the min and max of to domain, then whichever is largest number, the other side of break is max/min (9 total classes)
-                var largestVal = largestAbsVal(Math.ceil(maxVal), Math.floor(minVal));
-                var smallestVal = (-1 * largestVal);
-                var positiveBreakDiff = (largestVal / 5);
-                var negativeBreakDiff = (largestVal / 3);
+                let largestVal = largestAbsVal(Math.ceil(maxVal), Math.floor(minVal));
+                let smallestVal = (-1 * largestVal);
+                let positiveBreakDiff = (largestVal / 5);
+                let negativeBreakDiff = (largestVal / 3);
                 // negative (3 classes)
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal).toFixed(1)), 
@@ -401,9 +401,9 @@
         } else if (minVal > 0 && maxVal > 0) { // when the max and min value is greater than 0
             if (clim.value == "PRfr" || clim.value == "PEfr") {
                 // max is the largest number, the min is -1 (7 total classes)
-                var largestVal = maxVal; // don't round fractions until the end
-                var smallestVal = -1;
-                var positiveBreakDiff = (largestVal / 5);
+                let largestVal = maxVal; // don't round fractions until the end
+                let smallestVal = -1;
+                let positiveBreakDiff = (largestVal / 5);
                 // negative (1 class)
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal).toFixed(3)),
@@ -452,9 +452,9 @@
             }
             if (clim.value == "miTF" || clim.value == "mxTF") {
                 // max is the largest number, the min is -1 (7 total classes)
-                var largestVal = Math.ceil(maxVal);
-                var smallestVal = -1;
-                var positiveBreakDiff = (largestVal / 5);
+                let largestVal = Math.ceil(maxVal);
+                let smallestVal = -1;
+                let positiveBreakDiff = (largestVal / 5);
                 // negative (1 class)
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal).toFixed(1)),
@@ -503,9 +503,9 @@
             }
             if (clim.value == "PRin" || clim.value == "PEin") {
                 // max is the largest number, the min is -1 (7 total classes)
-                var largestVal = Math.ceil(maxVal);
-                var smallestVal = -1;
-                var positiveBreakDiff = (largestVal / 5);
+                let largestVal = Math.ceil(maxVal);
+                let smallestVal = -1;
+                let positiveBreakDiff = (largestVal / 5);
                 // negative (1 class)
                 renderer.addClassBreakInfo({
                     minValue: Number((smallestVal).toFixed(1)),
@@ -555,9 +555,9 @@
         } else { // all negative
             if (clim.value == "PRfr" || clim.value == "PEfr") {
                 // min is the smallest number, the max is 1 (7 total classes)
-                var largestVal = 1;
-                var smallestVal = minVal; // don't round fractions until the end
-                var negativeBreakDiff = (smallestVal / 5);
+                let largestVal = 1;
+                let smallestVal = minVal; // don't round fractions until the end
+                let negativeBreakDiff = (smallestVal / 5);
                 // negative (5 classes)
                 renderer.addClassBreakInfo({
                     minValue: Number(smallestVal.toFixed(3)),
@@ -606,9 +606,9 @@
             }
             if (clim.value == "miTF" || clim.value == "mxTF") {
                 // min is the smallest number, the max is 1 (7 total classes)
-                var largestVal = 1;
-                var smallestVal = Math.floor(minVal);
-                var negativeBreakDiff = (smallestVal / 5);
+                let largestVal = 1;
+                let smallestVal = Math.floor(minVal);
+                let negativeBreakDiff = (smallestVal / 5);
                 // negative (5 classes)
                 renderer.addClassBreakInfo({
                     minValue: Number(smallestVal.toFixed(1)), 
@@ -657,9 +657,9 @@
             }
             if (clim.value == "PRin" || clim.value == "PEin") {
                 // min is the smallest number, the max is 1 (7 total classes)
-                var largestVal = 1;
-                var smallestVal = Math.floor(minVal);
-                var negativeBreakDiff = (smallestVal / 5);
+                let largestVal = 1;
+                let smallestVal = Math.floor(minVal);
+                let negativeBreakDiff = (smallestVal / 5);
                 // negative (5 classes)
                 renderer.addClassBreakInfo({
                     minValue: Number(smallestVal.toFixed(1)), 
@@ -943,12 +943,17 @@
 <calcite-panel
     data-testid="time-series-viewer"
     data-panel-id="time-series-viewer"
-    heading="Time Series Layers"
-    description="Explore changing landscapes and environment"
+    
     open
     hidden
 >
-    <calcite-block expanded>
+<!-- heading="Time Series Layers"
+ description="Explore changing landscapes and environment" -->
+    <calcite-block scale="m" id="domainHeader" heading="2. Explore Time Series Map Layers"
+        description="Select a theme, time period, and other attributes below"
+        style="border-bottom: none">
+    </calcite-block>
+    <calcite-block collapsible expanded heading='Weather and Climate' style="padding-left:5px">
         {#each options_filtered as clim, c (clim.name)}
         <div id="combobox-div">
             <calcite-combobox
@@ -961,7 +966,7 @@
                 overlay-positioning="absolute"
             >
             {#each clim.options as o}
-                <calcite-combobox-item value={o.value} text-label={o.label}/>
+                <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
             {/each}
             </calcite-combobox>
             <calcite-button 
@@ -970,7 +975,7 @@
                 on:click={openDetails(clim.name)}
                 id="{clim.name}-details-popover-button"
                 class="info-button"
-            />
+           ></calcite-button>
         </div>
         {/each}
         <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
@@ -978,6 +983,12 @@
             <div slot="message">Please make selections.</div>
         </calcite-notice>
         <calcite-button on:click={getSelections}>Add to map</calcite-button>
+    </calcite-block>
+
+    <calcite-block collapsible expanded heading='Land Cover and Land Use' style="margin-top: 0px; padding-left:5px">
+    <div>
+        Coming Soon!
+    </div>
     </calcite-block>
 </calcite-panel>
 

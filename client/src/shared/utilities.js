@@ -8,6 +8,18 @@ import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
 
 export let view;
 
+// When Add to Map button is clicked, get object from the mapping config
+export function getEALayerObject(id) {
+    // use api to fetch layer object
+    let layerParams = {
+        //TODO: where did type go?
+        //TODO: test out using code like, select = JSON.stringify( {layerID:1,name:1,etc etc} )
+        select: encodeURIComponent(`{"layerID":1,"name":1,"lyrNum":1,"popup":1,"renderer":1,"type":1,"url":1,"serviceType":1,"sourceType":1}`)
+    }
+    let lObj = getEaData(`/ea/api/layers/${id}`, layerParams)
+    return lObj
+}
+
 // Generic ea api call function
 export async function getEaData(url, params) {
     //TODO: check if params is string or object
@@ -26,12 +38,13 @@ export async function getEaData(url, params) {
 };
 
 // TEST: is it faster to load data from portal item metadata instead of EAAPI?
-export function addLayer(lObj, view) {
+export function addLayer(lObj, view, index) {
     // Look for the layer already in the view
-    // TODO: find a way to check this before sending request to API for lyrObject?
-    if (isLayerInMap(lObj.url, view)) {
-        console.log("Layer is already in map!")
-        return 
+    if (isLayerUrlInMap(lObj.url, view)) {
+        if (isLayerTitleInMap(lObj.name, view)) {
+            console.log("Layer is already in map!")
+            return 
+        }
     }
     console.log(lObj);
     if (isFeatureorMapService(lObj.url)) {
@@ -41,18 +54,16 @@ export function addLayer(lObj, view) {
         addTileLayer(lObj, view)
     }
     if (isImageService(lObj.url)) {
-        if (lObj.tileLink == 'renderer') {
+        if (lObj.renderer) {
             console.log('render this!')
             let rfRule = new RasterFunction({
-                functionName: lObj.tileURL
+                functionName: lObj.renderer
             })
-            addImageryLayer(lObj, view, rfRule)
+            addImageryLayer(lObj, view, rfRule, index)
         } else {
-            addImageryLayer(lObj, view)
+            addImageryLayer(lObj, view, index)
         }
     }
-    // TODO: Add EA Boundaries and locations when community data is added to the map
-    // Maybe don't have to do this if EA is dropping Community data from the app?
 };
 
 /** 
@@ -68,7 +79,7 @@ export function isFeatureorMapService(url) {
 /** 
  * Boolean test for Image service type
  * @param {string} url
- * @return {boolean} Is the url an Imager Service?
+ * @return {boolean} Is the url an Image Service?
  */
 export function isImageService(url) {
     return url.substring(url.lastIndexOf('/') + 1) === 'ImageServer'
@@ -93,7 +104,7 @@ export function largestAbsVal(num1, num2) {
     return Math.max(Math.abs(num1), Math.abs(num2))
 };
 
-export function isLayerInMap(url, view) {
+export function isLayerUrlInMap(url, view) {
     const foundLayer = view.map.allLayers.find(function(lyr) {
         // TODO: For RFTs, the url may be the same, but the viz will be different, 
         // so will need to update this helper function
@@ -101,6 +112,22 @@ export function isLayerInMap(url, view) {
     });
     return foundLayer
 };
+
+export function isLayerTitleInMap(title, view) {
+    const foundLayer = view.map.allLayers.find(function(lyr) {
+        return lyr.title === title
+    });
+    return foundLayer
+};
+
+export function findLayersByTitle(view, title) {
+    const foundLayers = view.map.allLayers.findIndex(function(lyr, index, lyrs) {
+        if (lyr.title && lyr.title.includes(title)) {
+            return index
+        }
+    });
+    return foundLayers
+}
 
 /**
  * Remove the layer(s) from map based on the title.
@@ -125,7 +152,7 @@ export function addFeatureLayer(lObj, view) {
     var copiedLayer = new FeatureLayer({
         url,
         title: lObj.name,
-        opacity: 0.6, // apply defaults, like opacity=0.6
+        //opacity: 0.6,
     });
 
     // catch error on instantiating the new Feature Layer
@@ -152,20 +179,22 @@ export function addFeatureLayer(lObj, view) {
     view.map.add(copiedLayer);
 };
 
-export function addImageryLayer(lObj, view, rfRule) {
+//TODO: options object?
+export function addImageryLayer(lObj, view, rfRule, index) {
     let iLyr = new ImageryLayer({
         url: lObj.url,
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
-        opacity: 0.6,
-        title: lObj.name,
+        //opacity: 0.6,
+        title: lObj.name
     }); 
     if (rfRule) {
         iLyr.rasterFunction = rfRule
     }
-    iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "Pixel Value: {Raster.ServicePixelValue.Raw}" }
-    console.log("imageryLayer: ", iLyr);
-    view.map.add(iLyr);
+    if (!lObj.name.includes("Summarize My Area")) {
+        iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "{Raster.ServicePixelValue.Raw}" }
+    }
+    view.map.add(iLyr, index);
     view.whenLayerView(iLyr).then((layerView) => {
         layerView.highlightOptions = {
             color: [0,0,0,0],
@@ -182,7 +211,7 @@ export function addTileLayer(lObj, view) {
         title: lObj.name,
         url: lObj.tileURL,
         legendEnabled: false, // hide from legend not honored in layer list...
-        opacity: 0.6, // set opacity
+        //opacity: 0.6,
         // TODO: revist scale level...seems like cacheNatLevel isn't synced with the feature layer scales.
         maxScale: mxScale
     });

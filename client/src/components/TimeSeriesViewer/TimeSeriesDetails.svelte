@@ -22,7 +22,7 @@
         <calcite-flow-item>
             <calcite-panel heading={optionsObj.name}>
                 {#if optionsObj.description}
-                    <calcite-block description={optionsObj.description}/>
+                    <calcite-block description={optionsObj.description}></calcite-block>
                 {/if}
                 {#each optionsObj.options as o}
                 {#if o.info}
@@ -37,7 +37,7 @@
                             textEnabled
                             on:click={openFactSheet(o.pdf)}
                             on:keypress={openFactSheet(o.pdf)}
-                        />
+                       ></calcite-action>
                         {/if}
                     </calcite-block>
                 {/if}

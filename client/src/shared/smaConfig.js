@@ -121,8 +121,66 @@ export const smaConfig = {
   "nlcd-change": {
     columnHeaders: ['Land Cover Type', 'Year 1 Area (km2)', 'Year 2 Area (km2)', 'Percentage'],
     layersUsed: ['National Land Cover Database'],
-    layersUsedURL: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/NationalLandCover.pdf'],
+    layersUsedURL: 'https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/NationalLandCover.pdf',
     resolution: 30
+  },
+  "permafrost": {
+    indices: {
+      0: "Not Modeled",
+      1: "0 - 10%",
+      2: "10.1 - 20%",
+      3: "20.1 - 30%",
+      4: "30.1 - 40%",
+      5: "40.1 - 50%",
+      6: "50.1 - 60%",
+      7: "60.1 - 70%",
+      8: "70.1 - 80%",
+      9: "80.1 - 90%",
+      10: "90.1 - 100%"
+    },
+    layersUsed: ['Near-surface permafrost probability'],
+    layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/ESN/NearSurfacePermafrostProbability.pdf'],
+    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Permafrost_Probability_Near_the_Surface/ImageServer',
+    resolution: 30,
+    columnHeaders: ['Near-surface permafrost probability', 'Area (km2)', 'Percentage'],
+    colors: {
+      0: "#CCCCCC",
+      1: "#FFFEB9",
+      2: "#EFF9B5",
+      3: "#CFECB2",
+      4: "#97D69B",
+      5: "#5DC0C0",
+      6: "#31A6C2",
+      7: "#1F80B8",
+      8: "#2367A4",
+      9: "#234E8D",
+      10: "#23318D"
+    },
+    classLabel: "Land Cover Type",
+    firstStatLabel: "Permafrost Area (km2)",
+    secondStatLabel: "Percentage of Area"
+  },
+  "dasy": {
+    indices: {
+      0: "No population (0)",
+      1: "Low population (<2)",
+      2: "Moderately populated (2-10)",
+      3: "Densely populated (>10)"
+    },
+    layersUsed: ['2020 Dasymetric Population'],
+    layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/ESN/NearSurfacePermafrostProbability.pdf'],
+    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Dasymetric_2020/ImageServer',
+    resolution: 30,
+    columnHeaders: ['2020 Dasymetric Population', 'Sum', 'Percentage'],
+    colors: {
+      0: "#FFEBD6",
+      1: "#F0BC9A",
+      2: "#DA674C",
+      3: "#C40D0A"
+    },
+    classLabel: "Class Name",
+    firstStatLabel: "Total Population",
+    secondStatLabel: "Area"
   },
   sum_units: {
     "stateLayer": {
@@ -136,13 +194,13 @@ export const smaConfig = {
       }
     },
     "County": {
-      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Counties/FeatureServer/0',
+      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_and_States_with_PR/FeatureServer/0',
       "minScale": '300000000',
       "name": "County",
-      "outfields": ['STATE_NAME', 'NAME'],
+      "outfields": ['STATE_NAME', 'CountyName'],
       "outdesc": {
         'Geometry Type': 'US County',
-        'County': "results.NAME + ', ' + results.STATE_NAME"
+        'County': "results.CountyName + ', ' + results.STATE_NAME"
       }
     },
     "blockgroupLayer": {
@@ -163,30 +221,30 @@ export const smaConfig = {
       "outfields": ['DISTRICTID', 'NAME', 'PARTY', 'STATE_ABBR'],
       "outdesc": {
         'Geometry Type': '118th US Congressional Districts',
-        'District': 'results.STATE_ABBR+results.DISTRICTID',
-        'Representative': "results.NAME + ' - ' +results.PARTY"
+        'District': 'custom', //results.STATE_ABBR+results.DISTRICTID
+        'Representative': "custom" //results.NAME + ' - ' +results.PARTY
       }
     },
     "HUC-12": {
-      "url": 'https://enviroatlas.epa.gov/arcgis/rest/services/Other/HydrologicUnits/MapServer/4',
-      "minScale": "2000000",
+      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/Watershed_Boundary_Dataset_HUC_12s/FeatureServer',
+      "minScale": "5000000",
       "name": "HUC-12",
-      "outfields": ['HUC_12', 'HU_12_Name'],
+      "outfields": ['HUC12', 'Name'],
       "outdesc": {
         'Geometry Type': 'Sub-watershed (HUC-12)',
-        'HUC-12 ID': "results.HUC_12",
-        'HUC-12 Name': "results.HU_12_Name"
+        'HUC-12 ID': "results.huc12",
+        'HUC-12 Name': "results.name"
       }
     },
     "HUC-8": {
-      "url": 'https://enviroatlas.epa.gov/arcgis/rest/services/Other/HydrologicUnits/MapServer/2',
-      "minScale": "2000000",
+      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/Watershed_Boundary_Dataset_HUC_8s/FeatureServer',
+      "minScale": "5000000",
       "name": "HUC-8",
-      "outfields": ['HUC8', 'HU_8_Name'],
+      "outfields": ['HUC8', 'Name'],
       "outdesc": {
         'Geometry Type': 'Subbasin (HUC-8)',
-        'HUC-8 ID': "results.HUC8",
-        'HUC-8 Name': "results.HU_8_Name"
+        'HUC-8 ID': "results.huc8",
+        'HUC-8 Name': "results.name"
       }
     }
   },
@@ -195,6 +253,6 @@ export const smaConfig = {
   blockgroupLayer: 'https://ejscreen.epa.gov/arcgis/rest/services/ejscreen/census2020acs/MapServer/0',
   districtLayer: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_118th_Congressional_Districts/FeatureServer/0',
   districtVersion: '118th Congressional District',
-  "huc-12Layer": 'https://enviroatlas.epa.gov/arcgis/rest/services/Other/HydrologicUnits/MapServer/4',
-  "huc-8Layer": 'https://enviroatlas.epa.gov/arcgis/rest/services/Other/HydrologicUnits/MapServer/2'
+  "huc-12Layer": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/Watershed_Boundary_Dataset_HUC_12s/FeatureServer',
+  "huc-8Layer": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/Watershed_Boundary_Dataset_HUC_8s/FeatureServer'
 }

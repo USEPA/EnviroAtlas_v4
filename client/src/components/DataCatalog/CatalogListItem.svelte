@@ -1,7 +1,8 @@
 <script>
-    import { addLayer, getEaData, removeLayer, openLayerList } from "src/shared/utilities.js";
+    import { addLayer, getEaData, removeLayer, openLayerList, getEALayerObject } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import { activeWidget } from "src/store.ts";
+    import { mount } from 'svelte';
 
     export let subtopic;
     export let view;
@@ -21,18 +22,6 @@
         if (lObject) {
             openLayerList($activeWidget);
         }
-    }
-
-    // When Add to Map button is clicked, get object from the mapping config
-    function getEALayerObject(id) {
-        // use api to fetch layer object
-        let layerParams = {
-            //TODO: where did type go?
-            //TODO: test out using code like, select = JSON.stringify( {layerID:1,name:1,etc etc} )
-            select: encodeURIComponent(`{"layerID":1,"name":1,"lyrNum":1,"popup":1,"tileLink":1,"tileURL":1,"type":1,"url":1,"serviceType":1,"sourceType":1}`)
-        }
-        let lObj = getEaData(`/ea/api/layers/${id}`, layerParams)
-        return lObj
     }
 
     function subtopicSelected(event) {
@@ -57,7 +46,7 @@
             let detailsObj = await getEaData(`/ea/api/layers/${layerID}`, detailsParams);
             let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
             if (!findPopover) {
-                new SubtopicDetails({
+                mount(SubtopicDetails, {
                     target: document.body,
                     props: { subtopic, detailsObj },
                 });
@@ -77,7 +66,7 @@
             }
             let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
             if (!findPopover) {
-                new SubtopicDetails({
+                mount(SubtopicDetails,{
                     target: document.body,
                     props: { subtopic, detailsArray },
                 });
@@ -101,45 +90,51 @@
 {#if subtopic.isVisible}
 {#each Object.entries(dataTypeDict) as [dTypeLabel, dTypeValue] (dTypeLabel)}
     {#if subtopic.sourceType == dTypeValue}
-<calcite-list-item id="not-header" label={subtopic.name} description={dTypeLabel} on:calciteListItemSelect={e=>e.stopPropagation()}>
-    {#if subtopic.layers.length == 1}
-    <calcite-checkbox 
-        slot="actions-start" 
-        aria-checked="false" 
-        role="checkbox" 
-        tabindex="0"
-        value={subtopic.layers[0].layerID}
-        name={subtopic.layers[0].name}
-        on:calciteCheckboxChange={subtopicSelected}
-    ></calcite-checkbox>
-    {/if}
-    <calcite-action 
-        tabindex="-1"
-        role="button"
-        text="Details" 
-        icon="information" 
-        scale="m" 
-        slot="actions-end" 
-        id="{subtopic.subTopicID}-details-popover-button"
-        on:click={detailsObj = () => getSubtopicDetails()}
-        on:keypress={detailsObj = () => getSubtopicDetails()}>
-    </calcite-action>
-    {#if subtopic.layers.length > 1}
-    <div slot="content-bottom" id="concernFilterDiv">
-        {#each subtopic.layers as layer (layer.layerID)}
-        {#if layer.isVisible}
-            <calcite-label scale='s' layout="inline">
-                <calcite-checkbox 
-                    name={layer.name} 
-                    value={layer.layerID} 
-                    on:calciteCheckboxChange={subtopicSelected}
-                />
-                {layer.subLayerName}
-            </calcite-label>
+<calcite-list-item 
+    id={subtopic.layers.length > 1 ? 'not-header-subtopic' : 'not-header'}
+    label={subtopic.name} 
+    description={dTypeLabel} 
+    on:calciteListItemSelect={e=>e.stopPropagation()}
+    >
+        {#if subtopic.layers.length == 1}
+        <calcite-checkbox 
+            slot="actions-start" 
+            aria-checked="false" 
+            role="checkbox" 
+            style="padding: 0 10px;"
+            tabindex="0"
+            value={subtopic.layers[0].layerID}
+            name={subtopic.layers[0].name}
+            on:calciteCheckboxChange={subtopicSelected}
+        ></calcite-checkbox>
         {/if}
-        {/each}
-    </div>
-    {/if}
+        <calcite-action 
+            tabindex="-1"
+            role="button"
+            text="Details" 
+            icon="information" 
+            scale="m" 
+            slot="actions-end" 
+            id="{subtopic.subTopicID}-details-popover-button"
+            on:click={detailsObj = () => getSubtopicDetails()}
+            on:keypress={detailsObj = () => getSubtopicDetails()}>
+        </calcite-action>
+        {#if subtopic.layers.length > 1}
+        <div slot="content-bottom" id="concernFilterDiv">
+            {#each subtopic.layers as layer (layer.layerID)}
+            {#if layer.isVisible}
+                <calcite-label scale='s' layout="inline">
+                    <calcite-checkbox 
+                        name={layer.name} 
+                        value={layer.layerID} 
+                        on:calciteCheckboxChange={subtopicSelected}
+                   ></calcite-checkbox>
+                    {layer.subLayerName}
+                </calcite-label>
+            {/if}
+            {/each}
+        </div>
+        {/if}
 </calcite-list-item>
     {/if}
 {/each}
@@ -150,7 +145,19 @@
         --calcite-list-background-color: #fff;
         --calcite-list-background-color-hover: none;
         --calcite-list-background-color-press: none;
-        --calcite-spacing-xxs: 0
+        --calcite-spacing-xxs: 0;
+        --calcite-font-weight-normal: 400;
+        font-size: var(--calcite-font-size--2)  
+    } 
+
+    #not-header-subtopic {
+        --calcite-list-background-color: #fff;
+        --calcite-list-background-color-hover: none;
+        --calcite-list-background-color-press: none;
+        --calcite-spacing-xxs: 0;
+        margin-left: 10px;
+        --calcite-font-weight-normal: 400;
+        font-size: var(--calcite-font-size--2)  
     } 
 
     #concernFilterDiv {
@@ -161,6 +168,6 @@
     }
 
     calcite-label {
-        padding-right: 15px
+        padding-right: 15px;
     }
 </style>
