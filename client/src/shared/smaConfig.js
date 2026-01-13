@@ -157,7 +157,8 @@ export const smaConfig = {
       10: "#23318D"
     },
     classLabel: "Land Cover Type",
-    statLabel: "Permafrost Area (km2)"
+    firstStatLabel: "Permafrost Area (km2)",
+    secondStatLabel: "Percentage of Area"
   },
   "dasy": {
     indices: {
@@ -178,7 +179,8 @@ export const smaConfig = {
       3: "#C40D0A"
     },
     classLabel: "Class Name",
-    statLabel: "Population Sum"
+    firstStatLabel: "Total Population",
+    secondStatLabel: "Area"
   },
   sum_units: {
     "stateLayer": {

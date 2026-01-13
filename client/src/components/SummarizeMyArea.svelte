@@ -223,7 +223,6 @@
                 break;
             case "dasy":
                 lObject = await getEALayerObject(518);
-                console.log(lObject)
                 lObject.name =
                     "Summarize My Area Indicator: 2020 Dasymetric Population";
                 smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
@@ -499,10 +498,11 @@
         const pixel_size = smaConfig[indicatorValue].resolution;
         let compHistEndpoint = `${smaConfig[indicatorValue].layer}/computeStatisticsHistograms`;
 
-        let remapRF = new RasterFunction();
+        let remapRF;
 
         switch (indicatorValue) {
             case "permafrost":
+                remapRF = new RasterFunction();
                 remapRF.functionName = "Remap";
                 remapRF.functionArguments = {
                     InputRanges: [
@@ -515,17 +515,17 @@
                 remapRF.outputPixelType = "u8";
                 break;
             case "dasy":
-                //TODO: what rfxns need to go here?
-                remapRF.functionName = "Remap";
-                remapRF.functionArguments = {
-                    InputRanges: [
-                        0, 0, 0.000000001, 1.99999999999, 2, 9.9999999999, 10, 1000,
-                    ],
-                    OutputValues: [0, 1, 2, 3],
-                    Raster: "$$",
-                };
-                remapRF.outputPixelType = "u8";
-                console.log('running')
+                // remapRF = new RasterFunction();
+                // remapRF.functionName = "Remap";
+                // remapRF.functionArguments = {
+                //     InputRanges: [
+                //         0, 0, 0.000000001, 1.99999999999, 2, 9.9999999999, 10, 1000,
+                //     ],
+                //     OutputValues: [0, 1, 2, 3],
+                //     Raster: "$$",
+                // };
+                // remapRF.outputPixelType = "u8";
+                // console.log('running')
                 break;
         }
 
@@ -534,8 +534,9 @@
             geometryType: "esriGeometryPolygon",
             geometry: JSON.stringify(geo),
             pixelSize: pixel_size,
-            renderingRule: JSON.stringify(remapRF),
         };
+
+        remapRF ? compHistObject['renderingRule'] = JSON.stringify(remapRF) : null;
 
         let results = await _computeHistograms(
             compHistEndpoint,
@@ -544,25 +545,22 @@
         let area;
         switch (indicatorValue) {
             case "dasy":
-                console.log(results)
+                //console.log(results)
                 if (results) {
                     const totalCount = results.data.statistics[0].count;
                     area = (totalCount * (pixel_size * pixel_size)) / 1000000;
+                    let pretty_area = Math.round(area * 10) / 10
+                    let totalPop = Math.round(results.data.statistics[0].sum);
                     let pResults = {};
-                    results.data.histograms[0].counts.forEach(
-                        (count, index) => {
-                            if (count > 0) {
-                                pResults[index] = {
-                                    area: count,
-                                    perc: calculatePercentages(
-                                        totalCount,
-                                        count,
-                                    ),
-                                    name: smaConfig[indicatorValue].indices[index],
-                                    legend: `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig[indicatorValue].colors[index]}"></div>`,
-                                };
-                            }
-                        },
+                    let index = [0];
+                    index.forEach(
+                        (index) => {
+                            pResults[index] = {
+                                area: totalPop,
+                                perc: pretty_area,
+                                name: "Total population"
+                            };
+                        }
                     );
                     let data = Object.entries(pResults).map(([k, v]) => v);
                     let headers = [
@@ -573,11 +571,11 @@
                             d: "name",
                         },
                         {
-                            head: smaConfig[indicatorValue].statLabel,
+                            head: smaConfig[indicatorValue].firstStatLabel,
                             cl: "",
                             d: "area",
                         },
-                        { head: "Percentage", cl: "", d: "perc" },
+                        { head: smaConfig[indicatorValue].secondStatLabel, cl: "", d: "perc" },
                     ];
                     let table = _renderTable(headers, data);
                     smaAnalysisOutputs.append(table);
@@ -585,7 +583,7 @@
                 }
                 break;
             case "permafrost":
-                console.log(results)
+                //console.log(results)
                 if (results) {
                     const totalCount = results.data.statistics[0].count;
                     area = (totalCount * (pixel_size * pixel_size)) / 1000000;
@@ -618,11 +616,11 @@
                             d: "name",
                         },
                         {
-                            head: smaConfig[indicatorValue].statLabel,
+                            head: smaConfig[indicatorValue].firstStatLabel,
                             cl: "",
                             d: "area",
                         },
-                        { head: "Percentage", cl: "", d: "perc" },
+                        { head: smaConfig[indicatorValue].secondStatLabel, cl: "", d: "perc" },
                     ];
                     let table = _renderTable(headers, data);
                     smaAnalysisOutputs.append(table);
@@ -715,11 +713,10 @@
 
         try {
             const results = await compHistRequest;
-            console.log(results);
+            //console.log(results);
             return results;
         } catch (err) {
             console.log(err);
-            //TODO: add too large messages here
             if (err.details && err.details.messages[0] === 'The requested image exceeds the size limit.') {
                 messages = smaConfig.sizeError;
             } else {
