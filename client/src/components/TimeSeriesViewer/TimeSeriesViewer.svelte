@@ -9,7 +9,7 @@
     import "@esri/calcite-components/dist/components/calcite-notice";
     import "@esri/calcite-components/dist/components/calcite-action";
     
-    import { hasValueUndefined, largestAbsVal, openLayerList } from "src/shared/utilities.js";
+    import { hasValueUndefined, largestAbsVal, openLayerList, fetchData } from "src/shared/utilities.js";
     import { activeWidget } from "src/store.ts";
     import TimeSeriesDetails from "src/components/TimeSeriesViewer/TimeSeriesDetails.svelte";
     
@@ -23,6 +23,9 @@
     import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
     import MultidimensionalSubset from "@arcgis/core/layers/support/MultidimensionalSubset.js";
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
+    import MosaicRule from "@arcgis/core/layers/support/MosaicRule";
+    import DimensionalDefinition from "@arcgis/core/layers/support/DimensionalDefinition";
+    import Query from "@arcgis/core/rest/support/Query";
 
     export let geography;
     export let view;
@@ -35,21 +38,21 @@
         { name: "Variable", options: [ 
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRin", label: "Change in Precipitation (in)",
                 info: "Change in total precipitation in inches or as fraction for the season or annually.",
-                pdf: "Supplemental/Climate_Precip_NEXGDDP_OCONUS.pdf"
+                pdf: "Supplemental/Climate_Precip_NEXGDDP_OCONUS.pdf", d: "RAIN"
             },  
-            {domains: "CONUS,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRfr", label: "Change in Precipitation (fraction as %)"},
+            {domains: "CONUS,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRfr", label: "Change in Precipitation (fraction as %)", d: "RAINfr"},
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PEin", label: "Change in PET (in)",
                 info: "Change in total potential evapotranspiration in inches or as fraction for the season or annually.",
-                pdf: "Supplemental/Climate_PET_NEXGDDP_OCONUS.pdf"
+                pdf: "Supplemental/Climate_PET_NEXGDDP_OCONUS.pdf", d: "PET"
             },
-            {domains: "CONUS,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PEfr", label: "Change in PET (fraction as %)"},
+            {domains: "CONUS,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PEfr", label: "Change in PET (fraction as %)", d: "PETfr"},
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "mxTF", label: "Change in Maximum Temperature (°F)",
                 info: "Change in average maximum temperature in degrees Fahrenheit for the season or annually.",
-                pdf: "Supplemental/Climate_Temp_NEXGDDP_OCONUS.pdf"
+                pdf: "Supplemental/Climate_Temp_NEXGDDP_OCONUS.pdf", d: "MAX_TEMP"
             },
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "miTF", label: "Change in Minimum Temperature (°F)",
                 info: "Change in average minimum temperature in degrees Fahrenheit for the season or annually.",
-                pdf: "Supplemental/Climate_Temp_NEXGDDP_OCONUS.pdf"
+                pdf: "Supplemental/Climate_Temp_NEXGDDP_OCONUS.pdf", d: "MIN_TEMP"
             }
         ], description: "All variables are presented as a median, minimum and maximum of the NEX-GDDP-CMIP6 Global Climate Model ensemble."
     }, 
@@ -66,45 +69,45 @@
             {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp585", label: "SSP5–8.5 (7.9 ± 2.3 °F by 2100)",
                 info: "SSP5 (“Fossil-fueled Development”) reflects high challenges to mitigation and low challenges to adaptation. It is characterized by steadily increasing GHG concentrations. It represents the upper boundary of the range of scenarios. Global temperatures increase by 7.9±2.2°F (4.4±1.2°C) at 2100 compared to PIA."
             },
-            {domains: "CONUS", value: "rcp26", label: "RCP-2.6 (Peak Emissions Year 2020"},
-            {domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040"},
-            {domains: "CONUS", value: "rcp60", label: "RCP-6.0 (Peak Emissions Year 2080"},
-            {domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100"}
+            {domains: "CONUS", value: "rcp26", label: "RCP-2.6 (Peak Emissions Year 2020", d: 1},
+            {domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040", d: 2},
+            {domains: "CONUS", value: "rcp60", label: "RCP-6.0 (Peak Emissions Year 2080", d: 3},
+            {domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100", d: 5}
         ], description: "Shared Socioeconomic Pathways (SSPs) reflect global trends in human activities and changes in radiative forcing that result from changes in atmospheric greenhouse gases (GHGs) and aerosol concentrations. In the SSP labels (like SSP1-2.6), the first number refers to a defined socioeconomic pathway (trends in population, policy, and economic growth), and the second refers to an increase in radiative forcing (W/m2) relative to pre-industrial (1850-1900) average (PIA)."
     },
         { name: "Season", options: [
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "A", label: "Annual", 
-                info: "January through December of the same calendar year"
+                info: "January through December of the same calendar year", d: 1
             },
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "M", label: "Spring",
-                info: "March, April, May"
+                info: "March, April, May", d: 3
             },  
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "J", label: "Summer",
-                info: "June, July, August"
+                info: "June, July, August", d: 4
             },
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "S", label: "Fall",
-                info: "September, October, November"
+                info: "September, October, November", d: 5
             },
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "D", label: "Winter",
-                info: "December of previous year, January, February"
+                info: "December of previous year, January, February", d: 2
             },
             
         ]}, 
         { name: "Period", options: [ 
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF1", label: "1976–2005 to 2025–2054", 
-                info: "Recent history (1976–2005) to near-term future (2025–2054)"
+                info: "Recent history (1976–2005) to near-term future (2025–2054)", d: 1
             },  
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF2", label: "1976–2005 to 2045–2074",
-                info: "Recent history (1976–2005) to mid-century (2045–2074)"
+                info: "Recent history (1976–2005) to mid-century (2045–2074)", d: 2
             },
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF3", label: "1976–2005 to 2070–2099",
-                info: "Recent history (1976–2005) to end-of-century (2070–2099)"
+                info: "Recent history (1976–2005) to end-of-century (2070–2099)", d: 3
             },
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF2", label: "2025–2054 to 2045–2074",
-                info: "Near-term future (2025–2054) to mid-century (2045–2074)"
+                info: "Near-term future (2025–2054) to mid-century (2045–2074)", d: 4
             },
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF3", label: "2025–2054 to 2070–2099",
-                info: "Near-term future (2025–2054) to end-of-century (2070–2099)"
+                info: "Near-term future (2025–2054) to end-of-century (2070–2099)", d: 5
             }
         ], description: "Climate change variables were computed using 30–year periods: recent history (1976–2005), near-term future (2025–2054), mid-century (2045–2074), and end-of-century (2070–2099). Climate change variables are expressed as a change between different periods:"
     }];
@@ -815,54 +818,56 @@
     function loadCONUS(selections) { 
         console.log('CONUS selections: ', selections)
         const mdURL = "https://awseastaging.epa.gov/arcgis/rest/services/test_services/NEX_DCP30_CONUS/ImageServer"
-        // set initial year value
-        const multidimensionalSubset = new MultidimensionalSubset({
-            subsetDefinitions: [
-                {
-                variableName: "MAX_TEMP",
-                dimensionName: "scenario",
-                values: [1], 
-                isSlice: false
-                },
-                {
-                variableName: "MAX_TEMP",
-                dimensionName: "season",
-                values: [1],
-                isSlice: false
-                },
-                {
-                variableName: "MAX_TEMP",
-                dimensionName: "period",
-                values: [1],
-                isSlice: false
-                }
-            ],
-        });
-
-        const stretchFunction = new RasterFunction({
-            functionName: "Stretch",
-            functionArguments: {
-                StretchType: 5, // (0 = None, 3 = StandardDeviation, 4 = Histogram Equalization, 5 = MinMax, 6 = PercentClip, 9 = Sigmoid)
-                Min: 0,
-                Max: 255,
-                Raster: "$$", // $$(default) refers to the entire image service, $2 refers to the second image of the image service
-            },
-            outputPixelType: "u8",
-        });
-
-        const colorFunction = new RasterFunction({
-            functionName: "Colormap",
-            functionArguments: {
-                ColorrampName: "Precipitation", // other examples: "Slope", "Surface", "Blue Bright"....
-                Raster: stretchFunction, // chaining multiple rasterfunctions
-            },
-        });
+        let mosaicRule = new MosaicRule();
+        mosaicRule.multidimensionalDefinition = [];
+        mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
+            variableName: selections['Variable'].d,
+            dimensionName: "scenario",
+            values: [selections['Scenario'].d], 
+            isSlice: true
+        }));
+        mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
+            variableName: selections['Variable'].d,
+            dimensionName: "season",
+            values: [selections['Season'].d], 
+            isSlice: true
+        }));
+        mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
+            variableName: selections['Variable'].d,
+            dimensionName: "period",
+            values: [selections['Period'].d], 
+            isSlice: true
+        }));
+        
+        // const multidimensionalSubset = new MultidimensionalSubset({
+        //     subsetDefinitions: [
+        //         {
+        //         variableName: selections['Variable'].value,
+        //         dimensionName: "scenario",
+        //         values: [1], 
+        //         isSlice: false
+        //         },
+        //         {
+        //         variableName: selections['Variable'].value,
+        //         dimensionName: "season",
+        //         values: [1],
+        //         isSlice: false
+        //         },
+        //         {
+        //         variableName: selections['Variable'].value,
+        //         dimensionName: "period",
+        //         values: [1],
+        //         isSlice: false
+        //         }
+        //     ],
+        // });
 
         const layer = new ImageryLayer({
             url: mdURL,
             format: "jpg",
-            // renderingRule: colorFunction,
-            multidimensionalSubset: multidimensionalSubset,
+            mosaicRule,
+            //multidimensionalSubset,
+            //rasterFunction: rfRule,
             opacity: 0.9,
             title: "4Dim",
             popupTemplate: {
@@ -878,6 +883,29 @@
                 ],
             },
         });
+       
+        //get stats on the image slice by finding OBJECTID of the single raster
+        const idQuery = new Query({
+            where: `season=${selections['Season'].d} AND period=${selections['Period'].d} AND scenario=${selections['Scenario'].d} AND variable='${selections['Variable'].d}'`
+        })
+        layer.queryObjectIds(idQuery).then((imageLyr) => {
+            let imageId = imageLyr[0]
+            let infoUrl = mdURL + `/${imageId}/info?f=json`
+            return fetchData(infoUrl)
+        }).then(sliceInfo => {
+            let minmax = sliceInfo.statistics[0].slice(0,2)
+            console.log(minmax)
+        })
+
+        //TODO: add rasterFunctionArguments to change the remap range to above and below the mean
+        let rfRule = new RasterFunction({
+            functionName: "CONUS_Precip",
+            rasterFunctionArguments: {
+
+            }
+        })
+
+        layer.rasterFunction = rfRule;
 
         view.map.add(layer);
 
@@ -905,7 +933,8 @@
             let option = elem.placeholder
             let value = elem.selectedItems[0]?.value
             let label = elem.selectedItems[0]?.textLabel
-            selections[option] = {value: value, label: label}
+            let d = elem.selectedItems[0]?.metadata
+            selections[option] = {value: value, label: label, d: d}
         });
         if (hasValueUndefined(selections)) {
             climateNotify.removeAttribute("hidden")
@@ -966,7 +995,7 @@
                 overlay-positioning="absolute"
             >
             {#each clim.options as o}
-                <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
+                <calcite-combobox-item value={o.value} text-label={o.label} metadata={o.d}></calcite-combobox-item>
             {/each}
             </calcite-combobox>
             <calcite-button 
