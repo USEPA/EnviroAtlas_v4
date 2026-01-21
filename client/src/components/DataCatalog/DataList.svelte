@@ -71,19 +71,19 @@
     }
 
     let topicParams = {
-        select: encodeURIComponent(`{"topic":1,"categoryTab":1}`),
+        select: encodeURIComponent(`{"topic":1}`),//,"categoryTab":1}`),
         options: encodeURIComponent(`{"select":{"distinct":true}}`)
     };
 
     let eaTopics = getEaData("/ea/api/subtopics", topicParams)
         .then((data) => {
-            let categoryOrder = { ESB: 1, PSI: 2, PBS: 3, BNF: 4};
+           //let categoryOrder = { ESB: 1, PSI: 2, PBS: 3, BNF: 4};
             data.sort((a,b) => a.topic.localeCompare(b.topic));
-            data.sort((a,b) => categoryOrder[a.categoryTab] - categoryOrder[b.categoryTab]);
+            //data.sort((a,b) => categoryOrder[a.categoryTab] - categoryOrder[b.categoryTab]);
             // Add empty subtopic array to each array objects
             // data = data.map(obj => ({...obj, subtopic: []}))
             // Drop community only subtopics (Carbon Storage, Health & Eco Outcomes, Pollutant Redxn: Air)
-            let dataReduced = data.filter(item => (item.topic !== "Carbon Storage" && item.topic !== "Health and Economic Outcomes" && item.topic !== "Pollutant Reduction: Air" && item.topic !== "Housing and Schools"));
+            let dataReduced = data//.filter(item => (item.topic !== "Carbon Storage" && item.topic !== "Health and Economic Outcomes" && item.topic !== "Pollutant Reduction: Air" && item.topic !== "Housing and Schools"));
             // load national data into the store
             dataReduced = dataReduced.map(obj => ({...obj, isVisible: true}))
             $nationalItems = dataReduced;
