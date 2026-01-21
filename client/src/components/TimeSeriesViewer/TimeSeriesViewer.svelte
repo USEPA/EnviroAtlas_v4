@@ -26,6 +26,7 @@
     import MosaicRule from "@arcgis/core/layers/support/MosaicRule";
     import DimensionalDefinition from "@arcgis/core/layers/support/DimensionalDefinition";
     import Query from "@arcgis/core/rest/support/Query";
+    import FeatureSet from "@arcgis/core/rest/support/FeatureSet.js";
 
     export let geography;
     export let view;
@@ -815,7 +816,7 @@
      * Main process function to add CONUS data to map.
      * @param selections - object returned from getSelections()
      */
-    function loadCONUS(selections) { 
+    async function loadCONUS(selections) { 
         console.log('CONUS selections: ', selections)
         const mdURL = "https://awseastaging.epa.gov/arcgis/rest/services/test_services/NEX_DCP30_CONUS/ImageServer"
         let mosaicRule = new MosaicRule();
@@ -888,27 +889,29 @@
         const idQuery = new Query({
             where: `season=${selections['Season'].d} AND period=${selections['Period'].d} AND scenario=${selections['Scenario'].d} AND variable='${selections['Variable'].d}'`
         })
-        layer.queryObjectIds(idQuery).then((imageLyr) => {
+        const minmax = await layer.queryObjectIds(idQuery).then((imageLyr) => {
             let imageId = imageLyr[0]
             let infoUrl = mdURL + `/${imageId}/info?f=json`
             return fetchData(infoUrl)
         }).then(sliceInfo => {
             let minmax = sliceInfo.statistics[0].slice(0,2)
-            console.log(minmax)
+            return minmax
         })
 
-        //TODO: add rasterFunctionArguments to change the remap range to above and below the mean
+        let inputRanges = buildInputRanges(minmax);
+        let table = buildAttributeTable(minmax);
         let rfRule = new RasterFunction({
-            functionName: "CONUS_Precip",
-            rasterFunctionArguments: {
-
+            functionName: "CONUS_TimeSeries_9Class",
+            functionArguments: {
+                InputRanges: inputRanges,
+                AttributeTable: table
             }
         })
 
         layer.rasterFunction = rfRule;
 
         view.map.add(layer);
-
+        console.log(layer)
         view.whenLayerView(layer).then((layerView) => {
             const multidimInfo = layer.multidimensionalInfo;
                 layerView.highlightOptions = {
@@ -920,6 +923,189 @@
         });
     
     }
+
+    /**
+     * 
+     * @param minmax - array [min, max]
+    */
+    function buildAttributeTable(minmax) {
+        if (minmax[0] < 0 && minmax[1] > 0) {
+        let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
+        let smallestVal = (-1 * largestVal);
+        let positiveBreakDiff = (largestVal / 5);
+        let negativeBreakDiff = (largestVal / 3);
+        const attributeTable = FeatureSet.fromJSON({
+            displayFieldName: "",
+            fields: [
+            {
+                name: "ObjectID",
+                type: "esriFieldTypeOID",
+                alias: "OID"
+            },
+            {
+                name: "Value",
+                type: "esriFieldTypeInteger",
+                alias: "Value"
+            },
+            {
+                name: "ClassName",
+                type: "esriFieldTypeString",
+                alias: "ClassName",
+                length: 256
+            },
+            {
+                name: "Red",
+                type: "esriFieldTypeInteger",
+                alias: "Red"
+            },
+            {
+                name: "Green",
+                type: "esriFieldTypeInteger",
+                alias: "Green"
+            },
+            {
+                name: "Blue",
+                type: "esriFieldTypeInteger",
+                alias: "Blue"
+            },
+            {
+                name: "Alpha",
+                type: "esriFieldTypeInteger",
+                alias: "Alpha"
+                }
+            ],
+            features: [
+                {
+                attributes: {
+                    ObjectID: 1,
+                    Value: 0,
+                    ClassName: Number((smallestVal).toFixed(1)) + ' – ' + Number((smallestVal + negativeBreakDiff).toFixed(1)),
+                    Red: 133,
+                    Green: 46,
+                    Blue: 4,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 2,
+                    Value: 1,
+                    ClassName: Number((smallestVal + negativeBreakDiff).toFixed(1)) + ' – ' + Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)),
+                    Red: 218,
+                    Green: 92,
+                    Blue: 10,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 3,
+                    Value: 2,
+                    ClassName: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)) + ' – <' + 0,
+                    Red: 254,
+                    Green: 230,
+                    Blue: 151,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 4,
+                    Value: 3,
+                    ClassName: '0',
+                    Red: 128,
+                    Green: 128,
+                    Blue: 128,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 5,
+                    Value: 4,
+                    ClassName: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
+                    Red: 185,
+                    Green: 231,
+                    Blue: 248,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 6,
+                    Value: 5,
+                    ClassName: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)),
+                    Red: 79,
+                    Green: 280,
+                    Blue: 252,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 7,
+                    Value: 6,
+                    ClassName: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)),
+                    Red: 0,
+                    Green: 127,
+                    Blue: 216,
+                    Alpha: 255
+                }                    
+                }, {
+                attributes: {
+                    ObjectID: 8,
+                    Value: 7,
+                    ClassName: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1)),
+                    Red: 0,
+                    Green: 0,
+                    Blue: 139,
+                    Alpha: 255
+                }   
+                }, {
+                attributes: {
+                    ObjectID: 9,
+                    Value: 8,
+                    ClassName: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1)),
+                    Red: 175,
+                    Green: 21,
+                    Blue: 137,
+                    Alpha: 255
+                }  
+                }
+            ]
+            });
+        return attributeTable
+    }};
+
+    /**
+     * Build an array of input ranges to update the rft for visualization
+     * specific to the selected raster.
+     * @param minmax - array [min, max]
+     */
+    function buildInputRanges(minmax) {
+        if (minmax[0] < 0 && minmax[1] > 0) {
+            let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
+            let smallestVal = (-1 * largestVal);
+            let positiveBreakDiff = (largestVal / 5);
+            let negativeBreakDiff = (largestVal / 3);
+            let a = []
+            a.push(Number((smallestVal).toFixed(1)));
+            a.push(Number((smallestVal + negativeBreakDiff).toFixed(1)));
+            a.push(Number((smallestVal + negativeBreakDiff).toFixed(1)));
+            a.push(Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)));
+            a.push(Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)));
+            a.push(-0.001);
+            a.push(0);
+            a.push(0.001);
+            a.push(0.001);
+            a.push(Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)));
+            a.push(Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)));
+            a.push(Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)));
+            a.push(Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)));
+            a.push(Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)));
+            a.push(Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)));
+            a.push(Number((largestVal - positiveBreakDiff).toFixed(1)));
+            a.push(Number((largestVal - positiveBreakDiff).toFixed(1)));
+            a.push(Number(largestVal.toFixed(1)))
+            return a
+        } else {
+            console.log("don't fit")
+        }
+    };
 
     /**
      * Controlling function when 'Add to map' button is clicked.
