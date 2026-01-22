@@ -27,6 +27,7 @@
     import DimensionalDefinition from "@arcgis/core/layers/support/DimensionalDefinition";
     import Query from "@arcgis/core/rest/support/Query";
     import FeatureSet from "@arcgis/core/rest/support/FeatureSet.js";
+    import * as rasterFunctionUtils from "@arcgis/core/layers/support/rasterFunctionUtils.js";
 
     export let geography;
     export let view;
@@ -70,10 +71,10 @@
             {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp585", label: "SSP5–8.5 (7.9 ± 2.3 °F by 2100)",
                 info: "SSP5 (“Fossil-fueled Development”) reflects high challenges to mitigation and low challenges to adaptation. It is characterized by steadily increasing GHG concentrations. It represents the upper boundary of the range of scenarios. Global temperatures increase by 7.9±2.2°F (4.4±1.2°C) at 2100 compared to PIA."
             },
-            {domains: "CONUS", value: "rcp26", label: "RCP-2.6 (Peak Emissions Year 2020", d: 1},
-            {domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040", d: 2},
-            {domains: "CONUS", value: "rcp60", label: "RCP-6.0 (Peak Emissions Year 2080", d: 3},
-            {domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100", d: 5}
+            {domains: "CONUS", value: "rcp26", label: "RCP-2.6 (Peak Emissions Year 2020)", d: 1},
+            {domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040)", d: 2},
+            {domains: "CONUS", value: "rcp60", label: "RCP-6.0 (Peak Emissions Year 2080)", d: 3},
+            {domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100)", d: 5}
         ], description: "Shared Socioeconomic Pathways (SSPs) reflect global trends in human activities and changes in radiative forcing that result from changes in atmospheric greenhouse gases (GHGs) and aerosol concentrations. In the SSP labels (like SSP1-2.6), the first number refers to a defined socioeconomic pathway (trends in population, policy, and economic growth), and the second refers to an increase in radiative forcing (W/m2) relative to pre-industrial (1850-1900) average (PIA)."
     },
         { name: "Season", options: [
@@ -818,6 +819,7 @@
      */
     async function loadCONUS(selections) { 
         console.log('CONUS selections: ', selections)
+        let selectedTitle = domain + ", " + selections['Scenario'].label + ", " + selections['Season'].label + " " + selections['Variable'].label + ", " + selections['Period'].label
         const mdURL = "https://awseastaging.epa.gov/arcgis/rest/services/test_services/NEX_DCP30_CONUS/ImageServer"
         let mosaicRule = new MosaicRule();
         mosaicRule.multidimensionalDefinition = [];
@@ -839,43 +841,17 @@
             values: [selections['Period'].d], 
             isSlice: true
         }));
-        
-        // const multidimensionalSubset = new MultidimensionalSubset({
-        //     subsetDefinitions: [
-        //         {
-        //         variableName: selections['Variable'].value,
-        //         dimensionName: "scenario",
-        //         values: [1], 
-        //         isSlice: false
-        //         },
-        //         {
-        //         variableName: selections['Variable'].value,
-        //         dimensionName: "season",
-        //         values: [1],
-        //         isSlice: false
-        //         },
-        //         {
-        //         variableName: selections['Variable'].value,
-        //         dimensionName: "period",
-        //         values: [1],
-        //         isSlice: false
-        //         }
-        //     ],
-        // });
 
         const layer = new ImageryLayer({
             url: mdURL,
-            format: "jpg",
+            format: "lerc",
             mosaicRule,
-            //multidimensionalSubset,
-            //rasterFunction: rfRule,
-            opacity: 0.9,
-            title: "4Dim",
+            title: selectedTitle,
             popupTemplate: {
-                title: "Max Temp value: {Raster.ItemPixelValue}",
+                title: `${selectedTitle} value: {Raster.ServicePixelValue.Raw}`,
                 fieldInfos: [
                     {
-                        fieldName: "Raster.ItemPixelValue",
+                        fieldName: "Raster.ServicePixelValue.Raw",
                         format: {
                             places: 2,
                             digitSeparator: true,
@@ -898,17 +874,23 @@
             return minmax
         })
 
-        let inputRanges = buildInputRanges(minmax);
-        let table = buildAttributeTable(minmax);
-        let rfRule = new RasterFunction({
-            functionName: "CONUS_TimeSeries_9Class",
-            functionArguments: {
-                InputRanges: inputRanges,
-                AttributeTable: table
-            }
+        let rangeMaps = buildInputRanges(minmax);
+        let attributeTable = buildAttributeTable(minmax, selections);
+
+        const remap = rasterFunctionUtils.remap({
+            rangeMaps
+        });
+
+        const int = rasterFunctionUtils.int({
+            raster: remap,
         })
 
-        layer.rasterFunction = rfRule;
+        const tableFxn = rasterFunctionUtils.table({
+            attributeTable,
+            raster: int
+        });
+
+        layer.rasterFunction = tableFxn;
 
         view.map.add(layer);
         console.log(layer)
@@ -928,12 +910,8 @@
      * 
      * @param minmax - array [min, max]
     */
-    function buildAttributeTable(minmax) {
-        if (minmax[0] < 0 && minmax[1] > 0) {
-        let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
-        let smallestVal = (-1 * largestVal);
-        let positiveBreakDiff = (largestVal / 5);
-        let negativeBreakDiff = (largestVal / 3);
+    function buildAttributeTable(minmax, selections) {
+        console.log(minmax)
         const attributeTable = FeatureSet.fromJSON({
             displayFieldName: "",
             fields: [
@@ -972,104 +950,370 @@
                 name: "Alpha",
                 type: "esriFieldTypeInteger",
                 alias: "Alpha"
-                }
+            }
             ],
-            features: [
-                {
-                attributes: {
-                    ObjectID: 1,
-                    Value: 0,
-                    ClassName: Number((smallestVal).toFixed(1)) + ' – ' + Number((smallestVal + negativeBreakDiff).toFixed(1)),
-                    Red: 133,
-                    Green: 46,
-                    Blue: 4,
-                    Alpha: 255
-                }
-                }, {
-                attributes: {
-                    ObjectID: 2,
-                    Value: 1,
-                    ClassName: Number((smallestVal + negativeBreakDiff).toFixed(1)) + ' – ' + Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)),
-                    Red: 218,
-                    Green: 92,
-                    Blue: 10,
-                    Alpha: 255
-                }
-                }, {
-                attributes: {
-                    ObjectID: 3,
-                    Value: 2,
-                    ClassName: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)) + ' – <' + 0,
-                    Red: 254,
-                    Green: 230,
-                    Blue: 151,
-                    Alpha: 255
-                }
-                }, {
-                attributes: {
-                    ObjectID: 4,
-                    Value: 3,
-                    ClassName: '0',
-                    Red: 128,
-                    Green: 128,
-                    Blue: 128,
-                    Alpha: 255
-                }
-                }, {
-                attributes: {
-                    ObjectID: 5,
-                    Value: 4,
-                    ClassName: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
-                    Red: 185,
-                    Green: 231,
-                    Blue: 248,
-                    Alpha: 255
-                }
-                }, {
-                attributes: {
-                    ObjectID: 6,
-                    Value: 5,
-                    ClassName: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)),
-                    Red: 79,
-                    Green: 280,
-                    Blue: 252,
-                    Alpha: 255
-                }
-                }, {
-                attributes: {
-                    ObjectID: 7,
-                    Value: 6,
-                    ClassName: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)),
-                    Red: 0,
-                    Green: 127,
-                    Blue: 216,
-                    Alpha: 255
-                }                    
-                }, {
-                attributes: {
-                    ObjectID: 8,
-                    Value: 7,
-                    ClassName: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1)),
-                    Red: 0,
-                    Green: 0,
-                    Blue: 139,
-                    Alpha: 255
-                }   
-                }, {
-                attributes: {
-                    ObjectID: 9,
-                    Value: 8,
-                    ClassName: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1)),
-                    Red: 175,
-                    Green: 21,
-                    Blue: 137,
-                    Alpha: 255
-                }  
-                }
-            ]
-            });
-        return attributeTable
-    }};
+            features: []
+        });
+        if (selections['Variable'].value == "PRin" || selections['Variable'].value == "PEin") {
+            if (minmax[0] < 0 && minmax[1] > 0) { // 9 class
+                let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
+                let smallestVal = (-1 * largestVal);
+                let positiveBreakDiff = (largestVal / 5);
+                let negativeBreakDiff = (largestVal / 3);
+                attributeTable.features.push({
+                    attributes: {
+                        ObjectID: 1,
+                        Value: 0,
+                        ClassName: Number((smallestVal).toFixed(1)) + ' – ' + Number((smallestVal + negativeBreakDiff).toFixed(1)),
+                        Red: 133,
+                        Green: 46,
+                        Blue: 4,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 2,
+                        Value: 1,
+                        ClassName: Number((smallestVal + negativeBreakDiff).toFixed(1)) + ' – ' + Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)),
+                        Red: 218,
+                        Green: 92,
+                        Blue: 10,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 3,
+                        Value: 2,
+                        ClassName: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)) + ' – <' + 0,
+                        Red: 254,
+                        Green: 230,
+                        Blue: 151,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 4,
+                        Value: 3,
+                        ClassName: "0",
+                        Red: 128,
+                        Green: 128,
+                        Blue: 128,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 5,
+                        Value: 4,
+                        ClassName: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
+                        Red: 185,
+                        Green: 231,
+                        Blue: 248,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 6,
+                        Value: 5,
+                        ClassName: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)),
+                        Red: 79,
+                        Green: 280,
+                        Blue: 252,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 7,
+                        Value: 6,
+                        ClassName: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)),
+                        Red: 0,
+                        Green: 127,
+                        Blue: 216,
+                        Alpha: 255
+                    }                    
+                    }, {
+                    attributes: {
+                        ObjectID: 8,
+                        Value: 7,
+                        ClassName: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1)),
+                        Red: 0,
+                        Green: 0,
+                        Blue: 139,
+                        Alpha: 255
+                    }   
+                    }, {
+                    attributes: {
+                        ObjectID: 9,
+                        Value: 8,
+                        ClassName: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1)),
+                        Red: 175,
+                        Green: 21,
+                        Blue: 137,
+                        Alpha: 255
+                    }  
+                    }
+                )
+                console.log(attributeTable)
+                return attributeTable
+            } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0}
+                // max is the largest number, the min is -1 (7 total classes)
+                let largestVal = Math.ceil(minmax[1]);
+                let positiveBreakDiff = (largestVal / 5);
+                attributeTable.features.push({
+                    attributes: {
+                        ObjectID: 1,
+                        Value: 0,
+                        ClassName:'<0',
+                        Red: 133,
+                        Green: 46,
+                        Blue: 4,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 2,
+                        Value: 1,
+                        ClassName: "0",
+                        Red: 128,
+                        Green: 128,
+                        Blue: 128,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 3,
+                        Value: 2,
+                        ClassName: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
+                        Red: 185,
+                        Green: 231,
+                        Blue: 248,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 4,
+                        Value: 3,
+                        ClassName: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)),
+                        Red: 79,
+                        Green: 280,
+                        Blue: 252,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 5,
+                        Value: 4,
+                        ClassName: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)),
+                        Red: 0,
+                        Green: 127,
+                        Blue: 216,
+                        Alpha: 255
+                    }                    
+                    }, {
+                    attributes: {
+                        ObjectID: 6,
+                        Value: 5,
+                        ClassName: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1)),
+                        Red: 0,
+                        Green: 0,
+                        Blue: 139,
+                        Alpha: 255
+                    }   
+                    }, {
+                    attributes: {
+                        ObjectID: 7,
+                        Value: 6,
+                        ClassName: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1)),
+                        Red: 175,
+                        Green: 21,
+                        Blue: 137,
+                        Alpha: 255
+                    }  
+                    }
+                )
+                console.log(attributeTable)
+                return attributeTable
+            }
+        } else if (selections['Variable'].value == "PRfr" || selections['Variable'].value == "PEfr") {
+            if (minmax[0] < 0 && minmax[1] > 0) { // 9 class
+                let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
+                let smallestVal = (-1 * largestVal);
+                let positiveBreakDiff = (largestVal / 5);
+                let negativeBreakDiff = (largestVal / 3);
+                attributeTable.features.push({
+                    attributes: {
+                        ObjectID: 1,
+                        Value: 0,
+                        ClassName: Number((smallestVal * 100).toFixed(1)) + ' – ' + Number(((smallestVal + negativeBreakDiff) * 100).toFixed(1)) + '%',
+                        Red: 133,
+                        Green: 46,
+                        Blue: 4,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 2,
+                        Value: 1,
+                        ClassName: Number(((smallestVal + negativeBreakDiff) * 100).toFixed(1)) + ' – ' + Number(((smallestVal + (2 * negativeBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 218,
+                        Green: 92,
+                        Blue: 10,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 3,
+                        Value: 2,
+                        ClassName: Number(((smallestVal + (2 * negativeBreakDiff)) * 100).toFixed(1)) + ' – <' + 0 + '%',
+                        Red: 254,
+                        Green: 230,
+                        Blue: 151,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 4,
+                        Value: 3,
+                        ClassName: "0%",
+                        Red: 128,
+                        Green: 128,
+                        Blue: 128,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 5,
+                        Value: 4,
+                        ClassName: '>0 – ' + Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 185,
+                        Green: 231,
+                        Blue: 248,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 6,
+                        Value: 5,
+                        ClassName: Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 79,
+                        Green: 280,
+                        Blue: 252,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 7,
+                        Value: 6,
+                        ClassName: Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 0,
+                        Green: 127,
+                        Blue: 216,
+                        Alpha: 255
+                    }                    
+                    }, {
+                    attributes: {
+                        ObjectID: 8,
+                        Value: 7,
+                        ClassName: Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + '%',
+                        Red: 0,
+                        Green: 0,
+                        Blue: 139,
+                        Alpha: 255
+                    }   
+                    }, {
+                    attributes: {
+                        ObjectID: 9,
+                        Value: 8,
+                        ClassName: Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + ' – ' + Number((largestVal * 100).toFixed(1)) + '%',
+                        Red: 175,
+                        Green: 21,
+                        Blue: 137,
+                        Alpha: 255
+                    }  
+                    }
+                )
+                console.log(attributeTable)
+                return attributeTable
+            } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0}
+                // max is the largest number, the min is -1 (7 total classes)
+                let largestVal = Math.ceil(minmax[1]);
+                let positiveBreakDiff = (largestVal / 5);
+                attributeTable.features.push({
+                    attributes: {
+                        ObjectID: 1,
+                        Value: 0,
+                        ClassName:'<0%',
+                        Red: 133,
+                        Green: 46,
+                        Blue: 4,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 2,
+                        Value: 1,
+                        ClassName: "0%",
+                        Red: 128,
+                        Green: 128,
+                        Blue: 128,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 3,
+                        Value: 2,
+                        ClassName: '>0 – ' + Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 185,
+                        Green: 231,
+                        Blue: 248,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 4,
+                        Value: 3,
+                        ClassName: Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 79,
+                        Green: 280,
+                        Blue: 252,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 5,
+                        Value: 4,
+                        ClassName: Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 0,
+                        Green: 127,
+                        Blue: 216,
+                        Alpha: 255
+                    }                    
+                    }, {
+                    attributes: {
+                        ObjectID: 6,
+                        Value: 5,
+                        ClassName: Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + '%',
+                        Red: 0,
+                        Green: 0,
+                        Blue: 139,
+                        Alpha: 255
+                    }   
+                    }, {
+                    attributes: {
+                        ObjectID: 7,
+                        Value: 6,
+                        ClassName: Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + ' – ' + Number((largestVal * 100).toFixed(1)) + '%',
+                        Red: 175,
+                        Green: 21,
+                        Blue: 137,
+                        Alpha: 255
+                    }  
+                    }
+                )
+                console.log(attributeTable)
+                return attributeTable
+            }
+        }
+    };
 
     /**
      * Build an array of input ranges to update the rft for visualization
@@ -1077,30 +1321,40 @@
      * @param minmax - array [min, max]
      */
     function buildInputRanges(minmax) {
+        // when there are negative and positive values, create 9 value diverging color classification 
         if (minmax[0] < 0 && minmax[1] > 0) {
             let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
             let smallestVal = (-1 * largestVal);
             let positiveBreakDiff = (largestVal / 5);
             let negativeBreakDiff = (largestVal / 3);
             let a = []
-            a.push(Number((smallestVal).toFixed(1)));
-            a.push(Number((smallestVal + negativeBreakDiff).toFixed(1)));
-            a.push(Number((smallestVal + negativeBreakDiff).toFixed(1)));
-            a.push(Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)));
-            a.push(Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)));
-            a.push(-0.001);
-            a.push(0);
-            a.push(0.001);
-            a.push(0.001);
-            a.push(Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)));
-            a.push(Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)));
-            a.push(Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)));
-            a.push(Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)));
-            a.push(Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)));
-            a.push(Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)));
-            a.push(Number((largestVal - positiveBreakDiff).toFixed(1)));
-            a.push(Number((largestVal - positiveBreakDiff).toFixed(1)));
-            a.push(Number(largestVal.toFixed(1)))
+            a.push({range: [Number((smallestVal).toFixed(1)), Number((smallestVal + negativeBreakDiff).toFixed(1))], output: 0});
+            a.push({range: [Number((smallestVal + negativeBreakDiff).toFixed(1)), Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1))], output: 1});
+            a.push({range: [Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)), -0.001], output: 2});
+            a.push({range: [0, 0.001], output: 3});
+            a.push({range: [0.001, Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))], output: 4});
+            a.push({range: [Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (3 * positiveBreakDiff)).toFixed(1))], output: 5});
+            a.push({range: [Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (2 * positiveBreakDiff)).toFixed(1))], output: 6});
+            a.push({range: [Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), Number((largestVal - positiveBreakDiff).toFixed(1))], output: 7});
+            a.push({range: [Number((largestVal - positiveBreakDiff).toFixed(1)), Number(largestVal.toFixed(1))], output: 8});
+            return a
+        } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0
+            // max is the largest number, the min is -1 (7 total classes)
+            let largestVal = Math.ceil(minmax[1]);
+            console.log('largest value :', largestVal)
+            let smallestVal = -1;
+            let positiveBreakDiff = (largestVal / 5);
+            let a = [];
+            // negative (1 class)
+            a.push({range: [Number((smallestVal).toFixed(1)), -0.001], output: 0});
+            // zero (1 class)
+            a.push({range: [0, 0.001], output: 1});
+            // positive (5 classes)
+            a.push({range: [0.001, Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))], output: 2});
+            a.push({range: [Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (3 * positiveBreakDiff)).toFixed(1))], output: 3});
+            a.push({range: [Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (2 * positiveBreakDiff)).toFixed(1))], output: 4});
+            a.push({range: [Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), Number((largestVal - positiveBreakDiff).toFixed(1))], output: 5});
+            a.push({range: [Number((largestVal - positiveBreakDiff).toFixed(1)), Number(largestVal.toFixed(1))], output: 6});
             return a
         } else {
             console.log("don't fit")
