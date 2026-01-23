@@ -48,6 +48,7 @@
     if (view && !map) {
         view.addEventListener("arcgisViewReadyChange", () => {
             map = view.map;
+            console.log(view.extent)
         });
     }
   }
@@ -248,7 +249,7 @@
         {/each}
     </calcite-chip-group>
   </calcite-navigation>
-  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="5" 
+  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="4" 
     on:arcgisViewReadyChange={setupPopup}
     >
     <arcgis-search 
