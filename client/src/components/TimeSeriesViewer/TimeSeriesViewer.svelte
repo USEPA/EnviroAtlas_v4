@@ -1312,6 +1312,185 @@
                 console.log(attributeTable)
                 return attributeTable
             }
+        } else if (selections['Variable'].value == "mxTF" || selections['Variable'].value == "miTF") {
+            if (minmax[0] < 0 && minmax[1] > 0) { // 9 class
+                let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
+                let smallestVal = (-1 * largestVal);
+                let positiveBreakDiff = (largestVal / 5);
+                let negativeBreakDiff = (largestVal / 3);
+                attributeTable.features.push({
+                    attributes: {
+                        ObjectID: 1,
+                        Value: 0,
+                        ClassName: Number((smallestVal).toFixed(1)) + ' – ' + Number((smallestVal + negativeBreakDiff).toFixed(1)),
+                        Red: 61,
+                        Green: 92,
+                        Blue: 164,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 2,
+                        Value: 1,
+                        ClassName: Number((smallestVal + negativeBreakDiff).toFixed(1)) + ' – ' + Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)),
+                        Red: 104,
+                        Green: 159,
+                        Blue: 201,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 3,
+                        Value: 2,
+                        ClassName: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)) + ' – <' + 0,
+                        Red: 165,
+                        Green: 210,
+                        Blue: 229,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 4,
+                        Value: 3,
+                        ClassName: "0",
+                        Red: 128,
+                        Green: 128,
+                        Blue: 128,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 5,
+                        Value: 4,
+                        ClassName: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
+                        Red: 252,
+                        Green: 219,
+                        Blue: 143,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 6,
+                        Value: 5,
+                        ClassName: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)),
+                        Red: 250,
+                        Green: 157,
+                        Blue: 91,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 7,
+                        Value: 6,
+                        ClassName: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)),
+                        Red: 233,
+                        Green: 92,
+                        Blue: 59,
+                        Alpha: 255
+                    }                    
+                    }, {
+                    attributes: {
+                        ObjectID: 8,
+                        Value: 7,
+                        ClassName: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1)),
+                        Red: 206,
+                        Green: 45,
+                        Blue: 43,
+                        Alpha: 255
+                    }   
+                    }, {
+                    attributes: {
+                        ObjectID: 9,
+                        Value: 8,
+                        ClassName: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1)),
+                        Red: 165,
+                        Green: 0,
+                        Blue: 38,
+                        Alpha: 255
+                    }  
+                    }
+                )
+                console.log(attributeTable)
+                return attributeTable
+            } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0}
+                // max is the largest number, the min is -1 (7 total classes)
+                let largestVal = Math.ceil(minmax[1]);
+                let positiveBreakDiff = (largestVal / 5);
+                attributeTable.features.push({
+                    attributes: {
+                        ObjectID: 1,
+                        Value: 0,
+                        ClassName:'<0',
+                        Red: 61,
+                        Green: 92,
+                        Blue: 164,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 2,
+                        Value: 1,
+                        ClassName: "0",
+                        Red: 128,
+                        Green: 128,
+                        Blue: 128,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 3,
+                        Value: 2,
+                        ClassName: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
+                        Red: 252,
+                        Green: 219,
+                        Blue: 143,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 4,
+                        Value: 3,
+                        ClassName: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)),
+                        Red: 250,
+                        Green: 157,
+                        Blue: 91,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 5,
+                        Value: 4,
+                        ClassName: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)),
+                        Red: 233,
+                        Green: 92,
+                        Blue: 59,
+                        Alpha: 255
+                    }                    
+                    }, {
+                    attributes: {
+                        ObjectID: 6,
+                        Value: 5,
+                        ClassName: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1)),
+                        Red: 206,
+                        Green: 45,
+                        Blue: 43,
+                        Alpha: 255
+                    }   
+                    }, {
+                    attributes: {
+                        ObjectID: 7,
+                        Value: 6,
+                        ClassName: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1)),
+                        Red: 165,
+                        Green: 0,
+                        Blue: 38,
+                        Alpha: 255
+                    }  
+                    }
+                )
+                console.log(attributeTable)
+                return attributeTable
+            }
         }
     };
 
