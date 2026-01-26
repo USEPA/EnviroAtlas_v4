@@ -409,9 +409,9 @@
             switch (sumUnit) {
                 case "County":
                     geographyLabel =
-                        geographyAttributes.CountyName +
+                        geographyAttributes.NAME +
                         ", " +
-                        geographyAttributes.STATE_NAME;
+                        geographyAttributes.State;
                     break;
                 case "Congressional District":
                     geographyLabel =
@@ -673,6 +673,9 @@
                 }
                 if (k == "Representative"){
                     v = geographyAttributes['NAME'] + ' - ' + geographyAttributes['PARTY']
+                }
+                if (k == "County"){
+                    v = geographyAttributes['NAME'] + ', ' + geographyAttributes["State"]
                 }
                 if (v.includes("results.")) {
                     let attr = v.replace("results.", "")
