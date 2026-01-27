@@ -180,7 +180,7 @@ export const smaConfig = {
     },
     classLabel: "Class Name",
     firstStatLabel: "Total Population",
-    secondStatLabel: "Area"
+    secondStatLabel: "Area (km2)"
   },
   sum_units: {
     "stateLayer": {
@@ -194,13 +194,13 @@ export const smaConfig = {
       }
     },
     "County": {
-      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_and_States_with_PR/FeatureServer/0',
+      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Census_2020_DHC_Total_Population/FeatureServer/2',
       "minScale": '300000000',
       "name": "County",
-      "outfields": ['STATE_NAME', 'CountyName'],
+      "outfields": ['State', 'NAME'],
       "outdesc": {
         'Geometry Type': 'US County',
-        'County': "results.CountyName + ', ' + results.STATE_NAME"
+        'County': "custom"//"results.NAME + ', ' + results.State"
       }
     },
     "blockgroupLayer": {
