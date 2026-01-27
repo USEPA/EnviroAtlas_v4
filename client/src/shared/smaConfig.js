@@ -140,7 +140,7 @@ export const smaConfig = {
     },
     layersUsed: ['Near-surface permafrost probability'],
     layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/ESN/NearSurfacePermafrostProbability.pdf'],
-    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Permafrost_Probability_Near_the_Surface/ImageServer',
+    layer: 'https://awseastaging.epa.gov/arcgis/rest/services/Rasters/Permafrost_Probability_Near_the_Surface/ImageServer',
     resolution: 30,
     columnHeaders: ['Near-surface permafrost probability', 'Area (km2)', 'Percentage'],
     colors: {
@@ -168,8 +168,8 @@ export const smaConfig = {
       3: "Densely populated (>10)"
     },
     layersUsed: ['2020 Dasymetric Population'],
-    layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/ESN/NearSurfacePermafrostProbability.pdf'],
-    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Dasymetric_2020/ImageServer',
+    layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/Dasymetricallocationofpopulation2020.pdf'],
+    layer: 'https://awseastaging.epa.gov/arcgis/rest/services/Rasters/Dasymetric_2020_test/ImageServer',
     resolution: 30,
     columnHeaders: ['2020 Dasymetric Population', 'Sum', 'Percentage'],
     colors: {
