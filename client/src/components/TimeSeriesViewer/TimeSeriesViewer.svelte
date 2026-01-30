@@ -874,7 +874,7 @@
             return minmax
         })
 
-        let rangeMaps = buildInputRanges(minmax);
+        let rangeMaps = buildInputRanges(minmax, selections);
         let attributeTable = buildAttributeTable(minmax, selections);
 
         const remap = rasterFunctionUtils.remap({
@@ -954,6 +954,102 @@
             ],
             features: []
         });
+        if (selections['Variable'].value == "PEfr") {
+            attributeTable.features.push({
+                attributes: {
+                    ObjectID: 1,
+                    Value: 0,
+                    ClassName: '-100 – -60%',
+                    Red: 133,
+                    Green: 46,
+                    Blue: 4,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 2,
+                    Value: 1,
+                    ClassName: '-60 – -30%',
+                    Red: 218,
+                    Green: 92,
+                    Blue: 10,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 3,
+                    Value: 2,
+                    ClassName: '-30 – <0%',
+                    Red: 254,
+                    Green: 230,
+                    Blue: 151,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 4,
+                    Value: 3,
+                    ClassName: "0%",
+                    Red: 128,
+                    Green: 128,
+                    Blue: 128,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 5,
+                    Value: 4,
+                    ClassName: '>0 – 10%',
+                    Red: 185,
+                    Green: 231,
+                    Blue: 248,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 6,
+                    Value: 5,
+                    ClassName: '10 – 20%',
+                    Red: 79,
+                    Green: 280,
+                    Blue: 252,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 7,
+                    Value: 6,
+                    ClassName: '20 – 60%',
+                    Red: 0,
+                    Green: 127,
+                    Blue: 216,
+                    Alpha: 255
+                }                    
+                }, {
+                attributes: {
+                    ObjectID: 8,
+                    Value: 7,
+                    ClassName: '60 – 100%',
+                    Red: 0,
+                    Green: 0,
+                    Blue: 139,
+                    Alpha: 255
+                }   
+                }, {
+                attributes: {
+                    ObjectID: 9,
+                    Value: 8,
+                    ClassName: '>100%',
+                    Red: 175,
+                    Green: 21,
+                    Blue: 137,
+                    Alpha: 255
+                }  
+                }
+            )
+            console.log(attributeTable)
+            return attributeTable
+        }
         if (selections['Variable'].value == "PRin" || selections['Variable'].value == "PEin") {
             if (minmax[0] < 0 && minmax[1] > 0) { // 9 class
                 let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
@@ -1133,7 +1229,7 @@
                 console.log(attributeTable)
                 return attributeTable
             }
-        } else if (selections['Variable'].value == "PRfr" || selections['Variable'].value == "PEfr") {
+        } else if (selections['Variable'].value == "PRfr") {
             if (minmax[0] < 0 && minmax[1] > 0) { // 9 class
                 let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
                 let smallestVal = (-1 * largestVal);
@@ -1499,44 +1595,60 @@
      * specific to the selected raster.
      * @param minmax - array [min, max]
      */
-    function buildInputRanges(minmax) {
-        // when there are negative and positive values, create 9 value diverging color classification 
-        if (minmax[0] < 0 && minmax[1] > 0) {
-            let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
-            let smallestVal = (-1 * largestVal);
-            let positiveBreakDiff = (largestVal / 5);
-            let negativeBreakDiff = (largestVal / 3);
-            let a = []
-            a.push({range: [Number((smallestVal).toFixed(1)), Number((smallestVal + negativeBreakDiff).toFixed(1))], output: 0});
-            a.push({range: [Number((smallestVal + negativeBreakDiff).toFixed(1)), Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1))], output: 1});
-            a.push({range: [Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)), -0.001], output: 2});
-            a.push({range: [0, 0.001], output: 3});
-            a.push({range: [0.001, Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))], output: 4});
-            a.push({range: [Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (3 * positiveBreakDiff)).toFixed(1))], output: 5});
-            a.push({range: [Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (2 * positiveBreakDiff)).toFixed(1))], output: 6});
-            a.push({range: [Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), Number((largestVal - positiveBreakDiff).toFixed(1))], output: 7});
-            a.push({range: [Number((largestVal - positiveBreakDiff).toFixed(1)), Number(largestVal.toFixed(1))], output: 8});
-            return a
-        } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0
-            // max is the largest number, the min is -1 (7 total classes)
-            let largestVal = Math.ceil(minmax[1]);
-            console.log('largest value :', largestVal)
-            let smallestVal = -1;
-            let positiveBreakDiff = (largestVal / 5);
+    function buildInputRanges(minmax, selections) {
+        if (selections['Variable'].value == "PEfr") {
+            console.log(minmax)
+            // breaks => (-1,-0.6,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.6,0.8,1,max)
             let a = [];
-            // negative (1 class)
-            a.push({range: [Number((smallestVal).toFixed(1)), -0.001], output: 0});
-            // zero (1 class)
-            a.push({range: [0, 0.001], output: 1});
-            // positive (5 classes)
-            a.push({range: [0.001, Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))], output: 2});
-            a.push({range: [Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (3 * positiveBreakDiff)).toFixed(1))], output: 3});
-            a.push({range: [Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (2 * positiveBreakDiff)).toFixed(1))], output: 4});
-            a.push({range: [Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), Number((largestVal - positiveBreakDiff).toFixed(1))], output: 5});
-            a.push({range: [Number((largestVal - positiveBreakDiff).toFixed(1)), Number(largestVal.toFixed(1))], output: 6});
+            a.push({range: [-1, -0.6], output: 0});
+            a.push({range: [-0.6, -0.3], output: 1});
+            a.push({range: [-0.3, -0.001], output: 2});
+            a.push({range: [0, 0.001], output: 3});
+            a.push({range: [0.001, 0.1], output: 4});
+            a.push({range: [0.1, 0.2], output: 5});
+            a.push({range: [0.2, 0.6], output: 6});
+            a.push({range: [0.6, 1], output: 7});
+            a.push({range: [1, minmax[1]], output: 8});
             return a
         } else {
-            console.log("don't fit")
+            // when there are negative and positive values, create 9 value diverging color classification 
+            if (minmax[0] < 0 && minmax[1] > 0) {
+                let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
+                let smallestVal = (-1 * largestVal);
+                let positiveBreakDiff = (largestVal / 5);
+                let negativeBreakDiff = (largestVal / 3);
+                let a = []
+                a.push({range: [Number((smallestVal).toFixed(1)), Number((smallestVal + negativeBreakDiff).toFixed(1))], output: 0});
+                a.push({range: [Number((smallestVal + negativeBreakDiff).toFixed(1)), Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1))], output: 1});
+                a.push({range: [Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)), -0.001], output: 2});
+                a.push({range: [0, 0.001], output: 3});
+                a.push({range: [0.001, Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))], output: 4});
+                a.push({range: [Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (3 * positiveBreakDiff)).toFixed(1))], output: 5});
+                a.push({range: [Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (2 * positiveBreakDiff)).toFixed(1))], output: 6});
+                a.push({range: [Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), Number((largestVal - positiveBreakDiff).toFixed(1))], output: 7});
+                a.push({range: [Number((largestVal - positiveBreakDiff).toFixed(1)), Number(largestVal.toFixed(1))], output: 8});
+                return a
+            } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0
+                // max is the largest number, the min is -1 (7 total classes)
+                let largestVal = Math.ceil(minmax[1]);
+                console.log('largest value :', largestVal)
+                let smallestVal = -1;
+                let positiveBreakDiff = (largestVal / 5);
+                let a = [];
+                // negative (1 class)
+                a.push({range: [Number((smallestVal).toFixed(1)), -0.001], output: 0});
+                // zero (1 class)
+                a.push({range: [0, 0.001], output: 1});
+                // positive (5 classes)
+                a.push({range: [0.001, Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))], output: 2});
+                a.push({range: [Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (3 * positiveBreakDiff)).toFixed(1))], output: 3});
+                a.push({range: [Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (2 * positiveBreakDiff)).toFixed(1))], output: 4});
+                a.push({range: [Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), Number((largestVal - positiveBreakDiff).toFixed(1))], output: 5});
+                a.push({range: [Number((largestVal - positiveBreakDiff).toFixed(1)), Number(largestVal.toFixed(1))], output: 6});
+                return a
+            } else {
+                console.log("don't fit")
+            }
         }
     };
 
