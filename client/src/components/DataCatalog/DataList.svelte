@@ -210,8 +210,8 @@
         on:click={toggleChevron}
        ></calcite-action>
     </calcite-block>
-    <TimeSeriesViewer view={view} geography={$geography}/>
-    <SummarizeMyArea {view}/>
+    <TimeSeriesViewer {view} geography={$geography}/>
+    <SummarizeMyArea {view} geography={$geography}/>
     <calcite-block id="national" data-panel-id="national" heading="" description="" open data-testid="national">
         <calcite-block scale="m" id="domainHeader" heading="2. Explore Map Layers"
             description="Search, filter by benefit categories, or explore EnviroAtlas map layers by topic below"

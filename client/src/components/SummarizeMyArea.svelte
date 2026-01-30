@@ -22,7 +22,6 @@
     import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
     import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol";
     import Graphic from "@arcgis/core/Graphic";
-    import DimensionalDefinition from "@arcgis/core/layers/support/DimensionalDefinition";
     import MosaicRule from "@arcgis/core/layers/support/MosaicRule";
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
     import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
@@ -43,9 +42,9 @@
         isLayerTitleInMap,
         findLayersByTitle
     } from "src/shared/utilities.js";
-    import { geography } from "src/store.ts";
 
     export let view;
+    export let geography;
 
     let indicatorElem;
     $: indicatorValue = "";
@@ -81,9 +80,21 @@
     const indicatorsDict = [
         // {name: "Land Cover", value: "nlcd"},
         // {name: "Land Cover Change", value: "nlcd-change"},
-        { name: "Dasymetric Population", value: "dasy"},
-        { name: "Permafrost Probability", value: "permafrost" },
+        { name: "Dasymetric Population", value: "dasy",  
+            domains: "CONUS,Alaska,Hawaii,Puerto Rico,Virgin Islands"},
+        { name: "Permafrost Probability", value: "permafrost", 
+            domains: "Alaska"}
     ];
+
+    /**
+     * Filters selections in the indicator dropdown based on selected geography.
+     */
+    $: options_filtered = (() => {
+        const filtered = indicatorsDict.filter(obj =>
+            obj.domains.split(',').map(s => s.trim()).includes(geography)
+        );
+        return filtered;
+    })();
 
     const sketchLayer = new GraphicsLayer({
         title: "Summarize My Area: User defined geometry",
@@ -862,7 +873,7 @@
                         bind:this={indicatorElem}
                         on:calciteComboboxChange={updateIndicator}
                     >
-                        {#each indicatorsDict as ind}
+                        {#each options_filtered as ind}
                             <calcite-combobox-item
                                 value={ind.value}
                                 heading={ind.name}
