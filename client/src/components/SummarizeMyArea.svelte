@@ -35,12 +35,14 @@
     import * as d3 from "d3";
 
     // Import store and configuration
+    import { activeWidget } from "src/store.ts";
     import { smaConfig } from "src/shared/smaConfig";
     import {
         addLayer,
         getEALayerObject,
         isLayerTitleInMap,
-        findLayersByTitle
+        findLayersByTitle, 
+        openLayerList
     } from "src/shared/utilities.js";
 
     export let view;
@@ -230,13 +232,13 @@
                 // TODO: error handle if lObject is empty
                 lObject.name =
                     "Summarize My Area Indicator: Near-surface permafrost probability";
-                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
+                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, null, smaLayersInMapHighestIndex) : addLayer(lObject, view);
                 break;
             case "dasy":
                 lObject = await getEALayerObject(518);
                 lObject.name =
                     "Summarize My Area Indicator: 2020 Dasymetric Population";
-                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
+                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, null, smaLayersInMapHighestIndex) : addLayer(lObject, view);
                 break;
         }
 
@@ -289,6 +291,7 @@
     const _initGeometryLayer = (sumUnit) => {
         geometry = null;
         sketchLayer.removeAll();
+        openLayerList($activeWidget);
 
         if (sumUnit == "Draw a geometry") {
             _initSketchTool();
@@ -321,6 +324,7 @@
 
             //Create zoom service message based on zoom of view
             if (sumUnit === "HUC-12" || sumUnit === "HUC-8") {
+                view.zoom < 7 ? messages = smaConfig['zoomServiceMsg'] : messages = null;
                 const zoomHandle = reactiveUtils.watch(
                     () => [view.stationary, view.zoom],
                     ([stationary, zoom]) => {
@@ -731,7 +735,7 @@
             return results;
         } catch (err) {
             console.log(err);
-            if (err.details && err.details.messages[0] === 'The requested image exceeds the size limit.') {
+            if (!err.details && err.details.messages[0] === 'The requested image exceeds the size limit.') {
                 messages = smaConfig.sizeError;
             } else {
                 messages = smaConfig.genericError;
@@ -859,9 +863,77 @@
             <calcite-tab-title on:click={() => selectionsTabOpen = false} bind:this={resultsTab} tab="resultsTab">Results</calcite-tab-title>
         </calcite-tab-nav>
         <calcite-tab selected tab="selectionsTab">
-            <calcite-block open heading="Select an indicator">
-                <calcite-icon scale="m" slot="icon" icon="number-circle-1"
-                ></calcite-icon>
+            <calcite-block open heading="3. Select a summary unit">
+                <calcite-label layout="inline">
+                    <calcite-combobox
+                        scale="s"
+                        placeholder=" Select one"
+                        selection-mode="single"
+                        overlay-positioning="fixed"
+                        bind:this={summaryUnitCombobox}
+                        on:calciteComboboxChange={updateSumUnit}
+                    >
+                        {#each ["County", "Congressional District", "HUC-8", "HUC-12", "Draw a geometry"] as sumUnit}
+                            <calcite-combobox-item
+                                value={sumUnit}
+                                heading={sumUnit}
+                            ></calcite-combobox-item>
+                        {/each}
+                    </calcite-combobox>
+                </calcite-label>
+                {#if sumUnit == "Draw a geometry"}
+                    <div class="geometry-options">
+                        <button
+                            class="esri-widget--button esri-icon-map-pin geometry-button"
+                            id="point-geometry-button"
+                            value="point"
+                            title="Filter by point"
+                            on:click={geometryButtonsClickHandler}
+                        ></button>
+                        <button
+                            class="esri-widget--button esri-icon-polyline geometry-button"
+                            id="line-geometry-button"
+                            value="polyline"
+                            title="Filter by line"
+                            on:click={geometryButtonsClickHandler}
+                        ></button>
+                        <button
+                            class="esri-widget--button esri-icon-polygon geometry-button"
+                            id="polygon-geometry-button"
+                            value="polygon"
+                            title="Filter by polygon"
+                            on:click={geometryButtonsClickHandler}
+                        ></button>
+                    </div>
+                    <calcite-label layout="inline" scale="s"
+                        >Buffer distance:
+                        <calcite-input-number
+                            suffix-text="km"
+                            min="0"
+                            step="1"
+                            scale="s"
+                            value="1"
+                            number-button-type="vertical"
+                            bind:this={bufferInput}
+                        ></calcite-input-number>
+                    </calcite-label>
+                {/if}
+                {#if messages}
+                    <calcite-notice
+                        open
+                        icon="exclamation-mark-triangle"
+                        kind="danger"
+                    >
+                        <div slot="message">{messages}</div>
+                    </calcite-notice>
+                {/if}
+                {#if geographyLabel}
+                    <calcite-notice open kind="success">
+                        <div slot="message">{geographyLabel}</div>
+                    </calcite-notice>
+                {/if}
+            </calcite-block>
+            <calcite-block open heading="4. Select a map layer to summarize">
                 <calcite-label layout="inline">
                     <calcite-combobox
                         scale="s"
@@ -944,82 +1016,6 @@
                     </calcite-label>
                 {/if}
             </calcite-block>
-            <calcite-block open heading="Select a summary unit">
-                <calcite-icon scale="m" slot="icon" icon="number-circle-2"
-                ></calcite-icon>
-                <calcite-label layout="inline">
-                    <calcite-combobox
-                        scale="s"
-                        placeholder=" Select one"
-                        selection-mode="single"
-                        overlay-positioning="fixed"
-                        bind:this={summaryUnitCombobox}
-                        on:calciteComboboxChange={updateSumUnit}
-                    >
-                        {#each ["County", "Congressional District", "HUC-8", "HUC-12", "Draw a geometry"] as sumUnit}
-                            <calcite-combobox-item
-                                value={sumUnit}
-                                heading={sumUnit}
-                            ></calcite-combobox-item>
-                        {/each}
-                    </calcite-combobox>
-                </calcite-label>
-                {#if sumUnit == "Draw a geometry"}
-                    <div class="geometry-options">
-                        <button
-                            class="esri-widget--button esri-icon-map-pin geometry-button"
-                            id="point-geometry-button"
-                            value="point"
-                            title="Filter by point"
-                            on:click={geometryButtonsClickHandler}
-                        ></button>
-                        <button
-                            class="esri-widget--button esri-icon-polyline geometry-button"
-                            id="line-geometry-button"
-                            value="polyline"
-                            title="Filter by line"
-                            on:click={geometryButtonsClickHandler}
-                        ></button>
-                        <button
-                            class="esri-widget--button esri-icon-polygon geometry-button"
-                            id="polygon-geometry-button"
-                            value="polygon"
-                            title="Filter by polygon"
-                            on:click={geometryButtonsClickHandler}
-                        ></button>
-                    </div>
-                    <calcite-label layout="inline" scale="s"
-                        >Buffer distance:
-                        <calcite-input-number
-                            suffix-text="km"
-                            min="0"
-                            step="1"
-                            scale="s"
-                            value="1"
-                            number-button-type="vertical"
-                            bind:this={bufferInput}
-                        ></calcite-input-number>
-                    </calcite-label>
-                {/if}
-            </calcite-block>
-            <calcite-block open heading="Select your geography">
-                <calcite-icon scale="m" slot="icon" icon="number-circle-3"
-                ></calcite-icon>
-                {#if messages}
-                    <calcite-notice
-                        open
-                        icon="exclamation-mark-triangle"
-                        kind="danger"
-                    >
-                        <div slot="message">{messages}</div>
-                    </calcite-notice>
-                {/if}
-                {#if geographyLabel}
-                    <calcite-notice open kind="success">
-                        <div slot="message">{geographyLabel}</div>
-                    </calcite-notice>
-                {/if}
-            </calcite-block>
         </calcite-tab>
         <calcite-tab tab="resultsTab">
             <calcite-block>
@@ -1038,7 +1034,7 @@
                         <div
                             style="display:block; margin:0 auto; text-align: center; font-size:18px; color:darkgray;"
                         >
-                            Summarize My Area
+                            Summarize My Area Results
                         </div>
                     </div>
                     <div

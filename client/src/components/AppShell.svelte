@@ -345,17 +345,22 @@
       data-action-id="add-data" 
       icon="add-layer"
       text="Add Data"
-   ></calcite-action>
+    ></calcite-action>
     <calcite-action
       data-action-id="basemaps"
       icon="basemap"
       text="Basemaps"
-   ></calcite-action>
+    ></calcite-action>
     <calcite-action
       data-action-id="maptools"
       icon="system-management"
       text="Other Map Tools"
-   ></calcite-action>
+    ></calcite-action>
+    <calcite-action
+      data-action-id="sma-results"
+      icon="mosaic-method-sum"
+      text="Summarize My Area Results"
+    ></calcite-action>
   </calcite-action-bar>
   <calcite-panel
     heading="Active Layer List"
@@ -414,6 +419,13 @@
     </calcite-block>
   </calcite-panel>
   <AddData map={map} />
+  <calcite-panel
+    heading="Summarize My Area Results"
+    height-scale="l"
+    data-panel-id="sma-results"
+    hidden
+    closed
+  >
   </calcite-shell-panel>
   <calcite-shell-panel
     slot="panel-bottom"
