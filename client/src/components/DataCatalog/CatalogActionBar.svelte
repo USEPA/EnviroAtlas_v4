@@ -304,11 +304,10 @@
     .filter-icon {
         display: flex;
         float: left;
-        margin-right: 5px;
         width: 18px;
         height: 18px;
         border-radius: 50%;
-        margin: 0 7px 0 0;
+        margin: 0 5px 0 0;
     }
 
     .filter-button {
@@ -320,7 +319,7 @@
         background-color: white;
         font-weight: 400;
         border: 1.5px solid #bfbfbf;
-        margin-right: 8px; /* add spacing between buttons */
+        margin-right: 5px; /* add spacing between buttons */
     }
 
     .filter-button.selected,
