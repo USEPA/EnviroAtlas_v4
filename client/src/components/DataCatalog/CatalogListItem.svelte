@@ -2,6 +2,7 @@
     import { addLayer, getEaData, removeLayer, openLayerList, getEALayerObject } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import { activeWidget } from "src/store.ts";
+    import { mount } from 'svelte';
 
     export let subtopic;
     export let view;
@@ -45,7 +46,7 @@
             let detailsObj = await getEaData(`/ea/api/layers/${layerID}`, detailsParams);
             let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
             if (!findPopover) {
-                new SubtopicDetails({
+                mount(SubtopicDetails, {
                     target: document.body,
                     props: { subtopic, detailsObj },
                 });
@@ -65,7 +66,7 @@
             }
             let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
             if (!findPopover) {
-                new SubtopicDetails({
+                mount(SubtopicDetails,{
                     target: document.body,
                     props: { subtopic, detailsArray },
                 });

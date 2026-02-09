@@ -9,7 +9,7 @@
     import "@esri/calcite-components/dist/components/calcite-notice";
     import "@esri/calcite-components/dist/components/calcite-action";
     
-    import { hasValueUndefined, largestAbsVal, openLayerList } from "src/shared/utilities.js";
+    import { hasValueUndefined, largestAbsVal, openLayerList, fetchData } from "src/shared/utilities.js";
     import { activeWidget } from "src/store.ts";
     import TimeSeriesDetails from "src/components/TimeSeriesViewer/TimeSeriesDetails.svelte";
     
@@ -20,6 +20,14 @@
     import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol.js";
     import SimpleLineSymbol from "@arcgis/core/symbols/SimpleLineSymbol.js";
     import ClassBreaksRenderer from "@arcgis/core/renderers/ClassBreaksRenderer.js";
+    import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
+    import MultidimensionalSubset from "@arcgis/core/layers/support/MultidimensionalSubset.js";
+    import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
+    import MosaicRule from "@arcgis/core/layers/support/MosaicRule";
+    import DimensionalDefinition from "@arcgis/core/layers/support/DimensionalDefinition";
+    import Query from "@arcgis/core/rest/support/Query";
+    import FeatureSet from "@arcgis/core/rest/support/FeatureSet.js";
+    import * as rasterFunctionUtils from "@arcgis/core/layers/support/rasterFunctionUtils.js";
 
     export let geography;
     export let view;
@@ -30,23 +38,23 @@
     let minVal;
     const options = [ 
         { name: "Variable", options: [ 
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRin", label: "Change in Precipitation (in)",
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRin", label: "Change in Precipitation (in)",
                 info: "Change in total precipitation in inches or as fraction for the season or annually.",
-                pdf: "Supplemental/Climate_Precip_NEXGDDP_OCONUS.pdf"
+                pdf: "Supplemental/Climate_Precip_NEXGDDP_OCONUS.pdf", d: "RAIN"
             },  
-            {domains: "AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRfr", label: "Change in Precipitation (fraction as %)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PEin", label: "Change in PET (in)",
+            {domains: "CONUS,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRfr", label: "Change in Precipitation (fraction as %)", d: "RAINfr"},
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PEin", label: "Change in PET (in)",
                 info: "Change in total potential evapotranspiration in inches or as fraction for the season or annually.",
-                pdf: "Supplemental/Climate_PET_NEXGDDP_OCONUS.pdf"
+                pdf: "Supplemental/Climate_PET_NEXGDDP_OCONUS.pdf", d: "PET"
             },
-            {domains: "AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PEfr", label: "Change in PET (fraction as %)"},
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "mxTF", label: "Change in Maximum Temperature (°F)",
+            {domains: "CONUS,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PEfr", label: "Change in PET (fraction as %)", d: "PETfr"},
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "mxTF", label: "Change in Maximum Temperature (°F)",
                 info: "Change in average maximum temperature in degrees Fahrenheit for the season or annually.",
-                pdf: "Supplemental/Climate_Temp_NEXGDDP_OCONUS.pdf"
+                pdf: "Supplemental/Climate_Temp_NEXGDDP_OCONUS.pdf", d: "MAX_TEMP"
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "miTF", label: "Change in Minimum Temperature (°F)",
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "miTF", label: "Change in Minimum Temperature (°F)",
                 info: "Change in average minimum temperature in degrees Fahrenheit for the season or annually.",
-                pdf: "Supplemental/Climate_Temp_NEXGDDP_OCONUS.pdf"
+                pdf: "Supplemental/Climate_Temp_NEXGDDP_OCONUS.pdf", d: "MIN_TEMP"
             }
         ], description: "All variables are presented as a median, minimum and maximum of the NEX-GDDP-CMIP6 Global Climate Model ensemble."
     }, 
@@ -63,43 +71,45 @@
             {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp585", label: "SSP5–8.5 (7.9 ± 2.3 °F by 2100)",
                 info: "SSP5 (“Fossil-fueled Development”) reflects high challenges to mitigation and low challenges to adaptation. It is characterized by steadily increasing GHG concentrations. It represents the upper boundary of the range of scenarios. Global temperatures increase by 7.9±2.2°F (4.4±1.2°C) at 2100 compared to PIA."
             },
-            //{domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040"},
-            //{domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100"}
+            {domains: "CONUS", value: "rcp26", label: "RCP-2.6 (Peak Emissions Year 2020)", d: 1},
+            {domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040)", d: 2},
+            {domains: "CONUS", value: "rcp60", label: "RCP-6.0 (Peak Emissions Year 2080)", d: 3},
+            {domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100)", d: 5}
         ], description: "Shared Socioeconomic Pathways (SSPs) reflect global trends in human activities and changes in radiative forcing that result from changes in atmospheric greenhouse gases (GHGs) and aerosol concentrations. In the SSP labels (like SSP1-2.6), the first number refers to a defined socioeconomic pathway (trends in population, policy, and economic growth), and the second refers to an increase in radiative forcing (W/m2) relative to pre-industrial (1850-1900) average (PIA)."
     },
         { name: "Season", options: [
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "A", label: "Annual", 
-                info: "January through December of the same calendar year"
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "A", label: "Annual", 
+                info: "January through December of the same calendar year", d: 1
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "M", label: "Spring",
-                info: "March, April, May"
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "M", label: "Spring",
+                info: "March, April, May", d: 3
             },  
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "J", label: "Summer",
-                info: "June, July, August"
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "J", label: "Summer",
+                info: "June, July, August", d: 4
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "S", label: "Fall",
-                info: "September, October, November"
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "S", label: "Fall",
+                info: "September, October, November", d: 5
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "D", label: "Winter",
-                info: "December of previous year, January, February"
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "D", label: "Winter",
+                info: "December of previous year, January, February", d: 2
             },
             
         ]}, 
         { name: "Period", options: [ 
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF1", label: "1976–2005 to 2025–2054", 
-                info: "Recent history (1976–2005) to near-term future (2025–2054)"
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF1", label: "1976–2005 to 2025–2054", 
+                info: "Recent history (1976–2005) to near-term future (2025–2054)", d: 1
             },  
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF2", label: "1976–2005 to 2045–2074",
-                info: "Recent history (1976–2005) to mid-century (2045–2074)"
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF2", label: "1976–2005 to 2045–2074",
+                info: "Recent history (1976–2005) to mid-century (2045–2074)", d: 2
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF3", label: "1976–2005 to 2070–2099",
-                info: "Recent history (1976–2005) to end-of-century (2070–2099)"
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF3", label: "1976–2005 to 2070–2099",
+                info: "Recent history (1976–2005) to end-of-century (2070–2099)", d: 3
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF2", label: "2025–2054 to 2045–2074",
-                info: "Near-term future (2025–2054) to mid-century (2045–2074)"
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF2", label: "2025–2054 to 2045–2074",
+                info: "Near-term future (2025–2054) to mid-century (2045–2074)", d: 4
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF3", label: "2025–2054 to 2070–2099",
-                info: "Near-term future (2025–2054) to end-of-century (2070–2099)"
+            {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF3", label: "2025–2054 to 2070–2099",
+                info: "Near-term future (2025–2054) to end-of-century (2070–2099)", d: 5
             }
         ], description: "Climate change variables were computed using 30–year periods: recent history (1976–2005), near-term future (2025–2054), mid-century (2045–2074), and end-of-century (2070–2099). Climate change variables are expressed as a change between different periods:"
     }];
@@ -109,7 +119,8 @@
         "Guam": "GUAM",
         "AmericanSamoa": "AMSAM",
         "Hawaii": "HAWAII",
-        "Alaska": "ALASKA"
+        "Alaska": "ALASKA",
+        "CONUS": "CONUS"
     }
 
     /**
@@ -130,6 +141,7 @@
      * @param selections - object returned from getSelections()
      */
     function loadOCONUS(selections) {
+        console.log('OCONUS selections: ', selections)
         let fieldname = buildOconusField(selections);
         let oconusUrl = `https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/NEXGDDP_${selections['Scenario'].value}/FeatureServer/0`;
         let oLayerId = "NEXGDDP" + domain + selections['Scenario'].value + fieldname;
@@ -802,6 +814,845 @@
     };
 
     /**
+     * Main process function to add CONUS data to map.
+     * @param selections - object returned from getSelections()
+     */
+    async function loadCONUS(selections) { 
+        console.log('CONUS selections: ', selections)
+        let selectedTitle = domain + ", " + selections['Scenario'].label + ", " + selections['Season'].label + " " + selections['Variable'].label + ", " + selections['Period'].label
+        const mdURL = "https://awseastaging.epa.gov/arcgis/rest/services/test_services/NEX_DCP30_CONUS/ImageServer"
+        let mosaicRule = new MosaicRule();
+        mosaicRule.multidimensionalDefinition = [];
+        mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
+            variableName: selections['Variable'].d,
+            dimensionName: "scenario",
+            values: [selections['Scenario'].d], 
+            isSlice: true
+        }));
+        mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
+            variableName: selections['Variable'].d,
+            dimensionName: "season",
+            values: [selections['Season'].d], 
+            isSlice: true
+        }));
+        mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
+            variableName: selections['Variable'].d,
+            dimensionName: "period",
+            values: [selections['Period'].d], 
+            isSlice: true
+        }));
+
+        const layer = new ImageryLayer({
+            url: mdURL,
+            format: "lerc",
+            mosaicRule,
+            title: selectedTitle,
+            popupTemplate: {
+                title: `${selectedTitle} value: {Raster.ServicePixelValue.Raw}`,
+                fieldInfos: [
+                    {
+                        fieldName: "Raster.ServicePixelValue.Raw",
+                        format: {
+                            places: 2,
+                            digitSeparator: true,
+                        },
+                    },
+                ],
+            },
+        });
+       
+        //get stats on the image slice by finding OBJECTID of the single raster
+        const idQuery = new Query({
+            where: `season=${selections['Season'].d} AND period=${selections['Period'].d} AND scenario=${selections['Scenario'].d} AND variable='${selections['Variable'].d}'`
+        })
+        const minmax = await layer.queryObjectIds(idQuery).then((imageLyr) => {
+            let imageId = imageLyr[0]
+            let infoUrl = mdURL + `/${imageId}/info?f=json`
+            return fetchData(infoUrl)
+        }).then(sliceInfo => {
+            let minmax = sliceInfo.statistics[0].slice(0,2)
+            return minmax
+        })
+
+        let rangeMaps = buildInputRanges(minmax, selections);
+        let attributeTable = buildAttributeTable(minmax, selections);
+
+        const remap = rasterFunctionUtils.remap({
+            rangeMaps
+        });
+
+        const int = rasterFunctionUtils.int({
+            raster: remap,
+        })
+
+        const tableFxn = rasterFunctionUtils.table({
+            attributeTable,
+            raster: int
+        });
+
+        layer.rasterFunction = tableFxn;
+
+        view.map.add(layer);
+        console.log(layer)
+        view.whenLayerView(layer).then((layerView) => {
+            const multidimInfo = layer.multidimensionalInfo;
+                layerView.highlightOptions = {
+                color: [0,0,0,0],
+                haloOpacity: 0, 
+                fillOpacity: 0
+            }
+            console.log("layer: ", multidimInfo);
+        });
+    
+    }
+
+    /**
+     * 
+     * @param minmax - array [min, max]
+    */
+    function buildAttributeTable(minmax, selections) {
+        console.log(minmax)
+        const attributeTable = FeatureSet.fromJSON({
+            displayFieldName: "",
+            fields: [
+            {
+                name: "ObjectID",
+                type: "esriFieldTypeOID",
+                alias: "OID"
+            },
+            {
+                name: "Value",
+                type: "esriFieldTypeInteger",
+                alias: "Value"
+            },
+            {
+                name: "ClassName",
+                type: "esriFieldTypeString",
+                alias: "ClassName",
+                length: 256
+            },
+            {
+                name: "Red",
+                type: "esriFieldTypeInteger",
+                alias: "Red"
+            },
+            {
+                name: "Green",
+                type: "esriFieldTypeInteger",
+                alias: "Green"
+            },
+            {
+                name: "Blue",
+                type: "esriFieldTypeInteger",
+                alias: "Blue"
+            },
+            {
+                name: "Alpha",
+                type: "esriFieldTypeInteger",
+                alias: "Alpha"
+            }
+            ],
+            features: []
+        });
+        if (selections['Variable'].value == "PEfr") {
+            attributeTable.features.push({
+                attributes: {
+                    ObjectID: 1,
+                    Value: 0,
+                    ClassName: '-100 – -60%',
+                    Red: 133,
+                    Green: 46,
+                    Blue: 4,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 2,
+                    Value: 1,
+                    ClassName: '-60 – -30%',
+                    Red: 218,
+                    Green: 92,
+                    Blue: 10,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 3,
+                    Value: 2,
+                    ClassName: '-30 – <0%',
+                    Red: 254,
+                    Green: 230,
+                    Blue: 151,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 4,
+                    Value: 3,
+                    ClassName: "0%",
+                    Red: 128,
+                    Green: 128,
+                    Blue: 128,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 5,
+                    Value: 4,
+                    ClassName: '>0 – 10%',
+                    Red: 185,
+                    Green: 231,
+                    Blue: 248,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 6,
+                    Value: 5,
+                    ClassName: '10 – 20%',
+                    Red: 79,
+                    Green: 280,
+                    Blue: 252,
+                    Alpha: 255
+                }
+                }, {
+                attributes: {
+                    ObjectID: 7,
+                    Value: 6,
+                    ClassName: '20 – 60%',
+                    Red: 0,
+                    Green: 127,
+                    Blue: 216,
+                    Alpha: 255
+                }                    
+                }, {
+                attributes: {
+                    ObjectID: 8,
+                    Value: 7,
+                    ClassName: '60 – 100%',
+                    Red: 0,
+                    Green: 0,
+                    Blue: 139,
+                    Alpha: 255
+                }   
+                }, {
+                attributes: {
+                    ObjectID: 9,
+                    Value: 8,
+                    ClassName: '>100%',
+                    Red: 175,
+                    Green: 21,
+                    Blue: 137,
+                    Alpha: 255
+                }  
+                }
+            )
+            console.log(attributeTable)
+            return attributeTable
+        }
+        if (selections['Variable'].value == "PRin" || selections['Variable'].value == "PEin") {
+            if (minmax[0] < 0 && minmax[1] > 0) { // 9 class
+                let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
+                let smallestVal = (-1 * largestVal);
+                let positiveBreakDiff = (largestVal / 5);
+                let negativeBreakDiff = (largestVal / 3);
+                attributeTable.features.push({
+                    attributes: {
+                        ObjectID: 1,
+                        Value: 0,
+                        ClassName: Number((smallestVal).toFixed(1)) + ' – ' + Number((smallestVal + negativeBreakDiff).toFixed(1)),
+                        Red: 133,
+                        Green: 46,
+                        Blue: 4,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 2,
+                        Value: 1,
+                        ClassName: Number((smallestVal + negativeBreakDiff).toFixed(1)) + ' – ' + Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)),
+                        Red: 218,
+                        Green: 92,
+                        Blue: 10,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 3,
+                        Value: 2,
+                        ClassName: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)) + ' – <' + 0,
+                        Red: 254,
+                        Green: 230,
+                        Blue: 151,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 4,
+                        Value: 3,
+                        ClassName: "0",
+                        Red: 128,
+                        Green: 128,
+                        Blue: 128,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 5,
+                        Value: 4,
+                        ClassName: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
+                        Red: 185,
+                        Green: 231,
+                        Blue: 248,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 6,
+                        Value: 5,
+                        ClassName: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)),
+                        Red: 79,
+                        Green: 280,
+                        Blue: 252,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 7,
+                        Value: 6,
+                        ClassName: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)),
+                        Red: 0,
+                        Green: 127,
+                        Blue: 216,
+                        Alpha: 255
+                    }                    
+                    }, {
+                    attributes: {
+                        ObjectID: 8,
+                        Value: 7,
+                        ClassName: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1)),
+                        Red: 0,
+                        Green: 0,
+                        Blue: 139,
+                        Alpha: 255
+                    }   
+                    }, {
+                    attributes: {
+                        ObjectID: 9,
+                        Value: 8,
+                        ClassName: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1)),
+                        Red: 175,
+                        Green: 21,
+                        Blue: 137,
+                        Alpha: 255
+                    }  
+                    }
+                )
+                console.log(attributeTable)
+                return attributeTable
+            } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0}
+                // max is the largest number, the min is -1 (7 total classes)
+                let largestVal = Math.ceil(minmax[1]);
+                let positiveBreakDiff = (largestVal / 5);
+                attributeTable.features.push({
+                    attributes: {
+                        ObjectID: 1,
+                        Value: 0,
+                        ClassName:'<0',
+                        Red: 133,
+                        Green: 46,
+                        Blue: 4,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 2,
+                        Value: 1,
+                        ClassName: "0",
+                        Red: 128,
+                        Green: 128,
+                        Blue: 128,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 3,
+                        Value: 2,
+                        ClassName: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
+                        Red: 185,
+                        Green: 231,
+                        Blue: 248,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 4,
+                        Value: 3,
+                        ClassName: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)),
+                        Red: 79,
+                        Green: 280,
+                        Blue: 252,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 5,
+                        Value: 4,
+                        ClassName: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)),
+                        Red: 0,
+                        Green: 127,
+                        Blue: 216,
+                        Alpha: 255
+                    }                    
+                    }, {
+                    attributes: {
+                        ObjectID: 6,
+                        Value: 5,
+                        ClassName: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1)),
+                        Red: 0,
+                        Green: 0,
+                        Blue: 139,
+                        Alpha: 255
+                    }   
+                    }, {
+                    attributes: {
+                        ObjectID: 7,
+                        Value: 6,
+                        ClassName: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1)),
+                        Red: 175,
+                        Green: 21,
+                        Blue: 137,
+                        Alpha: 255
+                    }  
+                    }
+                )
+                console.log(attributeTable)
+                return attributeTable
+            }
+        } else if (selections['Variable'].value == "PRfr") {
+            if (minmax[0] < 0 && minmax[1] > 0) { // 9 class
+                let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
+                let smallestVal = (-1 * largestVal);
+                let positiveBreakDiff = (largestVal / 5);
+                let negativeBreakDiff = (largestVal / 3);
+                attributeTable.features.push({
+                    attributes: {
+                        ObjectID: 1,
+                        Value: 0,
+                        ClassName: Number((smallestVal * 100).toFixed(1)) + ' – ' + Number(((smallestVal + negativeBreakDiff) * 100).toFixed(1)) + '%',
+                        Red: 133,
+                        Green: 46,
+                        Blue: 4,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 2,
+                        Value: 1,
+                        ClassName: Number(((smallestVal + negativeBreakDiff) * 100).toFixed(1)) + ' – ' + Number(((smallestVal + (2 * negativeBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 218,
+                        Green: 92,
+                        Blue: 10,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 3,
+                        Value: 2,
+                        ClassName: Number(((smallestVal + (2 * negativeBreakDiff)) * 100).toFixed(1)) + ' – <' + 0 + '%',
+                        Red: 254,
+                        Green: 230,
+                        Blue: 151,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 4,
+                        Value: 3,
+                        ClassName: "0%",
+                        Red: 128,
+                        Green: 128,
+                        Blue: 128,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 5,
+                        Value: 4,
+                        ClassName: '>0 – ' + Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 185,
+                        Green: 231,
+                        Blue: 248,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 6,
+                        Value: 5,
+                        ClassName: Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 79,
+                        Green: 280,
+                        Blue: 252,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 7,
+                        Value: 6,
+                        ClassName: Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 0,
+                        Green: 127,
+                        Blue: 216,
+                        Alpha: 255
+                    }                    
+                    }, {
+                    attributes: {
+                        ObjectID: 8,
+                        Value: 7,
+                        ClassName: Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + '%',
+                        Red: 0,
+                        Green: 0,
+                        Blue: 139,
+                        Alpha: 255
+                    }   
+                    }, {
+                    attributes: {
+                        ObjectID: 9,
+                        Value: 8,
+                        ClassName: Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + ' – ' + Number((largestVal * 100).toFixed(1)) + '%',
+                        Red: 175,
+                        Green: 21,
+                        Blue: 137,
+                        Alpha: 255
+                    }  
+                    }
+                )
+                console.log(attributeTable)
+                return attributeTable
+            } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0}
+                // max is the largest number, the min is -1 (7 total classes)
+                let largestVal = Math.ceil(minmax[1]);
+                let positiveBreakDiff = (largestVal / 5);
+                attributeTable.features.push({
+                    attributes: {
+                        ObjectID: 1,
+                        Value: 0,
+                        ClassName:'<0%',
+                        Red: 133,
+                        Green: 46,
+                        Blue: 4,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 2,
+                        Value: 1,
+                        ClassName: "0%",
+                        Red: 128,
+                        Green: 128,
+                        Blue: 128,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 3,
+                        Value: 2,
+                        ClassName: '>0 – ' + Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 185,
+                        Green: 231,
+                        Blue: 248,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 4,
+                        Value: 3,
+                        ClassName: Number(((largestVal - (4 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 79,
+                        Green: 280,
+                        Blue: 252,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 5,
+                        Value: 4,
+                        ClassName: Number(((largestVal - (3 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + '%',
+                        Red: 0,
+                        Green: 127,
+                        Blue: 216,
+                        Alpha: 255
+                    }                    
+                    }, {
+                    attributes: {
+                        ObjectID: 6,
+                        Value: 5,
+                        ClassName: Number(((largestVal - (2 * positiveBreakDiff)) * 100).toFixed(1)) + ' – ' + Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + '%',
+                        Red: 0,
+                        Green: 0,
+                        Blue: 139,
+                        Alpha: 255
+                    }   
+                    }, {
+                    attributes: {
+                        ObjectID: 7,
+                        Value: 6,
+                        ClassName: Number(((largestVal - positiveBreakDiff) * 100).toFixed(1)) + ' – ' + Number((largestVal * 100).toFixed(1)) + '%',
+                        Red: 175,
+                        Green: 21,
+                        Blue: 137,
+                        Alpha: 255
+                    }  
+                    }
+                )
+                console.log(attributeTable)
+                return attributeTable
+            }
+        } else if (selections['Variable'].value == "mxTF" || selections['Variable'].value == "miTF") {
+            if (minmax[0] < 0 && minmax[1] > 0) { // 9 class
+                let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
+                let smallestVal = (-1 * largestVal);
+                let positiveBreakDiff = (largestVal / 5);
+                let negativeBreakDiff = (largestVal / 3);
+                attributeTable.features.push({
+                    attributes: {
+                        ObjectID: 1,
+                        Value: 0,
+                        ClassName: Number((smallestVal).toFixed(1)) + ' – ' + Number((smallestVal + negativeBreakDiff).toFixed(1)),
+                        Red: 61,
+                        Green: 92,
+                        Blue: 164,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 2,
+                        Value: 1,
+                        ClassName: Number((smallestVal + negativeBreakDiff).toFixed(1)) + ' – ' + Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)),
+                        Red: 104,
+                        Green: 159,
+                        Blue: 201,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 3,
+                        Value: 2,
+                        ClassName: Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)) + ' – <' + 0,
+                        Red: 165,
+                        Green: 210,
+                        Blue: 229,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 4,
+                        Value: 3,
+                        ClassName: "0",
+                        Red: 128,
+                        Green: 128,
+                        Blue: 128,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 5,
+                        Value: 4,
+                        ClassName: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
+                        Red: 252,
+                        Green: 219,
+                        Blue: 143,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 6,
+                        Value: 5,
+                        ClassName: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)),
+                        Red: 250,
+                        Green: 157,
+                        Blue: 91,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 7,
+                        Value: 6,
+                        ClassName: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)),
+                        Red: 233,
+                        Green: 92,
+                        Blue: 59,
+                        Alpha: 255
+                    }                    
+                    }, {
+                    attributes: {
+                        ObjectID: 8,
+                        Value: 7,
+                        ClassName: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1)),
+                        Red: 206,
+                        Green: 45,
+                        Blue: 43,
+                        Alpha: 255
+                    }   
+                    }, {
+                    attributes: {
+                        ObjectID: 9,
+                        Value: 8,
+                        ClassName: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1)),
+                        Red: 165,
+                        Green: 0,
+                        Blue: 38,
+                        Alpha: 255
+                    }  
+                    }
+                )
+                console.log(attributeTable)
+                return attributeTable
+            } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0}
+                // max is the largest number, the min is -1 (7 total classes)
+                let largestVal = Math.ceil(minmax[1]);
+                let positiveBreakDiff = (largestVal / 5);
+                attributeTable.features.push({
+                    attributes: {
+                        ObjectID: 1,
+                        Value: 0,
+                        ClassName:'<0',
+                        Red: 61,
+                        Green: 92,
+                        Blue: 164,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 2,
+                        Value: 1,
+                        ClassName: "0",
+                        Red: 128,
+                        Green: 128,
+                        Blue: 128,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 3,
+                        Value: 2,
+                        ClassName: '>0 – ' + Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)),
+                        Red: 252,
+                        Green: 219,
+                        Blue: 143,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 4,
+                        Value: 3,
+                        ClassName: Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)),
+                        Red: 250,
+                        Green: 157,
+                        Blue: 91,
+                        Alpha: 255
+                    }
+                    }, {
+                    attributes: {
+                        ObjectID: 5,
+                        Value: 4,
+                        ClassName: Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)),
+                        Red: 233,
+                        Green: 92,
+                        Blue: 59,
+                        Alpha: 255
+                    }                    
+                    }, {
+                    attributes: {
+                        ObjectID: 6,
+                        Value: 5,
+                        ClassName: Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)) + ' – ' + Number((largestVal - positiveBreakDiff).toFixed(1)),
+                        Red: 206,
+                        Green: 45,
+                        Blue: 43,
+                        Alpha: 255
+                    }   
+                    }, {
+                    attributes: {
+                        ObjectID: 7,
+                        Value: 6,
+                        ClassName: Number((largestVal - positiveBreakDiff).toFixed(1)) + ' – ' + Number(largestVal.toFixed(1)),
+                        Red: 165,
+                        Green: 0,
+                        Blue: 38,
+                        Alpha: 255
+                    }  
+                    }
+                )
+                console.log(attributeTable)
+                return attributeTable
+            }
+        }
+    };
+
+    /**
+     * Build an array of input ranges to update the rft for visualization
+     * specific to the selected raster.
+     * @param minmax - array [min, max]
+     */
+    function buildInputRanges(minmax, selections) {
+        if (selections['Variable'].value == "PEfr") {
+            console.log(minmax)
+            // breaks => (-1,-0.6,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.6,0.8,1,max)
+            let a = [];
+            a.push({range: [-1, -0.6], output: 0});
+            a.push({range: [-0.6, -0.3], output: 1});
+            a.push({range: [-0.3, -0.001], output: 2});
+            a.push({range: [0, 0.001], output: 3});
+            a.push({range: [0.001, 0.1], output: 4});
+            a.push({range: [0.1, 0.2], output: 5});
+            a.push({range: [0.2, 0.6], output: 6});
+            a.push({range: [0.6, 1], output: 7});
+            a.push({range: [1, minmax[1]], output: 8});
+            return a
+        } else {
+            // when there are negative and positive values, create 9 value diverging color classification 
+            if (minmax[0] < 0 && minmax[1] > 0) {
+                let largestVal = largestAbsVal(Math.ceil(minmax[1]), Math.floor(minmax[0]));
+                let smallestVal = (-1 * largestVal);
+                let positiveBreakDiff = (largestVal / 5);
+                let negativeBreakDiff = (largestVal / 3);
+                let a = []
+                a.push({range: [Number((smallestVal).toFixed(1)), Number((smallestVal + negativeBreakDiff).toFixed(1))], output: 0});
+                a.push({range: [Number((smallestVal + negativeBreakDiff).toFixed(1)), Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1))], output: 1});
+                a.push({range: [Number((smallestVal + (2 * negativeBreakDiff)).toFixed(1)), -0.001], output: 2});
+                a.push({range: [0, 0.001], output: 3});
+                a.push({range: [0.001, Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))], output: 4});
+                a.push({range: [Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (3 * positiveBreakDiff)).toFixed(1))], output: 5});
+                a.push({range: [Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (2 * positiveBreakDiff)).toFixed(1))], output: 6});
+                a.push({range: [Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), Number((largestVal - positiveBreakDiff).toFixed(1))], output: 7});
+                a.push({range: [Number((largestVal - positiveBreakDiff).toFixed(1)), Number(largestVal.toFixed(1))], output: 8});
+                return a
+            } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0
+                // max is the largest number, the min is -1 (7 total classes)
+                let largestVal = Math.ceil(minmax[1]);
+                console.log('largest value :', largestVal)
+                let smallestVal = -1;
+                let positiveBreakDiff = (largestVal / 5);
+                let a = [];
+                // negative (1 class)
+                a.push({range: [Number((smallestVal).toFixed(1)), -0.001], output: 0});
+                // zero (1 class)
+                a.push({range: [0, 0.001], output: 1});
+                // positive (5 classes)
+                a.push({range: [0.001, Number((largestVal - (4 * positiveBreakDiff)).toFixed(1))], output: 2});
+                a.push({range: [Number((largestVal - (4 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (3 * positiveBreakDiff)).toFixed(1))], output: 3});
+                a.push({range: [Number((largestVal - (3 * positiveBreakDiff)).toFixed(1)), Number((largestVal - (2 * positiveBreakDiff)).toFixed(1))], output: 4});
+                a.push({range: [Number((largestVal - (2 * positiveBreakDiff)).toFixed(1)), Number((largestVal - positiveBreakDiff).toFixed(1))], output: 5});
+                a.push({range: [Number((largestVal - positiveBreakDiff).toFixed(1)), Number(largestVal.toFixed(1))], output: 6});
+                return a
+            } else {
+                console.log("don't fit")
+            }
+        }
+    };
+
+    /**
      * Controlling function when 'Add to map' button is clicked.
      * Collects relevant selection data. Checks for missing selections.
      * If selections are missing, opens a calcite-notify component.
@@ -813,20 +1664,29 @@
             let option = elem.placeholder
             let value = elem.selectedItems[0]?.value
             let label = elem.selectedItems[0]?.textLabel
-            selections[option] = {value: value, label: label}
+            let d = elem.selectedItems[0]?.metadata
+            selections[option] = {value: value, label: label, d: d}
         });
         if (hasValueUndefined(selections)) {
             climateNotify.removeAttribute("hidden")
             return
         } else {
+            (domain != "CONUS") ? loadOCONUS(selections) : loadCONUS(selections)
             climateNotify.setAttribute("hidden", "")
-            loadOCONUS(selections)
             return
         }
     }
 
+    /**
+     * Filters options constant into an options object for the selected info button.
+     * Instantiates a TimeSeriesDetails.svelte component with the options object prop. 
+     * Opens the instatiated component's popover element.
+     * @param option_name - which option the i-button is for
+     */
     async function openDetails(option_name) {
+        console.log(option_name)
         let optionsObj = options.filter((opt => opt.name == option_name))[0]
+        console.log(optionsObj)
         let findPopover = document.querySelector(`[reference-element="${optionsObj.name}-details-popover-button"]`);
         if (!findPopover) {
             new TimeSeriesDetails({
@@ -866,7 +1726,7 @@
                 overlay-positioning="absolute"
             >
             {#each clim.options as o}
-                <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
+                <calcite-combobox-item value={o.value} text-label={o.label} metadata={o.d}></calcite-combobox-item>
             {/each}
             </calcite-combobox>
             <calcite-button 

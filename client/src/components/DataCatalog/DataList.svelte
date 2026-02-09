@@ -71,19 +71,19 @@
     }
 
     let topicParams = {
-        select: encodeURIComponent(`{"topic":1,"categoryTab":1}`),
+        select: encodeURIComponent(`{"topic":1}`),//,"categoryTab":1}`),
         options: encodeURIComponent(`{"select":{"distinct":true}}`)
     };
 
     let eaTopics = getEaData("/ea/api/subtopics", topicParams)
         .then((data) => {
-            let categoryOrder = { ESB: 1, PSI: 2, PBS: 3, BNF: 4};
+           //let categoryOrder = { ESB: 1, PSI: 2, PBS: 3, BNF: 4};
             data.sort((a,b) => a.topic.localeCompare(b.topic));
-            data.sort((a,b) => categoryOrder[a.categoryTab] - categoryOrder[b.categoryTab]);
+            //data.sort((a,b) => categoryOrder[a.categoryTab] - categoryOrder[b.categoryTab]);
             // Add empty subtopic array to each array objects
             // data = data.map(obj => ({...obj, subtopic: []}))
             // Drop community only subtopics (Carbon Storage, Health & Eco Outcomes, Pollutant Redxn: Air)
-            let dataReduced = data.filter(item => (item.topic !== "Carbon Storage" && item.topic !== "Health and Economic Outcomes" && item.topic !== "Pollutant Reduction: Air" && item.topic !== "Housing and Schools"));
+            let dataReduced = data//.filter(item => (item.topic !== "Carbon Storage" && item.topic !== "Health and Economic Outcomes" && item.topic !== "Pollutant Reduction: Air" && item.topic !== "Housing and Schools"));
             // load national data into the store
             dataReduced = dataReduced.map(obj => ({...obj, isVisible: true}))
             $nationalItems = dataReduced;
@@ -107,7 +107,7 @@
             // apply topic to subtopic params
             let subtopicParams = {
                 select: encodeURIComponent(`{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"areaGeog":1,"name":1,"tags":1}}`),
-                where: encodeURIComponent(`{"topic":"${data[prop].topic}","scale":"NATIONAL"}`) // Drop Community layers
+                where: encodeURIComponent(`{"topic":"${data[prop].topic}"}`) //',"scale":"NATIONAL"}`) // Drop Community layers
             };
             // return promise object resolve, not the whole promise object
             let res = await getEaData("/ea/api/subtopics", subtopicParams);
@@ -210,8 +210,8 @@
         on:click={toggleChevron}
        ></calcite-action>
     </calcite-block>
-    <TimeSeriesViewer view={view} geography={$geography}/>
-    <SummarizeMyArea {view}/>
+    <TimeSeriesViewer {view} geography={$geography}/>
+    <SummarizeMyArea {view} geography={$geography}/>
     <calcite-block id="national" data-panel-id="national" heading="" description="" open data-testid="national">
         <calcite-block scale="m" id="domainHeader" heading="2. Explore Map Layers"
             description="Search, filter by benefit categories, or explore EnviroAtlas map layers by topic below"

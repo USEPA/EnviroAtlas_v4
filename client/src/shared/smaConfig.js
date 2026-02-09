@@ -121,7 +121,7 @@ export const smaConfig = {
   "nlcd-change": {
     columnHeaders: ['Land Cover Type', 'Year 1 Area (km2)', 'Year 2 Area (km2)', 'Percentage'],
     layersUsed: ['National Land Cover Database'],
-    layersUsedURL: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/NationalLandCover.pdf'],
+    layersUsedURL: 'https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/NationalLandCover.pdf',
     resolution: 30
   },
   "permafrost": {
@@ -139,8 +139,8 @@ export const smaConfig = {
       10: "90.1 - 100%"
     },
     layersUsed: ['Near-surface permafrost probability'],
-    layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/MissingFactSheet.pdf'],
-    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Permafrost_Probability_Near_the_Surface/ImageServer',
+    layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/ESN/NearSurfacePermafrostProbability.pdf'],
+    layer: 'https://awseastaging.epa.gov/arcgis/rest/services/Rasters/Permafrost_Probability_Near_the_Surface/ImageServer',
     resolution: 30,
     columnHeaders: ['Near-surface permafrost probability', 'Area (km2)', 'Percentage'],
     colors: {
@@ -156,6 +156,31 @@ export const smaConfig = {
       9: "#234E8D",
       10: "#23318D"
     },
+    classLabel: "Land Cover Type",
+    firstStatLabel: "Permafrost Area (km2)",
+    secondStatLabel: "Percentage of Area"
+  },
+  "dasy": {
+    indices: {
+      0: "No population (0)",
+      1: "Low population (<2)",
+      2: "Moderately populated (2-10)",
+      3: "Densely populated (>10)"
+    },
+    layersUsed: ['2020 Dasymetric Population'],
+    layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/Dasymetricallocationofpopulation2020.pdf'],
+    layer: 'https://awseastaging.epa.gov/arcgis/rest/services/Rasters/Dasymetric_2020_test/ImageServer',
+    resolution: 30,
+    columnHeaders: ['2020 Dasymetric Population', 'Sum', 'Percentage'],
+    colors: {
+      0: "#FFEBD6",
+      1: "#F0BC9A",
+      2: "#DA674C",
+      3: "#C40D0A"
+    },
+    classLabel: "Class Name",
+    firstStatLabel: "Total Population",
+    secondStatLabel: "Area (km2)"
   },
   sum_units: {
     "stateLayer": {
@@ -169,13 +194,13 @@ export const smaConfig = {
       }
     },
     "County": {
-      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_and_States_with_PR/FeatureServer/0',
+      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Census_2020_DHC_Total_Population/FeatureServer/2',
       "minScale": '300000000',
       "name": "County",
-      "outfields": ['STATE_NAME', 'CountyName'],
+      "outfields": ['State', 'NAME'],
       "outdesc": {
         'Geometry Type': 'US County',
-        'County': "results.CountyName + ', ' + results.STATE_NAME"
+        'County': "custom"//"results.NAME + ', ' + results.State"
       }
     },
     "blockgroupLayer": {
@@ -196,8 +221,8 @@ export const smaConfig = {
       "outfields": ['DISTRICTID', 'NAME', 'PARTY', 'STATE_ABBR'],
       "outdesc": {
         'Geometry Type': '118th US Congressional Districts',
-        'District': 'results.STATE_ABBR+results.DISTRICTID',
-        'Representative': "results.NAME + ' - ' +results.PARTY"
+        'District': 'custom', //results.STATE_ABBR+results.DISTRICTID
+        'Representative': "custom" //results.NAME + ' - ' +results.PARTY
       }
     },
     "HUC-12": {
@@ -207,8 +232,8 @@ export const smaConfig = {
       "outfields": ['HUC12', 'Name'],
       "outdesc": {
         'Geometry Type': 'Sub-watershed (HUC-12)',
-        'HUC-12 ID': "results.HUC12",
-        'HUC-12 Name': "results.Name"
+        'HUC-12 ID': "results.huc12",
+        'HUC-12 Name': "results.name"
       }
     },
     "HUC-8": {
@@ -218,8 +243,8 @@ export const smaConfig = {
       "outfields": ['HUC8', 'Name'],
       "outdesc": {
         'Geometry Type': 'Subbasin (HUC-8)',
-        'HUC-8 ID': "results.HUC8",
-        'HUC-8 Name': "results.Name"
+        'HUC-8 ID': "results.huc8",
+        'HUC-8 Name': "results.name"
       }
     }
   },
