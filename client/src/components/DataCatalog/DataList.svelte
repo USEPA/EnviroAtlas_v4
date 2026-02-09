@@ -232,7 +232,7 @@
     scale="m"
     id="domainHeader"
     heading="2. Explore map layers and tools"
-    description="Discover relationships between nature, economy, and human health through maps"
+    description="Discover relationships between nature, the economy, and human health through maps"
     style="border-bottom: none"
 >
 </calcite-block>
