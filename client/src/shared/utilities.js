@@ -8,23 +8,34 @@ import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
 
 export let view;
 
+// When Add to Map button is clicked, get object from the mapping config
+export function getEALayerObject(id) {
+    // use api to fetch layer object
+    let layerParams = {
+        //TODO: where did type go?
+        //TODO: test out using code like, select = JSON.stringify( {layerID:1,name:1,etc etc} )
+        select: encodeURIComponent(`{"layerID":1,"name":1,"lyrNum":1,"popup":1,"tileLink":1,"tileURL":1,"type":1,"url":1,"serviceType":1,"sourceType":1}`)
+    }
+    let lObj = getEaData(`/ea/api/layers/${id}`, layerParams)
+    return lObj
+}
+
 // Generic ea api call function
 export async function getEaData(url, params) {
     //TODO: check if params is string or object
     //TODO: if object, JSON.stringify
     let paramText = '';
-    for (const [key, value] of Object.entries(params)) {
+    for (const [key] of Object.entries(params)) {
         paramText += `${key}=${params[key]}&`
     }
     let constructedUrl = `${url}?${paramText.slice(0, -1)}`;
     try {
         let res = await fetch(constructedUrl);
-        let data = await res.json();
-        return data;
+        return await res.json()
     } catch (e) {
         console.error("Error fetching data: ", e)
     }
-}
+};
 
 // TEST: is it faster to load data from portal item metadata instead of EAAPI?
 export function addLayer(lObj, view) {
@@ -56,16 +67,43 @@ export function addLayer(lObj, view) {
     // Maybe don't have to do this if EA is dropping Community data from the app?
 };
 
-// Boolean test for Feature or Map service type
+/** 
+ * Boolean test for Feature or Map service type
+ * @param {string} url
+ * @return {boolean} Is the url an Feature or Map Service?
+ */
 export function isFeatureorMapService(url) {
     let match = url.substring(url.lastIndexOf('/') + 1);
     return match === 'FeatureServer' || match === 'MapServer'
-}
+};
 
-// Boolean test for Image service type
+/** 
+ * Boolean test for Image service type
+ * @param {string} url
+ * @return {boolean} Is the url an Image Service?
+ */
 export function isImageService(url) {
     return url.substring(url.lastIndexOf('/') + 1) === 'ImageServer'
-}
+};
+
+/**
+ * Boolean test for object with undefined values
+ * @param {Object} obj
+ * @return {boolean} Does object have undefined value?
+ */
+export function hasValueUndefined(obj) {
+    return Object.values(obj).some(value => value.value === undefined)
+};
+
+/** 
+ * Returns largest absolute value of two numbers
+ * @param {number} num1
+ * @param {number} num2
+ * @returns {number} largest absolute value of num1, num2
+*/
+export function largestAbsVal(num1, num2) {
+    return Math.max(Math.abs(num1), Math.abs(num2))
+};
 
 export function isLayerInMap(url, view) {
     const foundLayer = view.map.allLayers.find(function(lyr) {
@@ -74,16 +112,23 @@ export function isLayerInMap(url, view) {
         return lyr.url === url
     });
     return foundLayer
-}
+};
 
+/**
+ * Remove the layer(s) from map based on the title.
+ * @param {string} lyrName 
+ * @param {object} view 
+ */
 export function removeLayer(lyrName, view) {
     const foundLyr = view.map.allLayers.filter(function(layer) {
         return layer.title === lyrName;
     });
-    if (foundLyr != undefined) {
-        view.map.removeAll(foundLyr);
+    if (foundLyr) {
+        foundLyr.forEach((lyr) => {
+            view.map.remove(lyr);
+        }) 
     };         
-}
+};
 
 export function addFeatureLayer(lObj, view) {
     const url = Object.hasOwn(lObj, 'lyrNum') ? `${lObj.url}/${~~lObj.lyrNum}` : lObj.url;
@@ -92,7 +137,7 @@ export function addFeatureLayer(lObj, view) {
     var copiedLayer = new FeatureLayer({
         url,
         title: lObj.name,
-        opacity: 0.6, // apply defaults, like opacity=0.6
+        //opacity: 0.6,
     });
 
     // catch error on instantiating the new Feature Layer
@@ -117,95 +162,46 @@ export function addFeatureLayer(lObj, view) {
     setupErrorHandling(copiedLayer);
 
     view.map.add(copiedLayer);
-}
-
-// export function renderFloodplainNLCD(url, pixSize, fpID, lcID){
-//     let riparianRemap = new RasterFunction({
-//         functionName: "Remap",
-//         functionArguments: {
-//             inputRanges: [1, 5],
-//             outputValues: [1],
-//             NoDataRanges: [0, 0],
-//             raster: "$" + fpID, //$# is the image # in the service
-//         },
-//     });
-
-//     let nlcdRemap = new RasterFunction({
-//         functionName: "Remap",
-//         functionArguments: {
-//             inputRanges: [0,11,11,12,12,21,21,31,31,41,41,42,42,43,43,52,52,71,71,81,81,82,82,90,90,95,95,96],
-//             outputValues: [0,11,12,0,31,41,42,43,52,71,81,82,90,95],
-//             NoDataRanges: [0, 0],
-//             raster: "$" + lcID,
-//         }
-//     });
-
-//     let riparianNLCD = new RasterFunction({
-//         functionName: "Arithmetic",
-//         functionArguments: {
-//             Raster: riparianRemap,
-//             Raster2: nlcdRemap,
-//             Operation: "3",
-//         }
-//     });
-
-//     let colorRft = new RasterFunction({
-//         functionName: "Colormap",
-//         functionArguments: {
-//             Colormap: [
-//                 [11, 92,138,194],
-//                 [12, 250,250,253],
-//                 [31, 240,233,235],
-//                 [41, 130,197,135],
-//                 [42, 103,134,94],
-//                 [43, 90,164,119],
-//                 [52, 242,219,192],
-//                 [71, 252,242,205],
-//                 [81, 240,237,169],
-//                 [82, 253,253,172],
-//                 [90, 169,221,185],
-//                 [95, 199,236,229]
-//             ],
-//             raster: riparianNLCD
-//         }
-//     });
-
-//     return colorRft
-// }
+};
 
 export function addImageryLayer(lObj, view, rfRule) {
-    console.log(rfRule)
     let iLyr = new ImageryLayer({
         url: lObj.url,
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
-        opacity: 0.6,
+        //opacity: 0.6,
         title: lObj.name
     }); 
     if (rfRule) {
         iLyr.rasterFunction = rfRule
     }
-    iLyr.popupTemplate = { title: lObj.name, content: "{Raster.ServicePixelValue.Raw}" }
+    iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "Pixel Value: {Raster.ServicePixelValue.Raw}" }
     console.log("imageryLayer: ", iLyr);
     view.map.add(iLyr);
-}
+    view.whenLayerView(iLyr).then((layerView) => {
+        layerView.highlightOptions = {
+            color: [0,0,0,0],
+            haloOpacity: 0, 
+            fillOpacity: 0
+        }
+    }) 
+};
 
 export function addTileLayer(lObj, view) {
-    // console.log(lObj)
     // Scale for block group vs huc12 layers
     let mxScale = lObj.sourceType == "cbg" ? 577790 : 4622324;
     let tLyr = new TileLayer({
         title: lObj.name,
         url: lObj.tileURL,
         legendEnabled: false, // hide from legend not honored in layer list...
-        opacity: 0.6, // set opacity
+        //opacity: 0.6,
         // TODO: revist scale level...seems like cacheNatLevel isn't synced with the feature layer scales.
         maxScale: mxScale
     });
     tLyr.listMode = "hide"; // hide from layer list...or "hide-children"
     //console.log(view.zoom);
     view.map.add(tLyr);
-}
+};
 
 // TODO: error catching / email broken layers
 export function setupErrorHandling(errorObj) {
@@ -235,7 +231,7 @@ export function buildFSPopupTemp(lObj) {
             content: [
                 {
                     type: 'text',
-                    text: '<b>' + lObj.name + '<b>'
+                    text: '<b>' + lObj.name + '</b>'
                 },
                 {
                     type: 'fields',
@@ -244,4 +240,51 @@ export function buildFSPopupTemp(lObj) {
         });
         return pTemplate
     }
+}
+
+/** 
+ * Expand or collapse the topic headers in the data catalog.
+ * @param {boolean} expand - default is true
+ */
+export function expandTopics(expand = true) {
+    const ids = ["ESB", "PSI", "PBS", "BNF"]
+    ids.forEach(id => {
+        document.querySelectorAll(`calcite-list-item#${id}`).forEach(elem => {
+            expand ? elem.setAttribute("expanded", "") : elem.removeAttribute("expanded")   
+        });
+    });
+};
+
+/**
+ * Opens Layer List widget and closes others on right side, if applicable.
+ * Used when data is added to the map.
+ * @param {object} activeWidget - this value comes from the store
+ */
+export function openLayerList(activeWidget) {
+    let shell = document.querySelector(`[component-id="shell-panel-end"]`);
+    let layerPanel = document.querySelector(`[data-panel-id="layers"]`)
+    // Given the right side panel is closed, when Add to map is clicked, 
+    // the right side panel opens with the layer list visible
+    if (!activeWidget.right) {
+        layerPanel.removeAttribute("hidden");
+        layerPanel.removeAttribute("closed");
+        shell.removeAttribute("collapsed");
+        activeWidget.right = "layers";
+        document.querySelector(`[data-action-id=${activeWidget.right}]`).active = true;
+    } else if (activeWidget.right !== "layers") {
+        // Given the right side panel is open, when Add to map is clicked, 
+        // the right side panel remains open and has layer list visible
+        layerPanel.removeAttribute("hidden");
+        layerPanel.removeAttribute("closed");
+        document.querySelector(`[data-action-id=${activeWidget.right}]`).active = false;
+        document.querySelector(`[data-panel-id=${activeWidget.right}]`).hidden = true;
+        document.querySelector(`[data-panel-id=${activeWidget.right}]`).closed = true;
+        activeWidget.right = "layers";
+        document.querySelector(`[data-action-id=${activeWidget.right}]`).active = true;
+        shell.removeAttribute("collapsed");
+    }
+};
+
+export function isStringNotEmpty(str) {
+  return typeof str === 'string' && str.trim().length > 0;
 }

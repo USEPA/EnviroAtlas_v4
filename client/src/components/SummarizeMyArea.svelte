@@ -1,4 +1,6 @@
 <script>
+    //research in 4x how to draw a point/line/polygon and add a buffer input
+
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
     import "@esri/calcite-components/dist/components/calcite-shell-panel";
@@ -25,32 +27,69 @@
     import DimensionalDefinition from "@arcgis/core/layers/support/DimensionalDefinition";
     import MosaicRule from "@arcgis/core/layers/support/MosaicRule";
     import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
+    import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
+    import esriRequest from "@arcgis/core/request.js";
+    import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
+    import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
+    import * as d3 from 'd3';
 
     // Import store and configuration
-    import { smaViewModel, smaInputs, viewState, resetSMA } from "src/store";
-    import { smaConfig } from "../shared/smaConfig";
+    import { smaConfig } from "src/shared/smaConfig";
+    import { addLayer, getEALayerObject } from "src/shared/utilities.js";
+    import { geography } from "src/store.ts";
 
-    // Store indicator inputs as view model values
-    const updateIndicator = (e) => {
-        //console.log("event is: ", e);
-        e.target.value == "nlcd"
-            ? ($smaViewModel.indicator = "nlcd")
-            : ($smaViewModel.indicator = "nlcd-change");
-        //console.log("view model indicator value is: ", $smaViewModel.indicator);
+    export let view;
+
+    let indicatorElem;
+    $: indicatorValue = ''
+    let nlcdYearCombobox;
+    $: landcoverYear = null;
+    let nlcdChange1Combo;
+    $: nlcdChange1Combobox = '';
+    let nlcdChange2Combo;
+    $: nlcdChange2Combobox = '';
+    let summaryUnitCombobox;
+    let sumUnit = '';
+    let geographyLabel = '';
+    let geographyAttributes;
+    let geometry;
+    let pointMetric = "kilometers";
+
+    const indicatorsDict = [
+        // {name: "Land Cover", value: "nlcd"}, 
+        // {name: "Land Cover Change", value: "nlcd-change"}, 
+        {name: "Permafrost Probability", value: "permafrost"}
+    ]
+
+    const updateIndicator = () => {
+        indicatorValue = indicatorElem.value
+        // console.log("sma indicator value is: ", indicatorValue);
+        if (indicatorValue == 'permafrost') {
+            $geography = 'Alaska'
+            document.getElementById("Alaska-bookmark").click()
+            _initIndicatorLayer(indicatorValue)
+        } else if (!indicatorValue) {
+            removeIndicator()
+        }
     };
+
+    function removeIndicator() {
+        // Remove existing indicator from map and set values to null
+        let toRemove = view.map.layers.items?.filter(function (item) {
+                return item.title.includes("Summarize My Area Indicator:");
+        });
+
+        view.map.removeMany(toRemove);
+    }
 
     // Store indicator year as view model value and add the appropriate raster to the map
     const updateLCYear = (e) => {
         console.log("event is: ", e);
-        $smaViewModel.landcoverYear = e.target.value;
-        if ($smaViewModel.landcoverYear) {
+        landcoverYear = e.target.value;
+        if (landcoverYear) {
             console.log("target year is: ", e.target.value);
-            console.log(
-                "target year from VM is: ",
-                $smaViewModel.landcoverYear,
-            );
             // load the imagery on the map
-            _initIndicatorLayer($smaViewModel.indicator);
+            _initIndicatorLayer(indicatorValue);
         }
     };
 
@@ -58,27 +97,19 @@
     const updateLCChangeYears = (e) => {
         console.log("event is: ", e);
         if (e.target.id == "nlcd-change-year-1") {
-            $smaViewModel.nlcdChange1Combobox = e.target.value;
+            nlcdChange1Combobox = e.target.value;
         }
         if (e.target.id == "nlcd-change-year-2") {
-            $smaViewModel.nlcdChange2Combobox = e.target.value;
-            _initIndicatorLayer($smaViewModel.indicator);
+            nlcdChange2Combobox = e.target.value;
+            _initIndicatorLayer(indicatorValue);
         }
-        console.log("year1: ", $smaViewModel.nlcdChange1Combobox);
-        console.log("year2: ", $smaViewModel.nlcdChange2Combobox);
+        console.log("year1: ", nlcdChange1Combobox);
+        console.log("year2: ", nlcdChange2Combobox);
     };
 
     // Add the appropriate raster to the map
-    const _initIndicatorLayer = (indicator) => {
-        // Remove existing indicator from map and set values to null
-        let toRemove = $viewState.view.map.layers.items?.filter(
-            function (item) {
-                return item.title.includes("Summarize My Area Indicator:");
-            },
-        );
-
-        $viewState.view.map.removeMany(toRemove);
-
+    async function _initIndicatorLayer(indicator) {
+        removeIndicator()
         // Make mosaic rule work for land cover and land cover change variables
         let mosaicRule = new MosaicRule({
             method: "lock-raster",
@@ -89,56 +120,63 @@
         switch (indicator) {
             case "nlcd":
                 mosaicRule.lockRasterIds =
-                    smaConfig.nlcd.OBJECTIDS[$smaViewModel.landcoverYear];
+                    smaConfig.nlcd.OBJECTIDS[landcoverYear];
                 indicatorUrl = smaConfig.nlcd.layer;
                 break;
             case "nlcd-change":
                 mosaicRule.lockRasterIds = [
-                    smaConfig.nlcd.OBJECTIDS[$smaViewModel.nlcdChange1Combobox],
-                    smaConfig.nlcd.OBJECTIDS[$smaViewModel.nlcdChange2Combobox],
+                    smaConfig.nlcd.OBJECTIDS[nlcdChange1Combobox],
+                    smaConfig.nlcd.OBJECTIDS[nlcdChange2Combobox],
                 ];
                 indicatorUrl = smaConfig.nlcd.layer;
+            case "permafrost":
+                let lObject = await getEALayerObject(552);
+                // TODO: error handle if lObject is empty 
+                console.log(lObject)
+                lObject.name = "Summarize My Area Indicator: Near-surface permafrost probability";
+                addLayer(lObject, view);
         }
 
-        //TODO: Fix legend appearance
-        const indicatorLayer = new ImageryLayer({
-            url: indicatorUrl,
-            blendMode: "multiply",
-            format: "jpg",
-            mosaicRule: mosaicRule,
-            id: `sma-${indicator}-layer`,
-            noData: 0, // set no data params
-            opacity: 0.5,
-            title:
-                "Summarize My Area Indicator: " +
-                $smaViewModel.indicator + // TO DO: format
-                " , " +
-                $smaViewModel.landcoverYear,
-            popupEnabled: false,
-        });
+        // //TODO: Fix legend appearance
+        // const indicatorLayer = new ImageryLayer({
+        //     url: indicatorUrl,
+        //     mosaicRule: mosaicRule,
+        //     id: `sma-${indicator}-layer`,
+        //     noData: 0, // set no data params
+        //     opacity: 0.6,
+        //     title:
+        //         "Summarize My Area Indicator: " +
+        //         indicator + // TO DO: format
+        //         ", " +
+        //         landcoverYear,
+        //     popupEnabled: false,
+        // });
 
-        $viewState.view.map.add(indicatorLayer);
+        // view.map.add(indicatorLayer);
     };
 
     // Store summary unit input as view model value
     const updateSumUnit = (e) => {
         // Remove existing summary unit geometry from map
-        let toRemove = $viewState.view.map.layers.items?.filter(
+        let toRemove = view.map.layers.items?.filter(
             function (item) {
                 return item.title.includes("Summarize My Area Unit:");
             },
         );
 
-        $viewState.view.map.removeMany(toRemove);
+        view.map.removeMany(toRemove);
 
         console.log("event is: ", e);
-        $smaViewModel.sumUnit = e.target.value;
-        console.log("Input sumUnit: ", $smaInputs.summaryUnitCombobox);
-        console.log("VM sumUnit: ", $smaViewModel.sumUnit);
-
+        sumUnit = e.target.value;
+        console.log("sumUnit is ", sumUnit)
         //TODO: Add Draw functionality
-
-        _initGeometryLayer($smaViewModel.sumUnit);
+        if (sumUnit != '') {
+            _initGeometryLayer(sumUnit);
+        } else {
+            // Clear graphics from map if the sum unit changes.
+            view.graphics.removeAll()
+            geographyLabel = ''
+        }
     };
 
     // Add summary unit geometry to the map based on configurations
@@ -148,190 +186,348 @@
         let url = smaConfig.sum_units[`${sumUnit}`].url;
         let outfields = smaConfig.sum_units[`${sumUnit}`].outfields;
 
-        let unitSymbol = new SimpleFillSymbol({
-            color: [0, 0, 0, 0],
-            outline: {
-                color: [0, 0, 0],
-                width: 1,
-            },
-            style: "none",
-        });
-
         let unitRenderer = new SimpleRenderer({
-            symbol: unitSymbol,
-            label: `${sumUnit}`,
+            symbol: new SimpleFillSymbol({
+                color: [128, 128, 128, 0],
+                outline: {
+                    color: [65, 65, 65],
+                    width: 2,
+                }
+            })
         });
 
         let geometryLayer = new FeatureLayer({
             url: url,
-            opacity: 0.5,
+            // opacity: 0.7,
             id: `${sumUnit}Layer`, //TODO: name id and title similar to indicator layer
             minScale: unitMinScale,
             title:
                 "Summarize My Area Unit: " +
                 smaConfig.sum_units[`${sumUnit}`].name,
             outFields: smaConfig.sum_units[`${sumUnit}`].outfields,
-            renderer: unitRenderer,
+            renderer: unitRenderer
         });
 
         console.log(geometryLayer);
-        $viewState.view.map.add(geometryLayer);
+        view.map.add(geometryLayer);
 
         //TODO: Create zoom service message based on scale of layer...see lines 1250-1259 of old widget code
 
         // Add mapClickEvent functionality
         // Only propogate event when geometry layer is added
-        $viewState.view.whenLayerView(geometryLayer).then((layerView) => {
-            $viewState.view.on("click", eventHandler);
-
-            function eventHandler(e) {
-                const eMapPoint = e.mapPoint;
-                // Invoke option to only include graphics from geometryLayer in the hitTest
-                const opts = {
-                    include: geometryLayer,
-                };
-
-                // The hitTest() checks to see if any graphics from the geometryLayer
-                $viewState.view.hitTest(e, opts).then((response) => {
-                    if (response.results.length) {
-                        let query = geometryLayer.createQuery();
-                        query.geometry = eMapPoint;
-                        query.outFields = outfields;
-                        query.returnGeometry = true;
-                        geometryLayer
-                            .queryFeatures(query)
-                            .then((result) => {
-                                let geometry = result.features[0].geometry;
-                                let geographyAttributes =
-                                    result.features[0].attributes;
-                                buildGeographyLabel(geographyAttributes);
-                                const symbol = new SimpleFillSymbol();
-                                symbol.style = "none";
-                                _addGraphicToMap(symbol, geometry);
-                            })
-                            .catch((error) => {
-                                console.log(error);
+        reactiveUtils.on(
+        () => view,
+        "arcgisViewClick",
+        async (e) => {
+            const eMapPoint = e.detail.screenPoint;
+            // Invoke option to only include graphics from geometryLayer in the hitTest
+            const opts = {
+                include: geometryLayer,
+            };
+            // The hitTest() checks to see if any graphics from the geometryLayer
+            view.hitTest(eMapPoint, opts).then((res) => {
+                if (res.results.length) {
+                    //Clear graphic from the map if a new one is clicked
+                    view.graphics.removeAll()
+                    let query = geometryLayer.createQuery();
+                    query.geometry = res['results'][0].mapPoint;
+                    query.outFields = outfields;
+                    query.returnGeometry = true;
+                    geometryLayer
+                        .queryFeatures(query)
+                        .then((result) => {
+                            geometry = result.features[0].geometry;
+                            let geographyAttributes =
+                                result.features[0].attributes;
+                            buildGeographyLabel(geographyAttributes);
+                            const symbol = new SimpleFillSymbol({
+                                color: [0, 0, 0, 0],
+                                outline: {color: [0, 0, 0], 
+                                width: 2}
                             });
-                    }
-                });
-            }
-
-            // Build string that displays attributes of the summary unit selection geography
-            function buildGeographyLabel(geographyAttributes) {
-                switch ($smaViewModel.sumUnit) {
-                    case "County":
-                        $smaViewModel.geographyLabel =
-                            geographyAttributes.NAME +
-                            ", " +
-                            geographyAttributes.STATE_NAME;
-                        break;
-                    case "Congressional District":
-                        $smaViewModel.geographyLabel =
-                            "Congressional District " +
-                            geographyAttributes.STATE_ABBR +
-                            geographyAttributes.DISTRICTID;
-                        break;
-                    case "HUC-12":
-                        $smaViewModel.geographyLabel =
-                            geographyAttributes.HU_12_Name +
-                            " (" +
-                            geographyAttributes.HUC_12 +
-                            ")";
-                        break;
-                    case "HUC-8":
-                        $smaViewModel.geographyLabel =
-                            geographyAttributes.HU_8_Name +
-                            " (" +
-                            geographyAttributes.HUC8 +
-                            ")";
-                        break;
+                            const graphic = new Graphic({ geometry, symbol });
+                            view.graphics.add(graphic);
+                            console.log(geometry)
+                            view.goTo({
+                                target: geometry,
+                                extent: geometry.clone()
+                            },
+                            { duration: 1000 },
+                            );
+                            let whereKey = Object.keys(geographyAttributes)[0]
+                            let whereVal = Object.values(geographyAttributes)[0]
+                            const where = `${whereKey} = '${whereVal}'`
+                            geometryLayer.renderer = new SimpleRenderer({
+                                symbol: new SimpleFillSymbol({
+                                    color: [128, 128, 128],
+                                    outline: {
+                                        color: [65, 65, 65],
+                                        width: 2,
+                                    }
+                                })
+                            });
+                            geometryLayer.featureEffect = {
+                                filter: new FeatureFilter({
+                                    where,
+                                }),
+                                includedEffect: "brightness(300) opacity(0.01%) drop-shadow(3px, 3px, 12px, black)",
+                                excludedEffect: "opacity(0.5) blur(1px)"
+                            }
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                        });
                 }
-            }
+            });
         });
+
+        // Build string that displays attributes of the summary unit selection geography
+        function buildGeographyLabel(geographyAttributes) {
+            console.log(geographyAttributes)
+            switch (sumUnit) {
+                case "County":
+                    geographyLabel =
+                        geographyAttributes.CountyName +
+                        ", " +
+                        geographyAttributes.STATE_NAME;
+                    break;
+                case "Congressional District":
+                    geographyLabel =
+                        "Congressional District " +
+                        geographyAttributes.STATE_ABBR +
+                        geographyAttributes.DISTRICTID;
+                    break;
+                case "HUC-12":
+                    geographyLabel =
+                        geographyAttributes.name +
+                        " (" +
+                        geographyAttributes.huc12 +
+                        ")";
+                    break;
+                case "HUC-8":
+                    geographyLabel =
+                        geographyAttributes.name +
+                        " (" +
+                        geographyAttributes.huc8 +
+                        ")";
+                    break;
+            }
+        }
     };
 
     //TODO: Add buffer functionality
 
-    //TODO: ClipLayer to Geometry
-    // const _clipLayerToGeometry = (indicatorLayer, geometry) => {
-    //     let renderingrule;
+    async function calculate() {
+        // loading image on button
+        // conditionality on what is geo depending on sum unit (point/line/area)
+        //default let geo=geometry (selected area)
+        let geo = geometry
+        const pixel_size = smaConfig[indicatorValue].resolution;
+        let compHistEndpoint = `${smaConfig[indicatorValue].layer}/computeStatisticsHistograms`;
 
-    //     const clipFunction = new RasterFunction();
-    //     clipFunction.functionName = "Clip";
-    //     clipFunction.outputPixelType = "U8";
-    //     clipFunction.functionArguments = {
-    //         ClippingGeometry: geometry,
-    //         ClippingType: 1,
-    //     };
+        let remapRF = new RasterFunction();
+        remapRF.functionName = "Remap";
+        remapRF.functionArguments = {
+            InputRanges: [-1,-0.001,0,11,11,21,21,31,31,41,41,51,51,61,61,71,71,81,81,91,91,101],
+            OutputValues: [0,1,2,3,4,5,6,7,8,9,10],
+            Raster: "$$"
+        };
+        remapRF.outputPixelType = "u8";
 
-    //     switch (this.indicator) {
-    //         case "nlcd":
-    //         case "nlcd-change":
-    //         default:
-    //             renderingrule = clipFunction;
-    //             clipFunction.functionArguments.Raster = "$$";
-    //             break;
-    //     }
+        let compHistObject = {
+            f: 'json',
+            geometryType: 'esriGeometryPolygon',
+            geometry: JSON.stringify(geo),
+            pixelSize: pixel_size,
+            renderingRule: JSON.stringify(remapRF)
+        }
+        
+        let results, area
+        switch(indicatorValue) {
+            case 'permafrost':
+                results = await _computeHistograms(compHistEndpoint, compHistObject);
+                if (results) {
+                    const totalCount = results.data.statistics[0].count;
+                    area = totalCount * (pixel_size * pixel_size) / 1000000
+                    let pResults = {}
+                    results.data.histograms[0].counts.forEach((count, index) => {
+                        if (count > 0) {
+                            pResults[index] = {
+                                area: _calculatePermArea(totalCount, count, area),
+                                perc: calculatePercentages(totalCount, count),
+                                name: smaConfig.permafrost.indices[index],
+                                legend: `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig.permafrost.colors[index]}"></div>`
+                            }
+                        }
+                    });
+                    let data = Object.entries(pResults).map(([k, v]) => (v));
+                    var headers = [
+                        { head: '', cl: 'title', d: 'legend' },
+                        { head: 'Land Cover Type', cl: 'nlcd_title', d: 'name' },
+                        { head: indicatorValue + ' Area (' + _getMetricString(pointMetric) + '2)', cl: '', d: 'area' },
+                        { head: 'Percentage', cl: '', d: 'perc' }
+                    ]
+                    let table = _renderTable(headers, data)
+                    //replace jquery below...
+                    document.getElementById('gridded-map-output-table-wrapper').append(table);
 
-    //     indicatorLayer.setRenderingRule(renderingrule);
-    //     var extent = geometry.getExtent();
-    //     //this._customZoomExtent(extent);
-    //     this.map.setExtent(extent, true);
-    //     this.calculateButton.disabled = false;
-    //     this.areaSelected = true;
-    // };
+                    //not sure what domClass is doing below...
+                    // if (Object.keys(pResults).length > 3) {
+                    //     domClass.add(this.tabNode2, 'overflow');
+                    // } else {
+                    //     domClass.remove(this.tabNode2, 'overflow');
+                    // }
+                }     
+        }
+        _renderResults(results, area);
+    }
 
-    //TODO: Clear graphic from the map if a new one is clicked, or if the sum unit changes.
+    function _renderResults(results, area, line) {
+        console.log("area: " + area + " line: " + line)
+        _renderInputTable(geographyAttributes, area, line);
+        //this.calculateButton.innerHTML = this.nls.calculate;
+        //this.resultsLoaded = true;
+        //this.tabContainer.selectTab(this.tabNode2); //manually switch tabs when results are ready
+    }
 
-    const _addGraphicToMap = (symbol, geometry, isBuffer = false) => {
-        const graphic = new Graphic({ geometry, symbol });
-        // if (this.drawLayer.graphics.length > 0 && !isBuffer) {
-        //     this.drawLayer.clear(); //clear graphic if needs be, so only 1 on map at a time
+    function _renderInputTable(results, area, line) {
+        //document.getElementById('gridded-map-output-table-wrapper').innerHTML('');
+        let inputTableData = []
+
+        let indicatorLabel = indicatorsDict.find(indicator => indicator.value === indicatorValue).name
+        inputTableData.push({ 'attribute': 'Analysis', 'value': indicatorLabel });
+
+        inputTableData.push({
+          'attribute': 'Source Data',
+          'value': '<a target= _blank" style="text-decoration:none" href="' +
+            smaConfig[indicatorValue].layersUsedURL + '">' +
+            (smaConfig[indicatorValue].layersUsed) + '</a>'
+        });
+
+        switch (sumUnit) {
+          default:
+            let inputTableFields = smaConfig.sum_units[sumUnit].outdesc;
+            for (const k in inputTableFields) {
+                let value;
+                let v = inputTableFields[k];
+                //if (v.includes('results.')) {
+                    //value = Function("return " + inputTableFields[k])();
+                //} else {
+                    value = inputTableFields[k];
+                //}
+                inputTableData.push({ 'attribute': k, 'value': value })
+            }
+            break;
+        }
+
+        const pretty_area = Math.round(area * 10) / 10;
+        inputTableData.push({ 'attribute': 'Area', 'value': pretty_area + ' ' + _getMetricString(pointMetric) + '2' });
+
+        var headers = [
+          { head: 'Input Paramaters', cl: '', d: 'attribute' },
+          { head: ' ', cl: '', d: 'value' }]
+        let table = _renderTable(headers, inputTableData)
+
+        document.getElementById('gridded-map-input-table-wrapper').append(table)
+    }
+
+    async function _computeHistograms(url, post_data) {
+        // if (this.errorMessage.innerHTML !== "") {
+        //   this.errorMessage.innerHTML = "";
+        //   let image = '<img src="./configs/loading/images/predefined_loading_1.gif"/>';
+        //   this.calculateButton.innerHTML = image;
         // }
 
-        $viewState.view.graphics.add(graphic);
+        const compHistRequest = esriRequest(url, {
+          responseType : "json",
+          method: "post",
+          query: post_data,
+        });
 
-        // if (this.indicatorLayer) {
-        //     this._clipLayerToGeometry(this.indicatorLayer, geometry);
-        // }
-
-        // if (this.layer) {
-        //     this._clipLayer(geometry);
-        // }
+        try {
+            const results = await compHistRequest;
+        //   if (this.calculateButton.disabled) {
+        //     this.calculateButton.innerHTML = this.nls.calculate;
+        //     return;
+        //   }
+            console.log(results)
+            return results;
+        } catch (err) {
+            console.log(err)
+        //   this.calculateButton.innerHTML = this.nls.calculate;
+        //   if (err.details && err.details[0] === 'The requested image exceeds the size limit.') {
+        //     this.errorMessage.innerHTML = this.nls.sizeError;
+        //   } else {
+        //     this.errorMessage.innerHTML = this.nls.genericError;
+        //   }
+        }
+    };
+    function _calculatePermArea(total, count, area) {
+        let calcPercentage = calculatePercentages(total, count)
+        return Number(( calcPercentage / 100) * area).toFixed(2);
     };
 
-    export const handlePanelClose = function (e) {
-        const target = e.target;
-        const shellElement = target.parentElement;
-        shellElement.collapsed = !shellElement.collapsed;
-        document.querySelector('[data-action-id="summarize-my-area"]').active =
-            false;
-    };
+    function calculatePercentages(totalCount, count) {
+        return (count / totalCount * 100).toFixed(2);
+    }
 
-    // TODO: handle resets
-    const resetSMAInputs = () => {
-        resetSMA();
-    };
+    function _getMetricString(metric) {
+        switch (metric) {
+          case 'kilometers':
+            return 'km';
+          case 'miles':
+            return 'mi';
+        }
+    }
+
+    function _renderTable(headers, data) {
+        let table_wrapper = d3.create('div')
+          .attr('class', 'table-wrapper');
+
+        let table = table_wrapper.append('table');
+
+        // create table header
+        table.append('thead').append('tr')
+          .selectAll('th')
+          .data(headers).enter()
+          .append('th')
+          .attr('class', d => d.cl)
+          .text(d => d.head);
+
+        // create table body
+        table.append('tbody')
+          .selectAll('tr')
+          .data(data).enter()
+          .append('tr')
+          .selectAll('td')
+          .data(function (row, i) {
+            let cells = []
+            for (var ii = 0; ii < headers.length; ii++) {
+              cells.push(row[headers[ii].d])
+            }
+            return cells;
+          })
+          .enter()
+          .append('td')
+          .html(function (cell) {
+            return cell
+          });
+        return table_wrapper.node();
+    }
 </script>
 
 <calcite-panel
     heading="Summarize My Area"
-    data-panel-id="summarize-my-area"
+    data-panel-id="sma"
     hidden
-    closable
     overlayPositioning="fixed"
-    on:calcitePanelClose={handlePanelClose}
 >
-    <calcite-action icon="information" text="Favorite" slot="header-actions-end"
-    ></calcite-action>
     <calcite-button
         tabindex="0"
         role="button"
-        round
-        width="half"
+        width="full"
         slot="footer"
-        on:click={resetSMAInputs}
-        on:keypress={resetSMAInputs}
+        on:click={calculate}
     >
         Calculate
     </calcite-button>
@@ -346,28 +542,27 @@
             <calcite-block open heading="Select an indicator">
                 <calcite-icon scale="m" slot="icon" icon="number-circle-1"
                 ></calcite-icon>
-                <calcite-segmented-control
-                    width="full"
-                    scale="s"
-                    on:calciteSegmentedControlChange={updateIndicator}
-                >
-                    <calcite-segmented-control-item
-                        bind:this={$smaInputs.landcover}
-                        role="radio"
-                        aria-checked="true"
-                        checked
-                        value="nlcd">Land Cover</calcite-segmented-control-item
+                <calcite-label layout="inline">
+                    <calcite-combobox
+                        scale="s"
+                        placeholder-icon="calendar"
+                        placeholder=" Select one"
+                        selection-mode="single"
+                        max-items="0"
+                        overlay-positioning="absolute"
+                        value="nlcd"
+                        bind:this={indicatorElem}
+                        on:calciteComboboxChange={updateIndicator}
                     >
-                    <calcite-segmented-control-item
-                        bind:this={$smaInputs.landcoverChange}
-                        role="radio"
-                        aria-checked="true"
-                        value="nlcd-change"
-                        >Land Cover Change</calcite-segmented-control-item
-                    >
-                </calcite-segmented-control>
-                <br />
-                {#if $smaViewModel.indicator == "nlcd"}
+                        {#each indicatorsDict as ind}
+                            <calcite-combobox-item
+                                value={ind.value}
+                                heading={ind.name}
+                            ></calcite-combobox-item>
+                        {/each}
+                    </calcite-combobox>
+                </calcite-label>
+                {#if indicatorValue == "nlcd"}
                     <calcite-label layout="inline" scale="s">
                         NLCD Year:
                         <calcite-combobox
@@ -377,35 +572,34 @@
                             selection-mode="single"
                             max-items="0"
                             overlay-positioning="absolute"
-                            bind:this={$smaInputs.nlcdYearCombobox}
+                            bind:this={nlcdYearCombobox}
                             on:calciteComboboxChange={updateLCYear}
                         >
                             {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcYear}
                                 <calcite-combobox-item
                                     value={lcYear}
-                                    text-label={lcYear}
+                                    heading={lcYear}
                                 ></calcite-combobox-item>
                             {/each}
                         </calcite-combobox>
                     </calcite-label>
-                {:else}
+                {:else if indicatorValue == "nlcd-change"}
                     <calcite-label layout="inline" scale="s">
                         NLCD Year 1:
                         <calcite-combobox
                             scale="s"
-                            placeholder-icon="calendar"
                             placeholder=" Select one"
                             selection-mode="single"
                             max-items="0"
                             overlay-positioning="absolute"
                             id="nlcd-change-year-1"
-                            bind:this={$smaInputs.nlcdChange1Combobox}
+                            bind:this={nlcdChange1Combo}
                             on:calciteComboboxChange={updateLCChangeYears}
                         >
                             {#each ["2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc1Year}
                                 <calcite-combobox-item
                                     value={lcc1Year}
-                                    text-label={lcc1Year}
+                                    heading={lcc1Year}
                                 ></calcite-combobox-item>
                             {/each}
                         </calcite-combobox>
@@ -420,13 +614,13 @@
                             max-items="0"
                             overlay-positioning="absolute"
                             id="nlcd-change-year-2"
-                            bind:this={$smaInputs.nlcdChange2Combobox}
+                            bind:this={nlcdChange2Combo}
                             on:calciteComboboxChange={updateLCChangeYears}
                         >
                             {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc2Year}
                                 <calcite-combobox-item
                                     value={lcc2Year}
-                                    text-label={lcc2Year}
+                                    heading={lcc2Year}
                                 ></calcite-combobox-item>
                             {/each}
                         </calcite-combobox>
@@ -442,20 +636,19 @@
                         placeholder-icon="calendar"
                         placeholder=" Select one"
                         selection-mode="single"
-                        max-items="0"
-                        overlay-positioning="absolute"
-                        bind:this={$smaInputs.summaryUnitCombobox}
+                        overlay-positioning="fixed"
+                        bind:this={summaryUnitCombobox}
                         on:calciteComboboxChange={updateSumUnit}
                     >
                         {#each ["County", "Congressional District", "HUC-8", "HUC-12", "Draw a point", "Draw a line", "Draw an area"] as sumUnit}
                             <calcite-combobox-item
                                 value={sumUnit}
-                                text-label={sumUnit}
+                                heading={sumUnit}
                             ></calcite-combobox-item>
                         {/each}
                     </calcite-combobox>
                 </calcite-label>
-                {#if $smaViewModel.sumUnit == "Draw a point" || $smaViewModel.sumUnit == "Draw a line" || $smaViewModel.sumUnit == "Draw an area"}
+                {#if sumUnit == "Draw a point" || sumUnit == "Draw a line" || sumUnit == "Draw an area"}
                     <calcite-label layout="inline" scale="s"
                         >Buffer distance:
                         <calcite-input-number
@@ -471,7 +664,7 @@
             <calcite-block open heading="Select your geography">
                 <calcite-icon scale="m" slot="icon" icon="number-circle-3"
                 ></calcite-icon>
-                {#if $smaViewModel.sumUnit == "HUC-8" || $smaViewModel.sumUnit == "HUC-12"}
+                {#if sumUnit == "HUC-8" || sumUnit == "HUC-12"}
                     <calcite-notice
                         open
                         icon="exclamation-mark-triangle"
@@ -480,17 +673,23 @@
                         <div slot="message">Zoom in to see HUC boundaries</div>
                     </calcite-notice>
                 {/if}
-                {#if $smaViewModel.geographyLabel}
+                {#if geographyLabel}
                     <calcite-notice open kind="success">
-                        <div slot="message">{$smaViewModel.geographyLabel}</div>
+                        <div slot="message">{geographyLabel}</div>
                     </calcite-notice>
                 {/if}
             </calcite-block>
         </calcite-tab>
         <calcite-tab tab="resultsTab">
-            <calcite-notice icon="car" open>
-                <div slot="message">Results!</div>
-            </calcite-notice>
+            <div id="gridded-map-results" class="widget-gridded-map profile-tab-node" data-dojo-attach-point="tabNode2">
+                <div style="margin-bottom:10px" id="gridded-map-title">
+                    <div>
+                        <img alt="https://www.epa.gov/enviroatlas" src="images/logo.png" style="height: 33px; margin-top: 7px; display:inline-block; position:relative; left:50%; transform: translate(-50%); margin-bottom:-3px">
+                    </div>
+                    <div style="display:block; margin:0 auto; text-align: center; font-size:18px; color:darkgray;">Summarize My Area</div>
+                </div>
+            <div id="gridded-map-input-table-wrapper" class="table-wrapper"></div>
+            <div id="gridded-map-output-table-wrapper" class="table-wrapper"></div>
         </calcite-tab>
     </calcite-tabs>
 </calcite-panel>

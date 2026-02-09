@@ -7,14 +7,15 @@
   import "@esri/calcite-components/dist/components/calcite-panel";
   import "@esri/calcite-components/dist/components/calcite-navigation";
   import "@esri/calcite-components/dist/components/calcite-navigation-logo";
-  import "@esri/calcite-components/dist/components/calcite-combobox";
+  import "@esri/calcite-components/dist/components/calcite-chip";
+  import "@esri/calcite-components/dist/components/calcite-chip-group";
 
   // Import arcgis js api
   import esriConfig from "@arcgis/core/config.js";  
   import Basemap from "@arcgis/core/Basemap.js";
   import PortalBasemapsSource from "@arcgis/core/widgets/BasemapGallery/support/PortalBasemapsSource.js";
   import Portal from "@arcgis/core/portal/Portal.js";
-  import BasemapStyle from "@arcgis/core/support/BasemapStyle.js";
+  import * as reactiveUtils from "@arcgis/core/core/reactiveUtils.js";
   //import FeatureTable from "@arcgis/core/widgets/FeatureTable";
 
   import "@arcgis/map-components/components/arcgis-scale-bar";
@@ -24,19 +25,32 @@
   import "@arcgis/map-components/components/arcgis-layer-list";
   import "@arcgis/map-components/components/arcgis-zoom";
   import "@arcgis/map-components/components/arcgis-search";
+  import "@arcgis/map-components/components/arcgis-sketch";
+  import "@arcgis/map-components/components/arcgis-features";
+  import "@arcgis/map-components/components/arcgis-legend";
+  import "@arcgis/map-components/components/arcgis-area-measurement-2d";
 
   // Import components and store
   import { catalog, activeWidget } from "src/store.ts";
-  import SummarizeMyArea from "src/components/SummarizeMyArea.svelte";
+  // use npm published version now (in development used linked version via devLink utility
+  import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
-  import Bookmark from "./ClimateChangeViewer/Bookmark.svelte";
 
   let view;
   let bmgContainer;
   let layerListContainer;
   let fTableContainer;
   let leftActionBar;
+  let map;
+
+  $: {
+    if (view && !map) {
+        view.addEventListener("arcgisViewReadyChange", () => {
+            map = view.map;
+        });
+    }
+  }
 
   esriConfig.portalUrl = "https://epa.maps.arcgis.com/";
 
@@ -49,13 +63,33 @@
   })
 
   const basemap = new Basemap({
-    style: new BasemapStyle({
-      id: "arcgis/topographic",
-      worldview: "unitedStatesOfAmerica"
-    })
+    portalItem: {
+      id: "7a4aa667d61541c583d9a723c8b349da"
+    }
   })
 
   catalog.subscribe;
+
+  const actionsDict = {
+    "national": "globe", 
+    "time-series-viewer": "clock-forward", 
+    "sma": "mosaic-method-sum"
+  }
+  async function setupPopup() {
+    reactiveUtils.on(
+      () => view,
+      "arcgisViewClick",
+      async (event) => {
+        view.popup ={
+          dockEnabled: true, 
+          dockOptions: {
+            position: "top-right",
+            breakpoint: false
+          }
+        }
+      }
+    );
+  }
 
   function listItemCreatedFunction(e) {
     const item = e.item;
@@ -95,7 +129,6 @@
   }
 
   function layerListAction(e) {
-    console.log(e)
     const id = e.detail.action.id;
     if (id === "trash") {
       const title = e.detail.item.layer.title;
@@ -132,38 +165,28 @@
     shell.removeAttribute("collapsed");
   };
 
+  /**
+   * The on:click function for the left side action bar.
+   * Expands the shell panel, adds or removes the tab active UI,
+   * and hides or shows the selected action's panel. 
+   * Also, sets the catalog.type store value to
+   * selected action's id, which controls many parts of the app. 
+   * @param target html element
+   */
   const handleCatalogActionClick = ({ target }) => {
-    if (target.tagName !== "CALCITE-ACTION") {
-      return;
-    }
-
     handleExpandClick();
-    
     const nextDataCatalog = target.dataset.actionId;
-
     if (nextDataCatalog !== $catalog.type) {
-      let activeAction = document.querySelectorAll(`[data-action-id=${$catalog.type}]`);
-      activeAction.forEach((action) => {
-        action.removeAttribute("active")
-      });
+      document.querySelector(`#catalog-button-${$catalog.type}`).style.borderBottom ="none"
+      document.querySelector(`#catalog-button-${nextDataCatalog}`).style.borderBottom ="3px solid #162e51";
+
       document.querySelector(`[data-panel-id=${$catalog.type}]`).setAttribute("hidden", "");
-      let nextAction = document.querySelectorAll(`[data-action-id=${nextDataCatalog}]`);
-      nextAction.forEach((action) => {
-        action.setAttribute("active", "");
-      });
       document.querySelector(`[data-panel-id=${nextDataCatalog}]`).removeAttribute("hidden");
       $catalog.type = nextDataCatalog;
-    } 
-
-    nextDataCatalog == 'add-data' 
-      ? document.querySelector(`[id=catalog-search-filter]`).setAttribute("hidden", "") 
-      : document.querySelector(`[id=catalog-search-filter]`).removeAttribute("hidden");
+    }
   };
 
   const handleOtherActionBarClick = ({ target }) => {
-    if (target.tagName !== "CALCITE-ACTION") {
-      return;
-    }
     // If there's one already active, close things.
     if ($activeWidget.right) {
       document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
@@ -208,19 +231,11 @@
   <calcite-navigation id="header" slot="header">
     <calcite-navigation-logo
       slot="content-start"
-      heading="v4"
+      heading="Interactive Map"
       thumbnail="/ea/client/images/logo.png"
       href="https://www.epa.gov/enviroatlas"
       target="_blank"
     ></calcite-navigation-logo>
-    <calcite-combobox 
-      slot="content-start"
-      selectionMode="single-persist"
-      clearDisabled
-      scale="l"
-    >
-      <Bookmark view={view}/>
-    </calcite-combobox>
     <calcite-chip-group slot="content-end" expanded>
       {#each [
         {label:'Help', icon:'question'},
@@ -228,25 +243,27 @@
         {label:'Contact Us', icon:'envelope', link:'https://www.epa.gov/enviroatlas/forms/contact-us-about-enviroatlas'}
         ] as link}
         <calcite-button scale="s" target="_blank" id='linkbtns' href={link.link}>
-          <calcite-chip icon={link.icon} scale="l">{link.label}</calcite-chip>
+          <calcite-chip icon={link.icon} scale="m">{link.label}</calcite-chip>
         </calcite-button>
         {/each}
     </calcite-chip-group>
   </calcite-navigation>
-  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="5">
+  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="5" 
+    on:arcgisViewReadyChange={setupPopup}
+    >
     <arcgis-search 
       position="top-right"
-    />
+   ></arcgis-search>
     <arcgis-zoom 
       position="top-right" 
       layout="vertical" 
       referenceElement={view}
-    />
+   ></arcgis-zoom>
     <arcgis-scale-bar
       position="bottom-left"
       bar-style="line"
       unit="dual"
-    />
+   ></arcgis-scale-bar>
     <arcgis-coordinate-conversion
       position="bottom-left"
       mode="live"
@@ -257,7 +274,7 @@
       hide-settings-button
       multiple-conversions-disabled
       storage-disabled
-    />
+   ></arcgis-coordinate-conversion>
   </arcgis-map>
   <calcite-shell-panel
     component-id="shell-panel-start"
@@ -274,34 +291,18 @@
       tabindex="-1"
       bind:this={leftActionBar}
     >
+    {#each Object.entries(actionsDict) as [action, icon]}
       <calcite-action
         tabindex="-1"
         role="button"
-        data-action-id="national"
-        text="national"
-        icon="globe"
-        active
+        data-action-id={action}
+        text={action}
+        icon={icon}
+        active={action == $catalog.type}
         on:click={handleCatalogActionClick}
         on:keypress={handleCatalogActionClick}
-      />
-      <calcite-action
-        tabindex="-1"
-        role="button"  
-        data-action-id="climate-data-viewer-2"
-        text="climate-data-viewer"
-        icon="clock-forward"
-        on:click={handleCatalogActionClick}
-        on:keypress={handleCatalogActionClick}
-      />
-      <calcite-action
-        tabindex="-1"
-        role="button"
-        data-action-id="add-data"
-        text="add-data"
-        icon="add-layer"
-        on:click={handleCatalogActionClick}
-        on:keypress={handleCatalogActionClick}
-      />
+     ></calcite-action>
+    {/each}
       <calcite-action
         slot="actions-end"
         tabindex="-1"
@@ -312,7 +313,7 @@
         text="open data catalog"
         on:click={handleExpandClick}
         on:keypress={handleExpandClick}
-      />
+     ></calcite-action>
     </calcite-action-bar>
     <DataCatalog view={view}/>
   </calcite-shell-panel>
@@ -334,12 +335,26 @@
     on:click={handleOtherActionBarClick} 
     on:keypress={handleOtherActionBarClick}
   >
-    <calcite-action data-action-id="layers" icon="layers" text="Active Layer List" />
+    <calcite-action 
+      data-action-id="layers" 
+      icon="layers" 
+      text="Active Layer List"
+   ></calcite-action>
+    <calcite-action 
+      data-action-id="add-data" 
+      icon="add-layer"
+      text="Add Data"
+   ></calcite-action>
     <calcite-action
       data-action-id="basemaps"
       icon="basemap"
       text="Basemaps"
-    />
+   ></calcite-action>
+    <calcite-action
+      data-action-id="maptools"
+      icon="system-management"
+      text="Other Map Tools"
+   ></calcite-action>
   </calcite-action-bar>
   <calcite-panel
     heading="Active Layer List"
@@ -356,7 +371,7 @@
       bind:this={layerListContainer}
       listItemCreatedFunction={listItemCreatedFunction}
       on:arcgisTriggerAction={layerListAction}
-    />
+   ></arcgis-layer-list>
   </calcite-panel>
   <calcite-panel
     heading="Basemaps"
@@ -370,39 +385,59 @@
       bind:this={bmgContainer}
       referenceElement={view}
       source={portalBasemapsSource}
-    />
+   ></arcgis-basemap-gallery>
   </calcite-panel>
-  <SummarizeMyArea /> 
+    <calcite-panel
+    heading="Other Map Tools"
+    height-scale="l"
+    data-panel-id="maptools"
+    hidden
+    closed
+  >
+    <calcite-block collapsible expanded heading="Sketch" label="Sketch">
+      <arcgis-sketch
+        position="manual"
+        referenceElement={view}
+        layout="horizontal"
+     ></arcgis-sketch>
+    </calcite-block>
+    <calcite-block collapsible expanded heading="Measure" label="Measure">
+      <arcgis-area-measurement-2d
+        referenceElement={view}
+     ></arcgis-area-measurement-2d>
+    </calcite-block>
+    <calcite-block collapsible expanded heading="Legend" label="Legend">
+      <arcgis-legend
+        referenceElement={view}
+     ></arcgis-legend>
+    </calcite-block>
+  </calcite-panel>
+  <AddData map={map} />
   </calcite-shell-panel>
   <calcite-shell-panel
-    slot="panel-bottom" 
-    layout="horizontal" 
-    position="end" 
+    slot="panel-bottom"
+    layout="horizontal"
+    position="end"
     id="shell-panel-table"
     collapsed
   >
   <calcite-panel closable class="fTable" id="panel-start" on:calcitePanelClose={closeShellElement}>
-    <div id="fTable-container" bind:this={fTableContainer} />
+    <div id="fTable-container" bind:this={fTableContainer}></div>
   </calcite-panel>
   </calcite-shell-panel>
 </calcite-shell>
 
 <style>
-  calcite-combobox {
-    --calcite-color-text-1: #151515;
-    padding-left: 30px;
-  }
-
   calcite-panel.fTable {
     height: 500px
   }
 
   calcite-shell-panel {
-    --calcite-shell-panel-min-width: 340px;
+    --calcite-shell-panel-min-width: 420px;
   }
 
   calcite-navigation {
-    --calcite-navigation-background-color: #005ea2;
+    --calcite-navigation-background-color: #162e51;
     --calcite-color-text-1: white;
     --calcite-color-foreground-2: none;
     --calcite-color-foreground-3: none;
@@ -421,5 +456,4 @@
     --calcite-chip-text-color: rgb(236, 235, 235);
     --calcite-chip-background-color:#024f86;
   }
-
 </style>
