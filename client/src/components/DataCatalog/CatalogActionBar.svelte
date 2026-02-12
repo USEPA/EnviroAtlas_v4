@@ -1,11 +1,13 @@
 <script>
-
     import { categoryFilter, searchTerm } from "/src/store.ts";
-    import { expandTopics } from "/src/shared/utilities.js"
+    import { expandTopics } from "/src/shared/utilities.js";
 
     export let type;
     export let totalMapsCount;
     export let totalVisibleMaps;
+
+    const icons = import.meta.glob('/src/assets/*.png', {eager: true, import: 'default'});
+    const iconUrls = Object.values(icons);
 
     let searchInput;
     let catRefs = [];
@@ -13,39 +15,91 @@
     let moreFiltersChip;
     let moreFiltersGroup;
     let moreFiltersPopover;
-    
+
     let categories = [
-        { name: "eaCA", icon: "air", label: " Clean Air", color: "#7f81ba" }, 
-        { name: "eaNHM", icon: "haz", label: " Natural Hazard Mitigation", color: "#D75D64" }, 
-        { name: "eaCPW", icon: "water", label: " Clean Water", color: "#74CCD1" }, 
-        { name: "eaRCA", icon: "rec", label: " Recreation & Culture", color: "#C770B4" }, 
-        { name: "eaFFM", icon: "food", label: " Food, Fuel & Materials", color: "#F0E024" }, 
-        { name: "eaBC", icon: "bio", label: "Biodiversity Conservation", color: "#2EAE4A" },
-        { name: "eaCS", icon: "clim", label: "Climate Stabilization", color: "#F99F1F"}
+        { 
+            name: "eaCA",
+            icon: "air",
+            label: "Clean Air",
+            color: "#7f81ba"
+        },
+        {
+            name: "eaNHM",
+            icon: "haz",
+            label: "Natural Hazard Mitigation",
+            color: "#D75D64",
+        },
+        {
+            name: "eaCPW",
+            icon: "water",
+            label: "Clean Water",
+            color: "#74CCD1",
+        },
+        {
+            name: "eaRCA",
+            icon: "rec",
+            label: "Recreation & Culture",
+            color: "#C770B4",
+        },
+        {
+            name: "eaFFM",
+            icon: "food",
+            label: "Food, Fuel & Materials",
+            color: "#F0E024",
+        },
+        {
+            name: "eaBC",
+            icon: "bio",
+            label: "Biodiversity Conservation",
+            color: "#2EAE4A",
+        },
+        {
+            name: "eaCS",
+            icon: "clim",
+            label: "Climate Stabilization",
+            color: "#F99F1F",
+        },
+        { 
+            name: "eaCL",
+            icon: "land",
+            label: "Clean Land",
+            color: "tan"
+        },
     ];
-    let moreFilters = categories[5].name
-    let moreFilter2 = categories[6].name
+
+    const categoriesMerged = categories.map(cat => ({
+        ...cat, url: iconUrls.find(url => url.includes(cat.icon))
+    }))
+
+    let onScreenCategories = ["eaCA", "eaCPW", "eaCL"];
+
+    let onScreenFilters = categoriesMerged.filter((cat) =>
+        onScreenCategories.includes(cat.name),
+    );
+    let moreFilters = categoriesMerged.filter(
+        (cat) => !onScreenCategories.includes(cat.name),
+    );
 
     /**
      * The on:calciteInputInput function for search filtering.
-     * Has basic debounce by setting a timer and waiting 0.5 seconds 
-     * before filtering the list. Will only perform search filter for more 
+     * Has basic debounce by setting a timer and waiting 0.5 seconds
+     * before filtering the list. Will only perform search filter for more
      * than 2 characters of input. Search filter will clear category filters
      * and give UI feedback. Search filter will expand topic headers.
      */
     const onSearch = () => {
         clearTimeout(timer);
         timer = setTimeout(() => {
-            if (searchInput.value.length > 2 ) {
+            if (searchInput.value.length > 2) {
                 $searchTerm = searchInput.value;
-                $categoryFilter = '';
-                // TODO: Need to clear category filter chips 
+                $categoryFilter = "";
+                // TODO: Need to clear category filter chips
                 expandTopics();
             } else {
-                $searchTerm = '';
+                $searchTerm = "";
                 expandTopics(false);
             }
-        }, 500)
+        }, 500);
     };
 
     /**
@@ -56,177 +110,185 @@
      * Expands or collapses the topics in the list.
      * @param {object} cat - the selected category data dictionary
      */
+    // Clear search term when choosing a category (prevents compounding filters that often yield 0)
     const onCatChange = (cat) => {
-        if ($categoryFilter != cat.name) {
-            if ($categoryFilter === 'eaBC' || $categoryFilter === 'eaCS') {
-                if ($categoryFilter === 'eaBC') {
-                    catRefs[5].removeAttribute("selected")
-                    moreFiltersPopover.removeAttribute("open")
-                };
-                if ($categoryFilter === 'eaCS') {
-                    catRefs[6].removeAttribute("selected")
-                    moreFiltersPopover.removeAttribute("open")
-                };
-            }
+        if ($searchTerm) {
+            $searchTerm = "";
+            if (searchInput) searchInput.value = "";
+        }
+
+        if ($categoryFilter !== cat.name) {
             $categoryFilter = cat.name;
             expandTopics();
-        } else if ($categoryFilter === cat.name) {
-            $categoryFilter = '';
+        } else {
+            $categoryFilter = "";
             expandTopics(false);
         }
     };
 
     const clearCatFilter = () => {
-        if ($categoryFilter !== 'eaBC' && $categoryFilter !== 'eaCS') {
-            $categoryFilter = '';
+        if ($categoryFilter !== "eaBC" && $categoryFilter !== "eaCS") {
+            $categoryFilter = "";
             expandTopics(false);
         }
-    }
+    };
 
     const popoverClose = () => {
-        console.log(moreFiltersGroup.selectedItems)
+        console.log(moreFiltersGroup.selectedItems);
         if (moreFiltersGroup.selectedItems[0]) {
-            moreFiltersChip.setAttribute("selected", "")
+            moreFiltersChip.setAttribute("selected", "");
         } else if (!moreFiltersGroup.selectedItems[0]) {
-            moreFiltersChip.removeAttribute("selected")
+            moreFiltersChip.removeAttribute("selected");
         }
-    }
+    };
 
     const popoverOpen = () => {
         if (moreFiltersGroup.selectedItems[0]) {
-            moreFiltersChip.setAttribute("selected", "")
+            moreFiltersChip.setAttribute("selected", "");
         }
+    };
+
+    function getCategoryLabel(name) {
+        const cat = categoriesMerged.find((c) => c.name === name);
+        // Show label if available, else show the raw name
+        return cat?.label?.trim() || name;
+    }
+
+    function clearSearch() {
+        $searchTerm = "";
+        if (searchInput) searchInput.value = "";
+        expandTopics(false);
+    }
+
+    function clearCategory() {
+        $categoryFilter = "";
+        expandTopics(false);
     }
 </script>
 
-{#if type=='national'}
-<calcite-card id=national-search-filter-card>
-<calcite-action-bar id="catalog-search-filter" layout="horizontal" expand-disabled>    
-    
-    <calcite-input 
-        alignment='start' 
-        maxLength=20 
-        type='text' 
-        scale='s' 
-        icon='search' 
-        bind:this={searchInput} 
-        on:calciteInputInput={()=>onSearch()} placeholder="Search Map Layers">
-    </calcite-input>
-    
-      <!-- <calcite-chip 
-                        scale="s" 
-                        bind:this={catRefs[c]} 
-                        id="catFilter" 
-                        label="Clear search or filters" 
-                        appearance="outline" 
-                        on:click={()=>onCatChange(cat)}
-                    >Clear search or filters</calcite-chip> -->
-    
-    <!-- <div class="bc-icon-group">
-        {#each categories as cat, c (cat.name)}
-        <div style="display:block">   
-             <div  
-                bind:this={catRefs[c]}
-                style="background-color: {cat.color}; 
-                background-image: url(https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png)" 
-                class="bc-icon {cat.name}"
-                on:click={()=>onCatChange(cat)}>
-                
-            </div> 
-        </div> 
-        {/each}
-    
-     <calcite-chip-group 
-        scale='s' slot="footer-start" selection-mode="single" 
-        label="cat-filter-chip-group">
-        {#each categories as cat, c (cat.name)}
-        {#if cat.name !== moreFilters && cat.name !== moreFilter2}
-            <calcite-chip 
-            bind:this={catRefs[c]}
-                type="radio"
-                id='{cat.name}' 
-                scale='l' 
-                value={cat.name}
-                label={cat.name}
-                kind='brand' 
-                appearance='outline-fill'
-                on:calciteChipSelect={()=>onCatChange(cat)}
-            >
-                <img 
-                    slot="image" 
-                    alt={cat.name} 
-                    style="width:25x;height:25px;background-color:{cat.color};border-radius:50%" 
-                    src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png"
-                >
-            </calcite-chip>
-        {/if}
-        {/each}
-            
-    </div> -->
-    
-    <calcite-chip
-                bind:this={moreFiltersChip} 
-                id="catFilter-popover-ref" 
-                icon="plus-circle" 
-                scale="s"
-                round 
-                appearance="outline" 
-                on:calciteChipSelect={clearCatFilter}
-            >Filters</calcite-chip>
-        <!-- </calcite-chip-group>  -->
-    <calcite-popover
-        bind:this={moreFiltersPopover}
-        id="morefilters"
-        placement="trailing-start"
-        overlay-positioning="fixed"
-        scale="s"
-        label="catFilter-popover-ref"
-        reference-element="catFilter-popover-ref"
-        closable
-        heading="Filters"
-        on:calcitePopoverClose={popoverClose}
-        on:calcitePopoverOpen={popoverOpen}
-    >
-        <calcite-chip-group 
+{#if type == "national"}
+    <calcite-card id="national-search-filter-card">
+        <calcite-input
+            alignment="start"
+            maxLength="20"
+            type="text"
+            scale="m"
+            icon="search"
+            bind:this={searchInput}
+            on:calciteInputInput={() => onSearch()}
+            placeholder="Search Map Layers"
+        >
+        </calcite-input>
+
+        <calcite-chip-group
             bind:this={moreFiltersGroup}
-            style="margin: 5px"
-            scale='s' selection-mode="single" 
-            label="cat-filter-chip-group">
-            {#each categories as cat, c (cat.name)}
-                    <calcite-chip 
-                        scale="s" 
-                        bind:this={catRefs[c]} 
-                        id="catFilter" 
-                        round 
-                        appearance="outline" 
-                        on:click={()=>onCatChange(cat)}
+            style="margin: 8px 0 3px 0"
+            scale="s"
+            selection-mode="single"
+            label="cat-filter-chip-group"
+        >
+            <div class="onscreen-filters">
+                {#each onScreenFilters as cat, c (cat.name)}
+                    <button
+                        class="filter-button"
+                        class:selected={$categoryFilter === cat.name}
+                        aria-pressed={$categoryFilter === cat.name}
+                        bind:this={catRefs[c]}
+                        on:click={() => onCatChange(cat)}
                     >
-                        <img 
-                            slot="image" 
-                            alt={cat.name} 
-                            style="width:17px;height:17px;background-color:{cat.color};border-radius:50%" 
-                            src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png"
-                        >{cat.label}
-                    </calcite-chip>
-                <!-- {/if} -->
-            {/each}
-        </calcite-chip-group> 
-    </calcite-popover>
-    </calcite-action-bar>
-<p style="margin-block: 5px;">Showing {totalVisibleMaps} map layers</p> 
-</calcite-card>
+                        <img
+                            slot="image"
+                            alt={cat.name}
+                            class="filter-icon"
+                            style="background-color:{cat.color};"
+                            src={cat.url}
+                        />{cat.label}
+                    </button>
+                    <!-- {/if} -->
+                {/each}
+                <button
+                    bind:this={moreFiltersChip}
+                    id="catFilter-popover-ref"
+                    class="filter-button"
+                    on:click={() => clearCatFilter}
+                >
+                    More
+                </button>
+            </div>
+            <!-- </calcite-chip-group>  -->
+            <calcite-popover
+                bind:this={moreFiltersPopover}
+                id="morefilters"
+                placement="trailing-start"
+                overlay-positioning="fixed"
+                scale="s"
+                label="catFilter-popover-ref"
+                reference-element="catFilter-popover-ref"
+                closable
+                heading="Filters"
+                on:calcitePopoverClose={popoverClose}
+                on:calcitePopoverOpen={popoverOpen}
+            >
+                <calcite-chip-group
+                    bind:this={moreFiltersGroup}
+                    style="margin: 5px"
+                    scale="s"
+                    selection-mode="single"
+                    label="cat-filter-chip-group"
+                >
+                    {#each moreFilters as cat, c (cat.name)}
+                        <button
+                            bind:this={catRefs[c + onScreenFilters.length]}
+                            class="filter-button"
+                            class:selected={$categoryFilter === cat.name}
+                            aria-pressed={$categoryFilter === cat.name}
+                            bind:this={catRefs[c + onScreenFilters.length]}
+                            on:click={() => onCatChange(cat)}
+                        >
+                            <img
+                                slot="image"
+                                alt={cat.name}
+                                class="filter-icon"
+                                style="width:17px;height:17px;background-color:{cat.color};border-radius:50%"
+                                src={cat.url}
+                            />{cat.label}
+                        </button>
+                        <!-- {/if} -->
+                    {/each}
+                </calcite-chip-group>
+            </calcite-popover>
+        </calcite-chip-group>
+
+        <div class="filter-tag" title="Active filter status">
+            <span>Showing {totalVisibleMaps} map layers. </span>
+            {#if $searchTerm}
+                <span> Filtered by search: "{$searchTerm}"</span>
+                <button
+                    class="clear-filter"
+                    on:click={clearSearch}
+                    aria-label="Clear search filter">Clear</button
+                >
+            {:else if $categoryFilter}
+                <span> Filtered by: {getCategoryLabel($categoryFilter)}</span>
+                <button
+                    class="clear-filter"
+                    on:click={clearCategory}
+                    aria-label="Clear category filter">Clear</button
+                >
+            {:else}
+                <span> No layers filtered.</span>
+            {/if}
+        </div>
+    </calcite-card>
 {/if}
 
 <style>
-
-                
-   
     calcite-action-bar#catalog-search-filter {
         width: 100%;
     }
-    
+
     calcite-popover#morefilters {
-        --calcite-popover-max-size-x: 210px
+        --calcite-popover-max-size-x: 210px;
     }
     calcite-input {
         width: 100%;
@@ -239,43 +301,77 @@
         --calcite-ui-focus-color: none !important;
     }
 
-    calcite-chip#catFilter-popover-ref {
-        --calcite-chip-border-color: #949494;
-        --calcite-chip-corner-radius: 7px;
-        --calcite-chip-text-color: #6b6b6b;
-        /* --calcite-button-border-color:#949494; */
-        
-    }
-
     calcite-card#national-search-filter-card {
         --calcite-card-border-color: none;
         margin-bottom: 0px;
+        margin-top: 0px;
     }
 
-    div.bc-icon-group {
-        display: flex; 
-        padding-top: 10px;
-        justify-content: center;
-
+    /* Keep buttons at natural width; distribute leftover space as equal gaps between them */
+    .onscreen-filters {
+        display: flex;
+        margin-right: 5px;
+        flex-wrap: nowrap; /* keep on one line */
     }
 
-    div.bc-icon {
-        width: 25px;
-        height: 25px;
-        border-radius: 20px;
-        margin-right: 7px;
-        background-size: 80% auto;
-        background-position: center;
-        background-repeat: no-repeat; 
+    /* Ensure buttons don’t stretch; keep intrinsic width
+    .onscreen-filters .filter-button {
+        flex: 0 0 auto;
+    } */
 
+    .filter-icon {
+        display: flex;
+        float: left;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        margin: 0 5px 0 0;
     }
 
-    .map-counter {
-        margin-left: 10px;
-        padding-left: 20px;
-        border: 1px solid black;
-        font-size: 11px;
-        line-height: 0.15in;
-        text-align: left;
+    .filter-button {
+        padding: 3px 5px;
+        display: inline-flex;
+        color: #7a7a7a;
+        align-items: center;
+        border-radius: 15px;
+        background-color: white;
+        font-weight: 400;
+        border: 1.5px solid #bfbfbf;
+        margin-right: 5px; /* add spacing between buttons */
     }
-</style> 
+
+    .filter-button.selected,
+    .filter-button[aria-pressed="true"] {
+        background: #e3e3e3;
+        /* color: var(--calcite-color-text-1, #2b2b2b); */
+    }
+
+    .filter-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 8px;
+        border-radius: 14px;
+        border: 1px solid #bfbfbf;
+        background: #e3e3e3;
+        margin-block: 5px;
+    }
+    .clear-filter {
+        appearance: none;
+        background: transparent;
+        border: none;
+        color: #007ac2;
+        cursor: pointer;
+        font-size: 12px;
+        text-decoration: underline;
+    }
+
+    .map-count-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-block: 5px;
+        /* Optional: allow wrapping on narrow screens */
+        flex-wrap: nowrap; /* change to wrap if you want it to break to two lines when narrow */
+    }
+</style>
