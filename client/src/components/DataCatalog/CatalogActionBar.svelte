@@ -6,9 +6,6 @@
     export let totalMapsCount;
     export let totalVisibleMaps;
 
-    const icons = import.meta.glob('/src/assets/*.png', {eager: true, import: 'default'});
-    const iconUrls = Object.values(icons);
-
     let searchInput;
     let catRefs = [];
     let timer;
@@ -66,17 +63,12 @@
             color: "tan"
         },
     ];
-
-    const categoriesMerged = categories.map(cat => ({
-        ...cat, url: iconUrls.find(url => url.includes(cat.icon))
-    }))
-
     let onScreenCategories = ["eaCA", "eaCPW", "eaCL"];
 
-    let onScreenFilters = categoriesMerged.filter((cat) =>
+    let onScreenFilters = categories.filter((cat) =>
         onScreenCategories.includes(cat.name),
     );
-    let moreFilters = categoriesMerged.filter(
+    let moreFilters = categories.filter(
         (cat) => !onScreenCategories.includes(cat.name),
     );
 
@@ -149,7 +141,7 @@
     };
 
     function getCategoryLabel(name) {
-        const cat = categoriesMerged.find((c) => c.name === name);
+        const cat = categories.find((c) => c.name === name);
         // Show label if available, else show the raw name
         return cat?.label?.trim() || name;
     }
@@ -201,7 +193,7 @@
                             alt={cat.name}
                             class="filter-icon"
                             style="background-color:{cat.color};"
-                            src={cat.url}
+                            src="/ea/client/images/{cat.icon}.png"
                         />{cat.label}
                     </button>
                     <!-- {/if} -->
@@ -250,7 +242,7 @@
                                 alt={cat.name}
                                 class="filter-icon"
                                 style="width:17px;height:17px;background-color:{cat.color};border-radius:50%"
-                                src={cat.url}
+                                src="/ea/client/images/{cat.icon}.png"
                             />{cat.label}
                         </button>
                         <!-- {/if} -->
