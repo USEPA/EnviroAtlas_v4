@@ -36,6 +36,7 @@
   import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
+  import SummarizeMyAreaResults from "src/components/SummarizeMyAreaResults.svelte";
 
   let view;
   let bmgContainer;
@@ -419,13 +420,7 @@
     </calcite-block>
   </calcite-panel>
   <AddData map={map} />
-  <calcite-panel
-    heading="Summarize My Area Results"
-    height-scale="l"
-    data-panel-id="sma-results"
-    hidden
-    closed
-  >
+  <SummarizeMyAreaResults />
   </calcite-shell-panel>
   <calcite-shell-panel
     slot="panel-bottom"
