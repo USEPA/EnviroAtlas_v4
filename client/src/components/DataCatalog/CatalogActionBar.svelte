@@ -6,6 +6,9 @@
     export let totalMapsCount;
     export let totalVisibleMaps;
 
+    const icons = import.meta.glob('/src/assets/*.png', {eager: true, import: 'default'});
+    const iconUrls = Object.values(icons);
+
     let searchInput;
     let catRefs = [];
     let timer;
@@ -14,29 +17,34 @@
     let moreFiltersPopover;
 
     let categories = [
-        { name: "eaCA", icon: "air", label: " Clean Air", color: "#7f81ba" },
+        { 
+            name: "eaCA",
+            icon: "air",
+            label: "Clean Air",
+            color: "#7f81ba"
+        },
         {
             name: "eaNHM",
             icon: "haz",
-            label: " Natural Hazard Mitigation",
+            label: "Natural Hazard Mitigation",
             color: "#D75D64",
         },
         {
             name: "eaCPW",
             icon: "water",
-            label: " Clean Water",
+            label: "Clean Water",
             color: "#74CCD1",
         },
         {
             name: "eaRCA",
             icon: "rec",
-            label: " Recreation & Culture",
+            label: "Recreation & Culture",
             color: "#C770B4",
         },
         {
             name: "eaFFM",
             icon: "food",
-            label: " Food, Fuel & Materials",
+            label: "Food, Fuel & Materials",
             color: "#F0E024",
         },
         {
@@ -51,14 +59,24 @@
             label: "Climate Stabilization",
             color: "#F99F1F",
         },
-        { name: "eaCL", icon: "bio", label: "Clean Land", color: "tan" },
+        { 
+            name: "eaCL",
+            icon: "land",
+            label: "Clean Land",
+            color: "tan"
+        },
     ];
+
+    const categoriesMerged = categories.map(cat => ({
+        ...cat, url: iconUrls.find(url => url.includes(cat.icon))
+    }))
+
     let onScreenCategories = ["eaCA", "eaCPW", "eaCL"];
 
-    let onScreenFilters = categories.filter((cat) =>
+    let onScreenFilters = categoriesMerged.filter((cat) =>
         onScreenCategories.includes(cat.name),
     );
-    let moreFilters = categories.filter(
+    let moreFilters = categoriesMerged.filter(
         (cat) => !onScreenCategories.includes(cat.name),
     );
 
@@ -131,7 +149,7 @@
     };
 
     function getCategoryLabel(name) {
-        const cat = categories.find((c) => c.name === name);
+        const cat = categoriesMerged.find((c) => c.name === name);
         // Show label if available, else show the raw name
         return cat?.label?.trim() || name;
     }
@@ -183,7 +201,7 @@
                             alt={cat.name}
                             class="filter-icon"
                             style="background-color:{cat.color};"
-                            src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png"
+                            src={cat.url}
                         />{cat.label}
                     </button>
                     <!-- {/if} -->
@@ -232,7 +250,7 @@
                                 alt={cat.name}
                                 class="filter-icon"
                                 style="width:17px;height:17px;background-color:{cat.color};border-radius:50%"
-                                src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png"
+                                src={cat.url}
                             />{cat.label}
                         </button>
                         <!-- {/if} -->
