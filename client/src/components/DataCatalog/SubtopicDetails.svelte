@@ -48,7 +48,7 @@
                     <span class="dot" id={cat.name}>
                         <img alt={cat.name} 
                             style="width:24px;height:24px;padding-left:3px;padding-top:3px" 
-                            src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
+                            src="/ea/client/images/{cat.icon}.png">
                     </span>
                     {/if}
                 {/each}
