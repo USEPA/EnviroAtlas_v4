@@ -319,3 +319,10 @@ export function openRightPanel(activeWidget, dataPanelToOpen) {
 export function isStringNotEmpty(str) {
   return typeof str === 'string' && str.trim().length > 0;
 }
+
+/**
+ * Open the information modal. Right now just the SMAT.
+ */
+export function openInfo() {
+    document.querySelector(`[id=info-modal]`).open = true;
+}

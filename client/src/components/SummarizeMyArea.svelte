@@ -46,7 +46,8 @@
         getEALayerObject,
         isLayerTitleInMap,
         findLayersByTitle, 
-        openRightPanel
+        openRightPanel,
+        openInfo
     } from "src/shared/utilities.js";
 
     export let view;
@@ -74,9 +75,6 @@
     let geometryType;
     let messages;
     let smaPanel;
-    let selectionsTabOpen = true;
-
-    $: isDisabled = !indicatorValue || !geometry;
 
     const handles = new Handles();
     const indicatorsDict = [
@@ -717,7 +715,6 @@
         $smaAnalysisInputs.append(table);
         
         smaPanel.loading = false;
-        selectionsTabOpen = false;
         openRightPanel($activeWidget, "sma-results")
     }
 
@@ -841,171 +838,160 @@
     hidden
     overlayPositioning="fixed"
 >
-    {#if selectionsTabOpen}
-    <calcite-button
-        tabindex="0"
-        role="button"
-        width="full"
-        slot="footer"
-        disabled={isDisabled}
-        on:click={calculate}
-    >
-        Calculate
-    </calcite-button>
-    {/if}
-        <calcite-block open heading="3. Select a summary unit">
-            <calcite-label layout="inline">
-                <calcite-combobox
+    <calcite-block open heading="3. Select a summary unit">
+        <calcite-action slot="actions-end" icon="question" on:click={openInfo}></calcite-action>
+        <calcite-label layout="inline">
+            <calcite-combobox
+                scale="s"
+                placeholder=" Select one"
+                selection-mode="single"
+                overlay-positioning="fixed"
+                bind:this={summaryUnitCombobox}
+                on:calciteComboboxChange={updateSumUnit}
+            >
+                {#each ["County", "Congressional District", "HUC-8", "HUC-12", "Draw a geometry"] as sumUnit}
+                    <calcite-combobox-item
+                        value={sumUnit}
+                        heading={sumUnit}
+                    ></calcite-combobox-item>
+                {/each}
+            </calcite-combobox>
+        </calcite-label>
+        {#if sumUnit == "Draw a geometry"}
+            <div class="geometry-options">
+                <button
+                    class="esri-widget--button esri-icon-map-pin geometry-button"
+                    id="point-geometry-button"
+                    value="point"
+                    title="Filter by point"
+                    on:click={geometryButtonsClickHandler}
+                ></button>
+                <button
+                    class="esri-widget--button esri-icon-polyline geometry-button"
+                    id="line-geometry-button"
+                    value="polyline"
+                    title="Filter by line"
+                    on:click={geometryButtonsClickHandler}
+                ></button>
+                <button
+                    class="esri-widget--button esri-icon-polygon geometry-button"
+                    id="polygon-geometry-button"
+                    value="polygon"
+                    title="Filter by polygon"
+                    on:click={geometryButtonsClickHandler}
+                ></button>
+            </div>
+            <calcite-label layout="inline" scale="s"
+                >Buffer distance:
+                <calcite-input-number
+                    suffix-text="km"
+                    min="0"
+                    step="1"
                     scale="s"
-                    placeholder=" Select one"
-                    selection-mode="single"
-                    overlay-positioning="fixed"
-                    bind:this={summaryUnitCombobox}
-                    on:calciteComboboxChange={updateSumUnit}
-                >
-                    {#each ["County", "Congressional District", "HUC-8", "HUC-12", "Draw a geometry"] as sumUnit}
-                        <calcite-combobox-item
-                            value={sumUnit}
-                            heading={sumUnit}
-                        ></calcite-combobox-item>
-                    {/each}
-                </calcite-combobox>
+                    value="1"
+                    number-button-type="vertical"
+                    bind:this={bufferInput}
+                ></calcite-input-number>
             </calcite-label>
-            {#if sumUnit == "Draw a geometry"}
-                <div class="geometry-options">
-                    <button
-                        class="esri-widget--button esri-icon-map-pin geometry-button"
-                        id="point-geometry-button"
-                        value="point"
-                        title="Filter by point"
-                        on:click={geometryButtonsClickHandler}
-                    ></button>
-                    <button
-                        class="esri-widget--button esri-icon-polyline geometry-button"
-                        id="line-geometry-button"
-                        value="polyline"
-                        title="Filter by line"
-                        on:click={geometryButtonsClickHandler}
-                    ></button>
-                    <button
-                        class="esri-widget--button esri-icon-polygon geometry-button"
-                        id="polygon-geometry-button"
-                        value="polygon"
-                        title="Filter by polygon"
-                        on:click={geometryButtonsClickHandler}
-                    ></button>
-                </div>
-                <calcite-label layout="inline" scale="s"
-                    >Buffer distance:
-                    <calcite-input-number
-                        suffix-text="km"
-                        min="0"
-                        step="1"
-                        scale="s"
-                        value="1"
-                        number-button-type="vertical"
-                        bind:this={bufferInput}
-                    ></calcite-input-number>
-                </calcite-label>
-            {/if}
-            {#if messages}
-                <calcite-notice
-                    open
-                    icon="exclamation-mark-triangle"
-                    kind="danger"
-                >
-                    <div slot="message">{messages}</div>
-                </calcite-notice>
-            {/if}
-            {#if geographyLabel}
-                <calcite-notice open kind="success">
-                    <div slot="message">{geographyLabel}</div>
-                </calcite-notice>
-            {/if}
-        </calcite-block>
-        <calcite-block open heading="4. Select a map layer to summarize">
-            <calcite-label layout="inline">
+        {/if}
+        {#if messages}
+            <calcite-notice
+                open
+                icon="exclamation-mark-triangle"
+                kind="danger"
+            >
+                <div slot="message">{messages}</div>
+            </calcite-notice>
+        {/if}
+        {#if geographyLabel}
+            <calcite-notice open kind="success">
+                <div slot="message">{geographyLabel}</div>
+            </calcite-notice>
+        {/if}
+    </calcite-block>
+    <calcite-block open heading="4. Select a map layer to summarize">
+        <calcite-label layout="inline">
+            <calcite-combobox
+                scale="s"
+                placeholder=" Select one"
+                selection-mode="single"
+                max-items="0"
+                overlay-positioning="absolute"
+                value="nlcd"
+                bind:this={indicatorElem}
+                on:calciteComboboxChange={updateIndicator}
+            >
+                {#each options_filtered as ind}
+                    <calcite-combobox-item
+                        value={ind.value}
+                        heading={ind.name}
+                    ></calcite-combobox-item>
+                {/each}
+            </calcite-combobox>
+        </calcite-label>
+        {#if indicatorValue == "nlcd"}
+            <calcite-label layout="inline" scale="s">
+                NLCD Year:
                 <calcite-combobox
                     scale="s"
                     placeholder=" Select one"
                     selection-mode="single"
                     max-items="0"
                     overlay-positioning="absolute"
-                    value="nlcd"
-                    bind:this={indicatorElem}
-                    on:calciteComboboxChange={updateIndicator}
+                    bind:this={nlcdYearCombobox}
+                    on:calciteComboboxChange={updateLCYear}
                 >
-                    {#each options_filtered as ind}
+                    {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcYear}
                         <calcite-combobox-item
-                            value={ind.value}
-                            heading={ind.name}
+                            value={lcYear}
+                            heading={lcYear}
                         ></calcite-combobox-item>
                     {/each}
                 </calcite-combobox>
             </calcite-label>
-            {#if indicatorValue == "nlcd"}
-                <calcite-label layout="inline" scale="s">
-                    NLCD Year:
-                    <calcite-combobox
-                        scale="s"
-                        placeholder=" Select one"
-                        selection-mode="single"
-                        max-items="0"
-                        overlay-positioning="absolute"
-                        bind:this={nlcdYearCombobox}
-                        on:calciteComboboxChange={updateLCYear}
-                    >
-                        {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcYear}
-                            <calcite-combobox-item
-                                value={lcYear}
-                                heading={lcYear}
-                            ></calcite-combobox-item>
-                        {/each}
-                    </calcite-combobox>
-                </calcite-label>
-            {:else if indicatorValue == "nlcd-change"}
-                <calcite-label layout="inline" scale="s">
-                    NLCD Year 1:
-                    <calcite-combobox
-                        scale="s"
-                        placeholder=" Select one"
-                        selection-mode="single"
-                        max-items="0"
-                        overlay-positioning="absolute"
-                        id="nlcd-change-year-1"
-                        bind:this={nlcdChange1Combo}
-                        on:calciteComboboxChange={updateLCChangeYears}
-                    >
-                        {#each ["2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc1Year}
-                            <calcite-combobox-item
-                                value={lcc1Year}
-                                heading={lcc1Year}
-                            ></calcite-combobox-item>
-                        {/each}
-                    </calcite-combobox>
-                </calcite-label>
-                <calcite-label layout="inline" scale="s">
-                    NLCD Year 2:
-                    <calcite-combobox
-                        scale="s"
-                        placeholder=" Select one"
-                        selection-mode="single"
-                        max-items="0"
-                        overlay-positioning="absolute"
-                        id="nlcd-change-year-2"
-                        bind:this={nlcdChange2Combo}
-                        on:calciteComboboxChange={updateLCChangeYears}
-                    >
-                        {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc2Year}
-                            <calcite-combobox-item
-                                value={lcc2Year}
-                                heading={lcc2Year}
-                            ></calcite-combobox-item>
-                        {/each}
-                    </calcite-combobox>
-                </calcite-label>
-            {/if}
-        </calcite-block>
+        {:else if indicatorValue == "nlcd-change"}
+            <calcite-label layout="inline" scale="s">
+                NLCD Year 1:
+                <calcite-combobox
+                    scale="s"
+                    placeholder=" Select one"
+                    selection-mode="single"
+                    max-items="0"
+                    overlay-positioning="absolute"
+                    id="nlcd-change-year-1"
+                    bind:this={nlcdChange1Combo}
+                    on:calciteComboboxChange={updateLCChangeYears}
+                >
+                    {#each ["2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc1Year}
+                        <calcite-combobox-item
+                            value={lcc1Year}
+                            heading={lcc1Year}
+                        ></calcite-combobox-item>
+                    {/each}
+                </calcite-combobox>
+            </calcite-label>
+            <calcite-label layout="inline" scale="s">
+                NLCD Year 2:
+                <calcite-combobox
+                    scale="s"
+                    placeholder=" Select one"
+                    selection-mode="single"
+                    max-items="0"
+                    overlay-positioning="absolute"
+                    id="nlcd-change-year-2"
+                    bind:this={nlcdChange2Combo}
+                    on:calciteComboboxChange={updateLCChangeYears}
+                >
+                    {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc2Year}
+                        <calcite-combobox-item
+                            value={lcc2Year}
+                            heading={lcc2Year}
+                        ></calcite-combobox-item>
+                    {/each}
+                </calcite-combobox>
+            </calcite-label>
+        {/if}
+    </calcite-block>
 </calcite-panel>
 
 <style>

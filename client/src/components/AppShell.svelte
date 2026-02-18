@@ -37,6 +37,7 @@
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
   import SummarizeMyAreaResults from "src/components/SummarizeMyAreaResults.svelte";
+  import Info from "src/components/Info.svelte";
 
   let view;
   let bmgContainer;
@@ -49,7 +50,6 @@
     if (view && !map) {
         view.addEventListener("arcgisViewReadyChange", () => {
             map = view.map;
-            console.log(view.extent)
         });
     }
   }
@@ -211,16 +211,6 @@
     }
   };
 
-  // const openModal = function () {
-  //   const button = document.getElementById("example-button");
-  //   const modal = document.getElementById("example-modal");
-
-  //   button?.addEventListener("click", function () {
-  //     modal.open = !modal.open;
-  //     console.log(modal);
-  //   });
-  // };
-
   export const closeShellElement = function (e) {
     const target = e.target;
     const shellElement = target.parentElement;
@@ -321,6 +311,7 @@
   </calcite-shell-panel>
   <slot></slot>
   <Modal />
+  <Info />
   <calcite-shell-panel
     component-id="shell-panel-end"
     slot="panel-end"
