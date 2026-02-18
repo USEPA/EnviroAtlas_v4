@@ -148,12 +148,17 @@
         }
     }
 
-    const updateIndicator = () => {
+    function updateIndicator(elem) {
         messages = null;
-        indicatorValue = indicatorElem.value;
+        let selectedIndicator = elem.value
+        if (selectedIndicator != indicatorValue && indicatorValue) {
+            indicatorElem.removeAttribute("checked")
+        }
+        indicatorElem = elem
+        indicatorValue = elem.value;
         if (indicatorValue == "permafrost") {
-            if ($geography != "Alaska") {
-                $geography = "Alaska";
+            if (geography != "Alaska") {
+                geography = "Alaska";
                 document.getElementById("Alaska-bookmark").click();
             }
             _initIndicatorLayer(indicatorValue);
@@ -174,7 +179,6 @@
 
     // Store indicator year as view model value and add the appropriate raster to the map
     const updateLCYear = (e) => {
-        console.log("event is: ", e);
         landcoverYear = e.target.value;
         if (landcoverYear) {
             console.log("target year is: ", e.target.value);
@@ -185,7 +189,6 @@
 
     // Update LC Change inputs and add NLCD Year 2 to map
     const updateLCChangeYears = (e) => {
-        console.log("event is: ", e);
         if (e.target.id == "nlcd-change-year-1") {
             nlcdChange1Combobox = e.target.value;
         }
@@ -193,8 +196,6 @@
             nlcdChange2Combobox = e.target.value;
             _initIndicatorLayer(indicatorValue);
         }
-        console.log("year1: ", nlcdChange1Combobox);
-        console.log("year2: ", nlcdChange2Combobox);
     };
 
     // Add the appropriate raster to the map
@@ -270,7 +271,6 @@
         view.map.removeMany(toRemove);
 
         sumUnit = summaryUnitCombobox.value;
-        console.log("sumUnit is ", sumUnit);
         if (sumUnit != "") {
             _initGeometryLayer(sumUnit);
             clearSketch();
@@ -839,7 +839,7 @@
     overlayPositioning="fixed"
 >
     <calcite-block open heading="3. Select a summary unit">
-        <calcite-action slot="actions-end" icon="question" on:click={openInfo}></calcite-action>
+        <calcite-action slot="actions-end" icon="question" on:click={openInfo("sma")}></calcite-action>
         <calcite-label layout="inline">
             <calcite-combobox
                 scale="s"
@@ -910,25 +910,34 @@
         {/if}
     </calcite-block>
     <calcite-block open heading="4. Select a map layer to summarize">
-        <calcite-label layout="inline">
-            <calcite-combobox
-                scale="s"
-                placeholder=" Select one"
-                selection-mode="single"
-                max-items="0"
-                overlay-positioning="absolute"
-                value="nlcd"
-                bind:this={indicatorElem}
-                on:calciteComboboxChange={updateIndicator}
-            >
-                {#each options_filtered as ind}
-                    <calcite-combobox-item
+        <calcite-list>
+            {#each options_filtered as ind}
+            <calcite-list-item 
+                label={ind.name}
+                id="not-header"
+                on:calciteListItemSelect={e=>e.stopPropagation()}
+                >
+                    <calcite-checkbox
+                        slot="actions-start"
+                        aria-checked="false" 
+                        role="checkbox" 
+                        tabindex="0"
                         value={ind.value}
-                        heading={ind.name}
-                    ></calcite-combobox-item>
-                {/each}
-            </calcite-combobox>
-        </calcite-label>
+                        name={ind.name}
+                        bind:this={ind.element}
+                        on:calciteCheckboxChange={updateIndicator(ind.element)}
+                    ></calcite-checkbox>
+                    <calcite-action 
+                        tabindex="-1"
+                        role="button"
+                        text="Details" 
+                        icon="information" 
+                        scale="m" 
+                        slot="actions-end">
+                    </calcite-action>
+            </calcite-list-item>
+            {/each}
+        </calcite-list>
         {#if indicatorValue == "nlcd"}
             <calcite-label layout="inline" scale="s">
                 NLCD Year:
@@ -995,13 +1004,31 @@
 </calcite-panel>
 
 <style>
+    calcite-action {
+        --calcite-ui-focus-color: none !important;
+    }
+
     calcite-block {
         margin-left: 2px;
         margin-right: 2px;
     }
 
-    calcite-tab {
-        overflow: hidden;
+    #not-header {
+        --calcite-list-background-color: #fff;
+        --calcite-list-background-color-hover: none;
+        --calcite-list-background-color-press: none;
+        --calcite-spacing-xxs: 0;
+        --calcite-font-weight-normal: 400;
+        font-size: var(--calcite-font-size--2)  
+    }
+
+    calcite-list-item {
+        --calcite-ui-focus-color: none !important;
+        --calcite-color-text-2: #162e51;
+        --calcite-list-background-color: white;
+        font-size: var(--calcite-font-size--1);
+        border-bottom: 0px solid white;
+        --calcite-list-border-color: white;
     }
 
     .geometry-options {
