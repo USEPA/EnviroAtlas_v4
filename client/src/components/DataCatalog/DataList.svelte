@@ -73,7 +73,7 @@
             id: "sma",
             icon: "mosaic-method-sum",
             label1: "Summarize",
-            label2: "My Area",
+            label2: "My Area Tool",
         },
     ];
 
