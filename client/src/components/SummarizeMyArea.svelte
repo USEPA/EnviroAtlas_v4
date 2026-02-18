@@ -46,7 +46,7 @@
         getEALayerObject,
         isLayerTitleInMap,
         findLayersByTitle, 
-        openLayerList
+        openRightPanel
     } from "src/shared/utilities.js";
 
     export let view;
@@ -72,8 +72,6 @@
     let inputTableData = [];
     let bufferGeometry;
     let geometryType;
-    let resultsTab;
-    let selectionsTab;
     let messages;
     let smaPanel;
     let selectionsTabOpen = true;
@@ -293,7 +291,7 @@
     const _initGeometryLayer = (sumUnit) => {
         geometry = null;
         sketchLayer.removeAll();
-        openLayerList($activeWidget);
+        openRightPanel($activeWidget, "layers");
 
         if (sumUnit == "Draw a geometry") {
             _initSketchTool();
@@ -719,9 +717,8 @@
         $smaAnalysisInputs.append(table);
         
         smaPanel.loading = false;
-        selectionsTab.selected = false;
-        resultsTab.selected = true;
         selectionsTabOpen = false;
+        openRightPanel($activeWidget, "sma-results")
     }
 
     async function _computeHistograms(url, post_data) {
