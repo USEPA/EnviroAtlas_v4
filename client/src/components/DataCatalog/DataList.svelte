@@ -73,7 +73,7 @@
             id: "sma",
             icon: "mosaic-method-sum",
             label1: "Summarize",
-            label2: "My Area",
+            label2: "My Area Tool",
         },
     ];
 
@@ -362,7 +362,7 @@
         --calcite-color-text-2: #162e51;
         --calcite-list-background-color: white;
         font-size: var(--calcite-font-size--1);
-        border-bottom: 1px solid grey;
+        border-bottom: opx solid grey;
     }
 
     calcite-block#domainHeader {

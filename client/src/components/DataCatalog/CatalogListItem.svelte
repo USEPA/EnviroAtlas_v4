@@ -1,5 +1,5 @@
 <script>
-    import { addLayer, getEaData, removeLayer, openLayerList, getEALayerObject } from "src/shared/utilities.js";
+    import { addLayer, getEaData, removeLayer, openRightPanel, getEALayerObject } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import { activeWidget } from "src/store.ts";
     import { mount } from 'svelte';
@@ -20,7 +20,7 @@
         addLayer(lObject, view);
         // If there is a layer added, open the Layer List
         if (lObject) {
-            openLayerList($activeWidget);
+            openRightPanel($activeWidget, "layers");
         }
     }
 

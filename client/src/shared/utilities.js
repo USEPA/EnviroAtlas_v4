@@ -50,7 +50,6 @@ export async function getEaData(url, params) {
     }
 };
 
-// TEST: is it faster to load data from portal item metadata instead of EAAPI?
 export function addLayer(lObj, view, index) {
     // Look for the layer already in the view
     if (isLayerUrlInMap(lObj.url, view)) {
@@ -74,7 +73,7 @@ export function addLayer(lObj, view, index) {
             })
             addImageryLayer(lObj, view, rfRule, index)
         } else {
-            addImageryLayer(lObj, view, index)
+            addImageryLayer(lObj, view, null, index)
         }
     }
 };
@@ -289,19 +288,20 @@ export function expandTopics(expand = true) {
  * Opens Layer List widget and closes others on right side, if applicable.
  * Used when data is added to the map.
  * @param {object} activeWidget - this value comes from the store
+ * @param {string} dataPanelToOpen - this data panel id string will select the panel to open
  */
-export function openLayerList(activeWidget) {
+export function openRightPanel(activeWidget, dataPanelToOpen) {
     let shell = document.querySelector(`[component-id="shell-panel-end"]`);
-    let layerPanel = document.querySelector(`[data-panel-id="layers"]`)
+    let layerPanel = document.querySelector(`[data-panel-id="${dataPanelToOpen}"]`)
     // Given the right side panel is closed, when Add to map is clicked, 
     // the right side panel opens with the layer list visible
     if (!activeWidget.right) {
         layerPanel.removeAttribute("hidden");
         layerPanel.removeAttribute("closed");
         shell.removeAttribute("collapsed");
-        activeWidget.right = "layers";
+        activeWidget.right = dataPanelToOpen;
         document.querySelector(`[data-action-id=${activeWidget.right}]`).active = true;
-    } else if (activeWidget.right !== "layers") {
+    } else if (activeWidget.right !== dataPanelToOpen) {
         // Given the right side panel is open, when Add to map is clicked, 
         // the right side panel remains open and has layer list visible
         layerPanel.removeAttribute("hidden");
@@ -309,7 +309,7 @@ export function openLayerList(activeWidget) {
         document.querySelector(`[data-action-id=${activeWidget.right}]`).active = false;
         document.querySelector(`[data-panel-id=${activeWidget.right}]`).hidden = true;
         document.querySelector(`[data-panel-id=${activeWidget.right}]`).closed = true;
-        activeWidget.right = "layers";
+        activeWidget.right = dataPanelToOpen;
         document.querySelector(`[data-action-id=${activeWidget.right}]`).active = true;
         shell.removeAttribute("collapsed");
     }
@@ -317,4 +317,11 @@ export function openLayerList(activeWidget) {
 
 export function isStringNotEmpty(str) {
   return typeof str === 'string' && str.trim().length > 0;
+}
+
+/**
+ * Open the information modal. Right now just the SMAT.
+ */
+export function openInfo() {
+    document.querySelector(`[id=info-modal]`).open = true;
 }

@@ -9,7 +9,7 @@
     import "@esri/calcite-components/dist/components/calcite-notice";
     import "@esri/calcite-components/dist/components/calcite-action";
     
-    import { hasValueUndefined, largestAbsVal, openLayerList, fetchData } from "src/shared/utilities.js";
+    import { hasValueUndefined, largestAbsVal, openRightPanel, fetchData } from "src/shared/utilities.js";
     import { activeWidget } from "src/store.ts";
     import TimeSeriesDetails from "src/components/TimeSeriesViewer/TimeSeriesDetails.svelte";
     
@@ -195,7 +195,7 @@
         }).then(() => {
             classBreaks(fieldname, selections['Variable'], oLayer);
         });
-        openLayerList($activeWidget);
+        openRightPanel($activeWidget, "layers");
     };
 
     /**
