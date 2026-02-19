@@ -203,7 +203,7 @@
         removeIndicator();
 
         // Look for SMA sum unit layers and find index where imagery is just below it.
-        let smaLayersInMapHighestIndex = findLayersByTitle(view, "Summarize My Area") - 1;
+        let smaLayersInMapHighestIndex = findLayersByTitle(view, "Summarize My Area Unit") - 1;
 
         // Make mosaic rule work for land cover and land cover change variables
         let mosaicRule = new MosaicRule({
@@ -231,32 +231,19 @@
                 // TODO: error handle if lObject is empty
                 lObject.name =
                     "Summarize My Area Indicator: Near-surface permafrost probability";
-                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, null, smaLayersInMapHighestIndex) : addLayer(lObject, view);
+                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
                 break;
             case "dasy":
                 lObject = await getEALayerObject(518);
                 lObject.name =
                     "Summarize My Area Indicator: 2020 Dasymetric Population";
-                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, null, smaLayersInMapHighestIndex) : addLayer(lObject, view);
+                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
                 break;
         }
 
-        // //TODO: Fix legend appearance
-        // const indicatorLayer = new ImageryLayer({
-        //     url: indicatorUrl,
-        //     mosaicRule: mosaicRule,
-        //     id: `sma-${indicator}-layer`,
-        //     noData: 0, // set no data params
-        //     opacity: 0.6,
-        //     title:
-        //         "Summarize My Area Indicator: " +
-        //         indicator + // TO DO: format
-        //         ", " +
-        //         landcoverYear,
-        //     popupEnabled: false,
-        // });
-
-        // view.map.add(indicatorLayer);
+        if (geometry && indicatorValue) {
+            calculate()
+        }
     }
 
     // Store summary unit input as view model value
@@ -410,6 +397,11 @@
                                 })
                                 .catch((error) => {
                                     console.log(error);
+                                })
+                                .then(() => {
+                                    if (geometry && indicatorValue) {
+                                        calculate()
+                                    }
                                 });
                         }
                     });

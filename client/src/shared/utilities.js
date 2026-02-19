@@ -50,7 +50,6 @@ export async function getEaData(url, params) {
     }
 };
 
-// TEST: is it faster to load data from portal item metadata instead of EAAPI?
 export function addLayer(lObj, view, index) {
     // Look for the layer already in the view
     if (isLayerUrlInMap(lObj.url, view)) {
@@ -74,7 +73,7 @@ export function addLayer(lObj, view, index) {
             })
             addImageryLayer(lObj, view, rfRule, index)
         } else {
-            addImageryLayer(lObj, view, index)
+            addImageryLayer(lObj, view, null, index)
         }
     }
 };
