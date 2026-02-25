@@ -76,6 +76,8 @@
     let messages;
     let smaPanel;
 
+    $: isDisabled = !indicatorValue || !geometry;
+
     const handles = new Handles();
     const indicatorsDict = [
         // {name: "Land Cover", value: "nlcd"},
@@ -148,23 +150,22 @@
         }
     }
 
-    function updateIndicator(elem) {
+    const updateIndicator = (elem) =>{
         messages = null;
-        let selectedIndicator = elem.value
-        if (selectedIndicator != indicatorValue && indicatorValue) {
-            indicatorElem.removeAttribute("checked")
-        }
-        indicatorElem = elem
-        indicatorValue = elem.value;
-        if (indicatorValue == "permafrost") {
-            if (geography != "Alaska") {
-                geography = "Alaska";
-                document.getElementById("Alaska-bookmark").click();
+        if (elem.checked) {
+            let selectedIndicator = elem.value
+            if (selectedIndicator != indicatorValue && indicatorValue) {
+                indicatorElem.removeAttribute("checked")
             }
+            indicatorElem = elem
+            indicatorValue = elem.value;
             _initIndicatorLayer(indicatorValue);
-        } else if (indicatorValue) {
-            _initIndicatorLayer(indicatorValue);
-        } else if (!indicatorValue) {
+            if ($activeWidget.right !== 'layers') {
+                openRightPanel($activeWidget, "layers");
+            }
+        } else {
+            indicatorElem = null;
+            indicatorValue = "";
             removeIndicator();
         }
     };
@@ -239,10 +240,6 @@
                     "Summarize My Area Indicator: 2020 Dasymetric Population";
                 smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
                 break;
-        }
-
-        if (geometry && indicatorValue) {
-            calculate()
         }
     }
 
@@ -398,11 +395,6 @@
                                 .catch((error) => {
                                     console.log(error);
                                 })
-                                .then(() => {
-                                    if (geometry && indicatorValue) {
-                                        calculate()
-                                    }
-                                });
                         }
                     });
                 },
@@ -830,6 +822,16 @@
     hidden
     overlayPositioning="fixed"
 >
+    <calcite-button
+        tabindex="0"
+        role="button"
+        width="full"
+        slot="footer"
+        disabled={isDisabled}
+        on:click={calculate}
+    >
+        Calculate
+    </calcite-button>
     <calcite-block open heading="3. Select a summary unit">
         <calcite-action slot="actions-end" icon="question" on:click={openInfo("sma")}></calcite-action>
         <calcite-label layout="inline">
@@ -917,7 +919,7 @@
                         value={ind.value}
                         name={ind.name}
                         bind:this={ind.element}
-                        on:calciteCheckboxChange={updateIndicator(ind.element)}
+                        on:calciteCheckboxChange={() => updateIndicator(ind.element)}
                     ></calcite-checkbox>
                     <calcite-action 
                         tabindex="-1"
