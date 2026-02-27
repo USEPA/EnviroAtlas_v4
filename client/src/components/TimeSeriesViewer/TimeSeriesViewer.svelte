@@ -1709,7 +1709,7 @@
 >
 <!-- heading="Time Series Layers"
  description="Explore changing landscapes and environment" -->
-    <calcite-block scale="m" id="domainHeader" heading="2. Explore Time Series Map Layers"
+    <calcite-block scale="m" id="domainHeader" heading="3. Explore Time Series Map Layers"
         description="Select a theme, time period, and other attributes below"
         style="border-bottom: none">
     </calcite-block>
