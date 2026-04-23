@@ -26,7 +26,7 @@
         </li>
         <li>Click the <strong>Calculate</strong> button.</li>
         <li>
-            View the the gridded layer statistics for the focus
+            View the gridded layer statistics for the focus
             location in the Results tab.
         </li>
     </ul>
