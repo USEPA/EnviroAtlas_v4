@@ -339,11 +339,6 @@
       text="Add Data"
     ></calcite-action>
     <calcite-action
-      data-action-id="basemaps"
-      icon="basemap"
-      text="Basemaps"
-    ></calcite-action>
-    <calcite-action
       data-action-id="maptools"
       icon="system-management"
       text="Other Map Tools"
@@ -352,6 +347,11 @@
       data-action-id="sma-results"
       icon="mosaic-method-sum"
       text="Summarize My Area Results"
+    ></calcite-action>
+    <calcite-action
+      data-action-id="basemaps"
+      icon="basemap"
+      text="Basemaps"
     ></calcite-action>
   </calcite-action-bar>
   <calcite-panel
