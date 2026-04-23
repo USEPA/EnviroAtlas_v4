@@ -899,7 +899,7 @@
         {/if}
         {#if geographyLabel}
             <calcite-notice open kind="success">
-                <div slot="message">{geographyLabel}</div>
+                <div slot="message">Selected Unit: {geographyLabel}</div>
             </calcite-notice>
         {/if}
     </calcite-block>
