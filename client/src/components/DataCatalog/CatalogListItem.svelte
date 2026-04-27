@@ -38,6 +38,7 @@
 
     async function getSubtopicDetails () {
         // Use api to get detailsObj and pass to the SubtopicDetails component with subtopic 
+        console.log(subtopic)
         if (subtopic.layers.length < 2) {
             layerID = subtopic.layers[0].layerID
             let detailsParams = {
@@ -116,8 +117,8 @@
             scale="m" 
             slot="actions-end" 
             id="{subtopic.subTopicID}-details-popover-button"
-            on:click={detailsObj = () => getSubtopicDetails()}
-            on:keypress={detailsObj = () => getSubtopicDetails()}>
+            on:click={() => getSubtopicDetails()}
+            on:keypress={() => getSubtopicDetails()}>
         </calcite-action>
         {#if subtopic.layers.length > 1}
         <div slot="content-bottom" id="concernFilterDiv">

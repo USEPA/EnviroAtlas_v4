@@ -273,7 +273,7 @@
             _initGeometryLayer(sumUnit);
             clearSketch();
         } if (sumUnit == "Draw a Polygon" || sumUnit == "Draw Area Around Point" || sumUnit == "Draw Area Around Line") {
-            let drawCheck = isLayerTitleInMap("Summarize My Area: User defined geometry", view);
+            let drawCheck = isLayerTitleInMap("Summarize My Area Unit: User defined geometry", view);
             !drawCheck ? view.map.addMany([bufferLayer,sketchLayer]) : null;
             if (sumUnit == "Draw a Polygon") {
                 geometryButtonsClickHandler("polygon")
@@ -682,7 +682,7 @@
             inputTableData.push({ attribute: 'Geometry Type', value: 'User provided line' });
             inputTableData.push({ attribute: 'Length', value: line + ' ' + _getMetricString(pointMetric) });
             inputTableData.push({ attribute: 'Buffer', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
-        } else if (sumUnit != "Draw a geometry") {
+        } else {
             let inputTableFields = smaConfig.sum_units[sumUnit].outdesc;
             for (const k in inputTableFields) {
                 let v = inputTableFields[k];
@@ -959,9 +959,9 @@
                         icon="information" 
                         scale="m" 
                         slot="actions-end"
-                        id="{ind.id}-details-popover-button"
-                        on:click={detailsObj = () => getSubtopicDetails(ind)}
-                        on:keypress={detailsObj = () => getSubtopicDetails(ind)}>
+                        id={`${ind.id}-details-popover-button`}
+                        on:click={() => getSubtopicDetails(ind)}
+                        on:keypress={() => getSubtopicDetails(ind)}>
                     </calcite-action>
             </calcite-list-item>
             {/each}
