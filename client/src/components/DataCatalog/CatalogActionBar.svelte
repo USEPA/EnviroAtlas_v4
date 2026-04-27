@@ -68,9 +68,9 @@
     let onScreenFilters = categories.filter((cat) =>
         onScreenCategories.includes(cat.name),
     );
-    let moreFilters = categories.filter(
-        (cat) => !onScreenCategories.includes(cat.name),
-    );
+    let moreFilters = categories
+        .filter((cat) => !onScreenCategories.includes(cat.name))
+        .sort((a, b) => a.label.localeCompare(b.label));
 
     /**
      * The on:calciteInputInput function for search filtering.

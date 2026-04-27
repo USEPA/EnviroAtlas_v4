@@ -47,8 +47,11 @@
         isLayerTitleInMap,
         findLayersByTitle, 
         openRightPanel,
-        openInfo
+        openInfo, 
+        getEaData
     } from "src/shared/utilities.js";
+    import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
+    import { mount } from 'svelte';
 
     export let view;
     export let geography;
@@ -75,6 +78,8 @@
     let geometryType;
     let messages;
     let smaPanel;
+    let detailsMountTarget;
+    let detailsObj = {};
 
     $: isDisabled = !indicatorValue || !geometry;
 
@@ -83,10 +88,19 @@
         // {name: "Land Cover", value: "nlcd"},
         // {name: "Land Cover Change", value: "nlcd-change"},
         { name: "Dasymetric Population", value: "dasy",  
-            domains: "CONUS,Alaska,Hawaii,Puerto Rico,Virgin Islands"},
+            domains: "CONUS,Alaska,Hawaii,Puerto Rico,Virgin Islands", id: 518, topic: "Population"},
         { name: "Permafrost Probability", value: "permafrost", 
-            domains: "Alaska"}
+            domains: "Alaska", id:552, topic: "Soils and Erosion"}
     ];
+
+    const summaryUnitArray = [
+        "County", 
+        "Congressional District", 
+        "HUC-8", "HUC-12", 
+        "Draw Area Around Point", 
+        "Draw Area Around Line", 
+        "Draw a Polygon"
+    ]
 
     /**
      * Filters selections in the indicator dropdown based on selected geography.
@@ -99,19 +113,19 @@
     })();
 
     const sketchLayer = new GraphicsLayer({
-        title: "Summarize My Area: User defined geometry",
+        title: "Summarize My Area Unit: User defined geometry",
         id: "griddedMapSketchLayer",
     });
     const bufferLayer = new GraphicsLayer({
-        title: "Summarize My Area: User defined geometry with buffer",
+        title: "Summarize My Area Unit: User defined geometry with buffer",
     });
     const sumUnitgraphic = new GraphicsLayer({
-        title: "Summarize My Area: User selected area"
+        title: "Summarize My Area Unit: User selected area"
     });
 
-    function geometryButtonsClickHandler(event) {
+    function geometryButtonsClickHandler(value) {
         geodesicBufferOperator.load()
-        geometryType = event.target.value;
+        geometryType = value;
         clearSketch();
         sketchViewModel.create(geometryType);
         if (geometryType == 'polygon') {
@@ -150,7 +164,7 @@
         }
     }
 
-    const updateIndicator = (elem) =>{
+    const updateIndicator = (elem) => {
         messages = null;
         if (elem.checked) {
             let selectedIndicator = elem.value
@@ -258,9 +272,16 @@
         if (sumUnit != "") {
             _initGeometryLayer(sumUnit);
             clearSketch();
-        } if (sumUnit == "Draw a geometry") {
-            let drawCheck = isLayerTitleInMap("Summarize My Area: User defined geometry", view);
+        } if (sumUnit == "Draw a Polygon" || sumUnit == "Draw Area Around Point" || sumUnit == "Draw Area Around Line") {
+            let drawCheck = isLayerTitleInMap("Summarize My Area Unit: User defined geometry", view);
             !drawCheck ? view.map.addMany([bufferLayer,sketchLayer]) : null;
+            if (sumUnit == "Draw a Polygon") {
+                geometryButtonsClickHandler("polygon")
+            } else if (sumUnit == "Draw Area Around Point") {
+                geometryButtonsClickHandler("point")
+            } else if (sumUnit == "Draw Area Around Line") {
+                geometryButtonsClickHandler("polyline")
+            }
         } else {
             // Clear graphics from map if the sum unit changes.
             view.map.removeMany([bufferLayer,sketchLayer,sumUnitgraphic]);
@@ -275,7 +296,7 @@
         sketchLayer.removeAll();
         openRightPanel($activeWidget, "layers");
 
-        if (sumUnit == "Draw a geometry") {
+        if (sumUnit == "Draw a Polygon" || sumUnit == "Draw Area Around Point" || sumUnit == "Draw Area Around Line") {
             _initSketchTool();
         } else {
             // Get unitMinScale, url, outfields from the smaConfig
@@ -644,24 +665,24 @@
                 "</a>",
         });
 
-        if (sumUnit == "Draw a geometry" && geometryType == 'polygon') {
+        if (sumUnit == "Draw a Polygon" && geometryType == 'polygon') {
             inputTableData.push({ attribute: 'Geometry Type', value: 'User provided area' });
             if (bufferInput.value > 0) {
                 inputTableData.push({ attribute: 'Buffer', 'value': formatLargeNumber(bufferInput.value) + _getMetricString(pointMetric) });
                 //inputTableData.push({ attribute: 'Area inside buffer excluded', value: 'True' ? this.excludeInnerFeatureCheckbox.checked : 'False' });
             }
-        } else if (sumUnit == "Draw a geometry" && geometryType == 'point') {
+        } else if (sumUnit == "Draw Area Around Point" && geometryType == 'point') {
             inputTableData.push({ attribute: 'Geometry Type', value: 'User provided point' });
             const centroid = centroidOperator.execute(bufferGeometry);
             inputTableData.push({ attribute: 'Lat/Lon', value: centroid.latitude.toFixed(4) + ', ' +
                 centroid.longitude.toFixed(4)
             });
             inputTableData.push({ attribute: 'Buffer Radius', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
-        } else if (sumUnit == "Draw a geometry" && geometryType == "polyline") {
+        } else if (sumUnit == "Draw Area Around Line" && geometryType == "polyline") {
             inputTableData.push({ attribute: 'Geometry Type', value: 'User provided line' });
             inputTableData.push({ attribute: 'Length', value: line + ' ' + _getMetricString(pointMetric) });
             inputTableData.push({ attribute: 'Buffer', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
-        } else if (sumUnit != "Draw a geometry") {
+        } else {
             let inputTableFields = smaConfig.sum_units[sumUnit].outdesc;
             for (const k in inputTableFields) {
                 let v = inputTableFields[k];
@@ -813,7 +834,40 @@
           return numberString + '.' + afterDecimal;
         }
         return numberString;
-      }
+    }
+
+    async function getSubtopicDetails (layer) {
+        const popoverReferenceId = `${layer.id}-details-popover-button`;
+        let subtopicParams = {
+            select: encodeURIComponent(
+                `{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"areaGeog":1,"name":1,"tags":1}}`,
+            ),
+            where: encodeURIComponent(`{"topic":"${layer.topic}"}`),
+        };
+        // return promise object resolve, not the whole promise object
+        let subtopic = await getEaData("/ea/api/subtopics", subtopicParams);
+        subtopic = subtopic[0]
+        let detailsParams = {
+            select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"agoID":1,"metadataID":1,"url":1}`)
+        };
+        let detailsObj = await getEaData(`/ea/api/layers/${layer.id}`, detailsParams);
+        let findPopover = document.querySelector(`[reference-element="${popoverReferenceId}"]`);
+        if (!findPopover) {
+            mount(SubtopicDetails, {
+                target: detailsMountTarget || document.body,
+                props: {
+                    subtopic,
+                    detailsObj,
+                    referenceElementId: popoverReferenceId,
+                },
+            });
+        }
+        let popover = document.querySelector(`[reference-element="${popoverReferenceId}"]`);
+        if (popover) {
+            popover.setAttribute("open", "true");
+        }
+        return detailsObj
+    }
 </script>
 
 <calcite-panel
@@ -843,7 +897,7 @@
                 bind:this={summaryUnitCombobox}
                 on:calciteComboboxChange={updateSumUnit}
             >
-                {#each ["County", "Congressional District", "HUC-8", "HUC-12", "Draw a geometry"] as sumUnit}
+                {#each summaryUnitArray as sumUnit}
                     <calcite-combobox-item
                         value={sumUnit}
                         heading={sumUnit}
@@ -851,30 +905,7 @@
                 {/each}
             </calcite-combobox>
         </calcite-label>
-        {#if sumUnit == "Draw a geometry"}
-            <div class="geometry-options">
-                <button
-                    class="esri-widget--button esri-icon-map-pin geometry-button"
-                    id="point-geometry-button"
-                    value="point"
-                    title="Filter by point"
-                    on:click={geometryButtonsClickHandler}
-                ></button>
-                <button
-                    class="esri-widget--button esri-icon-polyline geometry-button"
-                    id="line-geometry-button"
-                    value="polyline"
-                    title="Filter by line"
-                    on:click={geometryButtonsClickHandler}
-                ></button>
-                <button
-                    class="esri-widget--button esri-icon-polygon geometry-button"
-                    id="polygon-geometry-button"
-                    value="polygon"
-                    title="Filter by polygon"
-                    on:click={geometryButtonsClickHandler}
-                ></button>
-            </div>
+        {#if sumUnit == "Draw a Polygon" || sumUnit == "Draw Area Around Point" || sumUnit == "Draw Area Around Line"}
             <calcite-label layout="inline" scale="s"
                 >Buffer distance:
                 <calcite-input-number
@@ -899,7 +930,7 @@
         {/if}
         {#if geographyLabel}
             <calcite-notice open kind="success">
-                <div slot="message">{geographyLabel}</div>
+                <div slot="message">Selected Unit: {geographyLabel}</div>
             </calcite-notice>
         {/if}
     </calcite-block>
@@ -927,7 +958,10 @@
                         text="Details" 
                         icon="information" 
                         scale="m" 
-                        slot="actions-end">
+                        slot="actions-end"
+                        id={`${ind.id}-details-popover-button`}
+                        on:click={() => getSubtopicDetails(ind)}
+                        on:keypress={() => getSubtopicDetails(ind)}>
                     </calcite-action>
             </calcite-list-item>
             {/each}
@@ -995,6 +1029,7 @@
             </calcite-label>
         {/if}
     </calcite-block>
+    <div bind:this={detailsMountTarget}></div>
 </calcite-panel>
 
 <style>

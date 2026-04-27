@@ -41,3 +41,9 @@
         </div>
     </calcite-block>
 </calcite-panel>
+
+<style>
+    #gridded-map-output-table-wrapper {
+        text-align: right;
+    }
+</style>
