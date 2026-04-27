@@ -4,6 +4,9 @@
     export let subtopic;
     export let detailsObj;
     export let detailsArray;
+    export let referenceElementId;
+
+    $: popoverReference = referenceElementId || `${subtopic.subTopicID}-details-popover-button`;
 
     let categories = [
         { name: "eaCA", icon: "air" }, 
@@ -35,8 +38,8 @@
     placement="trailing-start"
     overlay-positioning="fixed"
     scale="s"
-    label="{subtopic.subTopicID}-details-popover-button"
-    reference-element="{subtopic.subTopicID}-details-popover-button"
+    label={popoverReference}
+    reference-element={popoverReference}
     auto-close
     trigger-disabled
 >

@@ -47,8 +47,11 @@
         isLayerTitleInMap,
         findLayersByTitle, 
         openRightPanel,
-        openInfo
+        openInfo, 
+        getEaData
     } from "src/shared/utilities.js";
+    import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
+    import { mount } from 'svelte';
 
     export let view;
     export let geography;
@@ -75,6 +78,8 @@
     let geometryType;
     let messages;
     let smaPanel;
+    let detailsMountTarget;
+    let detailsObj = {};
 
     $: isDisabled = !indicatorValue || !geometry;
 
@@ -83,9 +88,9 @@
         // {name: "Land Cover", value: "nlcd"},
         // {name: "Land Cover Change", value: "nlcd-change"},
         { name: "Dasymetric Population", value: "dasy",  
-            domains: "CONUS,Alaska,Hawaii,Puerto Rico,Virgin Islands"},
+            domains: "CONUS,Alaska,Hawaii,Puerto Rico,Virgin Islands", id: 518, topic: "Population"},
         { name: "Permafrost Probability", value: "permafrost", 
-            domains: "Alaska"}
+            domains: "Alaska", id:552, topic: "Soils and Erosion"}
     ];
 
     /**
@@ -813,7 +818,40 @@
           return numberString + '.' + afterDecimal;
         }
         return numberString;
-      }
+    }
+
+    async function getSubtopicDetails (layer) {
+        const popoverReferenceId = `${layer.id}-details-popover-button`;
+        let subtopicParams = {
+            select: encodeURIComponent(
+                `{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"areaGeog":1,"name":1,"tags":1}}`,
+            ),
+            where: encodeURIComponent(`{"topic":"${layer.topic}"}`),
+        };
+        // return promise object resolve, not the whole promise object
+        let subtopic = await getEaData("/ea/api/subtopics", subtopicParams);
+        subtopic = subtopic[0]
+        let detailsParams = {
+            select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"agoID":1,"metadataID":1,"url":1}`)
+        };
+        let detailsObj = await getEaData(`/ea/api/layers/${layer.id}`, detailsParams);
+        let findPopover = document.querySelector(`[reference-element="${popoverReferenceId}"]`);
+        if (!findPopover) {
+            mount(SubtopicDetails, {
+                target: detailsMountTarget || document.body,
+                props: {
+                    subtopic,
+                    detailsObj,
+                    referenceElementId: popoverReferenceId,
+                },
+            });
+        }
+        let popover = document.querySelector(`[reference-element="${popoverReferenceId}"]`);
+        if (popover) {
+            popover.setAttribute("open", "true");
+        }
+        return detailsObj
+    }
 </script>
 
 <calcite-panel
@@ -927,7 +965,10 @@
                         text="Details" 
                         icon="information" 
                         scale="m" 
-                        slot="actions-end">
+                        slot="actions-end"
+                        id="{ind.id}-details-popover-button"
+                        on:click={detailsObj = () => getSubtopicDetails(ind)}
+                        on:keypress={detailsObj = () => getSubtopicDetails(ind)}>
                     </calcite-action>
             </calcite-list-item>
             {/each}
@@ -995,6 +1036,7 @@
             </calcite-label>
         {/if}
     </calcite-block>
+    <div bind:this={detailsMountTarget}></div>
 </calcite-panel>
 
 <style>
