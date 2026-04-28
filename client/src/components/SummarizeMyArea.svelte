@@ -273,6 +273,7 @@
             _initGeometryLayer(sumUnit);
             clearSketch();
         } if (sumUnit == "Draw a Polygon" || sumUnit == "Draw Area Around Point" || sumUnit == "Draw Area Around Line") {
+            geographyLabel = null;
             let drawCheck = isLayerTitleInMap("Summarize My Area Unit: User defined geometry", view);
             !drawCheck ? view.map.addMany([bufferLayer,sketchLayer]) : null;
             if (sumUnit == "Draw a Polygon") {
@@ -732,7 +733,11 @@
 
         try {
             const results = await compHistRequest;
-            //console.log(results);
+            if (results.data?.statistics?.length < 1) {
+                messages = smaConfig.genericError;
+                smaPanel.loading = false;
+                return;
+            }
             return results;
         } catch (err) {
             console.log(err);
@@ -886,7 +891,7 @@
     >
         Calculate
     </calcite-button>
-    <calcite-block open heading="3. Select a summary unit">
+    <calcite-block open heading="3. Select a summary unit" style="margin-top: 0px; margin-block-end: 0px">
         <calcite-action slot="actions-end" icon="question" on:click={openInfo("sma")}></calcite-action>
         <calcite-label layout="inline">
             <calcite-combobox
@@ -934,8 +939,9 @@
             </calcite-notice>
         {/if}
     </calcite-block>
-    <calcite-block open heading="4. Select a map layer to summarize">
-        <calcite-list>
+    <calcite-block open heading="4. Select a map layer to summarize" style="margin-top: 0px; margin-block-end: 0px">
+        <calcite-list 
+            style="padding-top: 0px">
             {#each options_filtered as ind}
             <calcite-list-item 
                 label={ind.name}
