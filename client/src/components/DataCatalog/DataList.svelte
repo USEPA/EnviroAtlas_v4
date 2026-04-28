@@ -5,11 +5,6 @@
     import "@esri/calcite-components/dist/components/calcite-card";
     import "@esri/calcite-components/dist/components/calcite-popover";
     import "@esri/calcite-components/dist/components/calcite-action-group";
-    import {
-        globe32,
-        clockForward32,
-        mosaicMethodSum32,
-    } from "@esri/calcite-ui-icons";
 
     // Import components and store
     import {
