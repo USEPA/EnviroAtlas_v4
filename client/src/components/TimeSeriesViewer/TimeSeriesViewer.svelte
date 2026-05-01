@@ -115,6 +115,56 @@
             }
         ], description: "Climate change variables were computed using 30–year periods: recent history (1976–2005), near-term future (2025–2054), mid-century (2045–2074), and end-of-century (2070–2099). Climate change variables are expressed as a change between different periods:"
     }];
+    const popProjectedOptions = [
+        { name: 'Scenario by 2100', options: [
+            {label: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)", value: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)"},
+            {label: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)", value: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)"}
+        ]},
+        { name: 'Model', options: [
+            {label: "GISS-E2-R", value: "GISS-E2-R"},
+            {label: "HadGEM2-ES", value: "HadGEM2-ES"}
+        ]},
+        { name: 'Change Between Periods', options: [
+            {label: "2000 vs. 2040", value: "2000 vs. 2040"},
+            {label: "2000 vs. 2060", value: "2000 vs. 2060"},
+            {label: "2000 vs. 2080", value: "2000 vs. 2080"},
+            {label: "2000 vs. 2100", value: "2000 vs. 2100"},
+        ]},
+    ]
+
+    const lcluProjectedOptions = [
+        { name: 'Scenario by 2100', options: [
+            {label: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)", value: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)"},
+            {label: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)", value: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)"}
+        ]},
+        { name: 'Model', options: [
+            {label: "GISS-E2-R", value: "GISS-E2-R"},
+            {label: "HadGEM2-ES", value: "HadGEM2-ES"}
+        ]},
+        { name: 'Period', options: [
+            {label: "2000 (Historical)", value: "2000 (Historical)"},
+            {label: "2040 (Near Term Future)", value: "2040 (Near Term Future)"},
+            {label: "2060 (Mid-Century)", value: "2060 (Mid-Century)"},
+            {label: "2080 (Late Century)", value: "2080 (Late Century)"},
+            {label: "2100 (End of Century)", value: "2100 (End of Century)"},
+        ]},
+    ]
+
+    const lcluPastOptions = [
+        { name: 'LC/LU Class', options: [
+            {label: "All", value: "All"},
+            {label: "Forest", value: "Forest"},
+            {label: "Change Forest (compared to 2024)", value: "Change Forest (compared to 2024)"},
+        ]},
+        { name: 'Year', options: [
+            {label: "1985", value: "1985"},
+            {label: "1995", value: "1995"},
+            {label: "2005", value: "2005"},
+            {label: "2010", value: "2010"},
+            {label: "2015", value: "2015"},
+            {label: "2020", value: "2020"},
+        ]},
+    ]
 
     const domainMap = {
         "Puerto Rico,Virgin Islands": "VIPR",
@@ -1727,49 +1777,211 @@
             scale="auto"
             style="border-top: 1px solid #dedede; padding-top: 3px"
         >
-                <calcite-list-item
-                    id='Weather Normals (Projected)'
-                    label='Weather Normals (Projected)'
-                    value='Weather Normals (Projected)'
-                    on:calciteListItemSelect={listItemExpand}
-                >
-                    <calcite-list-item 
-                        on:calciteListItemSelect={e=>e.stopPropagation()}
-                        description='Projected Changes in 30-year Weather Normals'
+            <calcite-list-item
+                id='Land Cover/Land Use (Past)'
+                label='Land Cover/Land Use (Past)'
+                value='Land Cover/Land Use (Past)'
+                on:calciteListItemSelect={listItemExpand}
+            >
+                <calcite-list-item 
+                    on:calciteListItemSelect={e=>e.stopPropagation()}
+                    description='Raster data at 30m resolution'
+                    >
+                    {#each lcluPastOptions as lcluPast}
+                    <div slot="content-bottom" id="combobox-div">
+                        <calcite-combobox
+                            id="climateVarSelect"
+                            scale="m"
+                            placeholder={lcluPast.name}
+                            selection-mode="single"
+                            max-items="0"
+                            overlay-positioning="fixed"
                         >
-                        {#each options_filtered as clim, c (clim.name)}
-                        <div slot="content-bottom" id="combobox-div">
-                            <calcite-combobox
-                                bind:this={climRefs[c]}
-                                id="climateVarSelect"
-                                scale="m"
-                                placeholder={clim.name}
-                                selection-mode="single"
-                                max-items="0"
-                                overlay-positioning="fixed"
-                            >
-                            {#each clim.options as o}
-                                <calcite-combobox-item value={o.value} text-label={o.label} metadata={o.d}></calcite-combobox-item>
-                            {/each}
-                            </calcite-combobox>
-                            <calcite-button 
-                                appearance="transparent"
-                                iconEnd="information"
-                                on:click={() => openDetails(clim.name)}
-                                id="{clim.name}-details-popover-button"
-                                class="info-button"
-                        ></calcite-button>
-                        </div>
+                        {#each lcluPast.options as o}
+                            <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
                         {/each}
-                        <div slot="content-bottom">
-                            <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
-                                <div slot="title">Incomplete selections</div>
-                                <div slot="message">Please make selections.</div>
-                            </calcite-notice>
-                            <calcite-button on:click={getSelections}>Add to map</calcite-button>
-                        </div>
-                    </calcite-list-item>
+                        </calcite-combobox>
+                        <calcite-button 
+                            appearance="transparent"
+                            iconEnd="information"
+                            id="pop-proj-details-popover-button"
+                            class="info-button"
+                    ></calcite-button>
+                    </div>
+                    {/each}
+                    <div slot="content-bottom">
+                        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+                            <div slot="title">Incomplete selections</div>
+                            <div slot="message">Please make selections.</div>
+                        </calcite-notice>
+                        <calcite-button>Coming Soon!</calcite-button>
+                    </div>
                 </calcite-list-item>
+            </calcite-list-item>
+            <calcite-list-item
+                id='Land Cover/Land Use (Projected)'
+                label='Land Cover/Land Use (Projected)'
+                value='Land Cover/Land Use (Projected)'
+                on:calciteListItemSelect={listItemExpand}
+            >
+                <calcite-list-item 
+                    on:calciteListItemSelect={e=>e.stopPropagation()}
+                    description='Projected Change in US LC/LU (ICLUS)'
+                    >
+                    {#each lcluProjectedOptions as lcluProj}
+                    <div slot="content-bottom" id="combobox-div">
+                        <calcite-combobox
+                            id="climateVarSelect"
+                            scale="m"
+                            placeholder={lcluProj.name}
+                            selection-mode="single"
+                            max-items="0"
+                            overlay-positioning="fixed"
+                        >
+                        {#each lcluProj.options as o}
+                            <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
+                        {/each}
+                        </calcite-combobox>
+                        <calcite-button 
+                            appearance="transparent"
+                            iconEnd="information"
+                            id="pop-proj-details-popover-button"
+                            class="info-button"
+                    ></calcite-button>
+                    </div>
+                    {/each}
+                    <div slot="content-bottom">
+                        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+                            <div slot="title">Incomplete selections</div>
+                            <div slot="message">Please make selections.</div>
+                        </calcite-notice>
+                        <calcite-button>Coming Soon!</calcite-button>
+                    </div>
+                </calcite-list-item>
+            </calcite-list-item>
+            <calcite-list-item
+                id='Population (Past)'
+                label='Population (Past)'
+                value='Population (Past)'
+                on:calciteListItemSelect={listItemExpand}
+            >
+                <calcite-list-item 
+                    on:calciteListItemSelect={e=>e.stopPropagation()}
+                    description='Change in US Population'
+                    >
+                    <div slot="content-bottom" id="combobox-div">
+                        <calcite-combobox
+                            id="climateVarSelect"
+                            scale="m"
+                            placeholder="Year"
+                            selection-mode="single"
+                            max-items="0"
+                            overlay-positioning="fixed"
+                        >
+                        {#each ['2010', '2020'] as o}
+                            <calcite-combobox-item value={o} text-label={o} metadata={o}></calcite-combobox-item>
+                        {/each}
+                        </calcite-combobox>
+                        <calcite-button 
+                            appearance="transparent"
+                            iconEnd="information"
+                            id="pop-past-details-popover-button"
+                            class="info-button"
+                    ></calcite-button>
+                    </div>
+                    <div slot="content-bottom">
+                        <calcite-notice hidden scale="s" open kind="danger" icon>
+                            <div slot="title">Incomplete selections</div>
+                            <div slot="message">Please make selections.</div>
+                        </calcite-notice>
+                        <calcite-button>Coming Soon!</calcite-button>
+                    </div>
+                </calcite-list-item>
+            </calcite-list-item>
+            <calcite-list-item
+                id='Population (Projected)'
+                label='Population (Projected)'
+                value='Population (Projected)'
+                on:calciteListItemSelect={listItemExpand}
+            >
+                <calcite-list-item 
+                    on:calciteListItemSelect={e=>e.stopPropagation()}
+                    description='Projected Change in US Population (ICLUS)'
+                    >
+                    {#each popProjectedOptions as popProj}
+                    <div slot="content-bottom" id="combobox-div">
+                        <calcite-combobox
+                            id="climateVarSelect"
+                            scale="m"
+                            placeholder={popProj.name}
+                            selection-mode="single"
+                            max-items="0"
+                            overlay-positioning="fixed"
+                        >
+                        {#each popProj.options as o}
+                            <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
+                        {/each}
+                        </calcite-combobox>
+                        <calcite-button 
+                            appearance="transparent"
+                            iconEnd="information"
+                            id="pop-proj-details-popover-button"
+                            class="info-button"
+                    ></calcite-button>
+                    </div>
+                    {/each}
+                    <div slot="content-bottom">
+                        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+                            <div slot="title">Incomplete selections</div>
+                            <div slot="message">Please make selections.</div>
+                        </calcite-notice>
+                        <calcite-button>Coming Soon!</calcite-button>
+                    </div>
+                </calcite-list-item>
+            </calcite-list-item>
+            <calcite-list-item
+                id='Weather Normals (Projected)'
+                label='Weather Normals (Projected)'
+                value='Weather Normals (Projected)'
+                on:calciteListItemSelect={listItemExpand}
+            >
+                <calcite-list-item 
+                    on:calciteListItemSelect={e=>e.stopPropagation()}
+                    description='Projected Changes in 30-year Weather Normals'
+                    >
+                    {#each options_filtered as clim, c (clim.name)}
+                    <div slot="content-bottom" id="combobox-div">
+                        <calcite-combobox
+                            bind:this={climRefs[c]}
+                            id="climateVarSelect"
+                            scale="m"
+                            placeholder={clim.name}
+                            selection-mode="single"
+                            max-items="0"
+                            overlay-positioning="fixed"
+                        >
+                        {#each clim.options as o}
+                            <calcite-combobox-item value={o.value} text-label={o.label} metadata={o.d}></calcite-combobox-item>
+                        {/each}
+                        </calcite-combobox>
+                        <calcite-button 
+                            appearance="transparent"
+                            iconEnd="information"
+                            on:click={() => openDetails(clim.name)}
+                            id="{clim.name}-details-popover-button"
+                            class="info-button"
+                    ></calcite-button>
+                    </div>
+                    {/each}
+                    <div slot="content-bottom">
+                        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+                            <div slot="title">Incomplete selections</div>
+                            <div slot="message">Please make selections.</div>
+                        </calcite-notice>
+                        <calcite-button on:click={getSelections}>Add to map</calcite-button>
+                    </div>
+                </calcite-list-item>
+            </calcite-list-item>
         </calcite-list>
     </calcite-block>
     <div bind:this={timeSeriesDetailsTarget}></div>
