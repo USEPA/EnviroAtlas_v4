@@ -275,10 +275,6 @@
 {/if}
 
 <style>
-    calcite-action-bar#catalog-search-filter {
-        width: 100%;
-    }
-
     calcite-popover#morefilters {
         --calcite-popover-max-size-x: 210px;
     }
@@ -286,11 +282,6 @@
         width: 100%;
         margin-right: 15px;
         border-radius: 7px;
-    }
-
-    calcite-chip {
-        --calcite-chip-border-color: black;
-        --calcite-ui-focus-color: none !important;
     }
 
     calcite-card#national-search-filter-card {
@@ -305,11 +296,6 @@
         margin-right: 5px;
         flex-wrap: nowrap; /* keep on one line */
     }
-
-    /* Ensure buttons don’t stretch; keep intrinsic width
-    .onscreen-filters .filter-button {
-        flex: 0 0 auto;
-    } */
 
     .filter-icon {
         display: flex;
@@ -356,14 +342,5 @@
         cursor: pointer;
         font-size: 12px;
         text-decoration: underline;
-    }
-
-    .map-count-row {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        margin-block: 5px;
-        /* Optional: allow wrapping on narrow screens */
-        flex-wrap: nowrap; /* change to wrap if you want it to break to two lines when narrow */
     }
 </style>
