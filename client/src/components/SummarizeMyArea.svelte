@@ -87,10 +87,10 @@
     const indicatorsDict = [
         // {name: "Land Cover", value: "nlcd"},
         // {name: "Land Cover Change", value: "nlcd-change"},
-        { name: "Dasymetric Population", value: "dasy",  
-            domains: "CONUS,Alaska,Hawaii,Puerto Rico,Virgin Islands", id: 518, topic: "Population"},
-        { name: "Permafrost Probability", value: "permafrost", 
-            domains: "Alaska", id:552, topic: "Soils and Erosion"}
+        { name: "Dasymetric allocation of population 2020 CONUS, Alaska, Hawaii, Puerto Rico, and the U.S. Virgin Islands", value: "dasy",  
+            domains: "CONUS,Alaska,Hawaii,Puerto Rico,Virgin Islands", id: 518, topic: "Population", dtype: "Non-summarized grid data"},
+        { name: "Near-surface permafrost probability", value: "permafrost", 
+            domains: "Alaska", id:552, topic: "Soils and Erosion", dtype: "Non-summarized grid data"}
     ];
 
     const summaryUnitArray = [
@@ -891,16 +891,17 @@
     >
         Calculate
     </calcite-button>
-    <calcite-block open heading="3. Select a summary unit" style="margin-top: 0px; margin-block-end: 0px">
+    <calcite-block open heading="3. Select a summary unit" style="margin-top: 0px; margin-block-end: 0px" description="Select a unit area to calculate summary statistics">
         <calcite-action slot="actions-end" icon="question" on:click={openInfo("sma")}></calcite-action>
-        <calcite-label layout="inline">
+        <calcite-label layout="inline" style="padding-left: 12px">
             <calcite-combobox
-                scale="s"
+                scale="m"
                 placeholder=" Select one"
                 selection-mode="single"
                 overlay-positioning="fixed"
                 bind:this={summaryUnitCombobox}
                 on:calciteComboboxChange={updateSumUnit}
+                style="width: 97%; height: 70%"
             >
                 {#each summaryUnitArray as sumUnit}
                     <calcite-combobox-item
@@ -911,8 +912,8 @@
             </calcite-combobox>
         </calcite-label>
         {#if sumUnit == "Draw a Polygon" || sumUnit == "Draw Area Around Point" || sumUnit == "Draw Area Around Line"}
-            <calcite-label layout="inline" scale="s"
-                >Buffer distance:
+            <calcite-label layout="inline" scale="s" style="padding-left: 12px; width: 97%"
+                >Choose buffer size:
                 <calcite-input-number
                     suffix-text="km"
                     min="0"
@@ -921,6 +922,8 @@
                     value="1"
                     number-button-type="vertical"
                     bind:this={bufferInput}
+                    alignment="end"
+                    style="width: 69%"
                 ></calcite-input-number>
             </calcite-label>
         {/if}
@@ -939,12 +942,14 @@
             </calcite-notice>
         {/if}
     </calcite-block>
-    <calcite-block open heading="4. Select a map layer to summarize" style="margin-top: 0px; margin-block-end: 0px">
+    <calcite-block open heading="4. Select a map layer to summarize" style="margin-top: 0px; margin-block-end: 0px" description="Choose a dataset to calculate summary statistics">
         <calcite-list 
-            style="padding-top: 0px">
+            scale='s'
+            style="padding-top: 0px; border-top: 1px solid #dedede">
             {#each options_filtered as ind}
             <calcite-list-item 
                 label={ind.name}
+                description={ind.dtype}
                 id="not-header"
                 on:calciteListItemSelect={e=>e.stopPropagation()}
                 >
@@ -1046,40 +1051,22 @@
     calcite-block {
         margin-left: 2px;
         margin-right: 2px;
+        padding: none !important
     }
 
     #not-header {
         --calcite-list-background-color: #fff;
         --calcite-list-background-color-hover: none;
         --calcite-list-background-color-press: none;
-        --calcite-spacing-xxs: 0;
         --calcite-font-weight-normal: 400;
-        font-size: var(--calcite-font-size--2)  
+        font-size: var(--calcite-font-size--2);
     }
 
     calcite-list-item {
+        --calcite-list-border-color: #aeaba2;
         --calcite-ui-focus-color: none !important;
         --calcite-color-text-2: #162e51;
         --calcite-list-background-color: white;
         font-size: var(--calcite-font-size--1);
-        border-bottom: 0px solid white;
-        --calcite-list-border-color: white;
-    }
-
-    .geometry-options {
-        display: flex;
-        flex-direction: row;
-    }
-
-    .geometry-button {
-        flex: 1;
-        border-style: solid;
-        border-width: 1px;
-        border-image: none;
-    }
-
-    .geometry-button-selected {
-        background: #4c4c4c;
-        color: #fff;
     }
 </style>

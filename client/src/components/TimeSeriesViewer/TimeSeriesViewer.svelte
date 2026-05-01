@@ -28,6 +28,7 @@
     import Query from "@arcgis/core/rest/support/Query";
     import FeatureSet from "@arcgis/core/rest/support/FeatureSet.js";
     import * as rasterFunctionUtils from "@arcgis/core/layers/support/rasterFunctionUtils.js";
+    import { mount } from "svelte";
 
     export let geography;
     export let view;
@@ -36,6 +37,7 @@
     let climateNotify;
     let maxVal;
     let minVal;
+    let timeSeriesDetailsTarget;
     const options = [ 
         { name: "Variable", options: [ 
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRin", label: "Change in Precipitation (in)",
@@ -58,23 +60,23 @@
             }
         ], description: "All variables are presented as a median, minimum and maximum of the NEX-GDDP-CMIP6 Global Climate Model ensemble."
     }, 
-        { name: "Scenario", options: [
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp126", label: "SSP1–2.6 (>3.6°F by 2100)", 
+        { name: "Scenario by 2100", options: [
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp126", label: "Global mean: ↑ ≤3.6°F (SSP1-2.6", 
                 info: "SSP1 (“Sustainability”) assumes widespread global climate change mitigation policies, clean energy technologies, and natural environment conservancy. This scenario assumes very low GHG concentration levels and reflects the international climate policy goal of limiting global warming below 3.6°F (2.0°C) at 2100 compared to PIA."
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp245", label: "SSP2–4.5 (4.9 ± 1.6 °F by 2100)", 
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp245", label: "Global mean: ↑4.9±1.3°F (SSP2-4.5)", 
                 info: "SSP2 (“Middle of the Road”) assumes moderate global climate mitigation and adaptation and a slow progress in climate protection measures. This scenario is a medium pathway of future GHG concentrations. Global temperatures increase by 4.9±1.3°F (2.7±0.7°C) at 2100 compared to PIA."
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp370", label: "SSP3–7.0 (6.5 ± 1.3 °F by 2100)",
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp370", label: "Global mean: ↑6.5±1.6°F (SSP3-7.0)",
                 info: "SSP3 (“Regional Rivalry”) assumes high challenges to mitigation and adaptation. Here, nationalism drives policy, and regional and local take precedence over global issues. Global temperatures increase by 6.5±1.6°F (3.6±0.9°C) at 2100 compared to PIA."
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp585", label: "SSP5–8.5 (7.9 ± 2.3 °F by 2100)",
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp585", label: "Global mean: ↑7.9 ±2.2°F (SSP5-8.5)",
                 info: "SSP5 (“Fossil-fueled Development”) reflects high challenges to mitigation and low challenges to adaptation. It is characterized by steadily increasing GHG concentrations. It represents the upper boundary of the range of scenarios. Global temperatures increase by 7.9±2.2°F (4.4±1.2°C) at 2100 compared to PIA."
             },
-            {domains: "CONUS", value: "rcp26", label: "RCP-2.6 (Peak Emissions Year 2020)", d: 1},
-            {domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040)", d: 2},
-            {domains: "CONUS", value: "rcp60", label: "RCP-6.0 (Peak Emissions Year 2080)", d: 3},
-            {domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100)", d: 5}
+            {domains: "CONUS", value: "rcp26", label: "Global mean: ↑2.9±0.8°F (RCP 2.6)", d: 1},
+            {domains: "CONUS", value: "rcp45", label: "Global mean: ↑4.3±1.0°F (RCP 4.5)", d: 2},
+            {domains: "CONUS", value: "rcp60", label: "Global mean: ↑5.1±1.0°F (RCP 6.0)", d: 3},
+            {domains: "CONUS", value: "rcp85", label: "Global mean: ↑7.8±1.4°F (RCP 8.5)", d: 5}
         ], description: "Shared Socioeconomic Pathways (SSPs) reflect global trends in human activities and changes in radiative forcing that result from changes in atmospheric greenhouse gases (GHGs) and aerosol concentrations. In the SSP labels (like SSP1-2.6), the first number refers to a defined socioeconomic pathway (trends in population, policy, and economic growth), and the second refers to an increase in radiative forcing (W/m2) relative to pre-industrial (1850-1900) average (PIA)."
     },
         { name: "Season", options: [
@@ -95,7 +97,7 @@
             },
             
         ]}, 
-        { name: "Period", options: [ 
+        { name: "Change Between Periods", options: [ 
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF1", label: "1976–2005 to 2025–2054", 
                 info: "Recent history (1976–2005) to near-term future (2025–2054)", d: 1
             },  
@@ -113,6 +115,56 @@
             }
         ], description: "Climate change variables were computed using 30–year periods: recent history (1976–2005), near-term future (2025–2054), mid-century (2045–2074), and end-of-century (2070–2099). Climate change variables are expressed as a change between different periods:"
     }];
+    const popProjectedOptions = [
+        { name: 'Scenario by 2100', options: [
+            {label: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)", value: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)"},
+            {label: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)", value: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)"}
+        ]},
+        { name: 'Model', options: [
+            {label: "GISS-E2-R", value: "GISS-E2-R"},
+            {label: "HadGEM2-ES", value: "HadGEM2-ES"}
+        ]},
+        { name: 'Change Between Periods', options: [
+            {label: "2000 vs. 2040", value: "2000 vs. 2040"},
+            {label: "2000 vs. 2060", value: "2000 vs. 2060"},
+            {label: "2000 vs. 2080", value: "2000 vs. 2080"},
+            {label: "2000 vs. 2100", value: "2000 vs. 2100"},
+        ]},
+    ]
+
+    const lcluProjectedOptions = [
+        { name: 'Scenario by 2100', options: [
+            {label: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)", value: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)"},
+            {label: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)", value: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)"}
+        ]},
+        { name: 'Model', options: [
+            {label: "GISS-E2-R", value: "GISS-E2-R"},
+            {label: "HadGEM2-ES", value: "HadGEM2-ES"}
+        ]},
+        { name: 'Period', options: [
+            {label: "2000 (Historical)", value: "2000 (Historical)"},
+            {label: "2040 (Near Term Future)", value: "2040 (Near Term Future)"},
+            {label: "2060 (Mid-Century)", value: "2060 (Mid-Century)"},
+            {label: "2080 (Late Century)", value: "2080 (Late Century)"},
+            {label: "2100 (End of Century)", value: "2100 (End of Century)"},
+        ]},
+    ]
+
+    const lcluPastOptions = [
+        { name: 'LC/LU Class', options: [
+            {label: "All", value: "All"},
+            {label: "Forest", value: "Forest"},
+            {label: "Change Forest (compared to 2024)", value: "Change Forest (compared to 2024)"},
+        ]},
+        { name: 'Year', options: [
+            {label: "1985", value: "1985"},
+            {label: "1995", value: "1995"},
+            {label: "2005", value: "2005"},
+            {label: "2010", value: "2010"},
+            {label: "2015", value: "2015"},
+            {label: "2020", value: "2020"},
+        ]},
+    ]
 
     const domainMap = {
         "Puerto Rico,Virgin Islands": "VIPR",
@@ -1689,8 +1741,8 @@
         console.log(optionsObj)
         let findPopover = document.querySelector(`[reference-element="${optionsObj.name}-details-popover-button"]`);
         if (!findPopover) {
-            new TimeSeriesDetails({
-                target: document.body,
+            mount(TimeSeriesDetails, {
+                target: timeSeriesDetailsTarget || document.body,
                 props: { optionsObj },
             });
         }
@@ -1698,58 +1750,248 @@
         popover.setAttribute("open", "");
         return optionsObj
     }
+
+    function listItemExpand() {
+        !this.open
+            ? this.setAttribute("expanded", "")
+            : this.removeAttribute("expanded");
+    }
 </script>
 
 <calcite-panel
     data-testid="time-series-viewer"
-    data-panel-id="time-series-viewer"
-    
+    data-panel-id="time-series-viewer"   
     open
     hidden
 >
-<!-- heading="Time Series Layers"
- description="Explore changing landscapes and environment" -->
-    <calcite-block scale="m" id="domainHeader" heading="3. Explore Time Series Map Layers"
-        description="Select a theme, time period, and other attributes below"
-        style="border-bottom: none">
-    </calcite-block>
-    <calcite-block collapsible expanded heading='Weather and Climate' style="padding-left:5px">
-        {#each options_filtered as clim, c (clim.name)}
-        <div id="combobox-div">
-            <calcite-combobox
-                bind:this={climRefs[c]}
-                id="climateVarSelect"
-                scale="m"
-                placeholder={clim.name}
-                selection-mode="single"
-                max-items="0"
-                overlay-positioning="absolute"
+    <calcite-block scale="m" id="domainHeader" heading="" expanded
+        style="margin-block: 0px; margin-top: 0px; margin-block-end: 0px"
+        description="">
+        <p class="tab-description">
+            Select a theme, time period, and other attributes below
+        </p>
+        <calcite-list
+            label="timeseries"
+            display-mode="nested"
+            selection-mode="none"
+            scale="auto"
+            style="border-top: 1px solid #dedede; padding-top: 3px"
+        >
+            <calcite-list-item
+                id='Land Cover/Land Use (Past)'
+                label='Land Cover/Land Use (Past)'
+                value='Land Cover/Land Use (Past)'
+                on:calciteListItemSelect={listItemExpand}
             >
-            {#each clim.options as o}
-                <calcite-combobox-item value={o.value} text-label={o.label} metadata={o.d}></calcite-combobox-item>
-            {/each}
-            </calcite-combobox>
-            <calcite-button 
-                appearance="transparent"
-                iconEnd="information"
-                on:click={openDetails(clim.name)}
-                id="{clim.name}-details-popover-button"
-                class="info-button"
-           ></calcite-button>
-        </div>
-        {/each}
-        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
-            <div slot="title">Incomplete selections</div>
-            <div slot="message">Please make selections.</div>
-        </calcite-notice>
-        <calcite-button on:click={getSelections}>Add to map</calcite-button>
+                <calcite-list-item 
+                    on:calciteListItemSelect={e=>e.stopPropagation()}
+                    description='Raster data at 30m resolution'
+                    >
+                    {#each lcluPastOptions as lcluPast}
+                    <div slot="content-bottom" id="combobox-div">
+                        <calcite-combobox
+                            id="climateVarSelect"
+                            scale="m"
+                            placeholder={lcluPast.name}
+                            selection-mode="single"
+                            max-items="0"
+                            overlay-positioning="fixed"
+                        >
+                        {#each lcluPast.options as o}
+                            <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
+                        {/each}
+                        </calcite-combobox>
+                        <calcite-button 
+                            appearance="transparent"
+                            iconEnd="information"
+                            id="pop-proj-details-popover-button"
+                            class="info-button"
+                    ></calcite-button>
+                    </div>
+                    {/each}
+                    <div slot="content-bottom">
+                        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+                            <div slot="title">Incomplete selections</div>
+                            <div slot="message">Please make selections.</div>
+                        </calcite-notice>
+                        <calcite-button>Coming Soon!</calcite-button>
+                    </div>
+                </calcite-list-item>
+            </calcite-list-item>
+            <calcite-list-item
+                id='Land Cover/Land Use (Projected)'
+                label='Land Cover/Land Use (Projected)'
+                value='Land Cover/Land Use (Projected)'
+                on:calciteListItemSelect={listItemExpand}
+            >
+                <calcite-list-item 
+                    on:calciteListItemSelect={e=>e.stopPropagation()}
+                    description='Projected Change in US LC/LU (ICLUS)'
+                    >
+                    {#each lcluProjectedOptions as lcluProj}
+                    <div slot="content-bottom" id="combobox-div">
+                        <calcite-combobox
+                            id="climateVarSelect"
+                            scale="m"
+                            placeholder={lcluProj.name}
+                            selection-mode="single"
+                            max-items="0"
+                            overlay-positioning="fixed"
+                        >
+                        {#each lcluProj.options as o}
+                            <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
+                        {/each}
+                        </calcite-combobox>
+                        <calcite-button 
+                            appearance="transparent"
+                            iconEnd="information"
+                            id="pop-proj-details-popover-button"
+                            class="info-button"
+                    ></calcite-button>
+                    </div>
+                    {/each}
+                    <div slot="content-bottom">
+                        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+                            <div slot="title">Incomplete selections</div>
+                            <div slot="message">Please make selections.</div>
+                        </calcite-notice>
+                        <calcite-button>Coming Soon!</calcite-button>
+                    </div>
+                </calcite-list-item>
+            </calcite-list-item>
+            <calcite-list-item
+                id='Population (Past)'
+                label='Population (Past)'
+                value='Population (Past)'
+                on:calciteListItemSelect={listItemExpand}
+            >
+                <calcite-list-item 
+                    on:calciteListItemSelect={e=>e.stopPropagation()}
+                    description='Change in US Population'
+                    >
+                    <div slot="content-bottom" id="combobox-div">
+                        <calcite-combobox
+                            id="climateVarSelect"
+                            scale="m"
+                            placeholder="Year"
+                            selection-mode="single"
+                            max-items="0"
+                            overlay-positioning="fixed"
+                        >
+                        {#each ['2010', '2020'] as o}
+                            <calcite-combobox-item value={o} text-label={o} metadata={o}></calcite-combobox-item>
+                        {/each}
+                        </calcite-combobox>
+                        <calcite-button 
+                            appearance="transparent"
+                            iconEnd="information"
+                            id="pop-past-details-popover-button"
+                            class="info-button"
+                    ></calcite-button>
+                    </div>
+                    <div slot="content-bottom">
+                        <calcite-notice hidden scale="s" open kind="danger" icon>
+                            <div slot="title">Incomplete selections</div>
+                            <div slot="message">Please make selections.</div>
+                        </calcite-notice>
+                        <calcite-button>Coming Soon!</calcite-button>
+                    </div>
+                </calcite-list-item>
+            </calcite-list-item>
+            <calcite-list-item
+                id='Population (Projected)'
+                label='Population (Projected)'
+                value='Population (Projected)'
+                on:calciteListItemSelect={listItemExpand}
+            >
+                <calcite-list-item 
+                    on:calciteListItemSelect={e=>e.stopPropagation()}
+                    description='Projected Change in US Population (ICLUS)'
+                    >
+                    {#each popProjectedOptions as popProj}
+                    <div slot="content-bottom" id="combobox-div">
+                        <calcite-combobox
+                            id="climateVarSelect"
+                            scale="m"
+                            placeholder={popProj.name}
+                            selection-mode="single"
+                            max-items="0"
+                            overlay-positioning="fixed"
+                        >
+                        {#each popProj.options as o}
+                            <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
+                        {/each}
+                        </calcite-combobox>
+                        <calcite-button 
+                            appearance="transparent"
+                            iconEnd="information"
+                            id="pop-proj-details-popover-button"
+                            class="info-button"
+                    ></calcite-button>
+                    </div>
+                    {/each}
+                    <div slot="content-bottom">
+                        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+                            <div slot="title">Incomplete selections</div>
+                            <div slot="message">Please make selections.</div>
+                        </calcite-notice>
+                        <calcite-button>Coming Soon!</calcite-button>
+                    </div>
+                </calcite-list-item>
+            </calcite-list-item>
+            <calcite-list-item
+                id='Weather Normals (Projected)'
+                label='Weather Normals (Projected)'
+                value='Weather Normals (Projected)'
+                on:calciteListItemSelect={listItemExpand}
+            >
+                <calcite-list-item 
+                    on:calciteListItemSelect={e=>e.stopPropagation()}
+                    description='Projected Changes in 30-year Weather Normals'
+                    >
+                    {#each options_filtered as clim, c (clim.name)}
+                    <div slot="content-bottom" id="combobox-div">
+                        <calcite-combobox
+                            bind:this={climRefs[c]}
+                            id="climateVarSelect"
+                            scale="m"
+                            placeholder={clim.name}
+                            selection-mode="single"
+                            max-items="0"
+                            overlay-positioning="fixed"
+                        >
+                        {#each clim.options as o}
+                            <calcite-combobox-item value={o.value} text-label={o.label} metadata={o.d}></calcite-combobox-item>
+                        {/each}
+                        </calcite-combobox>
+                        <calcite-button 
+                            appearance="transparent"
+                            iconEnd="information"
+                            on:click={() => openDetails(clim.name)}
+                            id="{clim.name}-details-popover-button"
+                            class="info-button"
+                    ></calcite-button>
+                    </div>
+                    {/each}
+                    <div slot="content-bottom">
+                        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+                            <div slot="title">Incomplete selections</div>
+                            <div slot="message">Please make selections.</div>
+                        </calcite-notice>
+                        <calcite-button on:click={getSelections}>Add to map</calcite-button>
+                    </div>
+                </calcite-list-item>
+            </calcite-list-item>
+        </calcite-list>
     </calcite-block>
+    <div bind:this={timeSeriesDetailsTarget}></div>
+    <!-- 
 
     <calcite-block collapsible expanded heading='Land Cover and Land Use' style="margin-top: 0px; padding-left:5px">
     <div>
         Coming Soon!
     </div>
-    </calcite-block>
+    </calcite-block> -->
 </calcite-panel>
 
 <style>
@@ -1772,5 +2014,12 @@
         display: grid;
         grid-template-columns: 10fr 1fr;
         grid-gap: 5px;
+        padding-left: 24px
+    }
+
+    .tab-description {
+        margin: 10px 10px 5px 10px;
+        font-size: 12px;
+        line-height: 1;
     }
 </style>
