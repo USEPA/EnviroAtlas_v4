@@ -357,7 +357,6 @@
         --calcite-color-text-2: #162e51;
         --calcite-list-background-color: white;
         font-size: var(--calcite-font-size--1);
-        border-bottom: 0px solid grey;
     }
 
     calcite-block#domainHeader {
