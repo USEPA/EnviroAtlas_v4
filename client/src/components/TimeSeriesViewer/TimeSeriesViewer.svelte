@@ -60,23 +60,23 @@
             }
         ], description: "All variables are presented as a median, minimum and maximum of the NEX-GDDP-CMIP6 Global Climate Model ensemble."
     }, 
-        { name: "Scenario", options: [
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp126", label: "SSP1–2.6 (>3.6°F by 2100)", 
+        { name: "Scenario by 2100", options: [
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp126", label: "Global mean: ↑ ≤3.6°F (SSP1-2.6", 
                 info: "SSP1 (“Sustainability”) assumes widespread global climate change mitigation policies, clean energy technologies, and natural environment conservancy. This scenario assumes very low GHG concentration levels and reflects the international climate policy goal of limiting global warming below 3.6°F (2.0°C) at 2100 compared to PIA."
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp245", label: "SSP2–4.5 (4.9 ± 1.6 °F by 2100)", 
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp245", label: "Global mean: ↑4.9±1.3°F (SSP2-4.5)", 
                 info: "SSP2 (“Middle of the Road”) assumes moderate global climate mitigation and adaptation and a slow progress in climate protection measures. This scenario is a medium pathway of future GHG concentrations. Global temperatures increase by 4.9±1.3°F (2.7±0.7°C) at 2100 compared to PIA."
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp370", label: "SSP3–7.0 (6.5 ± 1.3 °F by 2100)",
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp370", label: "Global mean: ↑6.5±1.6°F (SSP3-7.0)",
                 info: "SSP3 (“Regional Rivalry”) assumes high challenges to mitigation and adaptation. Here, nationalism drives policy, and regional and local take precedence over global issues. Global temperatures increase by 6.5±1.6°F (3.6±0.9°C) at 2100 compared to PIA."
             },
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp585", label: "SSP5–8.5 (7.9 ± 2.3 °F by 2100)",
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp585", label: "Global mean: ↑7.9 ±2.2°F (SSP5-8.5)",
                 info: "SSP5 (“Fossil-fueled Development”) reflects high challenges to mitigation and low challenges to adaptation. It is characterized by steadily increasing GHG concentrations. It represents the upper boundary of the range of scenarios. Global temperatures increase by 7.9±2.2°F (4.4±1.2°C) at 2100 compared to PIA."
             },
-            {domains: "CONUS", value: "rcp26", label: "RCP-2.6 (Peak Emissions Year 2020)", d: 1},
-            {domains: "CONUS", value: "rcp45", label: "RCP-4.5 (Peak Emissions Year 2040)", d: 2},
-            {domains: "CONUS", value: "rcp60", label: "RCP-6.0 (Peak Emissions Year 2080)", d: 3},
-            {domains: "CONUS", value: "rcp85", label: "RCP-8.5 (Peak Emissions After 2100)", d: 5}
+            {domains: "CONUS", value: "rcp26", label: "Global mean: ↑2.9±0.8°F (RCP 2.6)", d: 1},
+            {domains: "CONUS", value: "rcp45", label: "Global mean: ↑4.3±1.0°F (RCP 4.5)", d: 2},
+            {domains: "CONUS", value: "rcp60", label: "Global mean: ↑5.1±1.0°F (RCP 6.0)", d: 3},
+            {domains: "CONUS", value: "rcp85", label: "Global mean: ↑7.8±1.4°F (RCP 8.5)", d: 5}
         ], description: "Shared Socioeconomic Pathways (SSPs) reflect global trends in human activities and changes in radiative forcing that result from changes in atmospheric greenhouse gases (GHGs) and aerosol concentrations. In the SSP labels (like SSP1-2.6), the first number refers to a defined socioeconomic pathway (trends in population, policy, and economic growth), and the second refers to an increase in radiative forcing (W/m2) relative to pre-industrial (1850-1900) average (PIA)."
     },
         { name: "Season", options: [
@@ -97,7 +97,7 @@
             },
             
         ]}, 
-        { name: "Period", options: [ 
+        { name: "Change Between Periods", options: [ 
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF1", label: "1976–2005 to 2025–2054", 
                 info: "Recent history (1976–2005) to near-term future (2025–2054)", d: 1
             },  
