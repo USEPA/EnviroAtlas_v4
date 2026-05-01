@@ -28,6 +28,7 @@
     import Query from "@arcgis/core/rest/support/Query";
     import FeatureSet from "@arcgis/core/rest/support/FeatureSet.js";
     import * as rasterFunctionUtils from "@arcgis/core/layers/support/rasterFunctionUtils.js";
+    import { mount } from "svelte";
 
     export let geography;
     export let view;
@@ -36,6 +37,7 @@
     let climateNotify;
     let maxVal;
     let minVal;
+    let timeSeriesDetailsTarget;
     const options = [ 
         { name: "Variable", options: [ 
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRin", label: "Change in Precipitation (in)",
@@ -1689,8 +1691,8 @@
         console.log(optionsObj)
         let findPopover = document.querySelector(`[reference-element="${optionsObj.name}-details-popover-button"]`);
         if (!findPopover) {
-            new TimeSeriesDetails({
-                target: document.body,
+            mount(TimeSeriesDetails, {
+                target: timeSeriesDetailsTarget || document.body,
                 props: { optionsObj },
             });
         }
@@ -1698,58 +1700,86 @@
         popover.setAttribute("open", "");
         return optionsObj
     }
+
+    function listItemExpand() {
+        !this.open
+            ? this.setAttribute("expanded", "")
+            : this.removeAttribute("expanded");
+    }
 </script>
 
 <calcite-panel
     data-testid="time-series-viewer"
-    data-panel-id="time-series-viewer"
-    
+    data-panel-id="time-series-viewer"   
     open
     hidden
 >
-<!-- heading="Time Series Layers"
- description="Explore changing landscapes and environment" -->
-    <calcite-block scale="m" id="domainHeader" heading="3. Explore Time Series Map Layers"
-        description="Select a theme, time period, and other attributes below"
-        style="border-bottom: none">
+    <calcite-block scale="m" id="domainHeader" heading="" expanded
+        style="margin-block: 0px; margin-top: 0px; margin-block-end: 0px"
+        description="">
+        <p class="tab-description">
+            Select a theme, time period, and other attributes below
+        </p>
+        <calcite-list
+            label="timeseries"
+            display-mode="nested"
+            selection-mode="none"
+            scale="auto"
+            style="border-top: 1px solid #dedede; padding-top: 3px"
+        >
+                <calcite-list-item
+                    id='Weather Normals (Projected)'
+                    label='Weather Normals (Projected)'
+                    value='Weather Normals (Projected)'
+                    on:calciteListItemSelect={listItemExpand}
+                >
+                    <calcite-list-item 
+                        on:calciteListItemSelect={e=>e.stopPropagation()}
+                        description='Projected Changes in 30-year Weather Normals'
+                        >
+                        {#each options_filtered as clim, c (clim.name)}
+                        <div slot="content-bottom" id="combobox-div">
+                            <calcite-combobox
+                                bind:this={climRefs[c]}
+                                id="climateVarSelect"
+                                scale="m"
+                                placeholder={clim.name}
+                                selection-mode="single"
+                                max-items="0"
+                                overlay-positioning="fixed"
+                            >
+                            {#each clim.options as o}
+                                <calcite-combobox-item value={o.value} text-label={o.label} metadata={o.d}></calcite-combobox-item>
+                            {/each}
+                            </calcite-combobox>
+                            <calcite-button 
+                                appearance="transparent"
+                                iconEnd="information"
+                                on:click={() => openDetails(clim.name)}
+                                id="{clim.name}-details-popover-button"
+                                class="info-button"
+                        ></calcite-button>
+                        </div>
+                        {/each}
+                        <div slot="content-bottom">
+                            <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+                                <div slot="title">Incomplete selections</div>
+                                <div slot="message">Please make selections.</div>
+                            </calcite-notice>
+                            <calcite-button on:click={getSelections}>Add to map</calcite-button>
+                        </div>
+                    </calcite-list-item>
+                </calcite-list-item>
+        </calcite-list>
     </calcite-block>
-    <calcite-block collapsible expanded heading='Weather and Climate' style="padding-left:5px">
-        {#each options_filtered as clim, c (clim.name)}
-        <div id="combobox-div">
-            <calcite-combobox
-                bind:this={climRefs[c]}
-                id="climateVarSelect"
-                scale="m"
-                placeholder={clim.name}
-                selection-mode="single"
-                max-items="0"
-                overlay-positioning="absolute"
-            >
-            {#each clim.options as o}
-                <calcite-combobox-item value={o.value} text-label={o.label} metadata={o.d}></calcite-combobox-item>
-            {/each}
-            </calcite-combobox>
-            <calcite-button 
-                appearance="transparent"
-                iconEnd="information"
-                on:click={openDetails(clim.name)}
-                id="{clim.name}-details-popover-button"
-                class="info-button"
-           ></calcite-button>
-        </div>
-        {/each}
-        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
-            <div slot="title">Incomplete selections</div>
-            <div slot="message">Please make selections.</div>
-        </calcite-notice>
-        <calcite-button on:click={getSelections}>Add to map</calcite-button>
-    </calcite-block>
+    <div bind:this={timeSeriesDetailsTarget}></div>
+    <!-- 
 
     <calcite-block collapsible expanded heading='Land Cover and Land Use' style="margin-top: 0px; padding-left:5px">
     <div>
         Coming Soon!
     </div>
-    </calcite-block>
+    </calcite-block> -->
 </calcite-panel>
 
 <style>
@@ -1772,5 +1802,12 @@
         display: grid;
         grid-template-columns: 10fr 1fr;
         grid-gap: 5px;
+        padding-left: 24px
+    }
+
+    .tab-description {
+        margin: 10px 10px 5px 10px;
+        font-size: 12px;
+        line-height: 1;
     }
 </style>
