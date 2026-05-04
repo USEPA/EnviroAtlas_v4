@@ -61,7 +61,7 @@
         ], description: "All variables are presented as a median, minimum and maximum of the NEX-GDDP-CMIP6 Global Climate Model ensemble."
     }, 
         { name: "Scenario by 2100", options: [
-            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp126", label: "Global mean: ↑ ≤3.6°F (SSP1-2.6", 
+            {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp126", label: "Global mean: ↑ ≤3.6°F (SSP1-2.6)", 
                 info: "SSP1 (“Sustainability”) assumes widespread global climate change mitigation policies, clean energy technologies, and natural environment conservancy. This scenario assumes very low GHG concentration levels and reflects the international climate policy goal of limiting global warming below 3.6°F (2.0°C) at 2100 compared to PIA."
             },
             {domains: "Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "ssp245", label: "Global mean: ↑4.9±1.3°F (SSP2-4.5)", 
@@ -1867,7 +1867,7 @@
             >
                 <calcite-list-item 
                     on:calciteListItemSelect={e=>e.stopPropagation()}
-                    description='Change in US Population'
+                    description='US Population'
                     >
                     <div slot="content-bottom" id="combobox-div">
                         <calcite-combobox
