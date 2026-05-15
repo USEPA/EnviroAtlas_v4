@@ -9,7 +9,7 @@
     import "@esri/calcite-components/dist/components/calcite-notice";
     import "@esri/calcite-components/dist/components/calcite-action";
     
-    import { hasValueUndefined, largestAbsVal, openRightPanel, fetchData } from "src/shared/utilities.js";
+    import { hasValueUndefined, largestAbsVal, openRightPanel, fetchData, isLayerTitleInMap } from "src/shared/utilities.js";
     import { activeWidget } from "src/store.ts";
     import TimeSeriesDetails from "src/components/TimeSeriesViewer/TimeSeriesDetails.svelte";
     
@@ -193,61 +193,67 @@
      * @param selections - object returned from getSelections()
      */
     function loadOCONUS(selections) {
+        openRightPanel($activeWidget, "layers");
         console.log('OCONUS selections: ', selections)
         let fieldname = buildOconusField(selections);
-        let oconusUrl = `https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/NEXGDDP_${selections['Scenario'].value}/FeatureServer/0`;
-        let oLayerId = "NEXGDDP" + domain + selections['Scenario'].value + fieldname;
+        let oconusUrl = `https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/NEXGDDP_${selections['Scenario by 2100'].value}/FeatureServer/0`;
+        let oLayerId = "NEXGDDP" + domain + selections['Scenario by 2100'].value + fieldname;
         let oconusSelections = buildOconusId(selections);
         let oLayer = new FeatureLayer({
             url: oconusUrl, 
             //opacity: 0.6, 
             id: oLayerId, 
             definitionExpression: "domain = '" + `${domain}` + "' AND " + `${fieldname}` + " IS NOT NULL",
-            title: geography.replaceAll(",", " & ").replace(/([a-z])([A-Z])/g, '$1 $2') + ', ' + selections['Scenario'].value.toUpperCase() + ', ' + oconusSelections,
+            title: geography.replaceAll(",", " & ").replace(/([a-z])([A-Z])/g, '$1 $2') + ', ' + selections['Scenario by 2100'].value.toUpperCase() + ', ' + oconusSelections,
             visible: false
         });
-        let popupTitle = selections['Scenario'].value.toUpperCase() + ', ' + oconusSelections;
-        view.map.add(oLayer);
-        reactiveUtils.on(
-            () => view,
-            "arcgisViewClick",
-            async (e) => {
-                const res = await view.hitTest(e.detail, { include: oLayer })
-                if (res.results.length) {
-                    executeQueryTask(res, oLayer, domain, fieldname, popupTitle);
-                }         
-        });
-        let minfield = "MI" + fieldname.substring(2);
-        let maxfield = "MX" + fieldname.substring(2);
-        const dataMinQuery = oLayer.createQuery();
-        dataMinQuery.returnGeometry = false;
-        dataMinQuery.where = "domain = '" + `${domain}` + "'";
-        dataMinQuery.outFields = ["HUC_12", minfield, fieldname, maxfield];
-        // query outStatistics of the symbology field
-        let statMinDef = new StatisticDefinition();
-        statMinDef.statisticType = "min";
-        statMinDef.onStatisticField = fieldname;
-        statMinDef.outStatisticFieldName = "minValue";
-        dataMinQuery.outStatistics = [statMinDef];
-        oLayer.queryFeatures(dataMinQuery).then((resultsMn) => {
-        // don't want to round yet, in case the value is a fraction.
-            minVal = resultsMn.features[0].attributes.minValue;
-            const dataMaxQuery = oLayer.createQuery();
-            let statDef = new StatisticDefinition();
-            statDef.statisticType = "max";
-            statDef.onStatisticField = fieldname;
-            statDef.outStatisticFieldName = "maxValue";
-            dataMaxQuery.returnGeometry = false;
-            dataMaxQuery.where = "domain = '" + `${domain}` + "'";
-            dataMaxQuery.outStatistics = [statDef];
-            return oLayer.queryFeatures(dataMaxQuery)
-        }).then(resultsMx => {
+        let popupTitle = selections['Scenario by 2100'].value.toUpperCase() + ', ' + oconusSelections;
+
+        let drawCheck = isLayerTitleInMap(oLayer.title, view);
+        if (drawCheck) {
+            //TODO: add a message that the layer is already in the map
+        } else {
+            view.map.add(oLayer);
+            reactiveUtils.on(
+                () => view,
+                "arcgisViewClick",
+                async (e) => {
+                    const res = await view.hitTest(e.detail, { include: oLayer })
+                    if (res.results.length) {
+                        executeQueryTask(res, oLayer, domain, fieldname, popupTitle);
+                    }         
+            });
+            let minfield = "MI" + fieldname.substring(2);
+            let maxfield = "MX" + fieldname.substring(2);
+            const dataMinQuery = oLayer.createQuery();
+            dataMinQuery.returnGeometry = false;
+            dataMinQuery.where = "domain = '" + `${domain}` + "'";
+            dataMinQuery.outFields = ["HUC_12", minfield, fieldname, maxfield];
+            // query outStatistics of the symbology field
+            let statMinDef = new StatisticDefinition();
+            statMinDef.statisticType = "min";
+            statMinDef.onStatisticField = fieldname;
+            statMinDef.outStatisticFieldName = "minValue";
+            dataMinQuery.outStatistics = [statMinDef];
+            oLayer.queryFeatures(dataMinQuery).then((resultsMn) => {
             // don't want to round yet, in case the value is a fraction.
-            maxVal = resultsMx.features[0].attributes.maxValue;
-        }).then(() => {
-            classBreaks(fieldname, selections['Variable'], oLayer);
-        });
-        openRightPanel($activeWidget, "layers");
+                minVal = resultsMn.features[0].attributes.minValue;
+                const dataMaxQuery = oLayer.createQuery();
+                let statDef = new StatisticDefinition();
+                statDef.statisticType = "max";
+                statDef.onStatisticField = fieldname;
+                statDef.outStatisticFieldName = "maxValue";
+                dataMaxQuery.returnGeometry = false;
+                dataMaxQuery.where = "domain = '" + `${domain}` + "'";
+                dataMaxQuery.outStatistics = [statDef];
+                return oLayer.queryFeatures(dataMaxQuery)
+            }).then(resultsMx => {
+                // don't want to round yet, in case the value is a fraction.
+                maxVal = resultsMx.features[0].attributes.maxValue;
+            }).then(() => {
+                classBreaks(fieldname, selections['Variable'], oLayer);
+            });
+        }
     };
 
     /**
@@ -854,7 +860,7 @@
      * @param selections - object returned from getSelections()
      */
     function buildOconusId(selections) {
-        return ('Median ' + selections['Season'].label + ' ' + selections['Variable'].label + ', ' + selections['Period'].label)
+        return ('Median ' + selections['Season'].label + ' ' + selections['Variable'].label + ', ' + selections['Change Between Periods'].label)
     };
 
     /**
@@ -862,23 +868,24 @@
      * @param selections - object returned from getSelections()
      */
     function buildOconusField(selections) {
-        return ("ME" + selections['Season'].value + selections['Variable'].value + selections['Period'].value)
+        return ("ME" + selections['Season'].value + selections['Variable'].value + selections['Change Between Periods'].value)
     };
 
     /**
      * Main process function to add CONUS data to map.
      * @param selections - object returned from getSelections()
      */
-    async function loadCONUS(selections) { 
+    async function loadCONUS(selections) {
+        openRightPanel($activeWidget, "layers") 
         console.log('CONUS selections: ', selections)
-        let selectedTitle = domain + ", " + selections['Scenario'].label + ", " + selections['Season'].label + " " + selections['Variable'].label + ", " + selections['Period'].label
+        let selectedTitle = domain + ", " + selections['Scenario by 2100'].label + ", " + selections['Season'].label + " " + selections['Variable'].label + ", " + selections['Change Between Periods'].label
         const mdURL = "https://awseastaging.epa.gov/arcgis/rest/services/test_services/NEX_DCP30_CONUS/ImageServer"
         let mosaicRule = new MosaicRule();
         mosaicRule.multidimensionalDefinition = [];
         mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
             variableName: selections['Variable'].d,
             dimensionName: "scenario",
-            values: [selections['Scenario'].d], 
+            values: [selections['Scenario by 2100'].d], 
             isSlice: true
         }));
         mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
@@ -890,7 +897,7 @@
         mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
             variableName: selections['Variable'].d,
             dimensionName: "period",
-            values: [selections['Period'].d], 
+            values: [selections['Change Between Periods'].d], 
             isSlice: true
         }));
 
@@ -915,7 +922,7 @@
        
         //get stats on the image slice by finding OBJECTID of the single raster
         const idQuery = new Query({
-            where: `season=${selections['Season'].d} AND period=${selections['Period'].d} AND scenario=${selections['Scenario'].d} AND variable='${selections['Variable'].d}'`
+            where: `season=${selections['Season'].d} AND period=${selections['Change Between Periods'].d} AND scenario=${selections['Scenario by 2100'].d} AND variable='${selections['Variable'].d}'`
         })
         const minmax = await layer.queryObjectIds(idQuery).then((imageLyr) => {
             let imageId = imageLyr[0]
@@ -943,19 +950,23 @@
         });
 
         layer.rasterFunction = tableFxn;
-
-        view.map.add(layer);
-        console.log(layer)
-        view.whenLayerView(layer).then((layerView) => {
-            const multidimInfo = layer.multidimensionalInfo;
-                layerView.highlightOptions = {
-                color: [0,0,0,0],
-                haloOpacity: 0, 
-                fillOpacity: 0
-            }
-            console.log("layer: ", multidimInfo);
-        });
-    
+        
+        let drawCheck = isLayerTitleInMap(selectedTitle, view);
+        if (drawCheck) {
+            //TODO: add a message that the layer is already in the map
+        } else {
+            view.map.add(layer)
+            console.log(layer)
+            view.whenLayerView(layer).then((layerView) => {
+                const multidimInfo = layer.multidimensionalInfo;
+                    layerView.highlightOptions = {
+                    color: [0,0,0,0],
+                    haloOpacity: 0, 
+                    fillOpacity: 0
+                }
+                console.log("layer: ", multidimInfo);
+            });
+        }
     }
 
     /**
