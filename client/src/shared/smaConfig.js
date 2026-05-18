@@ -194,10 +194,10 @@ export const smaConfig = {
       }
     },
     "County": {
-      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Census_2020_DHC_Total_Population/FeatureServer/2',
+      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Boundaries_2023/FeatureServer/2',
       "minScale": '300000000',
       "name": "County",
-      "outfields": ['State', 'NAME'],
+      "outfields": ['NAME', 'STATE_NAME'],
       "outdesc": {
         'Geometry Type': 'US County',
         'County': "custom"//"results.NAME + ', ' + results.State"
