@@ -215,12 +215,12 @@ export const smaConfig = {
       }
     },
     "Congressional District": {
-      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_118th_Congressional_Districts/FeatureServer/0',
+      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_119th_Congressional_Districts/FeatureServer/0',
       "minScale": "300000000",
-      "name": "118th Congressional Districts",
+      "name": "119th Congressional Districts",
       "outfields": ['DISTRICTID', 'NAME', 'PARTY', 'STATE_ABBR'],
       "outdesc": {
-        'Geometry Type': '118th US Congressional Districts',
+        'Geometry Type': '119th US Congressional Districts',
         'District': 'custom', //results.STATE_ABBR+results.DISTRICTID
         'Representative': "custom" //results.NAME + ' - ' +results.PARTY
       }
