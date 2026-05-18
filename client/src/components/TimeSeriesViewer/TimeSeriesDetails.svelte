@@ -35,8 +35,10 @@
                             scale="s"
                             text="Fact Sheet"
                             textEnabled
-                            on:click={openFactSheet(o.pdf)}
-                            on:keypress={openFactSheet(o.pdf)}
+                            role="button"
+                            tabindex="0"
+                            on:click={() => openFactSheet(o.pdf)}
+                            on:keydown={() => openFactSheet(o.pdf)}
                        ></calcite-action>
                         {/if}
                     </calcite-block>

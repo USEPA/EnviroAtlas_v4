@@ -69,19 +69,20 @@
                 role="button"
                 round
                 scale="s"
-                on:click={openFactSheet(detailsObj.dfsLink)}
-                on:keypress={openFactSheet(detailsObj.dfsLink)}
-                href={detailsObj.dfsLink}
+                on:click={() => openFactSheet(detailsObj.dfsLink)}
+                on:keydown={() => openFactSheet(detailsObj.dfsLink)}
                 target="_blank"
                 >Fact Sheet
             </calcite-button>
             <calcite-button 
                 icon-start="download-to" 
+                role="button"
+                tabindex="0"
                 round 
                 scale="s" 
-                on:click={openDataAccess(detailsObj)}
+                on:click={() => openDataAccess(detailsObj)}
+                on:keydown={() => openDataAccess(detailsObj)}
                 target="_blank"
-                href={isStringNotEmpty(detailsObj.agoID) ? "https://epa.maps.arcgis.com/home/item.html?id="+detailsObj.agoID : detailsObj.url}
             >Data Access</calcite-button>
         </div>
         {/if}
@@ -100,19 +101,20 @@
                     role="button"
                     round
                     scale="s"
-                    href={d.dfsLink}
                     target="_blank"
-                    on:click={openFactSheet(d.dfsLink)}
-                    on:keypress={openFactSheet(d.dfsLink)}
+                    on:click={() => openFactSheet(d.dfsLink)}
+                    on:keydown={() => openFactSheet(d.dfsLink)}
                     >Fact Sheet
                 </calcite-button>
                 <calcite-button 
                     icon-start="download-to" 
+                    role="button"
+                    tabindex="0"
                     round 
                     scale="s" 
                     target="_blank"
-                    href={isStringNotEmpty(d.agoID) ? "https://epa.maps.arcgis.com/home/item.html?id="+d.agoID : d.url}
-                    on:click={openDataAccess(d)}
+                    on:click={() => openDataAccess(d)}
+                    on:keydown={() => openDataAccess(d)}
                 >Data Access</calcite-button>
             </div>
             </calcite-card>

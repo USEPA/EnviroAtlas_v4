@@ -972,7 +972,7 @@
                         slot="actions-end"
                         id={`${ind.id}-details-popover-button`}
                         on:click={() => getSubtopicDetails(ind)}
-                        on:keypress={() => getSubtopicDetails(ind)}>
+                        on:keydown={() => getSubtopicDetails(ind)}>
                     </calcite-action>
             </calcite-list-item>
             {/each}

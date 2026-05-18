@@ -7,7 +7,7 @@
 
     let bookmarkPopupButton;
     let bookmarks = [
-        { name: "CONUS", text: "Continental 48", selected: true, extentObj: {xmax: -3699742.412274815, xmin: -17896238.801620256, ymax: 8718032.27234158, ymin: 440819.35339861456}}, 
+        { name: "CONUS", text: "Continental 48", selected: true, extentObj: {xmax: -7400000, xmin: -14000000, ymax: 6500000, ymin: 2700000}}, 
         { name: "Alaska", text: "Alaska", extentObj: { xmax: -15876210.0, xmin: -17561453.32, ymax: 11011315.0, ymin: 8003265.0}},
         { name: "Hawaii", text: "Hawaii", extentObj: { xmax: -17232996.3537, xmin: -17838620.5975, ymax: 2539458.2165, ymin: 2144428.1256}},
         { name: "AmericanSamoa", text: "American Samoa", extentObj: { xmax: -18744510.286599636, xmin: -19063997.22517633, ymax: -1544391.585028562, ymin: -1674134.0808157807}},
@@ -52,7 +52,7 @@
                 text={bm.text}
                 text-enabled
                 on:click={()=>onGeogChange(bm)}
-                on:keypress={()=>onGeogChange(bm)}
+                on:keydown={()=>onGeogChange(bm)}
                 active={bm.name == $geography}
                 indicator={bm.name == $geography}
             ></calcite-action>
