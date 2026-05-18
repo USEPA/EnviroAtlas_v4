@@ -145,3 +145,16 @@ export const totalVisibleMaps = derived([geography, filteredNationalItems], ([$g
 fetchData();
 
 },0); // Initial value
+
+// Alert variables
+type Alerts = {
+    mapAlert: HTMLCalciteAlertElement;
+    alertTitle: HTMLDivElement;
+    alertMessage: HTMLDivElement;
+}
+
+export const alerts = writable<Alerts>({
+    mapAlert: Object({}),
+    alertTitle: Object({}),
+    alertMessage: Object({})
+});

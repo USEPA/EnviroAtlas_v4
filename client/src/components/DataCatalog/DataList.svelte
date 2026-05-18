@@ -310,7 +310,7 @@
     data-testid="data-catalog-fab"
     icon="chevrons-left"
     on:click={handleFabClick}
-    on:keypress={handleFabClick}
+    on:keydown={handleFabClick}
 ></calcite-fab>
 
 <style>

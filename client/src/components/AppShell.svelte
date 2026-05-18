@@ -33,11 +33,13 @@
   // Import components and store
   import { catalog, activeWidget } from "src/store.ts";
   // use npm published version now (in development used linked version via devLink utility
-  import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
+  // import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
+  import AddData from "src/components/AddData/index.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
   import SummarizeMyAreaResults from "src/components/SummarizeMyAreaResults.svelte";
   import Info from "src/components/Info.svelte";
+  import Alert from '../components/Alert.svelte';
 
   let view;
   let bmgContainer;
@@ -292,7 +294,7 @@
         icon={icon}
         active={action == $catalog.type}
         on:click={handleCatalogActionClick}
-        on:keypress={handleCatalogActionClick}
+        on:keydown={handleCatalogActionClick}
      ></calcite-action>
     {/each}
       <calcite-action
@@ -304,13 +306,14 @@
         icon="chevrons-right"
         text="open data catalog"
         on:click={handleExpandClick}
-        on:keypress={handleExpandClick}
+        on:keydown={handleExpandClick}
      ></calcite-action>
     </calcite-action-bar>
     <DataCatalog view={view}/>
   </calcite-shell-panel>
   <slot></slot>
   <Modal />
+  <Alert />
   <Info />
   <calcite-shell-panel
     component-id="shell-panel-end"
@@ -326,7 +329,7 @@
     tabindex="-1" 
     slot="action-bar"
     on:click={handleOtherActionBarClick} 
-    on:keypress={handleOtherActionBarClick}
+    on:keydown={handleOtherActionBarClick}
   >
     <calcite-action 
       data-action-id="layers" 

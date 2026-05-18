@@ -70,7 +70,7 @@
                 round
                 scale="s"
                 on:click={() => openFactSheet(detailsObj.dfsLink)}
-                on:keypress={() => openFactSheet(detailsObj.dfsLink)}
+                on:keydown={() => openFactSheet(detailsObj.dfsLink)}
                 target="_blank"
                 >Fact Sheet
             </calcite-button>
@@ -81,7 +81,7 @@
                 round 
                 scale="s" 
                 on:click={() => openDataAccess(detailsObj)}
-                on:keypress={() => openDataAccess(detailsObj)}
+                on:keydown={() => openDataAccess(detailsObj)}
                 target="_blank"
             >Data Access</calcite-button>
         </div>
@@ -103,7 +103,7 @@
                     scale="s"
                     target="_blank"
                     on:click={() => openFactSheet(d.dfsLink)}
-                    on:keypress={() => openFactSheet(d.dfsLink)}
+                    on:keydown={() => openFactSheet(d.dfsLink)}
                     >Fact Sheet
                 </calcite-button>
                 <calcite-button 
@@ -114,7 +114,7 @@
                     scale="s" 
                     target="_blank"
                     on:click={() => openDataAccess(d)}
-                    on:keypress={() => openDataAccess(d)}
+                    on:keydown={() => openDataAccess(d)}
                 >Data Access</calcite-button>
             </div>
             </calcite-card>

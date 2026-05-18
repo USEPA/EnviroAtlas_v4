@@ -20,9 +20,6 @@
   import "@esri/calcite-components/dist/components/calcite-action";
   import "@esri/calcite-components/dist/components/calcite-tooltip";
 
-
-    import { mapState } from "src/store";
-
     export let map;
 
     let url;
@@ -54,10 +51,7 @@
     }
 </script>
 
-
-
-
-<calcite-panel width-scale='l' data-panel-id="add-data-2" hidden>
+<calcite-panel width-scale='l' heading="Add Data" data-panel-id="add-data" hidden>
     <calcite-tabs layout='center'>
       <calcite-tab-nav slot="title-group">
           <calcite-tab-title selected tab='url'>

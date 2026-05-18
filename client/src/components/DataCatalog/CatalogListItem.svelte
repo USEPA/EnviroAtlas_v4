@@ -118,7 +118,7 @@
             slot="actions-end" 
             id="{subtopic.subTopicID}-details-popover-button"
             on:click={() => getSubtopicDetails()}
-            on:keypress={() => getSubtopicDetails()}>
+            on:keydown={() => getSubtopicDetails()}>
         </calcite-action>
         {#if subtopic.layers.length > 1}
         <div slot="content-bottom" id="concernFilterDiv">

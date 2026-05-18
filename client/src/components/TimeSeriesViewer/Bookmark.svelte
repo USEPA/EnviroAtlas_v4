@@ -52,7 +52,7 @@
                 text={bm.text}
                 text-enabled
                 on:click={()=>onGeogChange(bm)}
-                on:keypress={()=>onGeogChange(bm)}
+                on:keydown={()=>onGeogChange(bm)}
                 active={bm.name == $geography}
                 indicator={bm.name == $geography}
             ></calcite-action>

@@ -29,6 +29,7 @@
     import FeatureSet from "@arcgis/core/rest/support/FeatureSet.js";
     import * as rasterFunctionUtils from "@arcgis/core/layers/support/rasterFunctionUtils.js";
     import { mount } from "svelte";
+    import { addAlertMessage } from 'src/shared/addLayers.ts';
 
     export let geography;
     export let view;
@@ -211,7 +212,7 @@
 
         let drawCheck = isLayerTitleInMap(oLayer.title, view);
         if (drawCheck) {
-            //TODO: add a message that the layer is already in the map
+            addAlertMessage('', 'This layer is already in the map: ' + oLayer.title, 'warning', 'Layer is already in the map');
         } else {
             view.map.add(oLayer);
             reactiveUtils.on(
@@ -879,82 +880,82 @@
         openRightPanel($activeWidget, "layers") 
         console.log('CONUS selections: ', selections)
         let selectedTitle = domain + ", " + selections['Scenario by 2100'].label + ", " + selections['Season'].label + " " + selections['Variable'].label + ", " + selections['Change Between Periods'].label
-        const mdURL = "https://awseastaging.epa.gov/arcgis/rest/services/test_services/NEX_DCP30_CONUS/ImageServer"
-        let mosaicRule = new MosaicRule();
-        mosaicRule.multidimensionalDefinition = [];
-        mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
-            variableName: selections['Variable'].d,
-            dimensionName: "scenario",
-            values: [selections['Scenario by 2100'].d], 
-            isSlice: true
-        }));
-        mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
-            variableName: selections['Variable'].d,
-            dimensionName: "season",
-            values: [selections['Season'].d], 
-            isSlice: true
-        }));
-        mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
-            variableName: selections['Variable'].d,
-            dimensionName: "period",
-            values: [selections['Change Between Periods'].d], 
-            isSlice: true
-        }));
-
-        const layer = new ImageryLayer({
-            url: mdURL,
-            format: "lerc",
-            mosaicRule,
-            title: selectedTitle,
-            popupTemplate: {
-                title: `${selectedTitle} value: {Raster.ServicePixelValue.Raw}`,
-                fieldInfos: [
-                    {
-                        fieldName: "Raster.ServicePixelValue.Raw",
-                        format: {
-                            places: 2,
-                            digitSeparator: true,
-                        },
-                    },
-                ],
-            },
-        });
-       
-        //get stats on the image slice by finding OBJECTID of the single raster
-        const idQuery = new Query({
-            where: `season=${selections['Season'].d} AND period=${selections['Change Between Periods'].d} AND scenario=${selections['Scenario by 2100'].d} AND variable='${selections['Variable'].d}'`
-        })
-        const minmax = await layer.queryObjectIds(idQuery).then((imageLyr) => {
-            let imageId = imageLyr[0]
-            let infoUrl = mdURL + `/${imageId}/info?f=json`
-            return fetchData(infoUrl)
-        }).then(sliceInfo => {
-            let minmax = sliceInfo.statistics[0].slice(0,2)
-            return minmax
-        })
-
-        let rangeMaps = buildInputRanges(minmax, selections);
-        let attributeTable = buildAttributeTable(minmax, selections);
-
-        const remap = rasterFunctionUtils.remap({
-            rangeMaps
-        });
-
-        const int = rasterFunctionUtils.int({
-            raster: remap,
-        })
-
-        const tableFxn = rasterFunctionUtils.table({
-            attributeTable,
-            raster: int
-        });
-
-        layer.rasterFunction = tableFxn;
-        
         let drawCheck = isLayerTitleInMap(selectedTitle, view);
         if (drawCheck) {
-            //TODO: add a message that the layer is already in the map
+            addAlertMessage('', 'This layer is already in the map: ' + selectedTitle, 'warning', 'Layer is already in the map');
         } else {
+            const mdURL = "https://awseastaging.epa.gov/arcgis/rest/services/test_services/NEX_DCP30_CONUS/ImageServer"
+            let mosaicRule = new MosaicRule();
+            mosaicRule.multidimensionalDefinition = [];
+            mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
+                variableName: selections['Variable'].d,
+                dimensionName: "scenario",
+                values: [selections['Scenario by 2100'].d], 
+                isSlice: true
+            }));
+            mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
+                variableName: selections['Variable'].d,
+                dimensionName: "season",
+                values: [selections['Season'].d], 
+                isSlice: true
+            }));
+            mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
+                variableName: selections['Variable'].d,
+                dimensionName: "period",
+                values: [selections['Change Between Periods'].d], 
+                isSlice: true
+            }));
+
+            const layer = new ImageryLayer({
+                url: mdURL,
+                format: "lerc",
+                mosaicRule,
+                title: selectedTitle,
+                popupTemplate: {
+                    title: `${selectedTitle} value: {Raster.ServicePixelValue.Raw}`,
+                    fieldInfos: [
+                        {
+                            fieldName: "Raster.ServicePixelValue.Raw",
+                            format: {
+                                places: 2,
+                                digitSeparator: true,
+                            },
+                        },
+                    ],
+                },
+            });
+        
+            //get stats on the image slice by finding OBJECTID of the single raster
+            const idQuery = new Query({
+                where: `season=${selections['Season'].d} AND period=${selections['Change Between Periods'].d} AND scenario=${selections['Scenario by 2100'].d} AND variable='${selections['Variable'].d}'`
+            })
+            const minmax = await layer.queryObjectIds(idQuery).then((imageLyr) => {
+                let imageId = imageLyr[0]
+                let infoUrl = mdURL + `/${imageId}/info?f=json`
+                return fetchData(infoUrl)
+            }).then(sliceInfo => {
+                let minmax = sliceInfo.statistics[0].slice(0,2)
+                return minmax
+            })
+
+            let rangeMaps = buildInputRanges(minmax, selections);
+            let attributeTable = buildAttributeTable(minmax, selections);
+
+            const remap = rasterFunctionUtils.remap({
+                rangeMaps
+            });
+
+            const int = rasterFunctionUtils.int({
+                raster: remap,
+            })
+
+            const tableFxn = rasterFunctionUtils.table({
+                attributeTable,
+                raster: int
+            });
+
+            layer.rasterFunction = tableFxn;
+        
             view.map.add(layer)
             console.log(layer)
             view.whenLayerView(layer).then((layerView) => {
