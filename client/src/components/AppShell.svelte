@@ -202,7 +202,7 @@
     // Figure out what was clicked
     const nextWidgetRight = target.dataset.actionId;
     // If there's a change, open things, and update store value to what was clicked
-    if (nextWidgetRight !== $activeWidget.right) {
+    if (nextWidgetRight && nextWidgetRight !== $activeWidget.right) {
       document.querySelector(`[data-action-id=${nextWidgetRight}]`).active = true;
       document.querySelector(`[data-panel-id=${nextWidgetRight}]`).hidden = false;
       document.querySelector(`[data-panel-id=${nextWidgetRight}]`).closed = false;
@@ -242,7 +242,7 @@
         {/each}
     </calcite-chip-group>
   </calcite-navigation>
-  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="4" 
+  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="5" 
     on:arcgisViewReadyChange={setupPopup}
     >
     <arcgis-search 

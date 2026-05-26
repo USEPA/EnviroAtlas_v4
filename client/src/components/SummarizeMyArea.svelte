@@ -430,7 +430,7 @@
                     geographyLabel =
                         geographyAttributes.NAME +
                         ", " +
-                        geographyAttributes.State;
+                        geographyAttributes.STATE_NAME;
                     break;
                 case "Congressional District":
                     geographyLabel =

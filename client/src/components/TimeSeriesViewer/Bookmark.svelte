@@ -17,14 +17,15 @@
 
     const onGeogChange = (bookmark) => {
         let extent = new Extent({...bookmark.extentObj, spatialReference: { wkid: 102100 }});
-        view.goTo(extent, { duration: 4000 }).catch(function (error) {
+        const goToTarget = bookmark.name === "CONUS" ? { target: extent, zoom: 5 } : extent;
+        view.goTo(goToTarget, { duration: 4000 }).catch(function (error) {
             if (error.name != "AbortError") {
                 console.error(error);
             }
         });
 
         //TODO: put in all stuff that changes this dataList Query Store we are creating that triggers dataList refresh in that comopnent
-       
+
         $geography = bookmark.name
         bookmarkPopupButton.removeAttribute("open")
     };
