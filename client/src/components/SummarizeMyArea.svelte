@@ -694,7 +694,7 @@
                     v = geographyAttributes['NAME'] + ' - ' + geographyAttributes['PARTY']
                 }
                 if (k == "County"){
-                    v = geographyAttributes['NAME'] + ', ' + geographyAttributes["State"]
+                    v = geographyAttributes['NAME'] + ', ' + geographyAttributes["STATE_NAME"]
                 }
                 if (v.includes("results.")) {
                     let attr = v.replace("results.", "")
