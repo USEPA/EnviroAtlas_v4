@@ -18,38 +18,36 @@
   import Url from "src/components/AddData/Url.svelte";
   import Search from "src/components/AddData/Search.svelte";
 
-  export let map;
+  export let view;
 
   window.ea.addData = {};
-  window.ea.addData.map = ()=>{return map};
-
-  console.log();
+  window.ea.addData.view = () => {
+    return view;
+  };
 </script>
 
-<calcite-panel width-scale='l' heading="Add Data" data-panel-id="add-data" hidden>
-    <calcite-tabs layout='center'>
-      <calcite-tab-nav slot="title-group">
-          <calcite-tab-title selected tab='url'>
-              URL
-          </calcite-tab-title>
-          <calcite-tab-title tab='search'>Search</calcite-tab-title>
-      </calcite-tab-nav>
-      <calcite-tab selected tab='url'>
-        <Url map={map}></Url>
-      </calcite-tab>
-      <calcite-tab tab='search'>
-        <Search map={map}></Search>
+<calcite-panel
+  width-scale="l"
+  heading="Add Data"
+  data-panel-id="add-data"
+  hidden
+>
+  <calcite-tabs layout="center">
+    <calcite-tab-nav slot="title-group">
+      <calcite-tab-title selected tab="search">Search</calcite-tab-title>
+      <calcite-tab-title tab="url"> URL </calcite-tab-title>
+    </calcite-tab-nav>
+    <calcite-tab selected tab="url">
+      <Url {view}></Url>
+    </calcite-tab>
+    <calcite-tab tab="search">
+      <Search {view}></Search>
     </calcite-tab>
   </calcite-tabs>
 </calcite-panel>
 
 <style>
-    calcite-tab {
-        padding: 1em;
-    }
-
-    #service-url-required, #search-term-required {
-      --calcite-ui-icon-color: var(--calcite-ui-danger);
-    }
-
+  calcite-tab {
+    padding: 0;
+  }
 </style>
