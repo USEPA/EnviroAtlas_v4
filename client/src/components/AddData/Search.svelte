@@ -6,52 +6,130 @@
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-input-text";
     import "@esri/calcite-components/dist/components/calcite-pagination";
-    import { addDataConfig } from "src/shared/addDataConfig";
+    import { addDataConfig } from "./addDataConfig";
     import { openRightPanel, isLayerUrlInMap } from "../../shared/utilities";
     import { activeWidget } from "src/store.ts";
     import { addAlertMessage } from "src/shared/addLayers.ts";
+    import { SearchController } from "./searchController";
 
     export let view;
 
-    let searchResults;
     let searchTerm;
     let scopeOptSelection;
-    let layers = {};
+    let typeOptSelection;
+    let sortOptSelection;
+    let searchObj = new SearchController();
 
     let portal = new Portal(addDataConfig.myOrg);
     portal.authMode = "anonymous";
     portal
         .load()
         .then((portal) => {
-            let queryParams = {
-                query: addDataConfig.scopeOptions[0].filter,
-                sortField: "numViews",
-                sortOrd: "desc",
-                num: 30,
-            };
+            searchObj.q.query = addDataConfig.scopeOptions[0].filter;
+            searchObj.q.sortField = "numViews";
+            searchObj.q.sortOrder = "desc";
+            searchObj.q.num = addDataConfig.itemsPerPage
 
-            portal.queryItems(queryParams).then((res) => {
-                console.log(res);
-                searchResults = res.results;
+            portal.queryItems(searchObj.q).then((res) => {
+                searchObj.response = res;
+                searchObj.searchResults = res.results;
+                searchObj.total = res.total
             });
         })
         .catch((err) => {
             console.error(err);
+            searchObj.error = err;
         });
 
     function search() {
-        alert("search not enabled yet: " + searchTerm);
+        searchObj.qText = searchTerm
+        buildQueryString()
+    }
+
+    function updateSortOpt() {
+        const selectedSortValue = sortOptSelection?.selectedItems?.[0]?.value;
+        const selectedSortOpt = addDataConfig.sortOptions.find((opt) => opt.value === selectedSortValue);
+        searchObj.q.sortField = selectedSortOpt?.value;
+        searchObj.q.sortOrder = selectedSortOpt?.sortOrder;
+        portalSearch();
+    }
+
+    function updateTypeOpt() {
+        console.log(typeOptSelection.selectedItems)
+        if (typeOptSelection.selectedItems.length === 1) {
+            searchObj.types = `type:"${typeOptSelection.selectedItems[0].value}"`
+            buildQueryString()
+        } else if (typeOptSelection.selectedItems.length === 0) {
+            searchObj.types = 'type:"Map Service" OR type:"Feature Service" OR type:"Image Service"'
+            buildQueryString()
+        } else if (typeOptSelection.selectedItems.length > 1) {
+            let typeFilter = "";
+            for (let items of typeOptSelection.selectedItems) {
+                typeFilter += `type:"${items.value}" OR `
+            }
+            let typeString = typeFilter.slice(0,-4)
+            searchObj.types = typeString
+            buildQueryString();
+        }
+    }
+
+    function buildQueryString(){
+        if (searchObj.scope && !searchObj.qText) {
+            searchObj.q.query = `(${searchObj.scope}) AND (${searchObj.types})`
+        } else if (searchObj.scope && searchObj.qText) {
+            searchObj.q.query = `(${searchObj.scope}) AND (${searchObj.qText}) AND (${searchObj.types})`
+        } else if (!searchObj.scope && searchObj.qText) {
+            portal = new Portal(addDataConfig.agol);
+            portal.authMode = "anonymous";
+            portal.load()
+            searchObj.q.query = `(${searchObj.qText}) AND (${searchObj.types})`
+        } else if (!searchObj.scope && !searchObj.qText) {
+            portal = new Portal(addDataConfig.agol);
+            portal.authMode = "anonymous";
+            portal.load()
+            searchObj.q.query = searchObj.types
+        }
+        portalSearch();
+    }
+
+    function updateScope() {
+        const selectedScope = scopeOptSelection?.selectedItems?.[0]?.value;
+        const selectedScopeOpt = addDataConfig.scopeOptions.find((opt) => opt.value === selectedScope);
+        searchObj.scope = selectedScopeOpt?.filter;
+        buildQueryString();
+    }
+
+    function changePage(){
+        if (searchObj.total > 20) {
+            const startItem = event?.target.startItem;
+            searchObj.q.start = startItem;
+            portalSearch()
+        } else {
+            searchObj.q.start = 1;
+        }
+    }
+
+    function portalSearch() {
+        portal.queryItems(searchObj.q).then((res) => {
+            searchObj.response = res;
+            searchObj.searchResults = res.results;
+            searchObj.total = res.total
+        }).catch((err) => {
+            console.error(err);
+            searchObj.error = err;
+        });
     }
 
     function openDetails(layer) {
-        let url = layer.url;
-        window.open(url);
+        let url = 'https://epa.maps.arcgis.com/home/item.html?id=';
+        let id = layer.id
+        window.open(url + id);
     }
 
     function addDataLayer(layer) {
         Layer.fromPortalItem({
             portalItem: {
-                id: `${layer.id}`,
+                id: `${layer.id}`
             },
         }).then((lyr) => {
             let drawCheck = isLayerUrlInMap(layer.url, view);
@@ -92,6 +170,7 @@
                 style="width:45%; margin-right:4%"
                 selection-mode="single"
                 clear-disabled="true"
+                on:calciteComboboxChange={()=>updateScope()}
             >
                 {#each addDataConfig.scopeOptions as scopeOpt}
                     <calcite-combobox-item
@@ -123,10 +202,12 @@
         </div>
         <div style="display:flex; margin-top:8px; margin-bottom:8px">
             <calcite-combobox
+                bind:this={typeOptSelection}
                 style="width:42%; margin-right:4%"
                 placeholder="Type"
-                selection-mode="single"
+                selection-display="fit"
                 clear-disabled="true"
+                on:calciteComboboxChange={()=>updateTypeOpt()}
             >
                 {#each addDataConfig.typeOptions as typeOpt}
                     <calcite-combobox-item
@@ -136,9 +217,11 @@
                 {/each}
             </calcite-combobox>
             <calcite-combobox
+                bind:this={sortOptSelection}
                 style="width:42%; margin-right:3% "
                 selection-mode="single"
                 clear-disabled="true"
+                on:calciteComboboxChange={()=>updateSortOpt()}
             >
                 {#each addDataConfig.sortOptions as sortOpt}
                     <calcite-combobox-item
@@ -158,10 +241,10 @@
         scale="auto"
         style="border-top: 1px solid #dedede; padding-top: 3px; display:flex;"
     >
-        {#await searchResults}
+        {#await searchObj.searchResults}
             <p>...loading</p>
         {:then}
-            {#each searchResults as item}
+            {#each searchObj.searchResults as item}
                 <calcite-list-item>
                     <calcite-card
                         slot="content"
@@ -198,12 +281,13 @@
         {/await}
     </calcite-list>
     <calcite-pagination
+        on:calcitePaginationChange={()=>changePage()}
         scale="s"
         slot="footer"
-        page-size="10"
+        page-size="20"
         start-item="1"
-        total-items="200"
-    ></calcite-pagination>
+        total-items={searchObj.total}
+    ></calcite-pagination><calcite-label style="margin-left: 18px; padding-top: 12px" slot="footer">{searchObj.total} Items</calcite-label>
 </calcite-panel>
 
 <style>

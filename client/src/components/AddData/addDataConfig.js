@@ -10,6 +10,7 @@ export const addDataConfig = {
         {
             name: "EPA GeoPlatform Public Content",
             value: "myOrg",
+            filter:"orgid:cJ9YHowT8TU7DUyn"
         },
         {
             name: "ArcGIS Online",
@@ -19,15 +20,15 @@ export const addDataConfig = {
     typeOptions: [
         {
             name: "Map Service",
-            value: "map_service",
+            value: "Map Service",
         },
         {
             name: "Feature Service",
-            value: "feature_service",
+            value: "Feature Service",
         },
         {
             name: "Image Service",
-            value: "image_service",
+            value: "Image Service",
         },
     ],
     sortOptions: [
@@ -39,8 +40,7 @@ export const addDataConfig = {
         {
             name: "Title",
             value: "title",
-            sortOrder: "asc",
-            selected: "true"
+            sortOrder: "asc"
         },
         {
             name: "Owner",
@@ -55,12 +55,14 @@ export const addDataConfig = {
         {
             name: "Views",
             value: "numviews",
-            sortOrder: "desc"
+            sortOrder: "desc",
+            selected: "true"
         },
         {
             name: "Date",
             value: "modified",
             sortOrder: "desc"
         },
-    ]
+    ],
+    itemsPerPage: 20,
 }
