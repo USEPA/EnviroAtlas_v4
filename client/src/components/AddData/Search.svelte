@@ -160,6 +160,9 @@
             }
         });
     }
+
+    //TODO: toggle ascending/descending button.
+    //TODO: Fix UI to only scroll the list, not the entire panel.
 </script>
 
 <calcite-panel>
