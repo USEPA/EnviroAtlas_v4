@@ -20,7 +20,8 @@
 
   export let view;
 
-  let actionRefs;
+  let actionRefs = [];
+  let activeAction = "search";
 
   const addDataActions = [
     {
@@ -40,9 +41,9 @@
     return view;
   };
 
-  //TODO: toggle the search and url tab panels
-  function handleAddDataActionClick() {
-    console.log("click");
+  function handleAddDataActionClick(actionId = "search") {
+    activeAction = actionId;
+    console.log(actionId)
   }
 </script>
 
@@ -56,10 +57,10 @@
   {#each addDataActions as tab, i}
     <div
       bind:this={actionRefs[i]}
-      on:click={handleAddDataActionClick}
+      on:click={() => handleAddDataActionClick(tab.id)}
       data-action-id={tab.id}
       id="catalog-buttom-{tab.id}"
-      style={i===0 ? "border-bottom:3px solid #162e51;" : "border-bottom: none"}
+      style={activeAction === tab.id ? "border-bottom:3px solid #162e51;" : "border-bottom: none"}
       class="add-data-button"
     >
                   <p style="line-height: 0.33em; margin: 0; padding-top:5px; padding-bottom: 8px">
@@ -68,8 +69,8 @@
     </div>
   {/each}
   </div>
-  <Search {view}/>
-  <Url {view}/>
+  <Search {view} isHidden={activeAction !== "search"} />
+  <Url {view} isHidden={activeAction !== "url"} />
 </calcite-panel>
 
 <style>

@@ -8,6 +8,7 @@
     import "@esri/calcite-components/dist/components/calcite-tooltip";
 
     export let view;
+    export let isHidden = true;
 
     let url;
     let layers = {};
@@ -31,7 +32,7 @@
     }
 </script>
 
-<calcite-panel hidden>
+<calcite-panel hidden={isHidden}>
 <calcite-label scale="m" layout="inline">
     <strong>Service URL</strong>
     <calcite-icon

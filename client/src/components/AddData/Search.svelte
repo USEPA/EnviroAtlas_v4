@@ -13,6 +13,7 @@
     import { SearchController } from "./searchController";
 
     export let view;
+    export let isHidden = false;
 
     let searchTerm;
     let scopeOptSelection;
@@ -164,7 +165,7 @@
     //TODO: toggle ascending/descending button.
 </script>
 
-    <div style="padding:8px; border-top: 1px solid #dedede; background-color:white">
+    <div hidden={isHidden} style="padding:8px; border-top: 1px solid #dedede; background-color:white">
         <div style="display:flex;">
             <calcite-combobox
                 bind:this={scopeOptSelection}
@@ -236,7 +237,7 @@
             ></calcite-action>
         </div>
     </div>
-    <calcite-panel>
+    <calcite-panel hidden={isHidden}>
     <calcite-list
         label="toc"
         selection-mode="none"
