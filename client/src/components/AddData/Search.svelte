@@ -162,11 +162,9 @@
     }
 
     //TODO: toggle ascending/descending button.
-    //TODO: Fix UI to only scroll the list, not the entire panel.
 </script>
 
-<calcite-panel>
-    <div>
+    <div style="padding:8px; border-top: 1px solid #dedede; background-color:white">
         <div style="display:flex;">
             <calcite-combobox
                 bind:this={scopeOptSelection}
@@ -238,6 +236,7 @@
             ></calcite-action>
         </div>
     </div>
+    <calcite-panel>
     <calcite-list
         label="toc"
         selection-mode="none"

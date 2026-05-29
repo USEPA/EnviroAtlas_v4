@@ -1,5 +1,6 @@
 export const addDataConfig = {
     myOrg: 'https://epa.maps.arcgis.com',
+    agol: 'https://www.arcgis.com/sharing/rest/search',
     scopeOptions: [
         {
             name: "EnviroAtlas Picks",

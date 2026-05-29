@@ -20,10 +20,30 @@
 
   export let view;
 
+  let actionRefs;
+
+  const addDataActions = [
+    {
+      name: "Search",
+      id: "search",
+      label1: "Search",
+    },
+    {
+      name: "URL",
+      id: "url",
+      label1: "URL",
+    },
+  ];
+
   window.ea.addData = {};
   window.ea.addData.view = () => {
     return view;
   };
+
+  //TODO: toggle the search and url tab panels
+  function handleAddDataActionClick() {
+    console.log("click");
+  }
 </script>
 
 <calcite-panel
@@ -32,22 +52,31 @@
   data-panel-id="add-data"
   hidden
 >
-  <calcite-tabs layout="center">
-    <calcite-tab-nav slot="title-group">
-      <calcite-tab-title selected tab="search">Search</calcite-tab-title>
-      <calcite-tab-title tab="url"> URL </calcite-tab-title>
-    </calcite-tab-nav>
-    <calcite-tab selected tab="url">
-      <Url {view}></Url>
-    </calcite-tab>
-    <calcite-tab tab="search">
-      <Search {view}></Search>
-    </calcite-tab>
-  </calcite-tabs>
+  <div style="margin: 8px; display:flex; justify-content: space-around width:100%">
+  {#each addDataActions as tab, i}
+    <div
+      bind:this={actionRefs[i]}
+      on:click={handleAddDataActionClick}
+      data-action-id={tab.id}
+      id="catalog-buttom-{tab.id}"
+      style={i===0 ? "border-bottom:3px solid #162e51;" : "border-bottom: none"}
+      class="add-data-button"
+    >
+                  <p style="line-height: 0.33em; margin: 0; padding-top:5px; padding-bottom: 8px">
+                {tab.label1}
+            </p>
+    </div>
+  {/each}
+  </div>
+  <Search {view}/>
+  <Url {view}/>
 </calcite-panel>
 
 <style>
-  calcite-tab {
-    padding: 0;
+  .add-data-button {
+    width: 100%;
+    margin: 0 20px;
+    text-align: center;
+    cursor: pointer;
   }
 </style>

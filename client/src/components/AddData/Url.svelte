@@ -31,6 +31,7 @@
     }
 </script>
 
+<calcite-panel hidden>
 <calcite-label scale="m" layout="inline">
     <strong>Service URL</strong>
     <calcite-icon
@@ -60,6 +61,7 @@
         }}>Add</calcite-button
     >
 </calcite-input-text>
+</calcite-panel>
 
 <style>
     calcite-icon.required {
