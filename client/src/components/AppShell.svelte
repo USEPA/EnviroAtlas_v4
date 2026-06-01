@@ -413,7 +413,7 @@
      ></arcgis-legend>
     </calcite-block>
   </calcite-panel>
-  <AddData map={map} />
+  <AddData view={view} />
   <SummarizeMyAreaResults />
   </calcite-shell-panel>
   <calcite-shell-panel
