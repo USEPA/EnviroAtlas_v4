@@ -1,5 +1,6 @@
 <script>
     import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+    import * as reactiveUtils from "@arcgis/core/core/reactiveUtils.js";
 
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-label";
@@ -7,28 +8,47 @@
     import "@esri/calcite-components/dist/components/calcite-icon";
     import "@esri/calcite-components/dist/components/calcite-tooltip";
 
+    import { addAlertMessage } from "src/shared/addLayers.ts";
+    import { openRightPanel, isLayerUrlInMap } from "../../shared/utilities";
+    import { activeWidget } from "src/store.ts";
+    
+
     export let view;
     export let isHidden = true;
 
     let url;
-    let layers = {};
-
-    window.ea.addData.url = function (_url) {
-        if (arguments.length) url = _url;
-        return url;
-    };
 
     function addUrl() {
-        if (layers[url]) {
-            view.map.remove(layers[url]);
-        }
-
         const feature = new FeatureLayer({
             url,
-            // title: url
         });
-        layers[url] = feature;
-        view.map.add(feature); // adds the layer to the map
+
+        let drawCheck = isLayerUrlInMap(url, view);
+            if (drawCheck) {
+                addAlertMessage(
+                    "",
+                    "This layer is already in the map: " + feature.url,
+                    "warning",
+                    "Layer is already in the map",
+                );
+            } else {
+                view.map.add(feature);
+
+                view.whenLayerView(feature).then((layerView) => {
+                    // If loading, open the layer list.
+                    if ($activeWidget.right !== "layers") {
+                        openRightPanel($activeWidget, "layers");
+                    }
+                    reactiveUtils.whenOnce(() => !layerView.updating);
+                    // If adds successfully, add a success message
+                    addAlertMessage(
+                        "",
+                        "Layer added to the map: " + feature.title,
+                        "success",
+                        "Success!",
+                    );
+                });
+            }
     }
 </script>
 
