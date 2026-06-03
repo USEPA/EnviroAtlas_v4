@@ -52,7 +52,6 @@
             name: "Data Catalog",
             id: "national",
             icon: "globe",
-            color: "#ebebeb",
             label1: "Data",
             label2: "Catalog",
         },

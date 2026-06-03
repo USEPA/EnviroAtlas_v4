@@ -198,12 +198,14 @@ export function addImageryLayer(lObj, view, rfRule, index) {
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
         //opacity: 0.6,
-        title: lObj.name
     }); 
+    if (lObj.name) {
+        iLyr.title = lObj.name
+    }
     if (rfRule) {
         iLyr.rasterFunction = rfRule
     }
-    if (!lObj.name.includes("Summarize My Area")) {
+    if (!lObj.name?.includes("Summarize My Area")) {
         iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "{Raster.ServicePixelValue.Raw}" }
     }
     view.map.add(iLyr, index);
@@ -214,6 +216,7 @@ export function addImageryLayer(lObj, view, rfRule, index) {
             fillOpacity: 0
         }
     }) 
+    return iLyr
 };
 
 export function addTileLayer(lObj, view) {
