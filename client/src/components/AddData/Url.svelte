@@ -5,7 +5,6 @@
     import FieldsContent from '@arcgis/core/popup/content/FieldsContent';
     import * as reactiveUtils from "@arcgis/core/core/reactiveUtils.js";
     import FieldInfo from '@arcgis/core/popup/FieldInfo';
-    import IdentityManager from '@arcgis/core/identity/IdentityManager';
 
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-label";
@@ -24,7 +23,9 @@
     let addLayerInput;
     let url;
 
-    //TODO: Add some loading indicator to the panel when layers a slow
+    //TODO: make horizontal scroll bar go away
+    //TODO: add padding around UI
+    //TODO: Add some loading indicator to the panel when layers are slow
 
     function getAddLayerURL() {
         if (!addLayerInput) return;
@@ -39,7 +40,7 @@
             return;
         }
         try {
-            url = new URL(dataUrl);
+            let parsedUrl = new URL(dataUrl);
         } catch (error) {
             addAlertMessage('Data URL is invalid. ', 'Enter a valid URL.');
             console.log(error);
@@ -55,7 +56,6 @@
                 "Layer is already in the map",
             );
         } else {
-            let urlParams = {};
             let featureServerTest = /\/FeatureServer\d*/gi;
             let mapServerTest = /\/MapServer/gi;
             if (featureServerTest.test(dataUrl) === true) {
@@ -96,6 +96,8 @@
                             "success",
                             "Success!",
                         );
+                    }).catch((e) => {
+                        console.error(e.message); 
                     });
                 });
             } else if (mapServerTest.test(dataUrl) === true) {
@@ -154,6 +156,8 @@
                             "success",
                             "Success!",
                         );
+                    }).catch((e) => {
+                        console.error(e.message); 
                     });
                 });
             } else if (isImageService(dataUrl) === true) {
@@ -172,6 +176,8 @@
                             "success",
                             "Success!",
                         );
+                    }).catch((e) => {
+                        console.error(e.message); 
                     });
                 });
             } else {
