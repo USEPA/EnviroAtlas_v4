@@ -97,10 +97,10 @@
                             "Success!",
                         );
                     }).catch((e) => {
-                        console.error(e);
+                        console.error(e?.message ?? e);
                         addAlertMessage(
                             "Something went wrong",
-                            "Layer couldn't be added to map: " + e.message
+                            "Failed to add layer to map: " + (e?.message ?? e)
                         );
                     });
                 });
@@ -161,10 +161,10 @@
                             "Success!",
                         );
                     }).catch((e) => {
-                        console.error(e.message);
+                        console.error(e?.message ?? e);
                         addAlertMessage(
                             "Something went wrong",
-                            "Layer couldn't be added to map: " + e.message
+                            "Failed to add layer to map: " + (e?.message ?? e)
                         );
                     });
                 });
@@ -185,10 +185,10 @@
                             "Success!",
                         );
                     }).catch((e) => {
-                        console.error(e.message);
+                        console.error(e?.message ?? e);
                         addAlertMessage(
                             "Something went wrong",
-                            "Layer couldn't be added to map: " + e.message
+                            "Failed to add layer to map: " + (e?.message ?? e)
                         ); 
                     });
                 });

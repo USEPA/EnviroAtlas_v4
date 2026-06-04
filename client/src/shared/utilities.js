@@ -201,12 +201,14 @@ export function addImageryLayer(lObj, view, rfRule, index) {
     }); 
     if (lObj.name) {
         iLyr.title = lObj.name
+        if (!lObj.name.includes("Summarize My Area")) {
+            iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "{Raster.ServicePixelValue.Raw}" }
+        }
+    } else {
+        iLyr.popupTemplate = { content: "{Raster.ServicePixelValue.Raw}" }
     }
     if (rfRule) {
         iLyr.rasterFunction = rfRule
-    }
-    if (!lObj.name?.includes("Summarize My Area")) {
-        iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "{Raster.ServicePixelValue.Raw}" }
     }
     view.map.add(iLyr, index);
     view.whenLayerView(iLyr).then((layerView) => {
