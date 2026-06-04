@@ -97,7 +97,11 @@
                             "Success!",
                         );
                     }).catch((e) => {
-                        console.error(e.message); 
+                        console.error(e);
+                        addAlertMessage(
+                            "Something went wrong",
+                            "Layer couldn't be added to map: " + e.message
+                        );
                     });
                 });
             } else if (mapServerTest.test(dataUrl) === true) {
@@ -157,7 +161,11 @@
                             "Success!",
                         );
                     }).catch((e) => {
-                        console.error(e.message); 
+                        console.error(e.message);
+                        addAlertMessage(
+                            "Something went wrong",
+                            "Layer couldn't be added to map: " + e.message
+                        );
                     });
                 });
             } else if (isImageService(dataUrl) === true) {
@@ -177,7 +185,11 @@
                             "Success!",
                         );
                     }).catch((e) => {
-                        console.error(e.message); 
+                        console.error(e.message);
+                        addAlertMessage(
+                            "Something went wrong",
+                            "Layer couldn't be added to map: " + e.message
+                        ); 
                     });
                 });
             } else {
