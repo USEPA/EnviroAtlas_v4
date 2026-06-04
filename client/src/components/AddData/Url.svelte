@@ -1,5 +1,10 @@
 <script>
     import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+    import MapImageLayer from '@arcgis/core/layers/MapImageLayer';
+    import PopupTemplate from '@arcgis/core/PopupTemplate';
+    import FieldsContent from '@arcgis/core/popup/content/FieldsContent';
+    import * as reactiveUtils from "@arcgis/core/core/reactiveUtils.js";
+    import FieldInfo from '@arcgis/core/popup/FieldInfo';
 
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-label";
@@ -7,28 +12,190 @@
     import "@esri/calcite-components/dist/components/calcite-icon";
     import "@esri/calcite-components/dist/components/calcite-tooltip";
 
+    import { addAlertMessage } from "src/shared/addLayers.ts";
+    import { openRightPanel, isLayerUrlInMap, isImageService, addImageryLayer } from "../../shared/utilities";
+    import { activeWidget } from "src/store.ts";
+    
+
     export let view;
     export let isHidden = true;
 
+    let addLayerInput;
     let url;
-    let layers = {};
 
-    window.ea.addData.url = function (_url) {
-        if (arguments.length) url = _url;
-        return url;
-    };
+    //TODO: make horizontal scroll bar go away
+    //TODO: add padding around UI
+    //TODO: Add some loading indicator to the panel when layers are slow
 
-    function addUrl() {
-        if (layers[url]) {
-            view.map.remove(layers[url]);
+    function getAddLayerURL() {
+        if (!addLayerInput) return;
+        let dataUrl = addLayerInput.value;
+        processDataUrl(dataUrl);
+    }
+
+    // Reads a URL and imports the layers available from the URL, if applicable
+    function processDataUrl(dataUrl) {
+        if (dataUrl === undefined || dataUrl === null || dataUrl.trim().length == 0) {
+            addAlertMessage('Data URL is invalid. ', 'Enter a valid URL.');
+            return;
         }
+        try {
+            let parsedUrl = new URL(dataUrl);
+        } catch (error) {
+            addAlertMessage('Data URL is invalid. ', 'Enter a valid URL.');
+            console.log(error);
+            return
+        }
+        
+        let drawCheck = isLayerUrlInMap(url, view);
+        if (drawCheck) {
+            addAlertMessage(
+                "",
+                "This layer is already in the map: " + url,
+                "warning",
+                "Layer is already in the map",
+            );
+        } else {
+            let featureServerTest = /\/FeatureServer\d*/gi;
+            let mapServerTest = /\/MapServer/gi;
+            if (featureServerTest.test(dataUrl) === true) {
+                // feature server URL
+                var copiedLayer = new FeatureLayer({
+                    url: dataUrl,
+                    outFields: ['*']
+                });
+                copiedLayer.on('layerview-create', function () {
+                    var fieldInfos = copiedLayer.fields.map(function (field) {
+                        return new FieldInfo({
+                            fieldName: field.name,
+                            label: field.alias,
+                            visible: true,
+                        });
+                    });
+                    var template = new PopupTemplate({
+                        title: copiedLayer?.title,
+                        content: [new FieldsContent({
+                            fieldInfos: fieldInfos,
+                        })]
+                    });
+                    copiedLayer.popupTemplate = template;
+                });
+                view?.map.add(copiedLayer);
 
-        const feature = new FeatureLayer({
-            url,
-            // title: url
-        });
-        layers[url] = feature;
-        view.map.add(feature); // adds the layer to the map
+                view?.whenLayerView(copiedLayer).then((layerView) => {
+                    // If loading, open the layer list.
+                    if ($activeWidget.right !== "layers") {
+                        openRightPanel($activeWidget, "layers");
+                    }
+                    reactiveUtils.whenOnce(() => !layerView.updating)
+                    .then(() => {
+                        // If adds successfully, add a success message
+                        addAlertMessage(
+                            "",
+                            "Layer added to the map: " + copiedLayer.title,
+                            "success",
+                            "Success!",
+                        );
+                    }).catch((e) => {
+                        console.error(e?.message ?? e);
+                        addAlertMessage(
+                            "Something went wrong",
+                            "Failed to add layer to map: " + (e?.message ?? e)
+                        );
+                    });
+                });
+            } else if (mapServerTest.test(dataUrl) === true) {
+                // map server URL
+                let copiedMapLayer = new MapImageLayer();
+                // If map layer ID is present, add it to the sublayers
+                if (dataUrl.match(/\d+$/)) {
+                    const maplayerId = parseInt(dataUrl.match(/\d+$/)[0], 10);
+                    copiedMapLayer = new MapImageLayer({
+                        url: dataUrl.replace(/\d+$/, ''),
+                        sublayers: [{
+                            id: maplayerId,
+                            visible: true,
+                        }]
+                    });
+                } else {
+                    copiedMapLayer = new MapImageLayer({
+                        url: dataUrl
+                    });
+                }
+                copiedMapLayer.on('layerview-create', function () {
+                    // Set up popup template for each sublayer
+                    copiedMapLayer.sublayers?.forEach(function (sublayer) {
+                        sublayer.load().then(function () {
+                            sublayer.popupEnabled = true;
+                            var fieldInfos = sublayer.fields.map(function (field) {
+                                return new FieldInfo({
+                                    fieldName: field.name,
+                                    label: field.alias,
+                                    visible: true,
+                                });
+                            });
+                            var template = new PopupTemplate({
+                                title: sublayer?.title,
+                                content: [new FieldsContent({
+                                    fieldInfos: fieldInfos,
+                                })]
+                            });
+                            sublayer.popupTemplate = template;
+                        });
+                    });
+                });
+                view?.map.add(copiedMapLayer);
+                                
+                view?.whenLayerView(copiedMapLayer).then((layerView) => {
+                    // If loading, open the layer list.
+                    if ($activeWidget.right !== "layers") {
+                        openRightPanel($activeWidget, "layers");
+                    }
+                    reactiveUtils.whenOnce(() => !layerView.updating)
+                    .then(() => {
+                        // If adds successfully, add a success message
+                        addAlertMessage(
+                            "",
+                            "Layer added to the map: " + copiedMapLayer.title,
+                            "success",
+                            "Success!",
+                        );
+                    }).catch((e) => {
+                        console.error(e?.message ?? e);
+                        addAlertMessage(
+                            "Something went wrong",
+                            "Failed to add layer to map: " + (e?.message ?? e)
+                        );
+                    });
+                });
+            } else if (isImageService(dataUrl) === true) {
+                let iLyr = addImageryLayer({"url": url}, view)
+                view?.whenLayerView(iLyr).then((layerView) => {
+                    // If loading, open the layer list.
+                    if ($activeWidget.right !== "layers") {
+                        openRightPanel($activeWidget, "layers");
+                    }
+                    reactiveUtils.whenOnce(() => !layerView.updating)
+                    .then(() => {
+                        // If adds successfully, add a success message
+                        addAlertMessage(
+                            "",
+                            "Layer added to the map: " + iLyr.title,
+                            "success",
+                            "Success!",
+                        );
+                    }).catch((e) => {
+                        console.error(e?.message ?? e);
+                        addAlertMessage(
+                            "Something went wrong",
+                            "Failed to add layer to map: " + (e?.message ?? e)
+                        ); 
+                    });
+                });
+            } else {
+                addAlertMessage('Data URL is invalid. ', 'Enter a valid URL.');
+            }
+        }
     }
 </script>
 
@@ -46,6 +213,7 @@
     >
 </calcite-label>
 <calcite-input-text
+    bind:this={addLayerInput}
     required="true"
     placeholder="Enter service url"
     scale="m"
@@ -57,8 +225,11 @@
     <calcite-button
         slot="action"
         scale="m"
+        on:keydown={() => {
+            getAddLayerURL();
+        }}
         on:click={() => {
-            addUrl();
+            getAddLayerURL();
         }}>Add</calcite-button
     >
 </calcite-input-text>

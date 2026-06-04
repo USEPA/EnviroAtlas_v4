@@ -43,7 +43,6 @@
 
   function handleAddDataActionClick(actionId = "search") {
     activeAction = actionId;
-    console.log(actionId)
   }
 </script>
 
