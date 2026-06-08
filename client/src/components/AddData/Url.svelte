@@ -199,7 +199,7 @@
     }
 </script>
 
-<calcite-panel hidden={isHidden}>
+<div hidden={isHidden} style="padding:8px; border-top: 1px solid #dedede; background-color:white">
 <calcite-label scale="m" layout="inline">
     <strong>Service URL</strong>
     <calcite-icon
@@ -233,7 +233,7 @@
         }}>Add</calcite-button
     >
 </calcite-input-text>
-</calcite-panel>
+</div>
 
 <style>
     calcite-icon.required {
