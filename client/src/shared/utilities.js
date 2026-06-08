@@ -167,6 +167,21 @@ export function addFeatureLayer(lObj, view) {
         //opacity: 0.6,
     });
 
+    if (lObj.renderer === "simpleFill") {
+        let simpleFill = {
+            type: "simple",  // autocasts as new SimpleRenderer()
+            symbol: {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                //color: [ 255, 128, 0, 0.5 ],
+                outline: {  // autocasts as new SimpleLineSymbol()
+                    width: 1,
+                    color: "white"
+                }
+            }
+        };
+        copiedLayer.renderer = simpleFill
+    }
+
     // catch error on instantiating the new Feature Layer
     copiedLayer.when(function () {
         // if it has a popup property, build the popup template
@@ -250,7 +265,7 @@ export function buildFSPopupTemp(lObj) {
     let pTemplate;
     // Add popup title data to the front of fieldInfos array
     let popupTitle = lObj.popup.title?.split(":");
-    popupTitle[1] = popupTitle[1].replace('{', '').replace('}', '').trim();
+    popupTitle[1] = popupTitle[1]?.replace('{', '').replace('}', '').trim();
     lObj.popup.fieldInfos.unshift({
         fieldName: popupTitle[1],
         label: popupTitle[0],
