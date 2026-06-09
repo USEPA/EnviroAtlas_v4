@@ -87,6 +87,9 @@
                     if ($activeWidget.right !== "layers") {
                         openRightPanel($activeWidget, "layers");
                     }
+                    copiedLayer.queryExtent().then((res) => {
+                        res.extent ? view.goTo(res.extent, { duration: 4000 }) : null
+                    })
                     reactiveUtils.whenOnce(() => !layerView.updating)
                     .then(() => {
                         // If adds successfully, add a success message
@@ -151,6 +154,9 @@
                     if ($activeWidget.right !== "layers") {
                         openRightPanel($activeWidget, "layers");
                     }
+                    copiedMapLayer.queryExtent().then((res) => {
+                        res.extent ? view.goTo(res.extent, { duration: 4000 }) : null
+                    })
                     reactiveUtils.whenOnce(() => !layerView.updating)
                     .then(() => {
                         // If adds successfully, add a success message
@@ -175,6 +181,9 @@
                     if ($activeWidget.right !== "layers") {
                         openRightPanel($activeWidget, "layers");
                     }
+                    const goToTarget = iLyr.fullExtent
+                    goToTarget ? view.goTo(goToTarget.extent, { duration: 4000 }) : null
+                    
                     reactiveUtils.whenOnce(() => !layerView.updating)
                     .then(() => {
                         // If adds successfully, add a success message
@@ -213,6 +222,7 @@
     >
 </calcite-label>
 <calcite-input-text
+    clearable
     bind:this={addLayerInput}
     required="true"
     placeholder="Enter service url"
