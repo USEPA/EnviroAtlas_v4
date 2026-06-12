@@ -24,8 +24,6 @@
     let addLayerInput;
     let url;
 
-    //TODO: Add some loading indicator to the panel when layers are slow
-
     function getAddLayerURL() {
         if (!addLayerInput) return;
         let dataUrl = addLayerInput.value;
