@@ -20,17 +20,16 @@
     export let view;
     export let isHidden = true;
 
+    let urlPanel;
     let addLayerInput;
     let url;
-
-    //TODO: make horizontal scroll bar go away
-    //TODO: add padding around UI
-    //TODO: Add some loading indicator to the panel when layers are slow
 
     function getAddLayerURL() {
         if (!addLayerInput) return;
         let dataUrl = addLayerInput.value;
+        urlPanel.loading = true;
         processDataUrl(dataUrl);
+        urlPanel.loading = false;
     }
 
     // Reads a URL and imports the layers available from the URL, if applicable
@@ -87,6 +86,9 @@
                     if ($activeWidget.right !== "layers") {
                         openRightPanel($activeWidget, "layers");
                     }
+                    copiedLayer.queryExtent().then((res) => {
+                        res.extent ? view.goTo(res.extent, { duration: 4000 }) : null
+                    })
                     reactiveUtils.whenOnce(() => !layerView.updating)
                     .then(() => {
                         // If adds successfully, add a success message
@@ -151,6 +153,9 @@
                     if ($activeWidget.right !== "layers") {
                         openRightPanel($activeWidget, "layers");
                     }
+                    copiedMapLayer.queryExtent().then((res) => {
+                        res.extent ? view.goTo(res.extent, { duration: 4000 }) : null
+                    })
                     reactiveUtils.whenOnce(() => !layerView.updating)
                     .then(() => {
                         // If adds successfully, add a success message
@@ -175,6 +180,9 @@
                     if ($activeWidget.right !== "layers") {
                         openRightPanel($activeWidget, "layers");
                     }
+                    const goToTarget = iLyr.fullExtent
+                    goToTarget ? view.goTo(goToTarget.extent, { duration: 4000 }) : null
+                    
                     reactiveUtils.whenOnce(() => !layerView.updating)
                     .then(() => {
                         // If adds successfully, add a success message
@@ -199,7 +207,8 @@
     }
 </script>
 
-<calcite-panel hidden={isHidden}>
+<calcite-panel bind:this={urlPanel} hidden={isHidden}>
+<div style="padding:8px; border-top: 1px solid #dedede; background-color:white">
 <calcite-label scale="m" layout="inline">
     <strong>Service URL</strong>
     <calcite-icon
@@ -213,6 +222,7 @@
     >
 </calcite-label>
 <calcite-input-text
+    clearable
     bind:this={addLayerInput}
     required="true"
     placeholder="Enter service url"
@@ -233,6 +243,7 @@
         }}>Add</calcite-button
     >
 </calcite-input-text>
+</div>
 </calcite-panel>
 
 <style>
