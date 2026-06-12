@@ -213,7 +213,7 @@
             <calcite-combobox
                 bind:this={typeOptSelection}
                 style="width:45%; margin-right:4%;height:32px; min-height:32px; max-height:32px"
-                placeholder="Type"
+                placeholder="Data type"
                 selection-display="fit"
                 clear-disabled="true"
                 on:calciteComboboxChange={()=>updateTypeOpt()}
@@ -222,7 +222,6 @@
                     <calcite-combobox-item
                         value={typeOpt.value}
                         heading={typeOpt.name}
-                        selected={typeOpt.selected}
                     ></calcite-combobox-item>
                 {/each}
             </calcite-combobox>

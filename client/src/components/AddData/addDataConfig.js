@@ -22,17 +22,14 @@ export const addDataConfig = {
         {
             name: "Map Service",
             value: "Map Service",
-            selected: "true"
         },
         {
             name: "Feature Service",
             value: "Feature Service",
-            selected: "true"
         },
         {
             name: "Image Service",
             value: "Image Service",
-            selected: "true"
         },
     ],
     sortOptions: [
