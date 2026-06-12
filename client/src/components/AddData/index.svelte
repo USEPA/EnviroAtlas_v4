@@ -52,7 +52,7 @@
   data-panel-id="add-data"
   hidden
 >
-  <div style="margin: 8px; display:flex; justify-content: space-around; width:100%">
+  <div style="margin: 8px; display:flex; justify-content: space-around">
   {#each addDataActions as tab, i}
     <div
       bind:this={actionRefs[i]}

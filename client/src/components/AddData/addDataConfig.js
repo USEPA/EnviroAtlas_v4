@@ -22,21 +22,25 @@ export const addDataConfig = {
         {
             name: "Map Service",
             value: "Map Service",
+            selected: "true"
         },
         {
             name: "Feature Service",
             value: "Feature Service",
+            selected: "true"
         },
         {
             name: "Image Service",
             value: "Image Service",
+            selected: "true"
         },
     ],
     sortOptions: [
         {
             name: "Relevance",
             value: "relevance",
-            sortOrder: "asc"
+            sortOrder: "asc",
+            selected: "true"
         },
         {
             name: "Title",
@@ -56,8 +60,7 @@ export const addDataConfig = {
         {
             name: "Views",
             value: "numviews",
-            sortOrder: "desc",
-            selected: "true"
+            sortOrder: "desc"
         },
         {
             name: "Date",
