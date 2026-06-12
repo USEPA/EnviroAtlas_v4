@@ -212,7 +212,7 @@
         <div style="display:flex; margin-top:8px; margin-bottom:8px;">
             <calcite-combobox
                 bind:this={typeOptSelection}
-                style="width:42%; margin-right:4%;height:32px; min-height:32px; max-height:32px"
+                style="width:45%; margin-right:4%;height:32px; min-height:32px; max-height:32px"
                 placeholder="Type"
                 selection-display="fit"
                 clear-disabled="true"
@@ -228,7 +228,7 @@
             </calcite-combobox>
             <calcite-combobox
                 bind:this={sortOptSelection}
-                style="width:42%; margin-right:3% "
+                style="width:40%; margin-right:2% "
                 selection-mode="single"
                 clear-disabled="true"
                 on:calciteComboboxChange={()=>updateSortOpt()}
