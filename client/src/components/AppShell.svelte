@@ -95,6 +95,10 @@
     );
   }
 
+  function setTooltipOpt() {
+    this.tooltipOptions = {enabled:true}
+  }
+
   function listItemCreatedFunction(e) {
     const item = e.item;
     // TODO: make layer NOT disabled if it isn't visibleAtCurrentScale
@@ -400,6 +404,7 @@
         position="manual"
         referenceElement={view}
         layout="horizontal"
+        on:arcgisReady={setTooltipOpt}
      ></arcgis-sketch>
     </calcite-block>
     <calcite-block collapsible expanded heading="Measure" label="Measure">
