@@ -15,6 +15,7 @@
     export let view;
     export let isHidden = false;
 
+    let searchPanel;
     let searchTerm;
     let scopeOptSelection;
     let typeOptSelection;
@@ -128,6 +129,7 @@
     }
 
     function addDataLayer(layer) {
+        searchPanel.loading = true;
         Layer.fromPortalItem({
             portalItem: {
                 id: `${layer.id}`
@@ -145,6 +147,7 @@
                 view.map.add(lyr);
 
                 view.whenLayerView(lyr).then((layerView) => {
+                    searchPanel.loading = false;
                     // If loading, open the layer list.
                     if ($activeWidget.right !== "layers") {
                         openRightPanel($activeWidget, "layers");
@@ -159,6 +162,9 @@
                     );
                 });
             }
+        }).catch((err) => {
+            searchPanel.loading = false;
+            console.log(err)
         });
     }
 
@@ -183,6 +189,7 @@
                 {/each}
             </calcite-combobox>
             <calcite-input-text
+                clearable
                 style="width:50%; float: right;"
                 required="true"
                 placeholder="Enter search terms"
@@ -202,10 +209,10 @@
                 ></calcite-button>
             </calcite-input-text>
         </div>
-        <div style="display:flex; margin-top:8px; margin-bottom:8px">
+        <div style="display:flex; margin-top:8px; margin-bottom:8px;">
             <calcite-combobox
                 bind:this={typeOptSelection}
-                style="width:42%; margin-right:4%"
+                style="width:42%; margin-right:4%;height:32px; min-height:32px; max-height:32px"
                 placeholder="Type"
                 selection-display="fit"
                 clear-disabled="true"
@@ -215,6 +222,7 @@
                     <calcite-combobox-item
                         value={typeOpt.value}
                         heading={typeOpt.name}
+                        selected={typeOpt.selected}
                     ></calcite-combobox-item>
                 {/each}
             </calcite-combobox>
@@ -237,7 +245,7 @@
             ></calcite-action>
         </div>
     </div>
-    <calcite-panel hidden={isHidden}>
+    <calcite-panel bind:this={searchPanel} hidden={isHidden}>
     <calcite-list
         label="toc"
         selection-mode="none"
