@@ -29,18 +29,19 @@
         let dataUrl = addLayerInput.value;
         urlPanel.loading = true;
         processDataUrl(dataUrl);
-        urlPanel.loading = false;
     }
 
     // Reads a URL and imports the layers available from the URL, if applicable
     function processDataUrl(dataUrl) {
         if (dataUrl === undefined || dataUrl === null || dataUrl.trim().length == 0) {
+            urlPanel.loading = false;
             addAlertMessage('Data URL is invalid. ', 'Enter a valid URL.');
             return;
         }
         try {
             let parsedUrl = new URL(dataUrl);
         } catch (error) {
+            urlPanel.loading = false;
             addAlertMessage('Data URL is invalid. ', 'Enter a valid URL.');
             console.log(error);
             return
@@ -54,6 +55,7 @@
                 "warning",
                 "Layer is already in the map",
             );
+            urlPanel.loading = false;
         } else {
             let featureServerTest = /\/FeatureServer\d*/gi;
             let mapServerTest = /\/MapServer/gi;
@@ -86,6 +88,7 @@
                     if ($activeWidget.right !== "layers") {
                         openRightPanel($activeWidget, "layers");
                     }
+                    urlPanel.loading = false;
                     copiedLayer.queryExtent().then((res) => {
                         res.extent ? view.goTo(res.extent, { duration: 4000 }) : null
                     })
@@ -153,6 +156,7 @@
                     if ($activeWidget.right !== "layers") {
                         openRightPanel($activeWidget, "layers");
                     }
+                    urlPanel.loading = false;
                     copiedMapLayer.queryExtent().then((res) => {
                         res.extent ? view.goTo(res.extent, { duration: 4000 }) : null
                     })
@@ -180,6 +184,7 @@
                     if ($activeWidget.right !== "layers") {
                         openRightPanel($activeWidget, "layers");
                     }
+                    urlPanel.loading = false;
                     const goToTarget = iLyr.fullExtent
                     goToTarget ? view.goTo(goToTarget.extent, { duration: 4000 }) : null
                     
@@ -201,6 +206,7 @@
                     });
                 });
             } else {
+                urlPanel.loading = false;
                 addAlertMessage('Data URL is invalid. ', 'Enter a valid URL.');
             }
         }
