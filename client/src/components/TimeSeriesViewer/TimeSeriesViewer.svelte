@@ -35,6 +35,7 @@
     export let view;
 
     let climRefs = [];
+    let cmaqRefs = [];
     let climateNotify;
     let maxVal;
     let minVal;
@@ -116,6 +117,7 @@
             }
         ], description: "Climate change variables were computed using 30–year periods: recent history (1976–2005), near-term future (2025–2054), mid-century (2045–2074), and end-of-century (2070–2099). Climate change variables are expressed as a change between different periods:"
     }];
+
     const popProjectedOptions = [
         { name: 'Scenario by 2100', options: [
             {label: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)", value: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)"},
@@ -167,6 +169,52 @@
         ]},
     ]
 
+    const cmaqPastOptions = [
+        { name: 'Variable', options: [
+            {domains: "CONUS", label: "Total Nitrogen Deposition", value: "Total Nitrogen Deposition",
+                pdf: "Supplemental/Total_Nitrogen_Deposition_CMAQ.pdf",
+                info: "This dataset portrays the 3-year annual average of total nitrogen deposition, for chosen period."
+            },
+            {domains: "CONUS", label: "Total Sulfur Deposition", value: "Total Sulfur Deposition",
+                pdf: "Supplemental/Total_Sulfur_Deposition_CMAQ.pdf",
+                info: "This dataset portrays the 3-year annual of total sulfur deposition kilograms per hectare per year, for chosen period."
+            },
+            {domains: "CONUS", label: "Ambient Sulfur Dioxide (SO2)", value: "Ambient Sulfur Dioxide (SO2)",
+                pdf: "Supplemental/SO2_CMAQ.pdf",
+                info: "This dataset portrays the 3-year average ambient concentration of sulfur dioxide (SO2) for chosen season and period."
+            },
+            {domains: "CONUS", label: "Tropospheric Ozone (O3)", value: "Tropospheric Ozone (O3)",
+                pdf: "Supplemental/Tropospheric_Ozone_CMAQ.pdf",
+                info: "This dataset portrays the 3-year average ambient ozone concentration for chosen season and period, expressed as the maximum daily 8-hour average (MDA8) in parts per billion by volume (ppbV)."
+            },
+            {domains: "CONUS", label: "Particulate Matter (PM2.5)", value: "Particulate Matter (PM2.5)",
+                pdf: "Supplemental/PM2.5_CMAQ.pdf",
+                info: "This dataset portrays the 3-year average ambient concentration of fine particulate matter with a diameter of 2.5 micrometers (µm) or smaller (PM2.5) for chosen season and period."
+            },
+            {domains: "CONUS", label: "Particulate Matter (PM10)", value: "Particulate Matter (PM10)",
+                pdf: "Supplemental/PM10_CMAQ.pdf",
+                info: "This dataset portrays the 3-year average ambient concentration of coarse particulate matter with a diameter between 2.5 and 10 micrometers (µm) (PM10) for chosen season and period."
+            }
+        ]},
+        { name: 'Season', options: [
+            {domains: "CONUS", value: "A", label: "Annual", info: "January through December of the same calendar year"},
+            {domains: "CONUS", value: "M", label: "Spring", info: "March, April, May"},
+            {domains: "CONUS", value: "J", label: "Summer", info: "June, July, August"},
+            {domains: "CONUS", value: "S", label: "Fall", info: "September, October, November"},
+            {domains: "CONUS", value: "D", label: "Winter", info: "December of previous year, January, February"},
+            {domains: "CONUS", value: "Ozone Season (for tropospheric ozone only)", label: "Ozone Season (for tropospheric ozone only)",
+                info: "April, May, June, July, August, September"
+            }
+        ]},
+        { name: 'Period', options: [
+            {domains: "CONUS", label: "2005–2007", value: "2005–2007"},
+            {domains: "CONUS", label: "2008–2010", value: "2008–2010"},
+            {domains: "CONUS", label: "2011–2013", value: "2011–2013"},
+            {domains: "CONUS", label: "2014–2016", value: "2014–2016"},
+            {domains: "CONUS", label: "2017–2019", value: "2017–2019"}
+        ], description: "Choose 3-yr period."},
+    ]
+
     const domainMap = {
         "Puerto Rico,Virgin Islands": "VIPR",
         "Guam": "GUAM",
@@ -180,6 +228,10 @@
      * Filters selections in the Climate dropdowns based on selected geography.
      */
     $: options_filtered = options.map(obj => {
+        return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
+    });
+
+    $: cmaqPastOptions_filtered = cmaqPastOptions.map(obj => {
         return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
     });
 
@@ -1745,22 +1797,28 @@
      * Filters options constant into an options object for the selected info button.
      * Instantiates a TimeSeriesDetails.svelte component with the options object prop. 
      * Opens the instatiated component's popover element.
+     * @param theme - time series theme
      * @param option_name - which option the i-button is for
      */
-    async function openDetails(option_name) {
-        console.log(option_name)
-        let optionsObj = options.filter((opt => opt.name == option_name))[0]
+    async function openDetails(theme, option_name) {
+        let optionsObj;
+        if (theme === 'clim') {
+            optionsObj = options.filter((opt => opt.name == option_name))[0]
+        } else if (theme === 'cmaq') {
+            optionsObj = cmaqPastOptions.filter((opt => opt.name == option_name))[0]
+        }
         console.log(optionsObj)
-        let findPopover = document.querySelector(`[reference-element="${optionsObj.name}-details-popover-button"]`);
+        let findPopover = document.querySelector(`[reference-element="${theme}-${optionsObj.name}-details-popover-button"]`);
         if (!findPopover) {
             mount(TimeSeriesDetails, {
                 target: timeSeriesDetailsTarget || document.body,
-                props: { optionsObj },
+                props: { theme, optionsObj },
             });
         }
-        let popover = document.querySelector(`[reference-element="${optionsObj.name}-details-popover-button"]`);
+        let popover = document.querySelector(`[reference-element="${theme}-${optionsObj.name}-details-popover-button"]`);
         popover.setAttribute("open", "");
         return optionsObj
+
     }
 
     function listItemExpand() {
@@ -1789,6 +1847,49 @@
             scale="auto"
             style="border-top: 1px solid #dedede; padding-top: 3px"
         >
+            <calcite-list-item
+                id='Impacts to Air/Water/Land (Past)'
+                label='Impacts to Air/Water/Land (Past)'
+                value='Impacts to Air/Water/Land (Past)'
+                on:calciteListItemSelect={listItemExpand}
+            >
+                <calcite-list-item 
+                    on:calciteListItemSelect={e=>e.stopPropagation()}
+                    description='Community Multiscale Air Quality (CMAQ)'
+                    >
+                    {#each cmaqPastOptions_filtered as cmaqPast, q (cmaqPast.name)}
+                    <div slot="content-bottom" id="combobox-div">
+                        <calcite-combobox
+                            bind:this={cmaqRefs[q]}
+                            id="cmaqVarSelect"
+                            scale="m"
+                            placeholder={cmaqPast.name}
+                            selection-mode="single"
+                            max-items="0"
+                            overlay-positioning="fixed"
+                        >
+                        {#each cmaqPast.options as o}
+                            <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
+                        {/each}
+                        </calcite-combobox>
+                        <calcite-button 
+                            appearance="transparent"
+                            iconEnd="information"
+                            on:click={() => openDetails('cmaq', cmaqPast.name)}
+                            id="cmaq-{cmaqPast.name}-details-popover-button"
+                            class="info-button"
+                    ></calcite-button>
+                    </div>
+                    {/each}
+                    <div slot="content-bottom">
+                        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+                            <div slot="title">Incomplete selections</div>
+                            <div slot="message">Please make selections.</div>
+                        </calcite-notice>
+                        <calcite-button>Coming Soon!</calcite-button>
+                    </div>
+                </calcite-list-item>
+            </calcite-list-item>
             <calcite-list-item
                 id='Land Cover/Land Use (Past)'
                 label='Land Cover/Land Use (Past)'
@@ -1979,8 +2080,8 @@
                         <calcite-button 
                             appearance="transparent"
                             iconEnd="information"
-                            on:click={() => openDetails(clim.name)}
-                            id="{clim.name}-details-popover-button"
+                            on:click={() => openDetails('clim', clim.name)}
+                            id="clim-{clim.name}-details-popover-button"
                             class="info-button"
                     ></calcite-button>
                     </div>
