@@ -18,8 +18,11 @@
   import Url from "src/components/AddData/Url.svelte";
   import Search from "src/components/AddData/Search.svelte";
 
+  import {activeWidget} from "src/store.ts";
+
   export let view;
 
+  let addDataPanel;
   let actionRefs = [];
   let activeAction = "search";
 
@@ -44,9 +47,20 @@
   function handleAddDataActionClick(actionId = "search") {
     activeAction = actionId;
   }
+
+  const handleFabClick = (e) => {
+    e.target.setAttribute("hidden", "");
+    let shell = document.getElementById("shell-panel-end");
+    addDataPanel.removeAttribute("open");
+    addDataPanel.setAttribute("hidden", "");
+    shell.setAttribute("collapsed", "");
+    document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
+    $activeWidget.right = null;
+  };
 </script>
 
 <calcite-panel
+  bind:this={addDataPanel}
   width-scale="l"
   heading="Add Data"
   data-panel-id="add-data"
@@ -71,6 +85,15 @@
   <Search {view} isHidden={activeAction !== "search"} />
   <Url {view} isHidden={activeAction !== "url"} />
 </calcite-panel>
+<calcite-fab
+    role="button"
+    tabindex="-1"
+    id="add-data-fab"
+    icon="chevrons-right"
+    hidden
+    on:click={handleFabClick}
+    on:keydown={handleFabClick}
+></calcite-fab>
 
 <style>
   .add-data-button {
@@ -78,5 +101,11 @@
     margin: 0 20px;
     text-align: center;
     cursor: pointer;
+  }
+
+  calcite-fab {
+    place-content: center;
+    padding-top: 4px;
+    padding-bottom: 4px;
   }
 </style>

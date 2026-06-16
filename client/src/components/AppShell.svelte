@@ -201,16 +201,22 @@
       document.querySelector(`[data-panel-id=${$activeWidget.right}]`).hidden = true;
       document.querySelector(`[data-panel-id=${$activeWidget.right}]`).closed = true;
       document.querySelector(`[component-id="shell-panel-end"]`).collapsed = true;
+      let fab = document.getElementById(`${$activeWidget.right}-fab`)
+      if (fab) {
+        fab.setAttribute("hidden", "");
+      }
     }
 
     // Figure out what was clicked
     const nextWidgetRight = target.dataset.actionId;
+    console.log(nextWidgetRight)
     // If there's a change, open things, and update store value to what was clicked
     if (nextWidgetRight && nextWidgetRight !== $activeWidget.right) {
       document.querySelector(`[data-action-id=${nextWidgetRight}]`).active = true;
       document.querySelector(`[data-panel-id=${nextWidgetRight}]`).hidden = false;
       document.querySelector(`[data-panel-id=${nextWidgetRight}]`).closed = false;
       document.querySelector(`[component-id="shell-panel-end"]`).collapsed = false;
+      document.querySelector(`[id=${nextWidgetRight}-fab]`).hidden = false;
       $activeWidget.right = nextWidgetRight;
     } else {
       $activeWidget.right = null;
@@ -320,6 +326,7 @@
   <Alert />
   <Info />
   <calcite-shell-panel
+    id="shell-panel-end"
     component-id="shell-panel-end"
     slot="panel-end"
     display-mode="docked"
@@ -378,6 +385,13 @@
       on:arcgisTriggerAction={layerListAction}
    ></arcgis-layer-list>
   </calcite-panel>
+  <calcite-fab
+    role="button"
+    tabindex="-1"
+    icon="chevrons-right"
+    id="layers-fab"
+    hidden
+  ></calcite-fab>
   <calcite-panel
     heading="Basemaps"
     height-scale="l"
@@ -392,7 +406,14 @@
       source={portalBasemapsSource}
    ></arcgis-basemap-gallery>
   </calcite-panel>
-    <calcite-panel
+  <calcite-fab
+    role="button"
+    tabindex="-1"
+    icon="chevrons-right"
+    id="basemaps-fab"
+    hidden
+  ></calcite-fab>
+  <calcite-panel
     heading="Other Map Tools"
     height-scale="l"
     data-panel-id="maptools"
@@ -416,8 +437,15 @@
       <arcgis-legend
         referenceElement={view}
      ></arcgis-legend>
-    </calcite-block>
+  </calcite-block>
   </calcite-panel>
+  <calcite-fab
+    role="button"
+    tabindex="-1"
+    icon="chevrons-right"
+    id="maptools-fab"
+    hidden
+  ></calcite-fab>
   <AddData view={view} />
   <SummarizeMyAreaResults />
   </calcite-shell-panel>
@@ -462,5 +490,11 @@
   #linkbtns:hover{
     --calcite-chip-text-color: rgb(236, 235, 235);
     --calcite-chip-background-color:#024f86;
+  }
+
+  calcite-fab {
+    place-content: center;
+    padding-top: 4px;
+    padding-bottom: 4px;
   }
 </style>
