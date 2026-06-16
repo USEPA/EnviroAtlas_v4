@@ -214,20 +214,11 @@
 </script>
 
 <calcite-panel bind:this={urlPanel} hidden={isHidden}>
-<div style="padding:8px; border-top: 1px solid #dedede; background-color:white">
-<calcite-label scale="m" layout="inline">
-    <strong>Service URL</strong>
-    <calcite-icon
-        id="service-url-required"
-        class="required"
-        icon="bullet-point"
-        scale="s"
-    ></calcite-icon>
-    <calcite-tooltip reference-element="service-url-required"
-        >Required</calcite-tooltip
-    >
-</calcite-label>
-<calcite-input-text
+    <calcite-block scale="m" id="domainHeader" heading="Service URL" expanded
+        style="margin-block: 0px; margin-top: 0px; margin-block-end: 0px"
+        description="Add image and feature services from URL">
+    <calcite-input-text
+style="padding-bottom:8px; padding-left: 6px; padding-right: 6px"
     clearable
     bind:this={addLayerInput}
     required="true"
@@ -249,11 +240,16 @@
         }}>Add</calcite-button
     >
 </calcite-input-text>
-</div>
+    </calcite-block>
 </calcite-panel>
 
 <style>
-    calcite-icon.required {
-        --calcite-ui-icon-color: var(--calcite-ui-danger);
+    .tab-description {
+        font-size: 12px;
+        line-height: 1;
+    }
+    calcite-block#domainHeader {
+        --calcite-block-padding: 0;
+        padding: none;
     }
 </style>
