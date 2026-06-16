@@ -246,6 +246,5 @@
 <style>
     calcite-block#domainHeader {
         --calcite-block-padding: 0;
-        padding: none;
     }
 </style>
