@@ -217,37 +217,33 @@
     <calcite-block scale="m" id="domainHeader" heading="Service URL" expanded
         style="margin-block: 0px; margin-top: 0px; margin-block-end: 0px"
         description="Add image and feature services from URL">
-    <calcite-input-text
-style="padding-bottom:8px; padding-left: 6px; padding-right: 6px"
-    clearable
-    bind:this={addLayerInput}
-    required="true"
-    placeholder="Enter service url"
-    scale="m"
-    on:calciteInputTextChange={function (e) {
-        url = e.target.value;
-    }}
-    value={url}
->
-    <calcite-button
-        slot="action"
-        scale="m"
-        on:keydown={() => {
-            getAddLayerURL();
-        }}
-        on:click={() => {
-            getAddLayerURL();
-        }}>Add</calcite-button
-    >
-</calcite-input-text>
+        <calcite-input-text
+            style="padding-bottom:8px; padding-left: 6px; padding-right: 6px"
+            clearable
+            bind:this={addLayerInput}
+            required="true"
+            placeholder="Enter service url"
+            scale="m"
+            on:calciteInputTextChange={function (e) {
+                url = e.target.value;
+            }}
+            value={url}
+        >
+            <calcite-button
+                slot="action"
+                scale="m"
+                on:keydown={() => {
+                    getAddLayerURL();
+                }}
+                on:click={() => {
+                    getAddLayerURL();
+                }}>Add</calcite-button
+            >
+        </calcite-input-text>
     </calcite-block>
 </calcite-panel>
 
 <style>
-    .tab-description {
-        font-size: 12px;
-        line-height: 1;
-    }
     calcite-block#domainHeader {
         --calcite-block-padding: 0;
         padding: none;
