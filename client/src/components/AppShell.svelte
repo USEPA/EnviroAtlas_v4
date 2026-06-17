@@ -213,7 +213,6 @@
 
     // Figure out what was clicked
     const nextWidgetRight = target.dataset.actionId;
-    console.log(nextWidgetRight)
     // If there's a change, open things, and update store value to what was clicked
     if (nextWidgetRight && nextWidgetRight !== $activeWidget.right) {
       document.querySelector(`[data-action-id=${nextWidgetRight}]`).active = true;
