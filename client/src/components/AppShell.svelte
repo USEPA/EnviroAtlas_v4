@@ -47,6 +47,10 @@
   let fTableContainer;
   let leftActionBar;
   let map;
+  let shellPanelEnd;
+  let basemapsPanel;
+  let mapToolsPanel;
+  let layersPanel;
 
   $: {
     if (view && !map) {
@@ -223,6 +227,25 @@
     }
   };
 
+  const handleRightFabClick = (e) => {
+    e.target.setAttribute("hidden", "");
+    const panel = e.target.id.split('-')[0];
+    if (panel === 'maptools') {
+      mapToolsPanel.removeAttribute("open");
+      mapToolsPanel.setAttribute("hidden", "");
+    } else if (panel === 'basemaps') {
+      basemapsPanel.removeAttribute("open");
+      basemapsPanel.setAttribute("hidden", "");
+    } else if (panel === 'layers') {
+      layersPanel.removeAttribute("open");
+      layersPanel.setAttribute("hidden", "");
+    }
+
+    shellPanelEnd.setAttribute("collapsed", "");
+    document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
+    $activeWidget.right = null;
+  };
+
   export const closeShellElement = function (e) {
     const target = e.target;
     const shellElement = target.parentElement;
@@ -326,6 +349,7 @@
   <Alert />
   <Info />
   <calcite-shell-panel
+    bind:this={shellPanelEnd}
     id="shell-panel-end"
     component-id="shell-panel-end"
     slot="panel-end"
@@ -373,6 +397,7 @@
     height-scale="l"
     data-panel-id="layers"
     hidden
+    bind:this={layersPanel}
   >
     <arcgis-layer-list
       dragEnabled
@@ -391,6 +416,8 @@
     icon="chevrons-right"
     id="layers-fab"
     hidden
+    on:click={handleRightFabClick}
+    on:keydown={handleRightFabClick}
   ></calcite-fab>
   <calcite-panel
     heading="Basemaps"
@@ -398,6 +425,7 @@
     data-panel-id="basemaps"
     hidden
     closed
+    bind:this={basemapsPanel}
   >
     <arcgis-basemap-gallery
       id="basemaps-container"
@@ -412,6 +440,8 @@
     icon="chevrons-right"
     id="basemaps-fab"
     hidden
+    on:click={handleRightFabClick}
+    on:keydown={handleRightFabClick}
   ></calcite-fab>
   <calcite-panel
     heading="Other Map Tools"
@@ -419,6 +449,7 @@
     data-panel-id="maptools"
     hidden
     closed
+    bind:this={mapToolsPanel}
   >
     <calcite-block collapsible expanded heading="Sketch" label="Sketch">
       <arcgis-sketch
@@ -445,6 +476,8 @@
     icon="chevrons-right"
     id="maptools-fab"
     hidden
+    on:click={handleRightFabClick}
+    on:keydown={handleRightFabClick}
   ></calcite-fab>
   <AddData view={view} />
   <SummarizeMyAreaResults />
