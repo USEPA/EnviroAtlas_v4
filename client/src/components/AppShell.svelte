@@ -47,6 +47,10 @@
   let fTableContainer;
   let leftActionBar;
   let map;
+  let shellPanelEnd;
+  let basemapsPanel;
+  let mapToolsPanel;
+  let layersPanel;
 
   $: {
     if (view && !map) {
@@ -201,6 +205,10 @@
       document.querySelector(`[data-panel-id=${$activeWidget.right}]`).hidden = true;
       document.querySelector(`[data-panel-id=${$activeWidget.right}]`).closed = true;
       document.querySelector(`[component-id="shell-panel-end"]`).collapsed = true;
+      let fab = document.getElementById(`${$activeWidget.right}-fab`)
+      if (fab) {
+        fab.setAttribute("hidden", "");
+      }
     }
 
     // Figure out what was clicked
@@ -211,10 +219,30 @@
       document.querySelector(`[data-panel-id=${nextWidgetRight}]`).hidden = false;
       document.querySelector(`[data-panel-id=${nextWidgetRight}]`).closed = false;
       document.querySelector(`[component-id="shell-panel-end"]`).collapsed = false;
+      document.querySelector(`[id=${nextWidgetRight}-fab]`).hidden = false;
       $activeWidget.right = nextWidgetRight;
     } else {
       $activeWidget.right = null;
     }
+  };
+
+  const handleRightFabClick = (e) => {
+    e.target.setAttribute("hidden", "");
+    const panel = e.target.id.split('-')[0];
+    if (panel === 'maptools') {
+      mapToolsPanel.removeAttribute("open");
+      mapToolsPanel.setAttribute("hidden", "");
+    } else if (panel === 'basemaps') {
+      basemapsPanel.removeAttribute("open");
+      basemapsPanel.setAttribute("hidden", "");
+    } else if (panel === 'layers') {
+      layersPanel.removeAttribute("open");
+      layersPanel.setAttribute("hidden", "");
+    }
+
+    shellPanelEnd.setAttribute("collapsed", "");
+    document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
+    $activeWidget.right = null;
   };
 
   export const closeShellElement = function (e) {
@@ -320,6 +348,8 @@
   <Alert />
   <Info />
   <calcite-shell-panel
+    bind:this={shellPanelEnd}
+    id="shell-panel-end"
     component-id="shell-panel-end"
     slot="panel-end"
     display-mode="docked"
@@ -366,6 +396,7 @@
     height-scale="l"
     data-panel-id="layers"
     hidden
+    bind:this={layersPanel}
   >
     <arcgis-layer-list
       dragEnabled
@@ -378,12 +409,22 @@
       on:arcgisTriggerAction={layerListAction}
    ></arcgis-layer-list>
   </calcite-panel>
+  <calcite-fab
+    role="button"
+    tabindex="-1"
+    icon="chevrons-right"
+    id="layers-fab"
+    hidden
+    on:click={handleRightFabClick}
+    on:keydown={handleRightFabClick}
+  ></calcite-fab>
   <calcite-panel
     heading="Basemaps"
     height-scale="l"
     data-panel-id="basemaps"
     hidden
     closed
+    bind:this={basemapsPanel}
   >
     <arcgis-basemap-gallery
       id="basemaps-container"
@@ -392,12 +433,22 @@
       source={portalBasemapsSource}
    ></arcgis-basemap-gallery>
   </calcite-panel>
-    <calcite-panel
+  <calcite-fab
+    role="button"
+    tabindex="-1"
+    icon="chevrons-right"
+    id="basemaps-fab"
+    hidden
+    on:click={handleRightFabClick}
+    on:keydown={handleRightFabClick}
+  ></calcite-fab>
+  <calcite-panel
     heading="Other Map Tools"
     height-scale="l"
     data-panel-id="maptools"
     hidden
     closed
+    bind:this={mapToolsPanel}
   >
     <calcite-block collapsible expanded heading="Sketch" label="Sketch">
       <arcgis-sketch
@@ -416,8 +467,17 @@
       <arcgis-legend
         referenceElement={view}
      ></arcgis-legend>
-    </calcite-block>
+  </calcite-block>
   </calcite-panel>
+  <calcite-fab
+    role="button"
+    tabindex="-1"
+    icon="chevrons-right"
+    id="maptools-fab"
+    hidden
+    on:click={handleRightFabClick}
+    on:keydown={handleRightFabClick}
+  ></calcite-fab>
   <AddData view={view} />
   <SummarizeMyAreaResults />
   </calcite-shell-panel>
@@ -462,5 +522,11 @@
   #linkbtns:hover{
     --calcite-chip-text-color: rgb(236, 235, 235);
     --calcite-chip-background-color:#024f86;
+  }
+
+  calcite-fab {
+    place-content: center;
+    padding-top: 4px;
+    padding-bottom: 4px;
   }
 </style>
