@@ -51,6 +51,7 @@
   let basemapsPanel;
   let mapToolsPanel;
   let layersPanel;
+  let expandRight;
 
   $: {
     if (view && !map) {
@@ -199,20 +200,42 @@
   };
 
   const handleOtherActionBarClick = ({ target }) => {
+    let targetAction = document.querySelector(`[data-action-id=${$activeWidget.right}]`);
+    let targetPanel = document.querySelector(`[data-panel-id=${$activeWidget.right}]`);
+    let targetFab = document.querySelector(`[id=${$activeWidget.right}-fab]`);
+    let targetShell = document.querySelector(`[component-id="shell-panel-end"]`);
+
+    if (target.id === 'expand-right') {
+      targetPanel.hidden = !targetPanel.hidden;
+      targetPanel.removeAttribute("closed");
+      targetShell.collapsed = !targetShell.collapsed;
+      targetFab.hidden = !targetFab.hidden;
+      expandRight.hidden = !expandRight.hidden;
+      return
+    }
+    // Figure out what was clicked
+    const nextWidgetRight = target.dataset.actionId;
     // If there's one already active, close things.
     if ($activeWidget.right) {
-      document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
-      document.querySelector(`[data-panel-id=${$activeWidget.right}]`).hidden = true;
-      document.querySelector(`[data-panel-id=${$activeWidget.right}]`).closed = true;
-      document.querySelector(`[component-id="shell-panel-end"]`).collapsed = true;
-      let fab = document.getElementById(`${$activeWidget.right}-fab`)
-      if (fab) {
-        fab.setAttribute("hidden", "");
+      if (nextWidgetRight === $activeWidget.right) {
+        document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = true;
+        targetPanel.hidden = !targetPanel.hidden;
+        targetPanel.removeAttribute("closed");
+        targetShell.collapsed = !targetShell.collapsed;
+        targetFab.hidden = !targetFab.hidden;
+        expandRight.hidden = !expandRight.hidden;
+      } else {
+        document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
+        document.querySelector(`[data-panel-id=${$activeWidget.right}]`).hidden = true;
+        document.querySelector(`[data-panel-id=${$activeWidget.right}]`).closed = true;
+        document.querySelector(`[component-id="shell-panel-end"]`).collapsed = true;
+        let fab = document.getElementById(`${$activeWidget.right}-fab`)
+        if (fab) {
+          fab.setAttribute("hidden", "");
+        }
       }
     }
 
-    // Figure out what was clicked
-    const nextWidgetRight = target.dataset.actionId;
     // If there's a change, open things, and update store value to what was clicked
     if (nextWidgetRight && nextWidgetRight !== $activeWidget.right) {
       document.querySelector(`[data-action-id=${nextWidgetRight}]`).active = true;
@@ -221,8 +244,7 @@
       document.querySelector(`[component-id="shell-panel-end"]`).collapsed = false;
       document.querySelector(`[id=${nextWidgetRight}-fab]`).hidden = false;
       $activeWidget.right = nextWidgetRight;
-    } else {
-      $activeWidget.right = null;
+      expandRight.hidden = true;
     }
   };
 
@@ -230,19 +252,24 @@
     e.target.setAttribute("hidden", "");
     const panel = e.target.id.split('-')[0];
     if (panel === 'maptools') {
+      document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = true;
       mapToolsPanel.removeAttribute("open");
       mapToolsPanel.setAttribute("hidden", "");
     } else if (panel === 'basemaps') {
+      document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = true;
       basemapsPanel.removeAttribute("open");
       basemapsPanel.setAttribute("hidden", "");
     } else if (panel === 'layers') {
+      document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = true;
       layersPanel.removeAttribute("open");
       layersPanel.setAttribute("hidden", "");
     }
 
     shellPanelEnd.setAttribute("collapsed", "");
-    document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
-    $activeWidget.right = null;
+    //document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
+    //$activeWidget.right = null;
+    expandRight.hidden = false;
+    console.log($activeWidget.right)
   };
 
   export const closeShellElement = function (e) {
@@ -357,8 +384,8 @@
     position='end'
     width-scale="m"
   >
-  <calcite-action-bar 
-    expand-disabled 
+  <calcite-action-bar
+    expand-disabled
     role="menu" 
     tabindex="-1" 
     slot="action-bar"
@@ -389,6 +416,14 @@
       data-action-id="basemaps"
       icon="basemap"
       text="Basemaps"
+    ></calcite-action>
+    <calcite-action
+      bind:this={expandRight}
+      slot="actions-end"
+      tabindex="-1"
+      role="button"
+      id="expand-right"
+      icon="chevrons-left"
     ></calcite-action>
   </calcite-action-bar>
   <calcite-panel

@@ -313,12 +313,16 @@ export function expandTopics(expand = true) {
 export function openRightPanel(activeWidget, dataPanelToOpen) {
     let shell = document.querySelector(`[component-id="shell-panel-end"]`);
     let layerPanel = document.querySelector(`[data-panel-id="${dataPanelToOpen}"]`)
+    let targetFab = document.querySelector(`[id=${dataPanelToOpen}-fab]`);
+    let rightExpand = document.querySelector(`[id=expand-right]`);
     // Given the right side panel is closed, when Add to map is clicked, 
     // the right side panel opens with the layer list visible
     if (!activeWidget.right) {
         layerPanel.removeAttribute("hidden");
         layerPanel.removeAttribute("closed");
         shell.removeAttribute("collapsed");
+        targetFab.hidden = !targetFab.hidden;
+        rightExpand.hidden = !rightExpand.hidden;
         activeWidget.right = dataPanelToOpen;
         document.querySelector(`[data-action-id=${activeWidget.right}]`).active = true;
     } else if (activeWidget.right !== dataPanelToOpen) {
@@ -329,8 +333,10 @@ export function openRightPanel(activeWidget, dataPanelToOpen) {
         document.querySelector(`[data-action-id=${activeWidget.right}]`).active = false;
         document.querySelector(`[data-panel-id=${activeWidget.right}]`).hidden = true;
         document.querySelector(`[data-panel-id=${activeWidget.right}]`).closed = true;
+        document.querySelector(`[id=${activeWidget.right}-fab]`).hidden = true;
         activeWidget.right = dataPanelToOpen;
         document.querySelector(`[data-action-id=${activeWidget.right}]`).active = true;
+        targetFab.hidden = !targetFab.hidden
         shell.removeAttribute("collapsed");
     }
 };
