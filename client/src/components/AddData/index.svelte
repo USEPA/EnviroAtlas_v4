@@ -54,8 +54,8 @@
     addDataPanel.removeAttribute("open");
     addDataPanel.setAttribute("hidden", "");
     shell.setAttribute("collapsed", "");
-    document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
-    $activeWidget.right = null;
+    let expandRight = document.getElementById("expand-right");
+    expandRight.hidden = false;
   };
 </script>
 
