@@ -200,12 +200,16 @@
   };
 
   const handleOtherActionBarClick = ({ target }) => {
+    if ($activeWidget.right === null) {
+      $activeWidget.right = "layers"
+    }
     let targetAction = document.querySelector(`[data-action-id=${$activeWidget.right}]`);
     let targetPanel = document.querySelector(`[data-panel-id=${$activeWidget.right}]`);
     let targetFab = document.querySelector(`[id=${$activeWidget.right}-fab]`);
     let targetShell = document.querySelector(`[component-id="shell-panel-end"]`);
 
     if (target.id === 'expand-right') {
+      targetAction?.setAttribute("active", "");
       targetPanel.hidden = !targetPanel.hidden;
       targetPanel.removeAttribute("closed");
       targetShell.collapsed = !targetShell.collapsed;
