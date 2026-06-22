@@ -308,7 +308,8 @@
   <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="5" 
     on:arcgisViewReadyChange={setupPopup}
     >
-    <arcgis-search 
+    <arcgis-search
+      popupDisabled
       position="top-right"
    ></arcgis-search>
     <arcgis-zoom 
