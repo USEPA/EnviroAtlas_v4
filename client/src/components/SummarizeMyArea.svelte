@@ -912,7 +912,8 @@
             </calcite-combobox>
         </calcite-label>
         {#if sumUnit == "Draw a Polygon" || sumUnit == "Draw Area Around Point" || sumUnit == "Draw Area Around Line"}
-            <calcite-label layout="inline" scale="s" style="padding-left: 12px; width: 97%"
+            <div style="display:flex;">
+            <calcite-label layout="inline" scale="s" style="padding-left: 12px;"
                 >Choose buffer size:
                 <calcite-input-number
                     suffix-text="km"
@@ -923,9 +924,15 @@
                     number-button-type="vertical"
                     bind:this={bufferInput}
                     alignment="end"
-                    style="width: 69%"
                 ></calcite-input-number>
             </calcite-label>
+            <calcite-button
+                scale="s"
+                style="padding-left: 8px; height: 24px"
+                on:click={updateSketchGeometry}>
+                Apply
+            </calcite-button>
+            </div>
         {/if}
         {#if messages}
             <calcite-notice
