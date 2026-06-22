@@ -188,7 +188,10 @@
    */
   const handleCatalogActionClick = ({ target }) => {
     handleExpandClick();
-    const nextDataCatalog = target.dataset.actionId;
+    let nextDataCatalog = target?.dataset.actionId;
+    if (!nextDataCatalog) {
+      nextDataCatalog = 'sma'
+    }
     if (nextDataCatalog !== $catalog.type) {
       document.querySelector(`#catalog-button-${$catalog.type}`).style.borderBottom ="none"
       document.querySelector(`#catalog-button-${nextDataCatalog}`).style.borderBottom ="3px solid #162e51";
@@ -249,6 +252,11 @@
       document.querySelector(`[id=${nextWidgetRight}-fab]`).hidden = false;
       $activeWidget.right = nextWidgetRight;
       expandRight.hidden = true;
+    }
+
+    if ($activeWidget.right === 'sma-results') {
+      let smaTarget = document.querySelector(`[data-action-id='sma']`)
+      handleCatalogActionClick(smaTarget)
     }
   };
 
@@ -396,6 +404,11 @@
     on:click={handleOtherActionBarClick} 
     on:keydown={handleOtherActionBarClick}
   >
+    <calcite-action
+      data-action-id="sma-results"
+      icon="mosaic-method-sum"
+      text="Summarize My Area Results"
+    ></calcite-action>
     <calcite-action 
       data-action-id="layers" 
       icon="layers" 
@@ -410,11 +423,6 @@
       data-action-id="maptools"
       icon="system-management"
       text="Other Map Tools"
-    ></calcite-action>
-    <calcite-action
-      data-action-id="sma-results"
-      icon="mosaic-method-sum"
-      text="Summarize My Area Results"
     ></calcite-action>
     <calcite-action
       data-action-id="basemaps"
