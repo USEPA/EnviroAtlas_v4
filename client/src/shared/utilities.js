@@ -194,8 +194,10 @@ export function addFeatureLayer(lObj, view) {
         // TODO: Update serviceType with data in DB
         if (error.message === 'Source type "Raster Layer" is not supported') {
             console.log('this is a dynamic map service')
+            view.map.remove(copiedLayer);
             let miLyr = new MapImageLayer({
-                url: lObj.url
+                url: lObj.url,
+                title: lObj.name
             });
             view.map.add(miLyr);
         }
