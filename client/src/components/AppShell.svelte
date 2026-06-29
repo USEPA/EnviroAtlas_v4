@@ -94,6 +94,9 @@
           dockOptions: {
             position: "top-right",
             breakpoint: false
+          },
+          viewModel: {
+            includeDefaultActions: false
           }
         }
       }
