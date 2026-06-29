@@ -29,6 +29,7 @@
   import "@arcgis/map-components/components/arcgis-features";
   import "@arcgis/map-components/components/arcgis-legend";
   import "@arcgis/map-components/components/arcgis-area-measurement-2d";
+  import "@arcgis/map-components/components/arcgis-compass";
 
   // Import components and store
   import { catalog, activeWidget } from "src/store.ts";
@@ -322,12 +323,14 @@
     <arcgis-search
       popupDisabled
       position="top-right"
-   ></arcgis-search>
+    ></arcgis-search>
     <arcgis-zoom 
       position="top-right" 
-      layout="vertical" 
-      referenceElement={view}
-   ></arcgis-zoom>
+      layout="vertical"
+    ></arcgis-zoom>
+    <arcgis-compass 
+      position="top-right"
+    ></arcgis-compass>
     <arcgis-scale-bar
       position="bottom-left"
       bar-style="line"
