@@ -1,5 +1,6 @@
 <script>
     export let optionsObj;
+    export let theme;
 
     console.log(optionsObj)
 
@@ -13,8 +14,8 @@
     placement="trailing-start"
     overlay-positioning="fixed"
     scale="s"
-    label="{optionsObj.name}-details-popover-button"
-    reference-element="{optionsObj.name}-details-popover-button"
+    label="{theme}-{optionsObj.name}-details-popover-button"
+    reference-element="{theme}-{optionsObj.name}-details-popover-button"
     auto-close
     trigger-disabled
 >
