@@ -218,8 +218,10 @@ export function addImageryLayer(lObj, view, rfRule, index) {
     }); 
     if (lObj.name) {
         iLyr.title = lObj.name
-        if (!lObj.name.includes("Summarize My Area")) {
+        if (!lObj.name.includes("Summarize My Area") && !lObj.popup) {
             iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "{Raster.ServicePixelValue.Raw}" }
+        } else {
+            iLyr.popupTemplate = buildFSPopupTemp(lObj)
         }
     } else {
         iLyr.popupTemplate = { content: "{Raster.ServicePixelValue.Raw}" }
