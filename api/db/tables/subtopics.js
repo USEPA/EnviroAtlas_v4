@@ -7,14 +7,14 @@ let table = {
 };
 
 //get rid of justification fields
-table.fields = queryBuilder.generateFieldsConfig({table,fields:'subTopicID,topic,categoryTab,scale,name,description,eaBC,eaCA,eaCPW,eaCS,eaFFM,eaNHM,eaRCA,eaPBS,tags,sourceType'});
+table.fields = queryBuilder.generateFieldsConfig({table,fields:'subTopicID,topic,categoryTab,scale,name,description,eaBC,eaCA,eaCPW,eaCS,eaFFM,eaNHM,eaRCA,eaPBS,tags,sourceType,eaCL'});
 
 //Note: schema. fields are used by swagger and query builder code
 // put fields query builder code only fields level above schema
 // eg. table.fields.creator_id.serverWrite = true;
 
 table.fields.subTopicID.schema.type = 'integer';
-for (let field of 'eaBC,eaCA,eaCPW,eaCS,eaFFM,eaNHM,eaRCA'.split(',')) {
+for (let field of 'eaBC,eaCA,eaCPW,eaCS,eaFFM,eaNHM,eaRCA,eaCL'.split(',')) {
     table.fields[field].schema.type = 'boolean';
 }
 
