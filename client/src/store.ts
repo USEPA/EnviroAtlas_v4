@@ -82,7 +82,8 @@ export const filteredNationalItems = derived(
                         return {...layers, ...((layers.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible);
-                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                    const visibleLayerCount = lyrObj.filter(layers => layers.isVisible).length;
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis, visLayerCount: visibleLayerCount}
                 });
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
                 return {...category, subtopic: subObj, isVisible: isCatVis}
@@ -95,7 +96,8 @@ export const filteredNationalItems = derived(
                         return {...layers, ...((layers.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible) && subtopic[$categoryFilter];
-                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                    const visibleLayerCount = lyrObj.filter(layers => layers.isVisible).length;                    
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis, visLayerCount: visibleLayerCount}
                 });
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
                 return {...category, subtopic: subObj, isVisible: isCatVis}
@@ -108,7 +110,8 @@ export const filteredNationalItems = derived(
                         return {...layers, ...((layers.areaGeog.includes($geography) && (layers.name.includes($searchTerm) || layers.tags.includes($searchTerm) || layers.description.includes($searchTerm))) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible);
-                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                    const visibleLayerCount = lyrObj.filter(layers => layers.isVisible).length;
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis, visLayerCount: visibleLayerCount}
                 });
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
                 return {...category, subtopic: subObj, isVisible: isCatVis}

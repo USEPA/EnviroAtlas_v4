@@ -93,11 +93,12 @@
     {#if subtopic.sourceType == dTypeValue}
 <calcite-list-item 
     id={subtopic.layers.length > 1 ? 'not-header-subtopic' : 'not-header'}
+    style={subtopic.visLayerCount > 1 ? "margin-left: 10px" : ""}
     label={subtopic.name} 
     description={dTypeLabel} 
     on:calciteListItemSelect={e=>e.stopPropagation()}
     >
-        {#if subtopic.layers.length == 1}
+        {#if subtopic.visLayerCount == 1}
         <calcite-checkbox 
             slot="actions-start" 
             aria-checked="false" 
@@ -120,7 +121,7 @@
             on:click={() => getSubtopicDetails()}
             on:keydown={() => getSubtopicDetails()}>
         </calcite-action>
-        {#if subtopic.layers.length > 1}
+        {#if subtopic.visLayerCount > 1}
         <div slot="content-bottom" id="concernFilterDiv">
             {#each subtopic.layers as layer (layer.layerID)}
             {#if layer.isVisible}
@@ -156,7 +157,6 @@
         --calcite-list-background-color-hover: none;
         --calcite-list-background-color-press: none;
         --calcite-spacing-xxs: 0;
-        margin-left: 10px;
         --calcite-font-weight-normal: 400;
         font-size: var(--calcite-font-size--2)  
     } 

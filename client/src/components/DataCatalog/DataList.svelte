@@ -146,7 +146,8 @@
                 const lyrObj = subtopic.layers.map((layers) => {
                     return { ...layers, isVisible: true };
                 });
-                return { ...subtopic, layers: lyrObj, isVisible: true };
+                const visibleLayerCount = lyrObj.filter(layers => layers.isVisible).length;
+                return { ...subtopic, layers: lyrObj, isVisible: true, visLayerCount: visibleLayerCount };
             });
             res.sort((a, b) => a.name.localeCompare(b.name));
             items[prop].subtopic = res;
