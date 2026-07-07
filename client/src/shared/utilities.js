@@ -197,7 +197,11 @@ export function addFeatureLayer(lObj, view) {
             view.map.remove(copiedLayer);
             let miLyr = new MapImageLayer({
                 url: lObj.url,
-                title: lObj.name
+                title: lObj.name,
+                sublayers: [{
+                    id: 0,
+                    title: lObj.name
+                }]
             });
             view.map.add(miLyr);
         }
