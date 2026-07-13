@@ -144,11 +144,11 @@
             icon: "chevron-down",
             id: "dec-transparency",
           },
-          {
-            title: "Show table",
-            icon: "table",
-            id: "table",
-          },
+          // {
+          //   title: "Show table",
+          //   icon: "table",
+          //   id: "table",
+          // },
           {
             title: "Remove",
             icon: "trash",
