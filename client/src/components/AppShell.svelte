@@ -43,6 +43,7 @@
   import SummarizeMyAreaResults from "src/components/SummarizeMyAreaResults.svelte";
   import Info from "src/components/Info.svelte";
   import Alert from '../components/Alert.svelte';
+  import { openInfo } from "src/shared/utilities";
 
   let view;
   let bmgContainer;
@@ -560,10 +561,7 @@
     bind:this={mapToolsPanel}
   >
     <calcite-block collapsible expanded heading="Sketch" label="Sketch">
-      <calcite-action id="sketch-info" slot="control" text="Information" icon="question"></calcite-action>
-      <calcite-popover autoClose heading="Sketch" label="sketch" reference-element="sketch-info" placement="left" offset-distance="378" overlayPositioning="fixed">
-        Draw graphics on the map. Double-click to complete the graphic. Select your graphic and edit it or remove it from the map.
-    </calcite-popover>
+      <calcite-action slot="control" text="Information" icon="question" on:click={() => openInfo("sketch")}></calcite-action>
       <arcgis-sketch
         style="display: flex; justify-content: center;"
         position="manual"
@@ -573,10 +571,7 @@
      ></arcgis-sketch>
     </calcite-block>
     <calcite-block collapsible expanded heading="Measure" label="Measure">
-      <calcite-action id="measure-info" slot="control" text="Information" icon="question"></calcite-action>
-      <calcite-popover autoClose heading="Measure" label="measure" reference-element="measure-info" placement="left" offset-distance="378" overlayPositioning="fixed">
-        Select to measure area or distance. Draw graphic on the map. Double-click to complete the graphic. Clear the graphic.
-      </calcite-popover>
+      <calcite-action slot="control" text="Information" icon="question" on:click={() => openInfo("measure")}></calcite-action>
       <calcite-action-bar id="toolbar" expand-disabled layout="horizontal">
         <calcite-action bind:this={distanceAction} id="distanceAction" text="Distance" icon="measure" on:click={() => startTool("distance")}></calcite-action>
         <calcite-action bind:this={areaAction} id="areaAction" text="Area" icon="polygon" on:click={() => startTool("area")}></calcite-action>
@@ -598,6 +593,7 @@
       </div>
     </calcite-block>
     <calcite-block collapsible expanded heading="Elevation Profile" label="Elevation Profile">
+    <calcite-action slot="control" text="Information" icon="question" on:click={() => openInfo("elevation")}></calcite-action>
       <arcgis-elevation-profile profiles={elevProfile} referenceElement={view}>
       </arcgis-elevation-profile>
     </calcite-block>
