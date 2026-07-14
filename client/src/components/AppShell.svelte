@@ -315,7 +315,6 @@
   }
 
   function clearAllMeasurements() {
-    console.log(distance2d)
     distance2d.clear();
     area2d.clear();
 
@@ -336,7 +335,6 @@
         area: area2dDiv,
       },
     };
-    console.log(toolElements)
     activeTool = toolName;
 
     const currentTools = toolElements[activeDimension];
@@ -629,9 +627,6 @@
 </calcite-shell>
 
 <style>
-  calcite-popover { 
-    --calcite-popover-max-size-x: 350px
-  }
   calcite-panel.fTable {
     height: 500px
   }
