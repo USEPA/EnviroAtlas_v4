@@ -29,7 +29,9 @@
   import "@arcgis/map-components/components/arcgis-features";
   import "@arcgis/map-components/components/arcgis-legend";
   import "@arcgis/map-components/components/arcgis-area-measurement-2d";
+  import "@arcgis/map-components/components/arcgis-distance-measurement-2d";
   import "@arcgis/map-components/components/arcgis-compass";
+  import "@arcgis/map-components/components/arcgis-elevation-profile";
 
   // Import components and store
   import { catalog, activeWidget } from "src/store.ts";
@@ -41,6 +43,7 @@
   import SummarizeMyAreaResults from "src/components/SummarizeMyAreaResults.svelte";
   import Info from "src/components/Info.svelte";
   import Alert from '../components/Alert.svelte';
+  import { openInfo } from "src/shared/utilities";
 
   let view;
   let bmgContainer;
@@ -53,6 +56,15 @@
   let mapToolsPanel;
   let layersPanel;
   let expandRight;
+  let distance2d;
+  let distance2dDiv;
+  let area2d;
+  let area2dDiv;
+  let distanceAction;
+  let areaAction;
+  let clearAction;
+  let activeDimension = "2d";
+  let activeTool = null;
 
   $: {
     if (view && !map) {
@@ -85,6 +97,9 @@
     "time-series-viewer": "clock-forward", 
     "sma": "mosaic-method-sum"
   }
+
+  const elevProfile = [{type:"ground"}]
+
   async function setupPopup() {
     reactiveUtils.on(
       () => view,
@@ -294,6 +309,45 @@
     shellElement.collapsed = !shellElement.collapsed;
   };
   
+  function setActionStates() {
+    distanceAction.active = activeTool === "distance";
+    areaAction.active = activeTool === "area";
+  }
+
+  function clearAllMeasurements() {
+    distance2d.clear();
+    area2d.clear();
+
+    activeTool = null;
+    hideAllToolUIs();
+    setActionStates();
+  }
+
+  function hideAllToolUIs() {
+    distance2dDiv.hidden = true;
+    area2dDiv.hidden = true;
+  }
+
+  function startTool(toolName) {
+    const toolElements = {
+      "2d": {
+        distance: distance2dDiv,
+        area: area2dDiv,
+      },
+    };
+    activeTool = toolName;
+
+    const currentTools = toolElements[activeDimension];
+    const toolToShow = currentTools[toolName];
+    const toolToHide = currentTools[toolName === "distance" ? "area" : "distance"];
+
+    toolToHide.hidden = true;
+    toolToShow.hidden = false;
+    if (activeTool === "area") { area2d.start()}
+    if (activeTool === "distance") { distance2d.start()}
+
+    setActionStates();
+  }
 </script>
 
 <calcite-shell>
@@ -317,7 +371,7 @@
         {/each}
     </calcite-chip-group>
   </calcite-navigation>
-  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="5" 
+  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="5" ground="world-elevation"
     on:arcgisViewReadyChange={setupPopup}
     >
     <arcgis-search
@@ -505,7 +559,9 @@
     bind:this={mapToolsPanel}
   >
     <calcite-block collapsible expanded heading="Sketch" label="Sketch">
+      <calcite-action slot="control" text="Information" icon="question" on:click={() => openInfo("sketch")}></calcite-action>
       <arcgis-sketch
+        style="display: flex; justify-content: center;"
         position="manual"
         referenceElement={view}
         layout="horizontal"
@@ -513,9 +569,31 @@
      ></arcgis-sketch>
     </calcite-block>
     <calcite-block collapsible expanded heading="Measure" label="Measure">
-      <arcgis-area-measurement-2d
-        referenceElement={view}
-     ></arcgis-area-measurement-2d>
+      <calcite-action slot="control" text="Information" icon="question" on:click={() => openInfo("measure")}></calcite-action>
+      <calcite-action-bar id="toolbar" expand-disabled layout="horizontal">
+        <calcite-action bind:this={distanceAction} id="distanceAction" text="Distance" icon="measure" on:click={() => startTool("distance")}></calcite-action>
+        <calcite-action bind:this={areaAction} id="areaAction" text="Area" icon="polygon" on:click={() => startTool("area")}></calcite-action>
+        <calcite-action bind:this={clearAction} id="clearAction" text="Clear" icon="trash" on:click={clearAllMeasurements}></calcite-action>
+      </calcite-action-bar>
+      <div bind:this={distance2dDiv} hidden>
+        <arcgis-distance-measurement-2d
+          referenceElement={view}
+          id="distance2d"
+          bind:this={distance2d}
+        ></arcgis-distance-measurement-2d>
+        </div>
+        <div bind:this={area2dDiv} hidden>
+        <arcgis-area-measurement-2d
+          referenceElement={view}
+          id="area2d"
+          bind:this={area2d}
+        ></arcgis-area-measurement-2d>
+      </div>
+    </calcite-block>
+    <calcite-block collapsible expanded heading="Elevation Profile" label="Elevation Profile">
+    <calcite-action slot="control" text="Information" icon="question" on:click={() => openInfo("elevation")}></calcite-action>
+      <arcgis-elevation-profile profiles={elevProfile} referenceElement={view}>
+      </arcgis-elevation-profile>
     </calcite-block>
     <calcite-block collapsible expanded heading="Legend" label="Legend">
       <arcgis-legend
@@ -582,5 +660,11 @@
     place-content: center;
     padding-top: 4px;
     padding-bottom: 4px;
+  }
+
+  calcite-block{
+    margin-block:0.15em;
+    --calcite-internal-block-padding-block:0px;
+    --calcite-internal-block-padding-inline:0px
   }
 </style>

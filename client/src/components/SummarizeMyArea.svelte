@@ -892,7 +892,7 @@
         Calculate
     </calcite-button>
     <calcite-block open heading="3. Select a summary unit" style="margin-top: 0px; margin-block-end: 0px" description="Select a unit area to calculate summary statistics">
-        <calcite-action slot="actions-end" icon="question" on:click={openInfo("sma")}></calcite-action>
+        <calcite-action slot="actions-end" icon="question" on:click={() => openInfo("sma")}></calcite-action>
         <calcite-label layout="inline" style="padding-left: 12px">
             <calcite-combobox
                 scale="m"

@@ -354,8 +354,9 @@ export function isStringNotEmpty(str) {
 }
 
 /**
- * Open the information modal. Right now just the SMAT.
+ * Open the information modal. 
+ * @param {string} key - which model to open.
  */
-export function openInfo() {
-    document.querySelector(`[id=info-modal]`).open = true;
+export function openInfo(key) {
+    document.querySelector(`[id=${key}-info]`)?.setAttribute("open", "")
 }
