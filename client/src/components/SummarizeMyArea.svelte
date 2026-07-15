@@ -90,7 +90,9 @@
         { name: "Dasymetric allocation of population 2020 CONUS, Alaska, Hawaii, Puerto Rico, and the U.S. Virgin Islands", value: "dasy",  
             domains: "CONUS,Alaska,Hawaii,Puerto Rico,Virgin Islands", id: 518, topic: "Population", dtype: "Non-summarized grid data"},
         { name: "Near-surface permafrost probability", value: "permafrost", 
-            domains: "Alaska", id:552, topic: "Soils and Erosion", dtype: "Non-summarized grid data"}
+            domains: "Alaska", id:552, topic: "Soils and Erosion", dtype: "Non-summarized grid data"},
+        { name: " 2024 National Land Cover Database (all classes)", value: "nlcd",  
+            domains: "CONUS", id: 588, topic: "Land Cover Type", dtype: "Non-summarized grid data"},            
     ];
 
     const summaryUnitArray = [
@@ -186,10 +188,13 @@
 
     function removeIndicator() {
         // Remove existing indicator from map and set values to null
-        let toRemove = view.map.layers.items?.filter(function (item) {
-            return item.title.includes("Summarize My Area Indicator:");
-        });
-        view.map.removeMany(toRemove);
+        const toRemove = (view?.map?.layers?.items ?? []).filter((item) =>
+            typeof item?.title === "string" &&
+            item.title.includes("Summarize My Area Indicator:"),
+        );
+        if (toRemove.length) {
+            view.map.removeMany(toRemove);
+        }
     }
 
     // Store indicator year as view model value and add the appropriate raster to the map
@@ -198,7 +203,7 @@
         if (landcoverYear) {
             console.log("target year is: ", e.target.value);
             // load the imagery on the map
-            _initIndicatorLayer(indicatorValue);
+            _initIndicatorLayer(2024);
         }
     };
 
@@ -230,9 +235,13 @@
 
         switch (indicator) {
             case "nlcd":
-                mosaicRule.lockRasterIds =
-                    smaConfig.nlcd.OBJECTIDS[landcoverYear];
-                indicatorUrl = smaConfig.nlcd.layer;
+                // mosaicRule.lockRasterIds =
+                //     smaConfig.nlcd.OBJECTIDS[2024];
+                // indicatorUrl = smaConfig.nlcd.layer;
+                lObject = await getEALayerObject(588);
+                lObject.name =
+                    "Summarize My Area Indicator: 2024 National Land Cover Database (all classes)";
+                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
                 break;
             case "nlcd-change":
                 mosaicRule.lockRasterIds = [
