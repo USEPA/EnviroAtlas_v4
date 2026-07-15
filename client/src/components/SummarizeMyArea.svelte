@@ -17,7 +17,6 @@
     import "@esri/calcite-components/dist/components/calcite-input-number";
 
     // Import from arcgis js api
-    import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
     import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
     import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
     import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol";
@@ -85,14 +84,18 @@
 
     const handles = new Handles();
     const indicatorsDict = [
-        // {name: "Land Cover", value: "nlcd"},
-        // {name: "Land Cover Change", value: "nlcd-change"},
-        { name: "Dasymetric allocation of population 2020 CONUS, Alaska, Hawaii, Puerto Rico, and the U.S. Virgin Islands", value: "dasy",  
+        {topic: "Land Cover Type", subtopic: [
+            { name: " 2024 National Land Cover Database (all classes)", value: "nlcd",  
+            domains: "CONUS", id: 588, topic: "Land Cover Type", dtype: "Non-summarized grid data"}
+        ]},
+        {topic: "Population", subtopic: [
+            { name: "Dasymetric allocation of population 2020 CONUS, Alaska, Hawaii, Puerto Rico, and the U.S. Virgin Islands", value: "dasy",  
             domains: "CONUS,Alaska,Hawaii,Puerto Rico,Virgin Islands", id: 518, topic: "Population", dtype: "Non-summarized grid data"},
-        { name: "Near-surface permafrost probability", value: "permafrost", 
+        ]},
+        {topic: "Soils & Erosion", subtopic: [
+            { name: "Near-surface permafrost probability", value: "permafrost", 
             domains: "Alaska", id:552, topic: "Soils and Erosion", dtype: "Non-summarized grid data"},
-        { name: " 2024 National Land Cover Database (all classes)", value: "nlcd",  
-            domains: "CONUS", id: 588, topic: "Land Cover Type", dtype: "Non-summarized grid data"},            
+        ]},                    
     ];
 
     const summaryUnitArray = [
@@ -108,9 +111,12 @@
      * Filters selections in the indicator dropdown based on selected geography.
      */
     $: options_filtered = (() => {
-        const filtered = indicatorsDict.filter(obj =>
-            obj.domains.split(',').map(s => s.trim()).includes(geography)
-        );
+        const filtered = indicatorsDict.map((topic) => ({
+            ...topic,
+            subtopic: topic.subtopic.filter(obj =>
+                obj.domains.split(',').map(s => s.trim()).includes(geography)
+            ),
+        })).filter((topic) => topic.subtopic.length > 0);
         return filtered;
     })();
 
@@ -882,6 +888,12 @@
         }
         return detailsObj
     }
+
+    function listItemExpand() {
+        !this.open
+            ? this.setAttribute("expanded", "")
+            : this.removeAttribute("expanded");
+    }
 </script>
 
 <calcite-panel
@@ -959,25 +971,37 @@
         {/if}
     </calcite-block>
     <calcite-block open heading="4. Select a map layer to summarize" style="margin-top: 0px; margin-block-end: 0px" description="Choose a dataset to calculate summary statistics">
-        <calcite-list 
-            scale='s'
-            style="padding-top: 0px; border-top: 1px solid #dedede">
-            {#each options_filtered as ind}
-            <calcite-list-item 
-                label={ind.name}
-                description={ind.dtype}
+        <calcite-list
+            label="toc"
+            display-mode="nested"
+            selection-mode="none"
+            scale="auto"
+            style="border-top: 1px solid #dedede; padding-top: 3px"
+        >
+        {#each options_filtered as topicGroup}
+        <calcite-list-item
+            label={topicGroup.topic}
+            value={topicGroup.topic}
+            on:calciteListItemSelect={listItemExpand}
+        >
+        {#if topicGroup.subtopic.length}
+        {#each topicGroup.subtopic as indicator (indicator.id)}      
+            <calcite-list-item
+                label={indicator.name}
+                description={indicator.dtype}
                 id="not-header"
                 on:calciteListItemSelect={e=>e.stopPropagation()}
                 >
                     <calcite-checkbox
                         slot="actions-start"
                         aria-checked="false" 
-                        role="checkbox" 
+                        role="checkbox"
+                        style="padding: 0 10px;"
                         tabindex="0"
-                        value={ind.value}
-                        name={ind.name}
-                        bind:this={ind.element}
-                        on:calciteCheckboxChange={() => updateIndicator(ind.element)}
+                        value={indicator.value}
+                        name={indicator.name}
+                        bind:this={indicator.element}
+                        on:calciteCheckboxChange={() => updateIndicator(indicator.element)}
                     ></calcite-checkbox>
                     <calcite-action 
                         tabindex="-1"
@@ -986,75 +1010,16 @@
                         icon="information" 
                         scale="m" 
                         slot="actions-end"
-                        id={`${ind.id}-details-popover-button`}
-                        on:click={() => getSubtopicDetails(ind)}
-                        on:keydown={() => getSubtopicDetails(ind)}>
+                        id={`${indicator.id}-details-popover-button`}
+                        on:click={() => getSubtopicDetails(indicator)}
+                        on:keydown={() => getSubtopicDetails(indicator)}>
                     </calcite-action>
             </calcite-list-item>
-            {/each}
-        </calcite-list>
-        {#if indicatorValue == "nlcd"}
-            <calcite-label layout="inline" scale="s">
-                NLCD Year:
-                <calcite-combobox
-                    scale="s"
-                    placeholder=" Select one"
-                    selection-mode="single"
-                    max-items="0"
-                    overlay-positioning="absolute"
-                    bind:this={nlcdYearCombobox}
-                    on:calciteComboboxChange={updateLCYear}
-                >
-                    {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcYear}
-                        <calcite-combobox-item
-                            value={lcYear}
-                            heading={lcYear}
-                        ></calcite-combobox-item>
-                    {/each}
-                </calcite-combobox>
-            </calcite-label>
-        {:else if indicatorValue == "nlcd-change"}
-            <calcite-label layout="inline" scale="s">
-                NLCD Year 1:
-                <calcite-combobox
-                    scale="s"
-                    placeholder=" Select one"
-                    selection-mode="single"
-                    max-items="0"
-                    overlay-positioning="absolute"
-                    id="nlcd-change-year-1"
-                    bind:this={nlcdChange1Combo}
-                    on:calciteComboboxChange={updateLCChangeYears}
-                >
-                    {#each ["2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc1Year}
-                        <calcite-combobox-item
-                            value={lcc1Year}
-                            heading={lcc1Year}
-                        ></calcite-combobox-item>
-                    {/each}
-                </calcite-combobox>
-            </calcite-label>
-            <calcite-label layout="inline" scale="s">
-                NLCD Year 2:
-                <calcite-combobox
-                    scale="s"
-                    placeholder=" Select one"
-                    selection-mode="single"
-                    max-items="0"
-                    overlay-positioning="absolute"
-                    id="nlcd-change-year-2"
-                    bind:this={nlcdChange2Combo}
-                    on:calciteComboboxChange={updateLCChangeYears}
-                >
-                    {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc2Year}
-                        <calcite-combobox-item
-                            value={lcc2Year}
-                            heading={lcc2Year}
-                        ></calcite-combobox-item>
-                    {/each}
-                </calcite-combobox>
-            </calcite-label>
+        {/each}
         {/if}
+        </calcite-list-item>
+        {/each}
+        </calcite-list>
     </calcite-block>
     <div bind:this={detailsMountTarget}></div>
 </calcite-panel>
@@ -1074,9 +1039,10 @@
         --calcite-list-background-color: #fff;
         --calcite-list-background-color-hover: none;
         --calcite-list-background-color-press: none;
+        --calcite-spacing-xxs: 0;
         --calcite-font-weight-normal: 400;
-        font-size: var(--calcite-font-size--2);
-    }
+        font-size: var(--calcite-font-size--2)  
+    } 
 
     calcite-list-item {
         --calcite-list-border-color: #aeaba2;
