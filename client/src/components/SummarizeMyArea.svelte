@@ -616,6 +616,7 @@
                     _renderInputTable(area, line);
                 }
                 break;
+            case "nlcd":
             case "permafrost":
                 //console.log(results)
                 if (results) {
@@ -666,9 +667,11 @@
 
     function _renderInputTable(area, line) {
         inputTableData = [];
-        let indicatorLabel = indicatorsDict.find(
-            (indicator) => indicator.value === indicatorValue,
-        ).name;
+        const selectedIndicator = indicatorsDict
+            .flatMap((group) => group.subtopic)
+            .find((indicator) => indicator.value === indicatorValue);
+
+        const indicatorLabel = selectedIndicator?.name ?? indicatorValue;
         inputTableData.push({ attribute: "Analysis", value: indicatorLabel });
 
         inputTableData.push({

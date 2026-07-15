@@ -90,7 +90,10 @@ export const smaConfig = {
     layersUsed: ['National Land Cover Database'],
     layersUsedURL: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/NationalLandCover.pdf'],
     resolution: 30,
-    columnHeaders: ['Land Cover Type', 'Area (km2)', 'Percentage']
+    columnHeaders: ['Land Cover Type', 'Area (km2)', 'Percentage'],
+    classLabel: "Land Cover Type",
+    firstStatLabel: "Area (km2)",
+    secondStatLabel: "Percentage of Area"
   },
   "population-floodplains": {
     layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Supplemental/GDT_Pop/ImageServer',
@@ -166,7 +169,7 @@ export const smaConfig = {
     },
     layersUsed: ['2020 Dasymetric Population'],
     layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/Dasymetricallocationofpopulation2020.pdf'],
-    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Dasymetric_2020_test/ImageServer',
+    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Dasymetric_2020/ImageServer',
     resolution: 30,
     columnHeaders: ['2020 Dasymetric Population', 'Sum', 'Percentage'],
     colors: {
