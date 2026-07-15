@@ -533,6 +533,7 @@
         let compHistEndpoint = `${smaConfig[indicatorValue].layer}/computeStatisticsHistograms`;
 
         let remapRF;
+        let mosaicRule;
 
         switch (indicatorValue) {
             case "permafrost":
@@ -548,18 +549,11 @@
                 };
                 remapRF.outputPixelType = "u8";
                 break;
-            case "dasy":
-                // remapRF = new RasterFunction();
-                // remapRF.functionName = "Remap";
-                // remapRF.functionArguments = {
-                //     InputRanges: [
-                //         0, 0, 0.000000001, 1.99999999999, 2, 9.9999999999, 10, 1000,
-                //     ],
-                //     OutputValues: [0, 1, 2, 3],
-                //     Raster: "$$",
-                // };
-                // remapRF.outputPixelType = "u8";
-                // console.log('running')
+            case "nlcd":
+                mosaicRule = {
+                    "mosaicMethod": "esriMosaicLockRaster",
+                    "lockRasterIds": smaConfig.nlcd.OBJECTIDS[2024]
+                    }
                 break;
         }
 
@@ -570,6 +564,7 @@
             pixelSize: pixel_size,
         };
 
+        mosaicRule ? compHistObject['mosaicRule'] = JSON.stringify(mosaicRule) : null
         remapRF ? compHistObject['renderingRule'] = JSON.stringify(remapRF) : null;
 
         let results = await _computeHistograms(
