@@ -30,7 +30,7 @@ calcite-list-item {
   --calcite-list-spacing-indent: none !important;
 }
 
-.esri-coordinate-conversion {
+.esri-ui-bottom-left .esri-coordinate-conversion {
   background-color: #ffffff54;
   width: 180px;
   top: -1px;
@@ -43,12 +43,12 @@ calcite-list-item {
   user-select: text;
 }
 
-.esri-coordinate-conversion__conversion-list {
+.esri-ui-bottom-left .esri-coordinate-conversion__conversion-list {
   position: relative;
   top: -15px;
 }
 
-.esri-coordinate-conversion__select-row, .esri-coordinate-conversion__input-select {
+.esri-ui-bottom-left .esri-coordinate-conversion__select-row, .esri-ui-bottom-left .esri-coordinate-conversion__input-select {
   display:none;
 }
 
