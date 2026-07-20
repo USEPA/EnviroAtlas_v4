@@ -1,8 +1,19 @@
 <script>
 	// Import calcite components
 	import "@esri/calcite-components/dist/components/calcite-dialog";
+	import { tick } from "svelte";
 
+	/** @type {HTMLElement | undefined} */
 	let modal;
+	let activeTab = "welcome";
+	/** @type {HTMLElement | undefined} */
+	let disclaimerTabTitle;
+
+	async function openDisclaimerTab() {
+		activeTab = "disclaimer";
+		await tick();
+		disclaimerTabTitle?.focus();
+	}
 </script>
 
 <calcite-dialog
@@ -15,10 +26,22 @@
 >
 	<calcite-tabs layout="center">
 		<calcite-tab-nav slot="title-group">
-			<calcite-tab-title selected style="font-size: 16px"> Welcome </calcite-tab-title>
-			<calcite-tab-title style="font-size: 16px">Disclaimer</calcite-tab-title>
+			<calcite-tab-title
+				selected={activeTab === "welcome"}
+				style="font-size: 16px"
+				on:calciteTabsActivate={() => (activeTab = "welcome")}
+			>
+				Welcome
+			</calcite-tab-title>
+			<calcite-tab-title
+				bind:this={disclaimerTabTitle}
+				selected={activeTab === "disclaimer"}
+				style="font-size: 16px"
+				on:calciteTabsActivate={() => (activeTab = "disclaimer")}
+				>Disclaimer</calcite-tab-title
+			>
 		</calcite-tab-nav>
-		<calcite-tab selected
+		<calcite-tab selected={activeTab === "welcome"}
 			><div class="welcome-layout">
 				<div class="welcome-copy">
 					<b class="welcome-title">Welcome to</b>
@@ -37,7 +60,14 @@
 					</p>
 					<p class="splash-text">
 						By using the EnviroAtlas Interactive Map, you
-						acknowledge the limitations outlined in the disclaimer.
+						acknowledge the limitations outlined in the
+						<button
+							type="button"
+							class="disclaimer-link"
+							on:click={openDisclaimerTab}
+						>
+							disclaimer</button
+						>.
 					</p>
 				</div>
 				<div class="welcome-image-wrap">
@@ -49,7 +79,7 @@
 				</div>
 			</div>
 		</calcite-tab>
-		<calcite-tab
+		<calcite-tab selected={activeTab === "disclaimer"}
 			><ul>
 				<li>
 					<b
@@ -87,11 +117,15 @@
 			</ul>
 		</calcite-tab>
 	</calcite-tabs>
+	<img 
+		slot="footer-start"
+		src="images/epa_logo.png"
+		style="height: 33px; display:inline-block; position:relative"
+	/>
 	<calcite-button
 		slot="footer-end"
 		style="font-size: 16px"
-		on:click={() => modal.removeAttribute("open")}>I agree</calcite-button
-	>
+		on:click={() => modal?.removeAttribute("open")}>I agree</calcite-button>
 </calcite-dialog>
 
 <style>
@@ -114,8 +148,18 @@
 	calcite-tab p,
 	calcite-tab ul,
 	calcite-tab li,
-	calcite-tab b {
+	calcite-tab b,
+	.disclaimer-link {
 		color: white;
+	}
+
+	.disclaimer-link {
+		background: none;
+		border: 0;
+		padding: 0;
+		font: inherit;
+		text-decoration: underline;
+		cursor: pointer;
 	}
 
 	.welcome-layout {
@@ -161,6 +205,7 @@
 
 	calcite-tab-title {
 		--calcite-tab-text-color: white;
-		--calcite-color-text-1: white
+		--calcite-color-text-1: white;
+		--calcite-internal-color-focus: white;
 	}
 </style>
