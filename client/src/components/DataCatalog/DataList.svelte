@@ -286,7 +286,6 @@
                 {#each $filteredNationalItems as ea (ea.topic)}
                     {#if ea.isVisible}
                         <calcite-list-item
-                            id={ea.categoryTab}
                             label={ea.topic}
                             value={ea.topic}
                             on:calciteListItemSelect={listItemExpand}

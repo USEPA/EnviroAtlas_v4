@@ -58,16 +58,13 @@ export const smaConfig = {
       90: "Woody Wetlands",
       95: "Emergent Herbaceous Wetlands",
     },
-    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/SMA_NLCD_ll/ImageServer',
+    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/CONUS_NLCD_10yr_intervals/ImageServer',
     OBJECTIDS: {
-      2001: 1,
-      2004: 2,
-      2006: 3,
-      2008: 4,
-      2011: 5,
-      2013: 6,
-      2016: 7,
-      2019: 8,
+      1985: 1,
+      1995: 2,
+      2005: 3,
+      2015: 4,
+      2024: 5
     },
     changeIndex: 9,
     floodplains: 10,
@@ -93,7 +90,10 @@ export const smaConfig = {
     layersUsed: ['National Land Cover Database'],
     layersUsedURL: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/NationalLandCover.pdf'],
     resolution: 30,
-    columnHeaders: ['Land Cover Type', 'Area (km2)', 'Percentage']
+    columnHeaders: ['Land Cover Type', 'Area (km2)', 'Percentage'],
+    classLabel: "Land Cover Type",
+    firstStatLabel: "Area (km2)",
+    secondStatLabel: "Percentage of Area"
   },
   "population-floodplains": {
     layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Supplemental/GDT_Pop/ImageServer',
@@ -169,7 +169,7 @@ export const smaConfig = {
     },
     layersUsed: ['2020 Dasymetric Population'],
     layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/Dasymetricallocationofpopulation2020.pdf'],
-    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Dasymetric_2020_test/ImageServer',
+    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Dasymetric_2020/ImageServer',
     resolution: 30,
     columnHeaders: ['2020 Dasymetric Population', 'Sum', 'Percentage'],
     colors: {
