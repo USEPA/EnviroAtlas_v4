@@ -355,7 +355,6 @@
   <calcite-navigation id="header" slot="header">
     <calcite-navigation-logo
       slot="content-start"
-      heading="Interactive Map"
       thumbnail="/ea/client/images/logo.png"
       href="https://www.epa.gov/enviroatlas"
       target="_blank"
