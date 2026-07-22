@@ -32,6 +32,7 @@
   import "@arcgis/map-components/components/arcgis-distance-measurement-2d";
   import "@arcgis/map-components/components/arcgis-compass";
   import "@arcgis/map-components/components/arcgis-elevation-profile";
+  import "@arcgis/map-components/components/arcgis-bookmarks";
 
   // Import components and store
   import { catalog, activeWidget } from "src/store.ts";
@@ -354,7 +355,6 @@
   <calcite-navigation id="header" slot="header">
     <calcite-navigation-logo
       slot="content-start"
-      heading="Interactive Map"
       thumbnail="/ea/client/images/logo.png"
       href="https://www.epa.gov/enviroatlas"
       target="_blank"
@@ -558,18 +558,17 @@
     closed
     bind:this={mapToolsPanel}
   >
-    <calcite-block collapsible expanded heading="Sketch" label="Sketch">
-      <calcite-action slot="control" text="Information" icon="question" on:click={() => openInfo("sketch")}></calcite-action>
-      <arcgis-sketch
-        style="display: flex; justify-content: center;"
-        position="manual"
+    <calcite-block collapsible heading="Location" label="Location" description="Place a point on the map to see its coordinates.">
+      <arcgis-coordinate-conversion
+        class="tool-coords"
+        mode="live"
+        orientation="auto"
         referenceElement={view}
-        layout="horizontal"
-        on:arcgisReady={setTooltipOpt}
-     ></arcgis-sketch>
+        hideSettingsButton
+        expanded>
+      </arcgis-coordinate-conversion>
     </calcite-block>
-    <calcite-block collapsible expanded heading="Measure" label="Measure">
-      <calcite-action slot="control" text="Information" icon="question" on:click={() => openInfo("measure")}></calcite-action>
+    <calcite-block collapsible heading="Measure" label="Measure" description="To measure distance or area, place the first point on the map.">
       <calcite-action-bar id="toolbar" expand-disabled layout="horizontal">
         <calcite-action bind:this={distanceAction} id="distanceAction" text="Distance" icon="measure" on:click={() => startTool("distance")}></calcite-action>
         <calcite-action bind:this={areaAction} id="areaAction" text="Area" icon="polygon" on:click={() => startTool("area")}></calcite-action>
@@ -590,16 +589,13 @@
         ></arcgis-area-measurement-2d>
       </div>
     </calcite-block>
-    <calcite-block collapsible expanded heading="Elevation Profile" label="Elevation Profile">
-    <calcite-action slot="control" text="Information" icon="question" on:click={() => openInfo("elevation")}></calcite-action>
+    <calcite-block collapsible heading="Bookmarks" label="Bookmarks" description="Instantly save and return to specific locations.">
+      <arcgis-bookmarks drag-enabled show-add-bookmark-button show-edit-bookmark-button referenceElement={view}></arcgis-bookmarks>
+    </calcite-block>
+    <calcite-block collapsible heading="Elevation Profile" label="Elevation Profile" description="Generate a 2D cross-section of terrain heights along a drawn line.">
       <arcgis-elevation-profile profiles={elevProfile} referenceElement={view}>
       </arcgis-elevation-profile>
     </calcite-block>
-    <calcite-block collapsible expanded heading="Legend" label="Legend">
-      <arcgis-legend
-        referenceElement={view}
-     ></arcgis-legend>
-  </calcite-block>
   </calcite-panel>
   <calcite-fab
     role="button"
@@ -663,7 +659,7 @@
   }
 
   calcite-block{
-    margin-block:0.15em;
+    margin-block:0;
     --calcite-internal-block-padding-block:0px;
     --calcite-internal-block-padding-inline:0px
   }
