@@ -27,13 +27,13 @@
     closed
 >
     <calcite-block>
-        <div slot="content-start" class="widget-gridded-map profile-tab-node">
-            <div style="margin-bottom:10px" id="gridded-map-title">
+        <div slot="content-start">
+            <div style="" id="gridded-map-title">
                 <div>
                     <img
                         alt="https://www.epa.gov/enviroatlas"
-                        src="images/logo.png"
-                        style="height: 33px; margin-top: 7px; display:inline-block; position:relative; left:50%; transform: translate(-50%); margin-bottom:-3px"
+                        src="images/horizontal_logo_grey.png"
+                        style="height: 33px; display:block; margin:0 auto"
                     />
                 </div>
                 <div
