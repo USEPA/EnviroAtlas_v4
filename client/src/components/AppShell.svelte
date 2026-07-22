@@ -559,15 +559,17 @@
     closed
     bind:this={mapToolsPanel}
   >
-    <calcite-block collapsible expanded heading="Location" label="Location" description="Move the pointer to a location on the map, and view the coordinates.">
+    <calcite-block collapsible heading="Location" label="Location" description="Place a point on the map to see its coordinates.">
       <arcgis-coordinate-conversion
         class="tool-coords"
         mode="live"
         orientation="auto"
-        referenceElement={view}>
+        referenceElement={view}
+        hideSettingsButton
+        expanded>
       </arcgis-coordinate-conversion>
     </calcite-block>
-    <calcite-block collapsible expanded heading="Measure" label="Measure" description="Calculate distances and areas. Start measuring by clicking in the map to place your first point.">
+    <calcite-block collapsible heading="Measure" label="Measure" description="To measure distance or area, place the first point on the map.">
       <calcite-action-bar id="toolbar" expand-disabled layout="horizontal">
         <calcite-action bind:this={distanceAction} id="distanceAction" text="Distance" icon="measure" on:click={() => startTool("distance")}></calcite-action>
         <calcite-action bind:this={areaAction} id="areaAction" text="Area" icon="polygon" on:click={() => startTool("area")}></calcite-action>
@@ -588,10 +590,10 @@
         ></arcgis-area-measurement-2d>
       </div>
     </calcite-block>
-    <calcite-block collapsible expanded heading="Bookmarks" label="Bookmarks" description="Instantly save and return to specific locations.">
+    <calcite-block collapsible heading="Bookmarks" label="Bookmarks" description="Instantly save and return to specific locations.">
       <arcgis-bookmarks drag-enabled show-add-bookmark-button show-edit-bookmark-button referenceElement={view}></arcgis-bookmarks>
     </calcite-block>
-    <calcite-block collapsible expanded heading="Elevation Profile" label="Elevation Profile" description="Generate a 2D cross-section graph of terrain heights along a drawn line.">
+    <calcite-block collapsible heading="Elevation Profile" label="Elevation Profile" description="Generate a 2D cross-section of terrain heights along a drawn line.">
       <arcgis-elevation-profile profiles={elevProfile} referenceElement={view}>
       </arcgis-elevation-profile>
     </calcite-block>
