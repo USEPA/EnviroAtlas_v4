@@ -661,6 +661,7 @@
   calcite-block{
     margin-block:0;
     --calcite-internal-block-padding-block:0px;
-    --calcite-internal-block-padding-inline:0px
-  }
+    --calcite-internal-block-padding-inline:0px;
+    --calcite-spacing-md: .5rem
+}
 </style>
