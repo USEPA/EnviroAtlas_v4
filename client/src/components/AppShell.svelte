@@ -99,7 +99,7 @@
     "sma": "mosaic-method-sum"
   }
 
-  const elevProfile = [{type:"ground"}]
+  const elevProfile = [{type:"ground", title: "Metrics"}]
 
   async function setupPopup() {
     reactiveUtils.on(
