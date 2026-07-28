@@ -9,13 +9,14 @@
     $: popoverReference = referenceElementId || `${subtopic.subTopicID}-details-popover-button`;
 
     let categories = [
-        { name: "eaCA", icon: "air" }, 
-        { name: "eaNHM", icon: "haz" }, 
-        { name: "eaCPW", icon: "water" }, 
-        { name: "eaRCA", icon: "rec" }, 
-        { name: "eaFFM", icon: "food" }, 
+        { name: "eaCA", icon: "air" },
+        { name: "eaCPW", icon: "water" },
+        { name: "eaCL", icon: "land" },
         { name: "eaBC", icon: "bio" },
-        { name: "eaCS", icon: "clim" }
+        { name: "eaCS", icon: "clim" },
+        { name: "eaFFM", icon: "food" }, 
+        { name: "eaNHM", icon: "haz" }, 
+        { name: "eaRCA", icon: "rec" }
     ];
     
     export const openFactSheet = (factSheetsnippet) => {
@@ -126,7 +127,7 @@
 
 <style>
     calcite-flow-item {
-        width: 330px;
+        width: 340px;
         --calcite-ui-focus-color: none !important;
     }
 
@@ -143,6 +144,10 @@
         width:30px;
         border-radius: 50%;
         display: inline-block;
+    }
+
+    .dot#eaCL {
+        background-color: #d2b48c;
     }
 
     .dot#eaCPW {
