@@ -64,7 +64,7 @@ export const smaConfig = {
       1995: 2,
       2005: 3,
       2015: 4,
-      2024: 5
+      2025: 5
     },
     changeIndex: 9,
     floodplains: 10,

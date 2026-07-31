@@ -85,8 +85,16 @@
     const handles = new Handles();
     const indicatorsDict = [
         {topic: "Land Cover Type", subtopic: [
-            { name: " 2024 National Land Cover Database (all classes)", value: "nlcd",  
-            domains: "CONUS", id: 588, topic: "Land Cover Type", dtype: "Non-summarized grid data"}
+            { name: "2025 National Land Cover Database (all classes)", value: "nlcd-2025",  
+            domains: "CONUS", id: 588, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
+            { name: "2015 National Land Cover Database (all classes)", value: "nlcd-2015",  
+            domains: "CONUS", id: 596, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
+            { name: "2005 National Land Cover Database (all classes)", value: "nlcd-2005",  
+            domains: "CONUS", id: 597, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
+            { name: "1995 National Land Cover Database (all classes)", value: "nlcd-1995",  
+            domains: "CONUS", id: 598, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
+            { name: "1985 National Land Cover Database (all classes)", value: "nlcd-1985",  
+            domains: "CONUS", id: 599, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
         ]},
         {topic: "Population", subtopic: [
             { name: "Dasymetric allocation of population 2020 CONUS, Alaska, Hawaii, Puerto Rico, and the U.S. Virgin Islands", value: "dasy",  
@@ -181,7 +189,7 @@
             }
             indicatorElem = elem
             indicatorValue = elem.value;
-            _initIndicatorLayer(indicatorValue);
+            _initIndicatorLayer(indicatorValue, elem.id);
             if ($activeWidget.right !== 'layers') {
                 openRightPanel($activeWidget, "layers");
             }
@@ -203,33 +211,9 @@
         }
     }
 
-    // Store indicator year as view model value and add the appropriate raster to the map
-    const updateLCYear = (e) => {
-        landcoverYear = e.target.value;
-        if (landcoverYear) {
-            console.log("target year is: ", e.target.value);
-            // load the imagery on the map
-            _initIndicatorLayer(2024);
-        }
-    };
-
-    // Update LC Change inputs and add NLCD Year 2 to map
-    const updateLCChangeYears = (e) => {
-        if (e.target.id == "nlcd-change-year-1") {
-            nlcdChange1Combobox = e.target.value;
-        }
-        if (e.target.id == "nlcd-change-year-2") {
-            nlcdChange2Combobox = e.target.value;
-            _initIndicatorLayer(indicatorValue);
-        }
-    };
-
     // Add the appropriate raster to the map
-    async function _initIndicatorLayer(indicator) {
+    async function _initIndicatorLayer(indicator, id) {
         removeIndicator();
-
-        // Look for SMA sum unit layers and find index where imagery is just below it.
-        let smaLayersInMapHighestIndex = findLayersByTitle(view, "Summarize My Area Unit") - 1;
 
         // Make mosaic rule work for land cover and land cover change variables
         let mosaicRule = new MosaicRule({
@@ -239,23 +223,32 @@
         let indicatorUrl;
         let lObject
 
+        // Look for SMA sum unit layers and find index where imagery is just below it.
+        let lowestIndex = findLayersByTitle(view, "Summarize My Area Unit");
+        let smaLayersInMapHighestIndex = lowestIndex - 2
+        if (smaLayersInMapHighestIndex > 0) { smaLayersInMapHighestIndex === 0 }
+
         switch (indicator) {
-            case "nlcd":
-                // mosaicRule.lockRasterIds =
-                //     smaConfig.nlcd.OBJECTIDS[2024];
-                // indicatorUrl = smaConfig.nlcd.layer;
-                lObject = await getEALayerObject(588);
+            case "nlcd-2025":
+            case "nlcd-2015":
+            case "nlcd-2005":
+            case "nlcd-1995":
+            case "nlcd-1985":
+                lObject = await getEALayerObject(id);
+                let match = indicator.match(/^nlcd-(\d{4})$/);
+                const nlcdYear = match ? Number(match[1]) : null;
                 lObject.name =
-                    "Summarize My Area Indicator: 2024 National Land Cover Database (all classes)";
-                smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
+                    `Summarize My Area Indicator: ${nlcdYear} National Land Cover Database (all classes)`;
+                smaLayersInMapHighestIndex ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
+                //addLayer(lObject, view, 0)
                 break;
-            case "nlcd-change":
-                mosaicRule.lockRasterIds = [
-                    smaConfig.nlcd.OBJECTIDS[nlcdChange1Combobox],
-                    smaConfig.nlcd.OBJECTIDS[nlcdChange2Combobox],
-                ];
-                indicatorUrl = smaConfig.nlcd.layer;
-                break;
+            // case "nlcd-change":
+            //     mosaicRule.lockRasterIds = [
+            //         smaConfig.nlcd.OBJECTIDS[nlcdChange1Combobox],
+            //         smaConfig.nlcd.OBJECTIDS[nlcdChange2Combobox],
+            //     ];
+            //     indicatorUrl = smaConfig.nlcd.layer;
+            //     break;
             case "permafrost":
                 lObject = await getEALayerObject(552);
                 // TODO: error handle if lObject is empty
@@ -529,8 +522,12 @@
         //default let geo=geometry (selected area)
         let geo = geometry;
         let line;
-        const pixel_size = smaConfig[indicatorValue].resolution;
-        let compHistEndpoint = `${smaConfig[indicatorValue].layer}/computeStatisticsHistograms`;
+        const pixel_size = indicatorValue?.includes("nlcd")
+            ? smaConfig["nlcd"].resolution
+            : smaConfig[indicatorValue].resolution;
+        let compHistEndpoint = indicatorValue?.includes("nlcd")
+            ? `${smaConfig["nlcd"].layer}/computeStatisticsHistograms`
+            : `${smaConfig[indicatorValue].layer}/computeStatisticsHistograms`;
 
         let remapRF;
         let mosaicRule;
@@ -549,10 +546,16 @@
                 };
                 remapRF.outputPixelType = "u8";
                 break;
-            case "nlcd":
+            case "nlcd-2025":
+            case "nlcd-2015":
+            case "nlcd-2005":
+            case "nlcd-1995":
+            case "nlcd-1985":
+                let match = indicatorValue.match(/^nlcd-(\d{4})$/);
+                const nlcdYear = match ? Number(match[1]) : null;
                 mosaicRule = {
                     "mosaicMethod": "esriMosaicLockRaster",
-                    "lockRasterIds": smaConfig.nlcd.OBJECTIDS[2024]
+                    "lockRasterIds": [smaConfig.nlcd.OBJECTIDS[nlcdYear]],
                     }
                 break;
         }
@@ -611,7 +614,11 @@
                     _renderInputTable(area, line);
                 }
                 break;
-            case "nlcd":
+            case "nlcd-2025":
+            case "nlcd-2015":
+            case "nlcd-2005":
+            case "nlcd-1995":
+            case "nlcd-1985":
             case "permafrost":
                 //console.log(results)
                 if (results) {
@@ -631,8 +638,8 @@
                                         totalCount,
                                         count,
                                     ),
-                                    name: smaConfig[indicatorValue].indices[index],
-                                    legend: `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig[indicatorValue].colors[index]}"></div>`,
+                                    name: indicatorValue?.includes("nlcd") ? smaConfig["nlcd"].indices[index] : smaConfig[indicatorValue].indices[index],
+                                    legend: indicatorValue?.includes("nlcd") ? `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig["nlcd"].colors[index]}"></div>` : `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig[indicatorValue].colors[index]}"></div>`,
                                 };
                             }
                         },
@@ -641,16 +648,16 @@
                     let headers = [
                         { head: "", cl: "title", d: "legend" },
                         {
-                            head: smaConfig[indicatorValue].classLabel,
+                            head: indicatorValue?.includes("nlcd") ? smaConfig["nlcd"].classLabel : smaConfig[indicatorValue].classLabel,
                             cl: "nlcd_title",
                             d: "name",
                         },
                         {
-                            head: smaConfig[indicatorValue].firstStatLabel,
+                            head: indicatorValue?.includes("nlcd") ? smaConfig["nlcd"].firstStatLabel : smaConfig[indicatorValue].firstStatLabel,
                             cl: "",
                             d: "area",
                         },
-                        { head: smaConfig[indicatorValue].secondStatLabel, cl: "", d: "perc" },
+                        { head: indicatorValue?.includes("nlcd") ? smaConfig["nlcd"].secondStatLabel : smaConfig[indicatorValue].secondStatLabel, cl: "", d: "perc" },
                     ];
                     let table = _renderTable(headers, data);
                     $smaAnalysisOutputs.append(table);
@@ -669,14 +676,19 @@
         const indicatorLabel = selectedIndicator?.name ?? indicatorValue;
         inputTableData.push({ attribute: "Analysis", value: indicatorLabel });
 
-        inputTableData.push({
-            attribute: "Source Data",
-            value:
-                '<a target="_blank" style="text-decoration:none" href="' +
+        let val = indicatorValue?.includes("nlcd") ? '<a target="_blank" style="text-decoration:none" href="' +
+                smaConfig["nlcd"].layersUsedURL +
+                '">' +
+                smaConfig["nlcd"].layersUsed +
+                "</a>" : '<a target="_blank" style="text-decoration:none" href="' +
                 smaConfig[indicatorValue].layersUsedURL +
                 '">' +
                 smaConfig[indicatorValue].layersUsed +
-                "</a>",
+                "</a>"
+
+        inputTableData.push({
+            attribute: "Source Data",
+            value: val,
         });
 
         if (sumUnit == "Draw a Polygon" && geometryType == 'polygon') {
@@ -998,6 +1010,7 @@
                         tabindex="0"
                         value={indicator.value}
                         name={indicator.name}
+                        id={indicator.id}
                         bind:this={indicator.element}
                         on:calciteCheckboxChange={() => updateIndicator(indicator.element)}
                     ></calcite-checkbox>
