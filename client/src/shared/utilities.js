@@ -133,12 +133,17 @@ export function isLayerTitleInMap(title, view) {
 };
 
 export function findLayersByTitle(view, title) {
-    const foundLayers = view.map.allLayers.findIndex(function(lyr, index, lyrs) {
+    let ind;
+    const foundLayers = view.map.allLayers.findIndex(function(lyr, index) {
         if (lyr.title && lyr.title.includes(title)) {
+            //return index
+            if (ind === undefined || index < ind) {
+                ind = index;
+            }
             return index
         }
     });
-    return foundLayers
+    return ind
 }
 
 /**
@@ -225,7 +230,7 @@ export function addImageryLayer(lObj, view, rfRule, index) {
         if (!lObj.name.includes("Summarize My Area") && !lObj.popup) {
             iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "{Raster.ServicePixelValue.Raw}" }
         } else {
-            iLyr.popupTemplate = buildFSPopupTemp(lObj)
+            iLyr.popupEnabled = false
         }
     } else {
         iLyr.popupTemplate = { content: "{Raster.ServicePixelValue.Raw}" }
