@@ -9,7 +9,15 @@
     import "@esri/calcite-components/dist/components/calcite-notice";
     import "@esri/calcite-components/dist/components/calcite-action";
     
-    import { hasValueUndefined, largestAbsVal, openRightPanel, fetchData, isLayerTitleInMap } from "src/shared/utilities.js";
+    import { 
+        hasValueUndefined,
+        largestAbsVal,
+        openRightPanel,
+        fetchData,
+        isLayerTitleInMap,
+        addLayer,
+        getEALayerObject
+    } from "src/shared/utilities.js";
     import { activeWidget } from "src/store.ts";
     import TimeSeriesDetails from "src/components/TimeSeriesViewer/TimeSeriesDetails.svelte";
     
@@ -36,7 +44,10 @@
 
     let climRefs = [];
     let cmaqRefs = [];
+    let lcluPastRefs = [];
     let climateNotify;
+    let cmaqNotify;
+    let lcluPastNotify;
     let maxVal;
     let minVal;
     let timeSeriesDetailsTarget;
@@ -155,17 +166,16 @@
 
     const lcluPastOptions = [
         { name: 'LC/LU Class', options: [
-            {label: "All", value: "All"},
-            {label: "Forest", value: "Forest"},
-            {label: "Change Forest (compared to 2024)", value: "Change Forest (compared to 2024)"},
+            {domains: "CONUS", label: "All Classes", value: "all"},
+            //{label: "Forest", value: "Forest"},
+            //{label: "Change Forest (compared to 2024)", value: "Change Forest (compared to 2024)"},
         ]},
         { name: 'Year', options: [
-            {label: "1985", value: "1985"},
-            {label: "1995", value: "1995"},
-            {label: "2005", value: "2005"},
-            {label: "2010", value: "2010"},
-            {label: "2015", value: "2015"},
-            {label: "2020", value: "2020"},
+            {domains: "CONUS", label: "1985", value: "1985", d: 599},
+            {domains: "CONUS", label: "1995", value: "1995", d: 598},
+            {domains: "CONUS", label: "2005", value: "2005", d: 597},
+            {domains: "CONUS", label: "2015", value: "2015", d: 596},
+            {domains: "CONUS", label: "2025", value: "2025", d: 588},
         ]},
     ]
 
@@ -232,6 +242,10 @@
     });
 
     $: cmaqPastOptions_filtered = cmaqPastOptions.map(obj => {
+        return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
+    });
+
+    $: lcluPastOptions_filtered = lcluPastOptions.map(obj => {
         return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
     });
 
@@ -1768,28 +1782,63 @@
         }
     };
 
+    async function loadLcluPast(selections) {
+        let lObject;
+        if (selections['LC/LU Class']['value'] = 'all') {
+            let id = selections['Year']['d'];
+            lObject = await getEALayerObject(id);
+            openRightPanel($activeWidget, "layers");
+            let drawCheck = isLayerTitleInMap(lObject.name, view);
+            if (drawCheck) {
+                addAlertMessage('', 'This layer is already in the map: ' + lObject.name, 'warning', 'Layer is already in the map');
+            } else {
+                addLayer(lObject, view);
+            }
+        }
+    }
+
     /**
      * Controlling function when 'Add to map' button is clicked.
      * Collects relevant selection data. Checks for missing selections.
      * If selections are missing, opens a calcite-notify component.
-     * If not, runs the loadOCONUS() function. 
+     * If not, runs the appropriate load function. 
      */
-    function getSelections() {
+    function getSelections(theme) {
         let selections = {}
-        climRefs.forEach(elem => {
-            let option = elem.placeholder
-            let value = elem.selectedItems[0]?.value
-            let label = elem.selectedItems[0]?.textLabel
-            let d = elem.selectedItems[0]?.metadata
-            selections[option] = {value: value, label: label, d: d}
-        });
-        if (hasValueUndefined(selections)) {
-            climateNotify.removeAttribute("hidden")
-            return
-        } else {
-            (domain != "CONUS") ? loadOCONUS(selections) : loadCONUS(selections)
-            climateNotify.setAttribute("hidden", "")
-            return
+        switch (theme) {
+            case "clim":
+                climRefs.forEach(elem => {
+                    let option = elem.placeholder
+                    let value = elem.selectedItems[0]?.value
+                    let label = elem.selectedItems[0]?.textLabel
+                    let d = elem.selectedItems[0]?.metadata
+                    selections[option] = {value: value, label: label, d: d}
+                });
+                if (hasValueUndefined(selections)) {
+                    climateNotify.removeAttribute("hidden")
+                    return
+                } else {
+                    (domain != "CONUS") ? loadOCONUS(selections) : loadCONUS(selections)
+                    climateNotify.setAttribute("hidden", "")
+                    return
+                }
+            case "lcluPast":
+                lcluPastRefs.forEach(elem => {
+                    let option = elem.placeholder;
+                    let value = elem.selectedItems[0]?.value;
+                    let label = elem.selectedItems[0]?.textLabel;
+                    let d = elem.selectedItems[0]?.metadata;
+                    selections[option] = {value: value, label: label, d: d}
+                });
+                if (hasValueUndefined(selections)) {
+                    lcluPastNotify.removeAttribute("hidden")
+                    return
+                } else {
+                    loadLcluPast(selections)
+                    lcluPastNotify.setAttribute("hidden", "")
+                    return
+                }
+                console.log(theme)
         }
     }
 
@@ -1882,7 +1931,7 @@
                     </div>
                     {/each}
                     <div slot="content-bottom">
-                        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+                        <calcite-notice hidden bind:this={cmaqNotify} scale="s" open kind="danger" icon>
                             <div slot="title">Incomplete selections</div>
                             <div slot="message">Please make selections.</div>
                         </calcite-notice>
@@ -1900,10 +1949,11 @@
                     on:calciteListItemSelect={e=>e.stopPropagation()}
                     description='Raster data at 30m resolution'
                     >
-                    {#each lcluPastOptions as lcluPast}
+                    {#each lcluPastOptions_filtered as lcluPast, l (lcluPast.name)}
                     <div slot="content-bottom" id="combobox-div">
                         <calcite-combobox
-                            id="climateVarSelect"
+                            bind:this={lcluPastRefs[l]}
+                            id="lcluPastVarSelect"
                             scale="m"
                             placeholder={lcluPast.name}
                             selection-mode="single"
@@ -1911,7 +1961,7 @@
                             overlay-positioning="fixed"
                         >
                         {#each lcluPast.options as o}
-                            <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
+                            <calcite-combobox-item value={o.value} text-label={o.label} metadata={o.d}></calcite-combobox-item>
                         {/each}
                         </calcite-combobox>
                         <calcite-button 
@@ -1923,11 +1973,11 @@
                     </div>
                     {/each}
                     <div slot="content-bottom">
-                        <calcite-notice hidden bind:this={climateNotify} scale="s" open kind="danger" icon>
+                        <calcite-notice hidden bind:this={lcluPastNotify} scale="s" open kind="danger" icon>
                             <div slot="title">Incomplete selections</div>
                             <div slot="message">Please make selections.</div>
                         </calcite-notice>
-                        <calcite-button>Coming Soon!</calcite-button>
+                        <calcite-button on:click={() => getSelections('lcluPast')}>Add to map</calcite-button>
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
@@ -2091,7 +2141,7 @@
                             <div slot="title">Incomplete selections</div>
                             <div slot="message">Please make selections.</div>
                         </calcite-notice>
-                        <calcite-button on:click={getSelections}>Add to map</calcite-button>
+                        <calcite-button on:click={() => getSelections('clim')}>Add to map</calcite-button>
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
