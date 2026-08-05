@@ -500,6 +500,8 @@
     ></calcite-action>
   </calcite-action-bar>
   <calcite-panel
+    icon="layers"
+    class="right-panel"
     heading="Active Layer List"
     height-scale="l"
     data-panel-id="layers"
@@ -527,6 +529,8 @@
     on:keydown={handleRightFabClick}
   ></calcite-fab>
   <calcite-panel
+    icon="basemap"
+    class="right-panel"
     heading="Basemaps"
     height-scale="l"
     data-panel-id="basemaps"
@@ -551,11 +555,13 @@
     on:keydown={handleRightFabClick}
   ></calcite-fab>
   <calcite-panel
+    icon="system-management"
     heading="Other Map Tools"
     height-scale="l"
     data-panel-id="maptools"
     hidden
     closed
+    class="right-panel"
     bind:this={mapToolsPanel}
   >
     <calcite-block collapsible heading="Location" label="Location" description="Place a point on the map to see its coordinates.">
@@ -625,6 +631,10 @@
 <style>
   calcite-panel.fTable {
     height: 500px
+  }
+
+  calcite-panel.right-panel {
+    --calcite-panel-header-background-color: #f7f7f7
   }
 
   calcite-shell-panel {

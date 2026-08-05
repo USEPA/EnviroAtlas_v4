@@ -19,12 +19,14 @@
 </script>
 
 <calcite-panel
+    icon="mosaic-method-sum"
     bind:this={smaResultsPanel}
     heading="Summarize My Area Results"
     height-scale="l"
     data-panel-id="sma-results"
     hidden
     closed
+    class="right-panel"
 >
     <calcite-block>
         <div slot="content-start" class="widget-gridded-map profile-tab-node">
@@ -75,5 +77,9 @@
         place-content: center;
         padding-top: 4px;
         padding-bottom: 4px;
+    }
+
+    calcite-panel.right-panel {
+        --calcite-panel-header-background-color: #f7f7f7
     }
 </style>

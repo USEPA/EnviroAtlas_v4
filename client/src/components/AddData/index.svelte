@@ -65,6 +65,8 @@
   heading="Add Data"
   data-panel-id="add-data"
   hidden
+  icon="add-layer"
+  class="right-panel"
 >
   <div style="margin: 8px; display:flex; justify-content: space-around">
   {#each addDataActions as tab, i}
@@ -107,5 +109,9 @@
     place-content: center;
     padding-top: 4px;
     padding-bottom: 4px;
+  }
+
+  calcite-panel.right-panel {
+    --calcite-panel-header-background-color: #f7f7f7
   }
 </style>
