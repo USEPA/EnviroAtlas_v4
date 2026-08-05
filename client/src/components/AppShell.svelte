@@ -482,7 +482,7 @@
     ></calcite-action>
     <calcite-action
       data-action-id="maptools"
-      icon="system-management"
+      icon="tools"
       text="Other Map Tools"
     ></calcite-action>
     <calcite-action
@@ -555,7 +555,7 @@
     on:keydown={handleRightFabClick}
   ></calcite-fab>
   <calcite-panel
-    icon="system-management"
+    icon="tools"
     heading="Other Map Tools"
     height-scale="l"
     data-panel-id="maptools"
