@@ -376,22 +376,22 @@
     >
     <arcgis-search
       popupDisabled
-      position="top-right"
+      slot="top-right"
     ></arcgis-search>
     <arcgis-zoom 
-      position="top-right" 
+      slot="top-right" 
       layout="vertical"
     ></arcgis-zoom>
     <arcgis-compass 
-      position="top-right"
+      slot="top-right"
     ></arcgis-compass>
     <arcgis-scale-bar
-      position="bottom-left"
+      slot="bottom-left"
       bar-style="line"
       unit="dual"
    ></arcgis-scale-bar>
     <arcgis-coordinate-conversion
-      position="bottom-left"
+      slot="bottom-left"
       mode="live"
       orientation="auto"
       hide-capture-button
