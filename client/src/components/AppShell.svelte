@@ -66,11 +66,20 @@
   let clearAction;
   let activeDimension = "2d";
   let activeTool = null;
+  let lat;
+  let long;
 
   $: {
     if (view && !map) {
         view.addEventListener("arcgisViewReadyChange", () => {
             map = view.map;
+            view.view.on("pointer-move", function(event) {
+              const mapPoint = view.toMap({x: event.x, y: event.y});
+              if (mapPoint) {
+                lat = mapPoint.latitude.toFixed(6);
+                long = mapPoint.longitude.toFixed(6);
+              }
+            });
         });
     }
   }
@@ -390,17 +399,10 @@
       bar-style="line"
       unit="dual"
    ></arcgis-scale-bar>
-    <arcgis-coordinate-conversion
+    <div
       slot="bottom-left"
-      mode="live"
-      orientation="auto"
-      hide-capture-button
-      hide-expand-button
-      hide-input-button
-      hide-settings-button
-      multiple-conversions-disabled
-      storage-disabled
-   ></arcgis-coordinate-conversion>
+      id="lat-long"
+   >{long}°, {lat}°</div>
   </arcgis-map>
   <calcite-shell-panel
     component-id="shell-panel-start"
@@ -676,5 +678,14 @@
     --calcite-internal-block-padding-block:0px;
     --calcite-internal-block-padding-inline:0px;
     --calcite-spacing-md: .5rem
-}
+  }
+
+  #lat-long {
+    background-color:  color-mix(in srgb, var(--calcite-color-foreground-1) 50%, transparent);
+    color: #141414;
+    width: 180px;
+    font-weight: 600;
+    font-size: 11px;
+    text-align: center;
+  }
 </style>
