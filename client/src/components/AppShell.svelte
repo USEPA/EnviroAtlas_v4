@@ -566,6 +566,7 @@
   >
     <calcite-block collapsible heading="Location" label="Location" description="Place a point on the map to see its coordinates.">
       <arcgis-coordinate-conversion
+        style="padding: 8px"
         class="tool-coords"
         mode="live"
         orientation="auto"
@@ -582,6 +583,7 @@
       </calcite-action-bar>
       <div bind:this={distance2dDiv} hidden>
         <arcgis-distance-measurement-2d
+          style="padding: 8px"
           referenceElement={view}
           id="distance2d"
           bind:this={distance2d}
@@ -589,6 +591,7 @@
         </div>
         <div bind:this={area2dDiv} hidden>
         <arcgis-area-measurement-2d
+          style="padding: 8px"
           referenceElement={view}
           id="area2d"
           bind:this={area2d}
@@ -596,10 +599,10 @@
       </div>
     </calcite-block>
     <calcite-block collapsible heading="Bookmarks" label="Bookmarks" description="Instantly save and return to specific locations.">
-      <arcgis-bookmarks drag-enabled show-add-bookmark-button show-edit-bookmark-button referenceElement={view}></arcgis-bookmarks>
+      <arcgis-bookmarks style="padding: 8px" drag-enabled show-add-bookmark-button show-edit-bookmark-button referenceElement={view}></arcgis-bookmarks>
     </calcite-block>
     <calcite-block collapsible heading="Elevation Profile" label="Elevation Profile" description="Generate a 2D cross-section of terrain heights along a drawn line.">
-      <arcgis-elevation-profile profiles={elevProfile} referenceElement={view}>
+      <arcgis-elevation-profile style="width:420px; padding: 8px" profiles={elevProfile} referenceElement={view}>
       </arcgis-elevation-profile>
     </calcite-block>
   </calcite-panel>
