@@ -1810,7 +1810,7 @@
                 climRefs.forEach(elem => {
                     let option = elem.placeholder
                     let value = elem.selectedItems[0]?.value
-                    let label = elem.selectedItems[0]?.textLabel
+                    let label = elem.selectedItems[0]?.heading
                     let d = elem.selectedItems[0]?.metadata
                     selections[option] = {value: value, label: label, d: d}
                 });
@@ -1826,7 +1826,7 @@
                 lcluPastRefs.forEach(elem => {
                     let option = elem.placeholder;
                     let value = elem.selectedItems[0]?.value;
-                    let label = elem.selectedItems[0]?.textLabel;
+                    let label = elem.selectedItems[0]?.heading;
                     let d = elem.selectedItems[0]?.metadata;
                     selections[option] = {value: value, label: label, d: d}
                 });
@@ -1918,7 +1918,7 @@
                             overlay-positioning="fixed"
                         >
                         {#each cmaqPast.options as o}
-                            <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
+                            <calcite-combobox-item value={o.value} heading={o.label}></calcite-combobox-item>
                         {/each}
                         </calcite-combobox>
                         <calcite-button 
@@ -1961,7 +1961,7 @@
                             overlay-positioning="fixed"
                         >
                         {#each lcluPast.options as o}
-                            <calcite-combobox-item value={o.value} text-label={o.label} metadata={o.d}></calcite-combobox-item>
+                            <calcite-combobox-item value={o.value} heading={o.label} metadata={o.d}></calcite-combobox-item>
                         {/each}
                         </calcite-combobox>
                         <calcite-button 
@@ -2002,7 +2002,7 @@
                             overlay-positioning="fixed"
                         >
                         {#each lcluProj.options as o}
-                            <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
+                            <calcite-combobox-item value={o.value} heading={o.label}></calcite-combobox-item>
                         {/each}
                         </calcite-combobox>
                         <calcite-button 
@@ -2042,7 +2042,7 @@
                             overlay-positioning="fixed"
                         >
                         {#each ['2010', '2020'] as o}
-                            <calcite-combobox-item value={o} text-label={o} metadata={o}></calcite-combobox-item>
+                            <calcite-combobox-item value={o} heading={o} metadata={o}></calcite-combobox-item>
                         {/each}
                         </calcite-combobox>
                         <calcite-button 
@@ -2082,7 +2082,7 @@
                             overlay-positioning="fixed"
                         >
                         {#each popProj.options as o}
-                            <calcite-combobox-item value={o.value} text-label={o.label}></calcite-combobox-item>
+                            <calcite-combobox-item value={o.value} heading={o.label}></calcite-combobox-item>
                         {/each}
                         </calcite-combobox>
                         <calcite-button 
@@ -2124,7 +2124,7 @@
                             overlay-positioning="fixed"
                         >
                         {#each clim.options as o}
-                            <calcite-combobox-item value={o.value} text-label={o.label} metadata={o.d}></calcite-combobox-item>
+                            <calcite-combobox-item value={o.value} heading={o.label} metadata={o.d}></calcite-combobox-item>
                         {/each}
                         </calcite-combobox>
                         <calcite-button 

@@ -3,7 +3,7 @@ import App from '/src/App.svelte';
 import { setAssetPath } from '@esri/calcite-components/dist/components';
 import { mount } from "svelte";
 
-setAssetPath('https://js.arcgis.com/calcite-components/3.3.0/assets');
+setAssetPath('https://js.arcgis.com/calcite-components/5.0.2/assets');
 
 if (!window.ea ) window.ea = {};
 
