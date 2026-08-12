@@ -54,5 +54,8 @@ export default defineConfig({
     //https://vitest.dev/config/#environment
     environment: 'jsdom',
   },
+  build: {
+    sourcemap: true,
+  },
   plugins: [svelte()],
 })

@@ -1,7 +1,8 @@
 <script>
-    import { addLayer, getEaData, removeLayer, openLayerList, getEALayerObject } from "src/shared/utilities.js";
+    import { addLayer, getEaData, removeLayer, openRightPanel, getEALayerObject } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import { activeWidget } from "src/store.ts";
+    import { mount } from 'svelte';
 
     export let subtopic;
     export let view;
@@ -19,7 +20,7 @@
         addLayer(lObject, view);
         // If there is a layer added, open the Layer List
         if (lObject) {
-            openLayerList($activeWidget);
+            openRightPanel($activeWidget, "layers");
         }
     }
 
@@ -37,6 +38,7 @@
 
     async function getSubtopicDetails () {
         // Use api to get detailsObj and pass to the SubtopicDetails component with subtopic 
+        console.log(subtopic)
         if (subtopic.layers.length < 2) {
             layerID = subtopic.layers[0].layerID
             let detailsParams = {
@@ -45,7 +47,7 @@
             let detailsObj = await getEaData(`/ea/api/layers/${layerID}`, detailsParams);
             let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
             if (!findPopover) {
-                new SubtopicDetails({
+                mount(SubtopicDetails, {
                     target: document.body,
                     props: { subtopic, detailsObj },
                 });
@@ -65,7 +67,7 @@
             }
             let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
             if (!findPopover) {
-                new SubtopicDetails({
+                mount(SubtopicDetails,{
                     target: document.body,
                     props: { subtopic, detailsArray },
                 });
@@ -91,11 +93,12 @@
     {#if subtopic.sourceType == dTypeValue}
 <calcite-list-item 
     id={subtopic.layers.length > 1 ? 'not-header-subtopic' : 'not-header'}
+    style={subtopic.visLayerCount > 1 ? "margin-left: 10px" : ""}
     label={subtopic.name} 
     description={dTypeLabel} 
     on:calciteListItemSelect={e=>e.stopPropagation()}
     >
-        {#if subtopic.layers.length == 1}
+        {#if subtopic.visLayerCount == 1}
         <calcite-checkbox 
             slot="actions-start" 
             aria-checked="false" 
@@ -115,10 +118,10 @@
             scale="m" 
             slot="actions-end" 
             id="{subtopic.subTopicID}-details-popover-button"
-            on:click={detailsObj = () => getSubtopicDetails()}
-            on:keypress={detailsObj = () => getSubtopicDetails()}>
+            on:click={() => getSubtopicDetails()}
+            on:keydown={() => getSubtopicDetails()}>
         </calcite-action>
-        {#if subtopic.layers.length > 1}
+        {#if subtopic.visLayerCount > 1}
         <div slot="content-bottom" id="concernFilterDiv">
             {#each subtopic.layers as layer (layer.layerID)}
             {#if layer.isVisible}
@@ -154,7 +157,6 @@
         --calcite-list-background-color-hover: none;
         --calcite-list-background-color-press: none;
         --calcite-spacing-xxs: 0;
-        margin-left: 10px;
         --calcite-font-weight-normal: 400;
         font-size: var(--calcite-font-size--2)  
     } 

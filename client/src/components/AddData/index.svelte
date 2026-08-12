@@ -18,38 +18,100 @@
   import Url from "src/components/AddData/Url.svelte";
   import Search from "src/components/AddData/Search.svelte";
 
-  export let map;
+  import {activeWidget} from "src/store.ts";
+
+  export let view;
+
+  let addDataPanel;
+  let actionRefs = [];
+  let activeAction = "search";
+
+  const addDataActions = [
+    {
+      name: "Search",
+      id: "search",
+      label1: "Search",
+    },
+    {
+      name: "URL",
+      id: "url",
+      label1: "URL",
+    },
+  ];
 
   window.ea.addData = {};
-  window.ea.addData.map = ()=>{return map};
+  window.ea.addData.view = () => {
+    return view;
+  };
 
-  console.log();
+  function handleAddDataActionClick(actionId = "search") {
+    activeAction = actionId;
+  }
+
+  const handleFabClick = (e) => {
+    e.target.setAttribute("hidden", "");
+    let shell = document.getElementById("shell-panel-end");
+    addDataPanel.removeAttribute("open");
+    addDataPanel.setAttribute("hidden", "");
+    shell.setAttribute("collapsed", "");
+    let expandRight = document.getElementById("expand-right");
+    expandRight.hidden = false;
+  };
 </script>
 
-<calcite-panel width-scale='l' heading="Add Data" data-panel-id="add-data" hidden>
-    <calcite-tabs layout='center'>
-      <calcite-tab-nav slot="title-group">
-          <calcite-tab-title selected tab='url'>
-              URL
-          </calcite-tab-title>
-          <calcite-tab-title tab='search'>Search</calcite-tab-title>
-      </calcite-tab-nav>
-      <calcite-tab selected tab='url'>
-        <Url map={map}></Url>
-      </calcite-tab>
-      <calcite-tab tab='search'>
-        <Search map={map}></Search>
-    </calcite-tab>
-  </calcite-tabs>
+<calcite-panel
+  bind:this={addDataPanel}
+  width-scale="l"
+  heading="Add Data"
+  data-panel-id="add-data"
+  hidden
+  icon="add-layer"
+  class="right-panel"
+>
+  <div style="margin: 8px; display:flex; justify-content: space-around">
+  {#each addDataActions as tab, i}
+    <div
+      bind:this={actionRefs[i]}
+      on:click={() => handleAddDataActionClick(tab.id)}
+      data-action-id={tab.id}
+      id="catalog-buttom-{tab.id}"
+      style={activeAction === tab.id ? "border-bottom:3px solid #162e51;" : "border-bottom: none"}
+      class="add-data-button"
+    >
+                  <p style="line-height: 0.33em; margin: 0; padding-top:5px; padding-bottom: 8px">
+                {tab.label1}
+            </p>
+    </div>
+  {/each}
+  </div>
+  <Search {view} isHidden={activeAction !== "search"} />
+  <Url {view} isHidden={activeAction !== "url"} />
 </calcite-panel>
+<calcite-fab
+    role="button"
+    tabindex="-1"
+    id="add-data-fab"
+    icon="chevrons-right"
+    hidden
+    on:click={handleFabClick}
+    on:keydown={handleFabClick}
+></calcite-fab>
 
 <style>
-    calcite-tab {
-        padding: 1em;
-    }
+  .add-data-button {
+    width: 100%;
+    margin: 0 20px;
+    text-align: center;
+    cursor: pointer;
+  }
 
-    #service-url-required, #search-term-required {
-      --calcite-ui-icon-color: var(--calcite-ui-danger);
-    }
+  calcite-fab {
+    place-content: center;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
 
+  calcite-panel.right-panel {
+    --calcite-panel-header-background-color: #f7f7f7
+  }
 </style>

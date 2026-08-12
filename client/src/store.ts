@@ -1,5 +1,8 @@
 import { derived, writable } from "svelte/store";
 
+export const smaAnalysisInputs = writable('');
+export const smaAnalysisOutputs = writable('');
+
 // don't have to call this state; shared between components (App and AppShell)
 export const viewState = writable({
     view: null
@@ -9,48 +12,6 @@ export const viewState = writable({
 export const mapState = writable({
     map: null
 })
-
-type SmaViewModel = {
-    indicator: string;
-    landcoverYear: number;
-    sumUnit: string;
-    geographyLabel: string;
-}
-
-export const smaViewModel = writable<SmaViewModel>({
-    indicator: "nlcd",
-    landcoverYear: null,
-    sumUnit: '',
-    geographyLabel: '',
-});
-
-export const smaInputs = writable({
-    landcover: Object({}),
-    landcoverChange: Object({}),
-    nlcdYearCombobox: Object({}),
-    nlcdChange1Combobox: Object({}),
-    nlcdChange2Combobox: Object({}),
-    summaryUnitCombobox: Object({}),
-    bufferDistance: Object({}),
-});
-
-let landcover;
-let landcoverChange;
-let nlcdYearCombobox;
-let nlcdChange1Combobox;
-let nlcdChange2Combobox;
-let summaryUnitCombobox;
-// let bufferDistance,
-
-smaInputs.subscribe(value => {
-    landcover = value.landcover;
-    landcoverChange = value.landcoverChange;
-    nlcdYearCombobox = value.nlcdYearCombobox;
-    nlcdChange1Combobox = value.nlcdChange1Combobox;
-    nlcdChange2Combobox = value.nlcdChange2Combobox;
-    summaryUnitCombobox = value.summaryUnitCombobox;
-});
-
 
 export const catalog = writable({
     type: "national",
@@ -121,7 +82,8 @@ export const filteredNationalItems = derived(
                         return {...layers, ...((layers.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible);
-                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                    const visibleLayerCount = lyrObj.filter(layers => layers.isVisible).length;
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis, visLayerCount: visibleLayerCount}
                 });
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
                 return {...category, subtopic: subObj, isVisible: isCatVis}
@@ -134,7 +96,8 @@ export const filteredNationalItems = derived(
                         return {...layers, ...((layers.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible) && subtopic[$categoryFilter];
-                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                    const visibleLayerCount = lyrObj.filter(layers => layers.isVisible).length;                    
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis, visLayerCount: visibleLayerCount}
                 });
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
                 return {...category, subtopic: subObj, isVisible: isCatVis}
@@ -147,7 +110,8 @@ export const filteredNationalItems = derived(
                         return {...layers, ...((layers.areaGeog.includes($geography) && (layers.name.includes($searchTerm) || layers.tags.includes($searchTerm) || layers.description.includes($searchTerm))) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible);
-                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                    const visibleLayerCount = lyrObj.filter(layers => layers.isVisible).length;
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis, visLayerCount: visibleLayerCount}
                 });
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
                 return {...category, subtopic: subObj, isVisible: isCatVis}
@@ -184,3 +148,16 @@ export const totalVisibleMaps = derived([geography, filteredNationalItems], ([$g
 fetchData();
 
 },0); // Initial value
+
+// Alert variables
+type Alerts = {
+    mapAlert: HTMLCalciteAlertElement;
+    alertTitle: HTMLDivElement;
+    alertMessage: HTMLDivElement;
+}
+
+export const alerts = writable<Alerts>({
+    mapAlert: Object({}),
+    alertTitle: Object({}),
+    alertMessage: Object({})
+});
