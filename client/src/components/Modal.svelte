@@ -204,6 +204,7 @@
 	}
 
 	calcite-tab-title {
+		--calcite-tab-background-color: #63778c;
 		--calcite-tab-text-color: white;
 		--calcite-color-text-1: white;
 		--calcite-internal-color-focus: white;
