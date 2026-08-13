@@ -16,8 +16,6 @@
   import Url from "src/components/AddData/Url.svelte";
   import Search from "src/components/AddData/Search.svelte";
 
-  import {activeWidget} from "src/store.ts";
-
   export let view;
 
   let addDataPanel;

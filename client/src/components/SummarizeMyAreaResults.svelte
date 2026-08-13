@@ -2,7 +2,6 @@
     import {
         smaAnalysisInputs,
         smaAnalysisOutputs,
-        activeWidget
     } from "src/store.ts";
 
     let smaResultsPanel;

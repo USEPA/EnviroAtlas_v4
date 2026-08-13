@@ -31,6 +31,35 @@ export const categoryFilter = writable('');
 
 export const totalMaps = writable(0);
 
+const normalizeText = (value: unknown): string => {
+    return String(value ?? '')
+        .toLowerCase()
+        .replace(/^"+|"+$/g, '')
+        .trim();
+};
+
+const parseTags = (tags: unknown): string[] => {
+    return normalizeText(tags)
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(Boolean);
+};
+
+const layerMatchesSearchTerm = (layer: any, term: string): boolean => {
+    const search = normalizeText(term);
+    if (!search) return true;
+
+    const name = normalizeText(layer?.name);
+    const description = normalizeText(layer?.description);
+    const tags = parseTags(layer?.tags);
+
+    return (
+        name.includes(search) ||
+        description.includes(search) ||
+        tags.some(tag => tag.includes(search))
+    );
+};
+
 // If we can rewrite things to call api instead of using store, then this is all unnecessary...
 
 // derived store that filters each level of UI data (level1=topic, level2=subtopic, level3=layers) based on geography
@@ -107,7 +136,7 @@ export const filteredNationalItems = derived(
             return $nationalItems.map(category => {
                 const subObj = category.subtopic.map(subtopic => {
                     const lyrObj = subtopic.layers.map(layers => {
-                        return {...layers, ...((layers.areaGeog.includes($geography) && (layers.name.includes($searchTerm) || layers.tags.includes($searchTerm) || layers.description.includes($searchTerm))) ? {isVisible: true} : {isVisible: false})}
+                        return {...layers, ...((layers.areaGeog.includes($geography) && layerMatchesSearchTerm(layers, $searchTerm)) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible);
                     const visibleLayerCount = lyrObj.filter(layers => layers.isVisible).length;
