@@ -30,28 +30,6 @@ calcite-list-item {
   --calcite-list-spacing-indent: none !important;
 }
 
-.esri-ui-bottom-left .esri-coordinate-conversion {
-  background-color: #ffffff54;
-  width: 180px;
-  top: -1px;
-  height: 16px;
-  font-weight: 600;
-  font-size: 11px;
-  color: #323232;
-  box-shadow: none !important;
-  pointer-events: none !important;
-  user-select: text;
-}
-
-.esri-ui-bottom-left .esri-coordinate-conversion__conversion-list {
-  position: relative;
-  top: -15px;
-}
-
-.esri-ui-bottom-left .esri-coordinate-conversion__select-row, .esri-ui-bottom-left .esri-coordinate-conversion__input-select {
-  display:none;
-}
-
 .esri-legend__layer-cell {
   padding: 1px 0;
 
