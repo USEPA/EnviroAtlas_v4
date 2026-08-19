@@ -1,8 +1,6 @@
 <script>
   // Import calcite components
   import "@esri/calcite-components/dist/components/calcite-panel";
-  import "@esri/calcite-components/dist/components/calcite-tile-select-group";
-  import "@esri/calcite-components/dist/components/calcite-tile-select";
   import "@esri/calcite-components/dist/components/calcite-slider";
   import "@esri/calcite-components/dist/components/calcite-fab";
   import "@esri/calcite-components/dist/components/calcite-button";
@@ -17,8 +15,6 @@
 
   import Url from "src/components/AddData/Url.svelte";
   import Search from "src/components/AddData/Search.svelte";
-
-  import {activeWidget} from "src/store.ts";
 
   export let view;
 

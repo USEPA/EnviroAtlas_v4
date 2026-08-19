@@ -66,11 +66,20 @@
   let clearAction;
   let activeDimension = "2d";
   let activeTool = null;
+  let lat;
+  let long;
 
   $: {
     if (view && !map) {
         view.addEventListener("arcgisViewReadyChange", () => {
             map = view.map;
+            view.view.on("pointer-move", function(event) {
+              const mapPoint = view.toMap({x: event.x, y: event.y});
+              if (mapPoint) {
+                lat = mapPoint.latitude.toFixed(6);
+                long = mapPoint.longitude.toFixed(6);
+              }
+            });
         });
     }
   }
@@ -109,7 +118,7 @@
         view.popup ={
           dockEnabled: true, 
           dockOptions: {
-            position: "top-right",
+            position: "top-left",
             breakpoint: false
           },
           viewModel: {
@@ -376,31 +385,24 @@
     >
     <arcgis-search
       popupDisabled
-      position="top-right"
+      slot="top-right"
     ></arcgis-search>
     <arcgis-zoom 
-      position="top-right" 
+      slot="top-right" 
       layout="vertical"
     ></arcgis-zoom>
     <arcgis-compass 
-      position="top-right"
+      slot="top-right"
     ></arcgis-compass>
     <arcgis-scale-bar
-      position="bottom-left"
+      slot="bottom-left"
       bar-style="line"
       unit="dual"
    ></arcgis-scale-bar>
-    <arcgis-coordinate-conversion
-      position="bottom-left"
-      mode="live"
-      orientation="auto"
-      hide-capture-button
-      hide-expand-button
-      hide-input-button
-      hide-settings-button
-      multiple-conversions-disabled
-      storage-disabled
-   ></arcgis-coordinate-conversion>
+    <div
+      slot="bottom-left"
+      id="lat-long"
+   >{long}°, {lat}°</div>
   </arcgis-map>
   <calcite-shell-panel
     component-id="shell-panel-start"
@@ -482,7 +484,7 @@
     ></calcite-action>
     <calcite-action
       data-action-id="maptools"
-      icon="system-management"
+      icon="tools"
       text="Other Map Tools"
     ></calcite-action>
     <calcite-action
@@ -555,7 +557,7 @@
     on:keydown={handleRightFabClick}
   ></calcite-fab>
   <calcite-panel
-    icon="system-management"
+    icon="tools"
     heading="Other Map Tools"
     height-scale="l"
     data-panel-id="maptools"
@@ -566,6 +568,7 @@
   >
     <calcite-block collapsible heading="Location" label="Location" description="Place a point on the map to see its coordinates.">
       <arcgis-coordinate-conversion
+        style="padding: 8px"
         class="tool-coords"
         mode="live"
         orientation="auto"
@@ -582,6 +585,7 @@
       </calcite-action-bar>
       <div bind:this={distance2dDiv} hidden>
         <arcgis-distance-measurement-2d
+          style="padding: 8px"
           referenceElement={view}
           id="distance2d"
           bind:this={distance2d}
@@ -589,18 +593,19 @@
         </div>
         <div bind:this={area2dDiv} hidden>
         <arcgis-area-measurement-2d
+          style="padding: 8px"
           referenceElement={view}
           id="area2d"
           bind:this={area2d}
         ></arcgis-area-measurement-2d>
       </div>
     </calcite-block>
-    <calcite-block collapsible heading="Bookmarks" label="Bookmarks" description="Instantly save and return to specific locations.">
-      <arcgis-bookmarks drag-enabled show-add-bookmark-button show-edit-bookmark-button referenceElement={view}></arcgis-bookmarks>
-    </calcite-block>
     <calcite-block collapsible heading="Elevation Profile" label="Elevation Profile" description="Generate a 2D cross-section of terrain heights along a drawn line.">
-      <arcgis-elevation-profile profiles={elevProfile} referenceElement={view}>
+      <arcgis-elevation-profile style="width:420px; padding: 8px" profiles={elevProfile} referenceElement={view}>
       </arcgis-elevation-profile>
+    </calcite-block>
+    <calcite-block collapsible heading="Bookmarks" label="Bookmarks" description="Instantly save and return to specific locations.">
+      <arcgis-bookmarks style="padding: 8px" drag-enabled show-add-bookmark-button show-edit-bookmark-button referenceElement={view}></arcgis-bookmarks>
     </calcite-block>
   </calcite-panel>
   <calcite-fab
@@ -673,5 +678,14 @@
     --calcite-internal-block-padding-block:0px;
     --calcite-internal-block-padding-inline:0px;
     --calcite-spacing-md: .5rem
-}
+  }
+
+  #lat-long {
+    background-color:  color-mix(in srgb, var(--calcite-color-foreground-1) 50%, transparent);
+    color: #141414;
+    width: 180px;
+    font-weight: 600;
+    font-size: 11px;
+    text-align: center;
+  }
 </style>

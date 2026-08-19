@@ -57,7 +57,6 @@
     }
 
     function updateTypeOpt() {
-        console.log(typeOptSelection.selectedItems)
         if (typeOptSelection.selectedItems.length === 1) {
             searchObj.types = `type:"${typeOptSelection.selectedItems[0].value}"`
             buildQueryString()
