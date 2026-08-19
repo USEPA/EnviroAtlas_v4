@@ -1977,7 +1977,11 @@
                             <div slot="title">Incomplete selections</div>
                             <div slot="message">Please make selections.</div>
                         </calcite-notice>
+                        {#if lcluPastOptions_filtered[0].options.length < 1}
+                        <calcite-button>Coming Soon!</calcite-button>
+                        {:else}
                         <calcite-button on:click={() => getSelections('lcluPast')}>Add to map</calcite-button>
+                        {/if}
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
