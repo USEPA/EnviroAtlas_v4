@@ -118,7 +118,7 @@
         view.popup ={
           dockEnabled: true, 
           dockOptions: {
-            position: "top-right",
+            position: "top-left",
             breakpoint: false
           },
           viewModel: {
@@ -600,12 +600,12 @@
         ></arcgis-area-measurement-2d>
       </div>
     </calcite-block>
-    <calcite-block collapsible heading="Bookmarks" label="Bookmarks" description="Instantly save and return to specific locations.">
-      <arcgis-bookmarks style="padding: 8px" drag-enabled show-add-bookmark-button show-edit-bookmark-button referenceElement={view}></arcgis-bookmarks>
-    </calcite-block>
     <calcite-block collapsible heading="Elevation Profile" label="Elevation Profile" description="Generate a 2D cross-section of terrain heights along a drawn line.">
       <arcgis-elevation-profile style="width:420px; padding: 8px" profiles={elevProfile} referenceElement={view}>
       </arcgis-elevation-profile>
+    </calcite-block>
+    <calcite-block collapsible heading="Bookmarks" label="Bookmarks" description="Instantly save and return to specific locations.">
+      <arcgis-bookmarks style="padding: 8px" drag-enabled show-add-bookmark-button show-edit-bookmark-button referenceElement={view}></arcgis-bookmarks>
     </calcite-block>
   </calcite-panel>
   <calcite-fab
