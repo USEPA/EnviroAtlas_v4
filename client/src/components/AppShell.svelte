@@ -173,6 +173,7 @@
   function layerListAction(e) {
     const id = e.detail.action.id;
     if (id === "trash") {
+      view.popup.close();
       const title = e.detail.item.layer.title;
       // remove tile layer and feature layer with same title
       const removals = e.detail.item.view.map.allLayers.filter(function(layer) {
