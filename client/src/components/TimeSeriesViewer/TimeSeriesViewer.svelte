@@ -165,18 +165,18 @@
     ]
 
     const lcluPastOptions = [
-        { name: 'LC/LU Class', options: [
+        { name: 'Land Cover Class', options: [
             {domains: "CONUS", label: "All Classes", value: "all"},
             //{label: "Forest", value: "Forest"},
             //{label: "Change Forest (compared to 2024)", value: "Change Forest (compared to 2024)"},
-        ]},
+        ], description: 'Choose the land cover class or "All Classes".'},
         { name: 'Year', options: [
             {domains: "CONUS", label: "1985", value: "1985", d: 599},
             {domains: "CONUS", label: "1995", value: "1995", d: 598},
             {domains: "CONUS", label: "2005", value: "2005", d: 597},
             {domains: "CONUS", label: "2015", value: "2015", d: 596},
             {domains: "CONUS", label: "2025", value: "2025", d: 588},
-        ]},
+        ], description: "Choose year."},
     ]
 
     const cmaqPastOptions = [
@@ -1792,7 +1792,7 @@
 
     async function loadLcluPast(selections) {
         let lObject;
-        if (selections['LC/LU Class']['value'] = 'all') {
+        if (selections['Land Cover Class']['value'] = 'all') {
             let id = selections['Year']['d'];
             lObject = await getEALayerObject(id);
             openRightPanel($activeWidget, "layers");
@@ -1863,6 +1863,8 @@
             optionsObj = options.filter((opt => opt.name == option_name))[0]
         } else if (theme === 'cmaq') {
             optionsObj = cmaqPastOptions.filter((opt => opt.name == option_name))[0]
+        } else if (theme === 'lcluPast') {
+            optionsObj = lcluPastOptions.filter((opt => opt.name == option_name))[0]
         }
         console.log(optionsObj)
         let findPopover = document.querySelector(`[reference-element="${theme}-${optionsObj.name}-details-popover-button"]`);
@@ -1978,8 +1980,10 @@
                         <calcite-button 
                             appearance="transparent"
                             iconEnd="information"
-                            id="pop-proj-details-popover-button"
+                            id="lcluPast-{lcluPast.name}-details-popover-button"
                             class="info-button"
+                            on:click={() => openDetails('lcluPast', lcluPast.name)}
+                            
                     ></calcite-button>
                     </div>
                     {/each}
