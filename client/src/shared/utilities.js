@@ -155,11 +155,12 @@ export function removeLayer(lyrName, view) {
     const foundLyr = view.map.allLayers.filter(function(layer) {
         return layer.title === lyrName;
     });
-    if (foundLyr) {
+    if (foundLyr.length > 0) {
+        view.popup.close();
         foundLyr.forEach((lyr) => {
             view.map.remove(lyr);
-        }) 
-    };         
+        });
+    }
 };
 
 export function addFeatureLayer(lObj, view) {
