@@ -131,36 +131,36 @@
 
     const popProjectedOptions = [
         { name: 'Scenario by 2100', options: [
-            {label: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)", value: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)"},
-            {label: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)", value: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)"}
+            {domains:"", label: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)", value: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)"},
+            {domains:"", label: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)", value: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)"}
         ]},
         { name: 'Model', options: [
-            {label: "GISS-E2-R", value: "GISS-E2-R"},
-            {label: "HadGEM2-ES", value: "HadGEM2-ES"}
+            {domains:"", label: "GISS-E2-R", value: "GISS-E2-R"},
+            {domains:"", label: "HadGEM2-ES", value: "HadGEM2-ES"}
         ]},
         { name: 'Change Between Periods', options: [
-            {label: "2000 vs. 2040", value: "2000 vs. 2040"},
-            {label: "2000 vs. 2060", value: "2000 vs. 2060"},
-            {label: "2000 vs. 2080", value: "2000 vs. 2080"},
-            {label: "2000 vs. 2100", value: "2000 vs. 2100"},
+            {domains:"", label: "2000 vs. 2040", value: "2000 vs. 2040"},
+            {domains:"", label: "2000 vs. 2060", value: "2000 vs. 2060"},
+            {domains:"", label: "2000 vs. 2080", value: "2000 vs. 2080"},
+            {domains:"", label: "2000 vs. 2100", value: "2000 vs. 2100"},
         ]},
     ]
 
     const lcluProjectedOptions = [
         { name: 'Scenario by 2100', options: [
-            {label: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)", value: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)"},
-            {label: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)", value: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)"}
+            {domains:"", label: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)", value: "Global mean: ↑4.3±1.0°F (RCP 4.5 & SSP2)"},
+            {domains:"", label: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)", value: "Global mean: ↑7.8±1.4°F (RCP 8.5 & SSP5)"}
         ]},
         { name: 'Model', options: [
-            {label: "GISS-E2-R", value: "GISS-E2-R"},
-            {label: "HadGEM2-ES", value: "HadGEM2-ES"}
+            {domains:"", label: "GISS-E2-R", value: "GISS-E2-R"},
+            {domains:"", label: "HadGEM2-ES", value: "HadGEM2-ES"}
         ]},
         { name: 'Period', options: [
-            {label: "2000 (Historical)", value: "2000 (Historical)"},
-            {label: "2040 (Near Term Future)", value: "2040 (Near Term Future)"},
-            {label: "2060 (Mid-Century)", value: "2060 (Mid-Century)"},
-            {label: "2080 (Late Century)", value: "2080 (Late Century)"},
-            {label: "2100 (End of Century)", value: "2100 (End of Century)"},
+            {domains:"", label: "2000 (Historical)", value: "2000 (Historical)"},
+            {domains:"", label: "2040 (Near Term Future)", value: "2040 (Near Term Future)"},
+            {domains:"", label: "2060 (Mid-Century)", value: "2060 (Mid-Century)"},
+            {domains:"", label: "2080 (Late Century)", value: "2080 (Late Century)"},
+            {domains:"", label: "2100 (End of Century)", value: "2100 (End of Century)"},
         ]},
     ]
 
@@ -246,6 +246,14 @@
     });
 
     $: lcluPastOptions_filtered = lcluPastOptions.map(obj => {
+        return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
+    });
+
+    $: lcluProjectedOptions_filtered = lcluProjectedOptions.map(obj => {
+        return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
+    });
+
+    $: popProjectedOptions_filtered = popProjectedOptions.map(obj => {
         return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
     });
 
@@ -1896,6 +1904,7 @@
             scale="auto"
             style="border-top: 1px solid #dedede; padding-top: 3px"
         >
+        {#if cmaqPastOptions_filtered[0].options.length > 0}
             <calcite-list-item
                 id='Impacts to Air/Water/Land (Past)'
                 label='Impacts to Air/Water/Land (Past)'
@@ -1939,6 +1948,8 @@
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
+            {/if}
+            {#if lcluPastOptions_filtered[0].options.length > 0}
             <calcite-list-item
                 id='Land Cover/Land Use (Past)'
                 label='Land Cover/Land Use (Past)'
@@ -1977,14 +1988,12 @@
                             <div slot="title">Incomplete selections</div>
                             <div slot="message">Please make selections.</div>
                         </calcite-notice>
-                        {#if lcluPastOptions_filtered[0].options.length < 1}
-                        <calcite-button>Coming Soon!</calcite-button>
-                        {:else}
                         <calcite-button on:click={() => getSelections('lcluPast')}>Add to map</calcite-button>
-                        {/if}
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
+            {/if}
+            {#if lcluProjectedOptions_filtered[0].options.length > 0}
             <calcite-list-item
                 id='Land Cover/Land Use (Projected)'
                 label='Land Cover/Land Use (Projected)'
@@ -2026,6 +2035,7 @@
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
+            {/if}
             <calcite-list-item
                 id='Population (Past)'
                 label='Population (Past)'
@@ -2065,6 +2075,7 @@
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
+            {#if popProjectedOptions_filtered[0].options.length > 0}
             <calcite-list-item
                 id='Population (Projected)'
                 label='Population (Projected)'
@@ -2106,6 +2117,7 @@
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
+            {/if}
             <calcite-list-item
                 id='Weather Normals (Projected)'
                 label='Weather Normals (Projected)'
