@@ -59,8 +59,11 @@ export function addLayer(lObj, view, index) {
         }
     }
     console.log(lObj);
-    if (isFeatureorMapService(lObj.url)) {
+    if (isFeatureService(lObj.url)) {
         addFeatureLayer(lObj, view)
+    }
+    if (isMapService(lObj.url)) {
+        addMapService(lObj, view)
     }
     if (lObj.tileLink === 'yes') {
         addTileLayer(lObj, view)
@@ -79,13 +82,21 @@ export function addLayer(lObj, view, index) {
 };
 
 /** 
- * Boolean test for Feature or Map service type
+ * Boolean test for Feature service type
  * @param {string} url
- * @return {boolean} Is the url an Feature or Map Service?
+ * @return {boolean} Is the url a Feature?
  */
-export function isFeatureorMapService(url) {
-    let match = url.substring(url.lastIndexOf('/') + 1);
-    return match === 'FeatureServer' || match === 'MapServer'
+export function isFeatureService(url) {
+    return url.substring(url.lastIndexOf('/') + 1) === 'FeatureServer'
+};
+
+/** 
+ * Boolean test for Map service type
+ * @param {string} url
+ * @return {boolean} Is the url a Map Service?
+ */
+export function isMapService(url) {
+    return url.substring(url.lastIndexOf('/') + 1) === 'MapServer'
 };
 
 /** 
@@ -156,16 +167,53 @@ export function removeLayer(lyrName, view) {
         return layer.title === lyrName;
     });
     if (foundLyr.length > 0) {
-        view.popup.close();
+        view.popup?.close();
         foundLyr.forEach((lyr) => {
             view.map.remove(lyr);
         });
     }
 };
 
+export function addMapService(lObj, view) {
+    const url = lObj.url;
+    // feature server URL
+    var copiedLayer = new MapImageLayer({
+        url,
+        title: lObj.name
+    });
+
+    // catch error on instantiating the new Feature Layer
+    copiedLayer.when(function () {
+        // if it has a popup property, build the popup template
+        if (lObj.popup != null) {
+            copiedLayer.popupTemplate = buildFSPopupTemp(lObj);
+        }
+    }, function (error) {
+        // This function will execute if the promise is rejected due to an error
+        // This is a workaround not having serviceType='dynamic' from API
+        // TODO: Update serviceType with data in DB
+        if (error.message === 'Source type "Raster Layer" is not supported') {
+            console.log('this is a dynamic map service')
+            view.map.remove(copiedLayer);
+            let miLyr = new MapImageLayer({
+                url: lObj.url,
+                title: lObj.name,
+                sublayers: [{
+                    id: 0,
+                    title: lObj.name
+                }]
+            });
+            view.map.add(miLyr);
+        }
+    });
+
+    setupErrorHandling(copiedLayer);
+
+    view.map.add(copiedLayer);
+};
+
 export function addFeatureLayer(lObj, view) {
     const url = Object.hasOwn(lObj, 'lyrNum') ? `${lObj.url}/${~~lObj.lyrNum}` : lObj.url;
-    console.log(url);
     // feature server URL
     var copiedLayer = new FeatureLayer({
         url,
