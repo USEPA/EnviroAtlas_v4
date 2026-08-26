@@ -10,6 +10,10 @@
     // Map routes to page. If a route is hit the current
     // reference is set to the route's component
 
+    page('/enviroatlas/interactivemap/*', async function (ctx) {
+        current = (await import('src/pages/Public.svelte')).default;
+        currentName = 'public';
+    });
     page('/ea/public/*', async function (ctx) {
         current = (await import('src/pages/Public.svelte')).default;
         currentName = 'public';
@@ -19,6 +23,7 @@
         currentName = 'public';
     });
     //add these redirects for vite de server. IIS already does the redirect
+    page.redirect('/enviroatlas/interactivemap', '/enviroatlas/interactivemap/');
     page.redirect('/ea/public', '/ea/public/');
     page.redirect('/ea/client', '/ea/client/');
 
