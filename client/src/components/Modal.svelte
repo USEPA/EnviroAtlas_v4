@@ -119,7 +119,7 @@
 	</calcite-tabs>
 	<img 
 		slot="footer-start"
-		src="images/epa_logo.png"
+		src="/ea/client/images/epa_logo.png"
 		style="height: 33px; display:inline-block; position:relative"
 	/>
 	<calcite-button
