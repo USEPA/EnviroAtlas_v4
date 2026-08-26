@@ -50,7 +50,6 @@ export async function getEaData(url, params) {
     }
 };
 
-// TEST: is it faster to load data from portal item metadata instead of EAAPI?
 export function addLayer(lObj, view, index) {
     // Look for the layer already in the view
     if (isLayerUrlInMap(lObj.url, view)) {
@@ -74,7 +73,7 @@ export function addLayer(lObj, view, index) {
             })
             addImageryLayer(lObj, view, rfRule, index)
         } else {
-            addImageryLayer(lObj, view, index)
+            addImageryLayer(lObj, view, null, index)
         }
     }
 };
@@ -134,12 +133,17 @@ export function isLayerTitleInMap(title, view) {
 };
 
 export function findLayersByTitle(view, title) {
-    const foundLayers = view.map.allLayers.findIndex(function(lyr, index, lyrs) {
+    let ind;
+    const foundLayers = view.map.allLayers.findIndex(function(lyr, index) {
         if (lyr.title && lyr.title.includes(title)) {
+            //return index
+            if (ind === undefined || index < ind) {
+                ind = index;
+            }
             return index
         }
     });
-    return foundLayers
+    return ind
 }
 
 /**
@@ -151,11 +155,12 @@ export function removeLayer(lyrName, view) {
     const foundLyr = view.map.allLayers.filter(function(layer) {
         return layer.title === lyrName;
     });
-    if (foundLyr) {
+    if (foundLyr.length > 0) {
+        view.popup.close();
         foundLyr.forEach((lyr) => {
             view.map.remove(lyr);
-        }) 
-    };         
+        });
+    }
 };
 
 export function addFeatureLayer(lObj, view) {
@@ -167,6 +172,21 @@ export function addFeatureLayer(lObj, view) {
         title: lObj.name,
         //opacity: 0.6,
     });
+
+    if (lObj.renderer === "simpleFill") {
+        let simpleFill = {
+            type: "simple",  // autocasts as new SimpleRenderer()
+            symbol: {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                //color: [ 255, 128, 0, 0.5 ],
+                outline: {  // autocasts as new SimpleLineSymbol()
+                    width: 1,
+                    color: "white"
+                }
+            }
+        };
+        copiedLayer.renderer = simpleFill
+    }
 
     // catch error on instantiating the new Feature Layer
     copiedLayer.when(function () {
@@ -180,8 +200,14 @@ export function addFeatureLayer(lObj, view) {
         // TODO: Update serviceType with data in DB
         if (error.message === 'Source type "Raster Layer" is not supported') {
             console.log('this is a dynamic map service')
+            view.map.remove(copiedLayer);
             let miLyr = new MapImageLayer({
-                url: lObj.url
+                url: lObj.url,
+                title: lObj.name,
+                sublayers: [{
+                    id: 0,
+                    title: lObj.name
+                }]
             });
             view.map.add(miLyr);
         }
@@ -199,13 +225,21 @@ export function addImageryLayer(lObj, view, rfRule, index) {
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
         //opacity: 0.6,
-        title: lObj.name
     }); 
+    if (lObj.name) {
+        iLyr.title = lObj.name
+        if (!lObj.name.includes("Summarize My Area") && !lObj.popup) {
+            iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "{Raster.ServicePixelValue.Raw}" }
+        } else if (!lObj.name.includes("Summarize My Area") && lObj.popup) {
+            iLyr.popupTemplate = buildFSPopupTemp(lObj)
+        } else {
+            iLyr.popupEnabled = false
+        }
+    } else {
+        iLyr.popupTemplate = { content: "{Raster.ServicePixelValue.Raw}" }
+    }
     if (rfRule) {
         iLyr.rasterFunction = rfRule
-    }
-    if (!lObj.name.includes("Summarize My Area")) {
-        iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "{Raster.ServicePixelValue.Raw}" }
     }
     view.map.add(iLyr, index);
     view.whenLayerView(iLyr).then((layerView) => {
@@ -215,6 +249,7 @@ export function addImageryLayer(lObj, view, rfRule, index) {
             fillOpacity: 0
         }
     }) 
+    return iLyr
 };
 
 export function addTileLayer(lObj, view) {
@@ -246,7 +281,7 @@ export function buildFSPopupTemp(lObj) {
     let pTemplate;
     // Add popup title data to the front of fieldInfos array
     let popupTitle = lObj.popup.title?.split(":");
-    popupTitle[1] = popupTitle[1].replace('{', '').replace('}', '').trim();
+    popupTitle[1] = popupTitle[1]?.replace('{', '').replace('}', '').trim();
     lObj.popup.fieldInfos.unshift({
         fieldName: popupTitle[1],
         label: popupTitle[0],
@@ -289,19 +324,24 @@ export function expandTopics(expand = true) {
  * Opens Layer List widget and closes others on right side, if applicable.
  * Used when data is added to the map.
  * @param {object} activeWidget - this value comes from the store
+ * @param {string} dataPanelToOpen - this data panel id string will select the panel to open
  */
-export function openLayerList(activeWidget) {
+export function openRightPanel(activeWidget, dataPanelToOpen) {
     let shell = document.querySelector(`[component-id="shell-panel-end"]`);
-    let layerPanel = document.querySelector(`[data-panel-id="layers"]`)
+    let layerPanel = document.querySelector(`[data-panel-id="${dataPanelToOpen}"]`)
+    let targetFab = document.querySelector(`[id=${dataPanelToOpen}-fab]`);
+    let rightExpand = document.querySelector(`[id=expand-right]`);
     // Given the right side panel is closed, when Add to map is clicked, 
     // the right side panel opens with the layer list visible
     if (!activeWidget.right) {
         layerPanel.removeAttribute("hidden");
         layerPanel.removeAttribute("closed");
         shell.removeAttribute("collapsed");
-        activeWidget.right = "layers";
+        targetFab.hidden = !targetFab.hidden;
+        rightExpand.hidden = !rightExpand.hidden;
+        activeWidget.right = dataPanelToOpen;
         document.querySelector(`[data-action-id=${activeWidget.right}]`).active = true;
-    } else if (activeWidget.right !== "layers") {
+    } else if (activeWidget.right !== dataPanelToOpen) {
         // Given the right side panel is open, when Add to map is clicked, 
         // the right side panel remains open and has layer list visible
         layerPanel.removeAttribute("hidden");
@@ -309,12 +349,22 @@ export function openLayerList(activeWidget) {
         document.querySelector(`[data-action-id=${activeWidget.right}]`).active = false;
         document.querySelector(`[data-panel-id=${activeWidget.right}]`).hidden = true;
         document.querySelector(`[data-panel-id=${activeWidget.right}]`).closed = true;
-        activeWidget.right = "layers";
+        document.querySelector(`[id=${activeWidget.right}-fab]`).hidden = true;
+        activeWidget.right = dataPanelToOpen;
         document.querySelector(`[data-action-id=${activeWidget.right}]`).active = true;
+        targetFab.hidden = !targetFab.hidden
         shell.removeAttribute("collapsed");
     }
 };
 
 export function isStringNotEmpty(str) {
   return typeof str === 'string' && str.trim().length > 0;
+}
+
+/**
+ * Open the information modal. 
+ * @param {string} key - which model to open.
+ */
+export function openInfo(key) {
+    document.querySelector(`[id=${key}-info]`)?.setAttribute("open", "")
 }

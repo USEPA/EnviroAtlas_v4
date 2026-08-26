@@ -1,5 +1,5 @@
-@import "https://js.arcgis.com/calcite-components/3.3.0/calcite.css";
-@import "https://js.arcgis.com/4.33/esri/themes/light/main.css";
+@import "https://js.arcgis.com/calcite-components/5.0.2/calcite.css";
+@import "https://js.arcgis.com/5.0/esri/themes/light/main.css";
 
 html,
 body {
@@ -28,28 +28,6 @@ body {
 
 calcite-list-item {
   --calcite-list-spacing-indent: none !important;
-}
-
-.esri-coordinate-conversion {
-  background-color: #ffffff54;
-  width: 180px;
-  top: -1px;
-  height: 16px;
-  font-weight: 600;
-  font-size: 11px;
-  color: #323232;
-  box-shadow: none !important;
-  pointer-events: none !important;
-  user-select: text;
-}
-
-.esri-coordinate-conversion__conversion-list {
-  position: relative;
-  top: -15px;
-}
-
-.esri-coordinate-conversion__select-row, .esri-coordinate-conversion__input-select {
-  display:none;
 }
 
 .esri-legend__layer-cell {

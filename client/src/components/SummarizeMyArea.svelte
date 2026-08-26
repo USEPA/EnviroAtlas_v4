@@ -17,7 +17,6 @@
     import "@esri/calcite-components/dist/components/calcite-input-number";
 
     // Import from arcgis js api
-    import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
     import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
     import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
     import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol";
@@ -35,13 +34,23 @@
     import * as d3 from "d3";
 
     // Import store and configuration
+    import {
+        activeWidget,
+        smaAnalysisInputs,
+        smaAnalysisOutputs 
+    } from "src/store.ts";
     import { smaConfig } from "src/shared/smaConfig";
     import {
         addLayer,
         getEALayerObject,
         isLayerTitleInMap,
-        findLayersByTitle
+        findLayersByTitle, 
+        openRightPanel,
+        openInfo, 
+        getEaData
     } from "src/shared/utilities.js";
+    import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
+    import { mount } from 'svelte';
 
     export let view;
     export let geography;
@@ -66,50 +75,73 @@
     let inputTableData = [];
     let bufferGeometry;
     let geometryType;
-    let resultsTab;
-    let selectionsTab;
-    let smaAnalysisOutputs;
-    let smaAnalysisInputs;
     let messages;
     let smaPanel;
-    let selectionsTabOpen = true;
+    let detailsMountTarget;
+    let detailsObj = {};
 
     $: isDisabled = !indicatorValue || !geometry;
 
     const handles = new Handles();
     const indicatorsDict = [
-        // {name: "Land Cover", value: "nlcd"},
-        // {name: "Land Cover Change", value: "nlcd-change"},
-        { name: "Dasymetric Population", value: "dasy",  
-            domains: "CONUS,Alaska,Hawaii,Puerto Rico,Virgin Islands"},
-        { name: "Permafrost Probability", value: "permafrost", 
-            domains: "Alaska"}
+        {topic: "Land Cover Type", subtopic: [
+            { name: "2025 National Land Cover Database (all classes)", value: "nlcd-2025",  
+            domains: "CONUS", id: 588, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
+            { name: "2015 National Land Cover Database (all classes)", value: "nlcd-2015",  
+            domains: "CONUS", id: 596, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
+            { name: "2005 National Land Cover Database (all classes)", value: "nlcd-2005",  
+            domains: "CONUS", id: 597, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
+            { name: "1995 National Land Cover Database (all classes)", value: "nlcd-1995",  
+            domains: "CONUS", id: 598, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
+            { name: "1985 National Land Cover Database (all classes)", value: "nlcd-1985",  
+            domains: "CONUS", id: 599, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
+        ]},
+        {topic: "Population", subtopic: [
+            { name: "Dasymetric allocation of population 2020 CONUS, Alaska, Hawaii, Puerto Rico, and the U.S. Virgin Islands", value: "dasy",  
+            domains: "CONUS,Alaska,Hawaii,Puerto Rico,Virgin Islands", id: 518, topic: "Population", dtype: "Non-summarized grid data"},
+        ]},
+        {topic: "Soils & Erosion", subtopic: [
+            { name: "Near-surface permafrost probability", value: "permafrost", 
+            domains: "Alaska", id:552, topic: "Soils and Erosion", dtype: "Non-summarized grid data"},
+        ]},                    
     ];
+
+    const summaryUnitArray = [
+        "County", 
+        "Congressional District", 
+        "HUC-8", "HUC-12", 
+        "Draw Area Around Point", 
+        "Draw Area Around Line", 
+        "Draw a Polygon"
+    ]
 
     /**
      * Filters selections in the indicator dropdown based on selected geography.
      */
     $: options_filtered = (() => {
-        const filtered = indicatorsDict.filter(obj =>
-            obj.domains.split(',').map(s => s.trim()).includes(geography)
-        );
+        const filtered = indicatorsDict.map((topic) => ({
+            ...topic,
+            subtopic: topic.subtopic.filter(obj =>
+                obj.domains.split(',').map(s => s.trim()).includes(geography)
+            ),
+        })).filter((topic) => topic.subtopic.length > 0);
         return filtered;
     })();
 
     const sketchLayer = new GraphicsLayer({
-        title: "Summarize My Area: User defined geometry",
+        title: "Summarize My Area Unit: User defined geometry",
         id: "griddedMapSketchLayer",
     });
     const bufferLayer = new GraphicsLayer({
-        title: "Summarize My Area: User defined geometry with buffer",
+        title: "Summarize My Area Unit: User defined geometry with buffer",
     });
     const sumUnitgraphic = new GraphicsLayer({
-        title: "Summarize My Area: User selected area"
+        title: "Summarize My Area Unit: User selected area"
     });
 
-    function geometryButtonsClickHandler(event) {
+    function geometryButtonsClickHandler(value) {
         geodesicBufferOperator.load()
-        geometryType = event.target.value;
+        geometryType = value;
         clearSketch();
         sketchViewModel.create(geometryType);
         if (geometryType == 'polygon') {
@@ -148,61 +180,40 @@
         }
     }
 
-    const updateIndicator = () => {
+    const updateIndicator = (elem) => {
         messages = null;
-        indicatorValue = indicatorElem.value;
-        if (indicatorValue == "permafrost") {
-            if ($geography != "Alaska") {
-                $geography = "Alaska";
-                document.getElementById("Alaska-bookmark").click();
+        if (elem.checked) {
+            let selectedIndicator = elem.value
+            if (selectedIndicator != indicatorValue && indicatorValue) {
+                indicatorElem.removeAttribute("checked")
             }
-            _initIndicatorLayer(indicatorValue);
-        } else if (indicatorValue) {
-            _initIndicatorLayer(indicatorValue);
-        } else if (!indicatorValue) {
+            indicatorElem = elem
+            indicatorValue = elem.value;
+            _initIndicatorLayer(indicatorValue, elem.id);
+            if ($activeWidget.right !== 'layers') {
+                openRightPanel($activeWidget, "layers");
+            }
+        } else {
+            indicatorElem = null;
+            indicatorValue = "";
             removeIndicator();
         }
     };
 
     function removeIndicator() {
         // Remove existing indicator from map and set values to null
-        let toRemove = view.map.layers.items?.filter(function (item) {
-            return item.title.includes("Summarize My Area Indicator:");
-        });
-        view.map.removeMany(toRemove);
+        const toRemove = (view?.map?.layers?.items ?? []).filter((item) =>
+            typeof item?.title === "string" &&
+            item.title.includes("Summarize My Area Indicator:"),
+        );
+        if (toRemove.length) {
+            view.map.removeMany(toRemove);
+        }
     }
 
-    // Store indicator year as view model value and add the appropriate raster to the map
-    const updateLCYear = (e) => {
-        console.log("event is: ", e);
-        landcoverYear = e.target.value;
-        if (landcoverYear) {
-            console.log("target year is: ", e.target.value);
-            // load the imagery on the map
-            _initIndicatorLayer(indicatorValue);
-        }
-    };
-
-    // Update LC Change inputs and add NLCD Year 2 to map
-    const updateLCChangeYears = (e) => {
-        console.log("event is: ", e);
-        if (e.target.id == "nlcd-change-year-1") {
-            nlcdChange1Combobox = e.target.value;
-        }
-        if (e.target.id == "nlcd-change-year-2") {
-            nlcdChange2Combobox = e.target.value;
-            _initIndicatorLayer(indicatorValue);
-        }
-        console.log("year1: ", nlcdChange1Combobox);
-        console.log("year2: ", nlcdChange2Combobox);
-    };
-
     // Add the appropriate raster to the map
-    async function _initIndicatorLayer(indicator) {
+    async function _initIndicatorLayer(indicator, id) {
         removeIndicator();
-
-        // Look for SMA sum unit layers and find index where imagery is just below it.
-        let smaLayersInMapHighestIndex = findLayersByTitle(view, "Summarize My Area") - 1;
 
         // Make mosaic rule work for land cover and land cover change variables
         let mosaicRule = new MosaicRule({
@@ -212,19 +223,32 @@
         let indicatorUrl;
         let lObject
 
+        // Look for SMA sum unit layers and find index where imagery is just below it.
+        let lowestIndex = findLayersByTitle(view, "Summarize My Area Unit");
+        let smaLayersInMapHighestIndex = lowestIndex - 2
+        if (smaLayersInMapHighestIndex > 0) { smaLayersInMapHighestIndex === 0 }
+
         switch (indicator) {
-            case "nlcd":
-                mosaicRule.lockRasterIds =
-                    smaConfig.nlcd.OBJECTIDS[landcoverYear];
-                indicatorUrl = smaConfig.nlcd.layer;
+            case "nlcd-2025":
+            case "nlcd-2015":
+            case "nlcd-2005":
+            case "nlcd-1995":
+            case "nlcd-1985":
+                lObject = await getEALayerObject(id);
+                let match = indicator.match(/^nlcd-(\d{4})$/);
+                const nlcdYear = match ? Number(match[1]) : null;
+                lObject.name =
+                    `Summarize My Area Indicator: ${nlcdYear} National Land Cover Database (all classes)`;
+                smaLayersInMapHighestIndex ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
+                //addLayer(lObject, view, 0)
                 break;
-            case "nlcd-change":
-                mosaicRule.lockRasterIds = [
-                    smaConfig.nlcd.OBJECTIDS[nlcdChange1Combobox],
-                    smaConfig.nlcd.OBJECTIDS[nlcdChange2Combobox],
-                ];
-                indicatorUrl = smaConfig.nlcd.layer;
-                break;
+            // case "nlcd-change":
+            //     mosaicRule.lockRasterIds = [
+            //         smaConfig.nlcd.OBJECTIDS[nlcdChange1Combobox],
+            //         smaConfig.nlcd.OBJECTIDS[nlcdChange2Combobox],
+            //     ];
+            //     indicatorUrl = smaConfig.nlcd.layer;
+            //     break;
             case "permafrost":
                 lObject = await getEALayerObject(552);
                 // TODO: error handle if lObject is empty
@@ -239,23 +263,6 @@
                 smaLayersInMapHighestIndex > 0 ? addLayer(lObject, view, smaLayersInMapHighestIndex) : addLayer(lObject, view);
                 break;
         }
-
-        // //TODO: Fix legend appearance
-        // const indicatorLayer = new ImageryLayer({
-        //     url: indicatorUrl,
-        //     mosaicRule: mosaicRule,
-        //     id: `sma-${indicator}-layer`,
-        //     noData: 0, // set no data params
-        //     opacity: 0.6,
-        //     title:
-        //         "Summarize My Area Indicator: " +
-        //         indicator + // TO DO: format
-        //         ", " +
-        //         landcoverYear,
-        //     popupEnabled: false,
-        // });
-
-        // view.map.add(indicatorLayer);
     }
 
     // Store summary unit input as view model value
@@ -270,13 +277,20 @@
         view.map.removeMany(toRemove);
 
         sumUnit = summaryUnitCombobox.value;
-        console.log("sumUnit is ", sumUnit);
         if (sumUnit != "") {
             _initGeometryLayer(sumUnit);
             clearSketch();
-        } if (sumUnit == "Draw a geometry") {
-            let drawCheck = isLayerTitleInMap("Summarize My Area: User defined geometry", view);
+        } if (sumUnit == "Draw a Polygon" || sumUnit == "Draw Area Around Point" || sumUnit == "Draw Area Around Line") {
+            geographyLabel = null;
+            let drawCheck = isLayerTitleInMap("Summarize My Area Unit: User defined geometry", view);
             !drawCheck ? view.map.addMany([bufferLayer,sketchLayer]) : null;
+            if (sumUnit == "Draw a Polygon") {
+                geometryButtonsClickHandler("polygon")
+            } else if (sumUnit == "Draw Area Around Point") {
+                geometryButtonsClickHandler("point")
+            } else if (sumUnit == "Draw Area Around Line") {
+                geometryButtonsClickHandler("polyline")
+            }
         } else {
             // Clear graphics from map if the sum unit changes.
             view.map.removeMany([bufferLayer,sketchLayer,sumUnitgraphic]);
@@ -289,8 +303,9 @@
     const _initGeometryLayer = (sumUnit) => {
         geometry = null;
         sketchLayer.removeAll();
+        openRightPanel($activeWidget, "layers");
 
-        if (sumUnit == "Draw a geometry") {
+        if (sumUnit == "Draw a Polygon" || sumUnit == "Draw Area Around Point" || sumUnit == "Draw Area Around Line") {
             _initSketchTool();
         } else {
             // Get unitMinScale, url, outfields from the smaConfig
@@ -302,7 +317,7 @@
                 symbol: new SimpleFillSymbol({
                     color: [128, 128, 128, 0],
                     outline: {
-                        color: [65, 65, 65],
+                        color: [255,255,255],
                         width: 2,
                     },
                 }),
@@ -321,6 +336,7 @@
 
             //Create zoom service message based on zoom of view
             if (sumUnit === "HUC-12" || sumUnit === "HUC-8") {
+                view.zoom < 7 ? messages = smaConfig['zoomServiceMsg'] : messages = null;
                 const zoomHandle = reactiveUtils.watch(
                     () => [view.stationary, view.zoom],
                     ([stationary, zoom]) => {
@@ -366,7 +382,7 @@
                                     buildGeographyLabel(geographyAttributes);
                                     const symbol = new SimpleFillSymbol({
                                         color: [0, 0, 0, 0],
-                                        outline: { color: [0, 0, 0], width: 2 },
+                                        outline: { color: [255,255,255], width: 2 },
                                     });
                                     sumUnitgraphic.add(new Graphic({
                                         geometry,
@@ -390,7 +406,7 @@
                                             symbol: new SimpleFillSymbol({
                                                 color: [128, 128, 128],
                                                 outline: {
-                                                    color: [65, 65, 65],
+                                                    color: [255,255,255],
                                                     width: 2,
                                                 },
                                             }),
@@ -408,7 +424,7 @@
                                 })
                                 .catch((error) => {
                                     console.log(error);
-                                });
+                                })
                         }
                     });
                 },
@@ -422,7 +438,7 @@
                     geographyLabel =
                         geographyAttributes.NAME +
                         ", " +
-                        geographyAttributes.State;
+                        geographyAttributes.STATE_NAME;
                     break;
                 case "Congressional District":
                     geographyLabel =
@@ -499,17 +515,22 @@
 
     async function calculate() {
         smaPanel.loading = true;
-        smaAnalysisOutputs.innerHTML = "";
-        smaAnalysisInputs.innerHTML = "";
+        $smaAnalysisOutputs.innerHTML = "";
+        $smaAnalysisInputs.innerHTML = "";
         // loading image on button
         // conditionality on what is geo depending on sum unit (point/line/area)
         //default let geo=geometry (selected area)
         let geo = geometry;
         let line;
-        const pixel_size = smaConfig[indicatorValue].resolution;
-        let compHistEndpoint = `${smaConfig[indicatorValue].layer}/computeStatisticsHistograms`;
+        const pixel_size = indicatorValue?.includes("nlcd")
+            ? smaConfig["nlcd"].resolution
+            : smaConfig[indicatorValue].resolution;
+        let compHistEndpoint = indicatorValue?.includes("nlcd")
+            ? `${smaConfig["nlcd"].layer}/computeStatisticsHistograms`
+            : `${smaConfig[indicatorValue].layer}/computeStatisticsHistograms`;
 
         let remapRF;
+        let mosaicRule;
 
         switch (indicatorValue) {
             case "permafrost":
@@ -525,18 +546,17 @@
                 };
                 remapRF.outputPixelType = "u8";
                 break;
-            case "dasy":
-                // remapRF = new RasterFunction();
-                // remapRF.functionName = "Remap";
-                // remapRF.functionArguments = {
-                //     InputRanges: [
-                //         0, 0, 0.000000001, 1.99999999999, 2, 9.9999999999, 10, 1000,
-                //     ],
-                //     OutputValues: [0, 1, 2, 3],
-                //     Raster: "$$",
-                // };
-                // remapRF.outputPixelType = "u8";
-                // console.log('running')
+            case "nlcd-2025":
+            case "nlcd-2015":
+            case "nlcd-2005":
+            case "nlcd-1995":
+            case "nlcd-1985":
+                let match = indicatorValue.match(/^nlcd-(\d{4})$/);
+                const nlcdYear = match ? Number(match[1]) : null;
+                mosaicRule = {
+                    "mosaicMethod": "esriMosaicLockRaster",
+                    "lockRasterIds": [smaConfig.nlcd.OBJECTIDS[nlcdYear]],
+                    }
                 break;
         }
 
@@ -547,6 +567,7 @@
             pixelSize: pixel_size,
         };
 
+        mosaicRule ? compHistObject['mosaicRule'] = JSON.stringify(mosaicRule) : null
         remapRF ? compHistObject['renderingRule'] = JSON.stringify(remapRF) : null;
 
         let results = await _computeHistograms(
@@ -589,10 +610,15 @@
                         { head: smaConfig[indicatorValue].secondStatLabel, cl: "", d: "perc" },
                     ];
                     let table = _renderTable(headers, data);
-                    smaAnalysisOutputs.append(table);
+                    $smaAnalysisOutputs.append(table);
                     _renderInputTable(area, line);
                 }
                 break;
+            case "nlcd-2025":
+            case "nlcd-2015":
+            case "nlcd-2005":
+            case "nlcd-1995":
+            case "nlcd-1985":
             case "permafrost":
                 //console.log(results)
                 if (results) {
@@ -612,8 +638,8 @@
                                         totalCount,
                                         count,
                                     ),
-                                    name: smaConfig[indicatorValue].indices[index],
-                                    legend: `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig[indicatorValue].colors[index]}"></div>`,
+                                    name: indicatorValue?.includes("nlcd") ? smaConfig["nlcd"].indices[index] : smaConfig[indicatorValue].indices[index],
+                                    legend: indicatorValue?.includes("nlcd") ? `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig["nlcd"].colors[index]}"></div>` : `<div class="nlcd-index-legend" style="width:15px; height:15px; background-color: ${smaConfig[indicatorValue].colors[index]}"></div>`,
                                 };
                             }
                         },
@@ -622,19 +648,19 @@
                     let headers = [
                         { head: "", cl: "title", d: "legend" },
                         {
-                            head: smaConfig[indicatorValue].classLabel,
+                            head: indicatorValue?.includes("nlcd") ? smaConfig["nlcd"].classLabel : smaConfig[indicatorValue].classLabel,
                             cl: "nlcd_title",
                             d: "name",
                         },
                         {
-                            head: smaConfig[indicatorValue].firstStatLabel,
+                            head: indicatorValue?.includes("nlcd") ? smaConfig["nlcd"].firstStatLabel : smaConfig[indicatorValue].firstStatLabel,
                             cl: "",
                             d: "area",
                         },
-                        { head: smaConfig[indicatorValue].secondStatLabel, cl: "", d: "perc" },
+                        { head: indicatorValue?.includes("nlcd") ? smaConfig["nlcd"].secondStatLabel : smaConfig[indicatorValue].secondStatLabel, cl: "", d: "perc" },
                     ];
                     let table = _renderTable(headers, data);
-                    smaAnalysisOutputs.append(table);
+                    $smaAnalysisOutputs.append(table);
                     _renderInputTable(area, line);
                 }
                 break;
@@ -643,39 +669,46 @@
 
     function _renderInputTable(area, line) {
         inputTableData = [];
-        let indicatorLabel = indicatorsDict.find(
-            (indicator) => indicator.value === indicatorValue,
-        ).name;
+        const selectedIndicator = indicatorsDict
+            .flatMap((group) => group.subtopic)
+            .find((indicator) => indicator.value === indicatorValue);
+
+        const indicatorLabel = selectedIndicator?.name ?? indicatorValue;
         inputTableData.push({ attribute: "Analysis", value: indicatorLabel });
 
-        inputTableData.push({
-            attribute: "Source Data",
-            value:
-                '<a target="_blank" style="text-decoration:none" href="' +
+        let val = indicatorValue?.includes("nlcd") ? '<a target="_blank" style="text-decoration:none" href="' +
+                smaConfig["nlcd"].layersUsedURL +
+                '">' +
+                smaConfig["nlcd"].layersUsed +
+                "</a>" : '<a target="_blank" style="text-decoration:none" href="' +
                 smaConfig[indicatorValue].layersUsedURL +
                 '">' +
                 smaConfig[indicatorValue].layersUsed +
-                "</a>",
+                "</a>"
+
+        inputTableData.push({
+            attribute: "Source Data",
+            value: val,
         });
 
-        if (sumUnit == "Draw a geometry" && geometryType == 'polygon') {
+        if (sumUnit == "Draw a Polygon" && geometryType == 'polygon') {
             inputTableData.push({ attribute: 'Geometry Type', value: 'User provided area' });
             if (bufferInput.value > 0) {
                 inputTableData.push({ attribute: 'Buffer', 'value': formatLargeNumber(bufferInput.value) + _getMetricString(pointMetric) });
                 //inputTableData.push({ attribute: 'Area inside buffer excluded', value: 'True' ? this.excludeInnerFeatureCheckbox.checked : 'False' });
             }
-        } else if (sumUnit == "Draw a geometry" && geometryType == 'point') {
+        } else if (sumUnit == "Draw Area Around Point" && geometryType == 'point') {
             inputTableData.push({ attribute: 'Geometry Type', value: 'User provided point' });
             const centroid = centroidOperator.execute(bufferGeometry);
             inputTableData.push({ attribute: 'Lat/Lon', value: centroid.latitude.toFixed(4) + ', ' +
                 centroid.longitude.toFixed(4)
             });
             inputTableData.push({ attribute: 'Buffer Radius', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
-        } else if (sumUnit == "Draw a geometry" && geometryType == "polyline") {
+        } else if (sumUnit == "Draw Area Around Line" && geometryType == "polyline") {
             inputTableData.push({ attribute: 'Geometry Type', value: 'User provided line' });
             inputTableData.push({ attribute: 'Length', value: line + ' ' + _getMetricString(pointMetric) });
             inputTableData.push({ attribute: 'Buffer', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
-        } else if (sumUnit != "Draw a geometry") {
+        } else {
             let inputTableFields = smaConfig.sum_units[sumUnit].outdesc;
             for (const k in inputTableFields) {
                 let v = inputTableFields[k];
@@ -686,7 +719,7 @@
                     v = geographyAttributes['NAME'] + ' - ' + geographyAttributes['PARTY']
                 }
                 if (k == "County"){
-                    v = geographyAttributes['NAME'] + ', ' + geographyAttributes["State"]
+                    v = geographyAttributes['NAME'] + ', ' + geographyAttributes["STATE_NAME"]
                 }
                 if (v.includes("results.")) {
                     let attr = v.replace("results.", "")
@@ -710,12 +743,10 @@
         ];
         let table = _renderTable(headers, inputTableData);
 
-        smaAnalysisInputs.append(table);
+        $smaAnalysisInputs.append(table);
         
         smaPanel.loading = false;
-        selectionsTab.selected = false;
-        resultsTab.selected = true;
-        selectionsTabOpen = false;
+        openRightPanel($activeWidget, "sma-results")
     }
 
     async function _computeHistograms(url, post_data) {
@@ -727,11 +758,15 @@
 
         try {
             const results = await compHistRequest;
-            //console.log(results);
+            if (results.data?.statistics?.length < 1) {
+                messages = smaConfig.genericError;
+                smaPanel.loading = false;
+                return;
+            }
             return results;
         } catch (err) {
             console.log(err);
-            if (err.details && err.details.messages[0] === 'The requested image exceeds the size limit.') {
+            if (!err.details && err.details.messages[0] === 'The requested image exceeds the size limit.') {
                 messages = smaConfig.sizeError;
             } else {
                 messages = smaConfig.genericError;
@@ -829,17 +864,54 @@
           return numberString + '.' + afterDecimal;
         }
         return numberString;
-      }
+    }
+
+    async function getSubtopicDetails (layer) {
+        const popoverReferenceId = `${layer.id}-details-popover-button`;
+        let subtopicParams = {
+            select: encodeURIComponent(
+                `{"topic":0,"categoryTab":0,"layers":{"layerID":1,"subLayerName":1,"description":1,"areaGeog":1,"name":1,"tags":1}}`,
+            ),
+            where: encodeURIComponent(`{"topic":"${layer.topic}"}`),
+        };
+        // return promise object resolve, not the whole promise object
+        let subtopic = await getEaData("/ea/api/subtopics", subtopicParams);
+        subtopic = subtopic[0]
+        let detailsParams = {
+            select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"agoID":1,"metadataID":1,"url":1}`)
+        };
+        let detailsObj = await getEaData(`/ea/api/layers/${layer.id}`, detailsParams);
+        let findPopover = document.querySelector(`[reference-element="${popoverReferenceId}"]`);
+        if (!findPopover) {
+            mount(SubtopicDetails, {
+                target: detailsMountTarget || document.body,
+                props: {
+                    subtopic,
+                    detailsObj,
+                    referenceElementId: popoverReferenceId,
+                },
+            });
+        }
+        let popover = document.querySelector(`[reference-element="${popoverReferenceId}"]`);
+        if (popover) {
+            popover.setAttribute("open", "true");
+        }
+        return detailsObj
+    }
+
+    function listItemExpand() {
+        !this.open
+            ? this.setAttribute("expanded", "")
+            : this.removeAttribute("expanded");
+    }
 </script>
 
 <calcite-panel
     bind:this={smaPanel}
-    heading="Summarize My Area"
     data-panel-id="sma"
     hidden
     overlayPositioning="fixed"
 >
-    {#if selectionsTabOpen}
     <calcite-button
         tabindex="0"
         role="button"
@@ -850,237 +922,144 @@
     >
         Calculate
     </calcite-button>
-    {/if}
-    <calcite-tabs layout="center">
-        <calcite-tab-nav slot="title-group">
-            <calcite-tab-title on:click={() => selectionsTabOpen = true} bind:this={selectionsTab} selected tab="selectionsTab">
-                Select Layer Area
-            </calcite-tab-title>
-            <calcite-tab-title on:click={() => selectionsTabOpen = false} bind:this={resultsTab} tab="resultsTab">Results</calcite-tab-title>
-        </calcite-tab-nav>
-        <calcite-tab selected tab="selectionsTab">
-            <calcite-block open heading="Select an indicator">
-                <calcite-icon scale="m" slot="icon" icon="number-circle-1"
-                ></calcite-icon>
-                <calcite-label layout="inline">
-                    <calcite-combobox
-                        scale="s"
-                        placeholder=" Select one"
-                        selection-mode="single"
-                        max-items="0"
-                        overlay-positioning="absolute"
-                        value="nlcd"
-                        bind:this={indicatorElem}
-                        on:calciteComboboxChange={updateIndicator}
-                    >
-                        {#each options_filtered as ind}
-                            <calcite-combobox-item
-                                value={ind.value}
-                                heading={ind.name}
-                            ></calcite-combobox-item>
-                        {/each}
-                    </calcite-combobox>
-                </calcite-label>
-                {#if indicatorValue == "nlcd"}
-                    <calcite-label layout="inline" scale="s">
-                        NLCD Year:
-                        <calcite-combobox
-                            scale="s"
-                            placeholder=" Select one"
-                            selection-mode="single"
-                            max-items="0"
-                            overlay-positioning="absolute"
-                            bind:this={nlcdYearCombobox}
-                            on:calciteComboboxChange={updateLCYear}
-                        >
-                            {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcYear}
-                                <calcite-combobox-item
-                                    value={lcYear}
-                                    heading={lcYear}
-                                ></calcite-combobox-item>
-                            {/each}
-                        </calcite-combobox>
-                    </calcite-label>
-                {:else if indicatorValue == "nlcd-change"}
-                    <calcite-label layout="inline" scale="s">
-                        NLCD Year 1:
-                        <calcite-combobox
-                            scale="s"
-                            placeholder=" Select one"
-                            selection-mode="single"
-                            max-items="0"
-                            overlay-positioning="absolute"
-                            id="nlcd-change-year-1"
-                            bind:this={nlcdChange1Combo}
-                            on:calciteComboboxChange={updateLCChangeYears}
-                        >
-                            {#each ["2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc1Year}
-                                <calcite-combobox-item
-                                    value={lcc1Year}
-                                    heading={lcc1Year}
-                                ></calcite-combobox-item>
-                            {/each}
-                        </calcite-combobox>
-                    </calcite-label>
-                    <calcite-label layout="inline" scale="s">
-                        NLCD Year 2:
-                        <calcite-combobox
-                            scale="s"
-                            placeholder=" Select one"
-                            selection-mode="single"
-                            max-items="0"
-                            overlay-positioning="absolute"
-                            id="nlcd-change-year-2"
-                            bind:this={nlcdChange2Combo}
-                            on:calciteComboboxChange={updateLCChangeYears}
-                        >
-                            {#each ["2019", "2016", "2013", "2011", "2008", "2006", "2004", "2001"] as lcc2Year}
-                                <calcite-combobox-item
-                                    value={lcc2Year}
-                                    heading={lcc2Year}
-                                ></calcite-combobox-item>
-                            {/each}
-                        </calcite-combobox>
-                    </calcite-label>
-                {/if}
-            </calcite-block>
-            <calcite-block open heading="Select a summary unit">
-                <calcite-icon scale="m" slot="icon" icon="number-circle-2"
-                ></calcite-icon>
-                <calcite-label layout="inline">
-                    <calcite-combobox
-                        scale="s"
-                        placeholder=" Select one"
-                        selection-mode="single"
-                        overlay-positioning="fixed"
-                        bind:this={summaryUnitCombobox}
-                        on:calciteComboboxChange={updateSumUnit}
-                    >
-                        {#each ["County", "Congressional District", "HUC-8", "HUC-12", "Draw a geometry"] as sumUnit}
-                            <calcite-combobox-item
-                                value={sumUnit}
-                                heading={sumUnit}
-                            ></calcite-combobox-item>
-                        {/each}
-                    </calcite-combobox>
-                </calcite-label>
-                {#if sumUnit == "Draw a geometry"}
-                    <div class="geometry-options">
-                        <button
-                            class="esri-widget--button esri-icon-map-pin geometry-button"
-                            id="point-geometry-button"
-                            value="point"
-                            title="Filter by point"
-                            on:click={geometryButtonsClickHandler}
-                        ></button>
-                        <button
-                            class="esri-widget--button esri-icon-polyline geometry-button"
-                            id="line-geometry-button"
-                            value="polyline"
-                            title="Filter by line"
-                            on:click={geometryButtonsClickHandler}
-                        ></button>
-                        <button
-                            class="esri-widget--button esri-icon-polygon geometry-button"
-                            id="polygon-geometry-button"
-                            value="polygon"
-                            title="Filter by polygon"
-                            on:click={geometryButtonsClickHandler}
-                        ></button>
-                    </div>
-                    <calcite-label layout="inline" scale="s"
-                        >Buffer distance:
-                        <calcite-input-number
-                            suffix-text="km"
-                            min="0"
-                            step="1"
-                            scale="s"
-                            value="1"
-                            number-button-type="vertical"
-                            bind:this={bufferInput}
-                        ></calcite-input-number>
-                    </calcite-label>
-                {/if}
-            </calcite-block>
-            <calcite-block open heading="Select your geography">
-                <calcite-icon scale="m" slot="icon" icon="number-circle-3"
-                ></calcite-icon>
-                {#if messages}
-                    <calcite-notice
-                        open
-                        icon="exclamation-mark-triangle"
-                        kind="danger"
-                    >
-                        <div slot="message">{messages}</div>
-                    </calcite-notice>
-                {/if}
-                {#if geographyLabel}
-                    <calcite-notice open kind="success">
-                        <div slot="message">{geographyLabel}</div>
-                    </calcite-notice>
-                {/if}
-            </calcite-block>
-        </calcite-tab>
-        <calcite-tab tab="resultsTab">
-            <calcite-block>
-                <div
-                    slot="content-start"
-                    class="widget-gridded-map profile-tab-node"
+    <calcite-block open heading="3. Select a summary unit" style="margin-top: 0px; margin-block-end: 0px" description="Select a unit area to calculate summary statistics">
+        <calcite-action slot="actions-end" icon="question" on:click={() => openInfo("sma")}></calcite-action>
+        <calcite-label layout="inline" style="padding-left: 12px">
+            <calcite-combobox
+                scale="m"
+                placeholder=" Select one"
+                selection-mode="single"
+                overlay-positioning="fixed"
+                bind:this={summaryUnitCombobox}
+                on:calciteComboboxChange={updateSumUnit}
+                style="width: 97%; height: 70%"
+            >
+                {#each summaryUnitArray as sumUnit}
+                    <calcite-combobox-item
+                        value={sumUnit}
+                        heading={sumUnit}
+                    ></calcite-combobox-item>
+                {/each}
+            </calcite-combobox>
+        </calcite-label>
+        {#if sumUnit == "Draw a Polygon" || sumUnit == "Draw Area Around Point" || sumUnit == "Draw Area Around Line"}
+            <div style="display:flex;">
+            <calcite-label layout="inline" scale="s" style="padding-left: 12px;"
+                >Choose buffer size:
+                <calcite-input-number
+                    suffix-text="km"
+                    min="0"
+                    step="1"
+                    scale="s"
+                    value="1"
+                    number-button-type="vertical"
+                    bind:this={bufferInput}
+                    alignment="end"
+                ></calcite-input-number>
+            </calcite-label>
+            <calcite-button
+                scale="s"
+                style="padding-left: 8px; height: 24px"
+                on:click={updateSketchGeometry}>
+                Apply
+            </calcite-button>
+            </div>
+        {/if}
+        {#if messages}
+            <calcite-notice
+                open
+                icon="exclamation-mark-triangle"
+                kind="danger"
+            >
+                <div slot="message">{messages}</div>
+            </calcite-notice>
+        {/if}
+        {#if geographyLabel}
+            <calcite-notice open kind="success">
+                <div slot="message">Selected Unit: {geographyLabel}</div>
+            </calcite-notice>
+        {/if}
+    </calcite-block>
+    <calcite-block open heading="4. Select a map layer to summarize" style="margin-top: 0px; margin-block-end: 0px" description="Choose a dataset to calculate summary statistics">
+        <calcite-list
+            label="toc"
+            display-mode="nested"
+            selection-mode="none"
+            scale="auto"
+            style="border-top: 1px solid #dedede; padding-top: 3px"
+        >
+        {#each options_filtered as topicGroup}
+        <calcite-list-item
+            label={topicGroup.topic}
+            value={topicGroup.topic}
+            on:calciteListItemSelect={listItemExpand}
+        >
+        {#if topicGroup.subtopic.length}
+        {#each topicGroup.subtopic as indicator (indicator.id)}      
+            <calcite-list-item
+                label={indicator.name}
+                description={indicator.dtype}
+                id="not-header"
+                on:calciteListItemSelect={e=>e.stopPropagation()}
                 >
-                    <div style="margin-bottom:10px" id="gridded-map-title">
-                        <div>
-                            <img
-                                alt="https://www.epa.gov/enviroatlas"
-                                src="images/logo.png"
-                                style="height: 33px; margin-top: 7px; display:inline-block; position:relative; left:50%; transform: translate(-50%); margin-bottom:-3px"
-                            />
-                        </div>
-                        <div
-                            style="display:block; margin:0 auto; text-align: center; font-size:18px; color:darkgray;"
-                        >
-                            Summarize My Area
-                        </div>
-                    </div>
-                    <div
-                        id="gridded-map-input-table-wrapper"
-                        bind:this={smaAnalysisInputs}
-                        class="table-wrapper"
-                    ></div>
-                    <div
-                        id="gridded-map-output-table-wrapper"
-                        bind:this={smaAnalysisOutputs}
-                        class="table-wrapper"
-                    ></div>
-                </div>
-            </calcite-block>
-        </calcite-tab>
-    </calcite-tabs>
+                    <calcite-checkbox
+                        slot="actions-start"
+                        aria-checked="false" 
+                        role="checkbox"
+                        style="padding: 0 10px;"
+                        tabindex="0"
+                        value={indicator.value}
+                        name={indicator.name}
+                        id={indicator.id}
+                        bind:this={indicator.element}
+                        on:calciteCheckboxChange={() => updateIndicator(indicator.element)}
+                    ></calcite-checkbox>
+                    <calcite-action 
+                        tabindex="-1"
+                        role="button"
+                        text="Details" 
+                        icon="information" 
+                        scale="m" 
+                        slot="actions-end"
+                        id={`${indicator.id}-details-popover-button`}
+                        on:click={() => getSubtopicDetails(indicator)}
+                        on:keydown={() => getSubtopicDetails(indicator)}>
+                    </calcite-action>
+            </calcite-list-item>
+        {/each}
+        {/if}
+        </calcite-list-item>
+        {/each}
+        </calcite-list>
+    </calcite-block>
+    <div bind:this={detailsMountTarget}></div>
 </calcite-panel>
 
 <style>
+    calcite-action {
+        --calcite-ui-focus-color: none !important;
+    }
+
     calcite-block {
         margin-left: 2px;
         margin-right: 2px;
+        padding: none !important
     }
 
-    calcite-tab {
-        overflow: hidden;
-    }
+    #not-header {
+        --calcite-list-background-color: #fff;
+        --calcite-list-background-color-hover: none;
+        --calcite-list-background-color-press: none;
+        --calcite-spacing-xxs: 0;
+        --calcite-font-weight-normal: 400;
+        font-size: var(--calcite-font-size--2)  
+    } 
 
-    .geometry-options {
-        display: flex;
-        flex-direction: row;
-    }
-
-    .geometry-button {
-        flex: 1;
-        border-style: solid;
-        border-width: 1px;
-        border-image: none;
-    }
-
-    .geometry-button-selected {
-        background: #4c4c4c;
-        color: #fff;
+    calcite-list-item {
+        --calcite-list-border-color: #aeaba2;
+        --calcite-ui-focus-color: none !important;
+        --calcite-color-text-2: #162e51;
+        --calcite-list-background-color: white;
+        font-size: var(--calcite-font-size--1);
     }
 </style>

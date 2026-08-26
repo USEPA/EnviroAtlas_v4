@@ -4,15 +4,19 @@
     export let subtopic;
     export let detailsObj;
     export let detailsArray;
+    export let referenceElementId;
+
+    $: popoverReference = referenceElementId || `${subtopic.subTopicID}-details-popover-button`;
 
     let categories = [
-        { name: "eaCA", icon: "air" }, 
-        { name: "eaNHM", icon: "haz" }, 
-        { name: "eaCPW", icon: "water" }, 
-        { name: "eaRCA", icon: "rec" }, 
-        { name: "eaFFM", icon: "food" }, 
+        { name: "eaCA", icon: "air" },
+        { name: "eaCPW", icon: "water" },
+        { name: "eaCL", icon: "land" },
         { name: "eaBC", icon: "bio" },
-        { name: "eaCS", icon: "clim" }
+        { name: "eaCS", icon: "clim" },
+        { name: "eaFFM", icon: "food" }, 
+        { name: "eaNHM", icon: "haz" }, 
+        { name: "eaRCA", icon: "rec" }
     ];
     
     export const openFactSheet = (factSheetsnippet) => {
@@ -35,8 +39,8 @@
     placement="trailing-start"
     overlay-positioning="fixed"
     scale="s"
-    label="{subtopic.subTopicID}-details-popover-button"
-    reference-element="{subtopic.subTopicID}-details-popover-button"
+    label={popoverReference}
+    reference-element={popoverReference}
     auto-close
     trigger-disabled
 >
@@ -48,7 +52,7 @@
                     <span class="dot" id={cat.name}>
                         <img alt={cat.name} 
                             style="width:24px;height:24px;padding-left:3px;padding-top:3px" 
-                            src="https://enviroatlas.epa.gov/enviroatlas/interactivemap/widgets/SimpleSearchFilter/images/ES_Icons/{cat.icon}.png">
+                            src="/ea/client/images/{cat.icon}.png">
                     </span>
                     {/if}
                 {/each}
@@ -66,19 +70,20 @@
                 role="button"
                 round
                 scale="s"
-                on:click={openFactSheet(detailsObj.dfsLink)}
-                on:keypress={openFactSheet(detailsObj.dfsLink)}
-                href={detailsObj.dfsLink}
+                on:click={() => openFactSheet(detailsObj.dfsLink)}
+                on:keydown={() => openFactSheet(detailsObj.dfsLink)}
                 target="_blank"
                 >Fact Sheet
             </calcite-button>
             <calcite-button 
                 icon-start="download-to" 
+                role="button"
+                tabindex="0"
                 round 
                 scale="s" 
-                on:click={openDataAccess(detailsObj)}
+                on:click={() => openDataAccess(detailsObj)}
+                on:keydown={() => openDataAccess(detailsObj)}
                 target="_blank"
-                href={isStringNotEmpty(detailsObj.agoID) ? "https://epa.maps.arcgis.com/home/item.html?id="+detailsObj.agoID : detailsObj.url}
             >Data Access</calcite-button>
         </div>
         {/if}
@@ -97,19 +102,20 @@
                     role="button"
                     round
                     scale="s"
-                    href={d.dfsLink}
                     target="_blank"
-                    on:click={openFactSheet(d.dfsLink)}
-                    on:keypress={openFactSheet(d.dfsLink)}
+                    on:click={() => openFactSheet(d.dfsLink)}
+                    on:keydown={() => openFactSheet(d.dfsLink)}
                     >Fact Sheet
                 </calcite-button>
                 <calcite-button 
                     icon-start="download-to" 
+                    role="button"
+                    tabindex="0"
                     round 
                     scale="s" 
                     target="_blank"
-                    href={isStringNotEmpty(d.agoID) ? "https://epa.maps.arcgis.com/home/item.html?id="+d.agoID : d.url}
-                    on:click={openDataAccess(d)}
+                    on:click={() => openDataAccess(d)}
+                    on:keydown={() => openDataAccess(d)}
                 >Data Access</calcite-button>
             </div>
             </calcite-card>
@@ -121,7 +127,7 @@
 
 <style>
     calcite-flow-item {
-        width: 330px;
+        width: 340px;
         --calcite-ui-focus-color: none !important;
     }
 
@@ -138,6 +144,10 @@
         width:30px;
         border-radius: 50%;
         display: inline-block;
+    }
+
+    .dot#eaCL {
+        background-color: #d2b48c;
     }
 
     .dot#eaCPW {

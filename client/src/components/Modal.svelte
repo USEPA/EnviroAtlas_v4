@@ -1,8 +1,19 @@
 <script>
 	// Import calcite components
 	import "@esri/calcite-components/dist/components/calcite-dialog";
+	import { tick } from "svelte";
 
+	/** @type {HTMLElement | undefined} */
 	let modal;
+	let activeTab = "welcome";
+	/** @type {HTMLElement | undefined} */
+	let disclaimerTabTitle;
+
+	async function openDisclaimerTab() {
+		activeTab = "disclaimer";
+		await tick();
+		disclaimerTabTitle?.focus();
+	}
 </script>
 
 <calcite-dialog
@@ -15,24 +26,60 @@
 >
 	<calcite-tabs layout="center">
 		<calcite-tab-nav slot="title-group">
-			<calcite-tab-title selected> Welcome </calcite-tab-title>
-			<calcite-tab-title>Disclaimer</calcite-tab-title>
+			<calcite-tab-title
+				selected={activeTab === "welcome"}
+				style="font-size: 16px"
+				on:calciteTabsActivate={() => (activeTab = "welcome")}
+			>
+				Welcome
+			</calcite-tab-title>
+			<calcite-tab-title
+				bind:this={disclaimerTabTitle}
+				selected={activeTab === "disclaimer"}
+				style="font-size: 16px"
+				on:calciteTabsActivate={() => (activeTab = "disclaimer")}
+				>Disclaimer</calcite-tab-title
+			>
 		</calcite-tab-nav>
-		<calcite-tab selected
-			><div style="margin: 0px 15px 0px 15px">
-				<br />
-				<p style="font-size:14px; text-align:center">
-					Welcome! The EnviroAtlas Interactive Map is a discovery and
-					analysis tool for hundreds of data layers relating to
-					ecosystem services, biodiversity, people, and the built
-					environment.
-				</p>
-				<br /><br />
-				By using the EnviroAtlas interactive map, you acknowledge the limitations
-				outlined in our disclaimer.
+		<calcite-tab selected={activeTab === "welcome"}
+			><div class="welcome-layout">
+				<div class="welcome-copy">
+					<b class="welcome-title">Welcome to</b>
+					<b class="welcome-title">the EnviroAtlas Interactive Map!</b
+					>
+					<p class="splash-text">
+						This new beta version of the EnviroAtlas Interactive Map
+						is a discovery and analysis tool for data layers
+						relating to the benefits people receive from their
+						environment.
+					</p>
+					<p class="splash-text">
+						The data can help inform decisions related to
+						environmental management, human well-being, and the
+						economy.
+					</p>
+					<p class="splash-text">
+						By using the EnviroAtlas Interactive Map, you
+						acknowledge the limitations outlined in the
+						<button
+							type="button"
+							class="disclaimer-link"
+							on:click={openDisclaimerTab}
+						>
+							disclaimer</button
+						>.
+					</p>
+				</div>
+				<div class="welcome-image-wrap">
+					<img
+						class="welcome-image"
+						src="/ea/client/images/Wheel_AMJ.png"
+						alt="EnviroAtlas wheel graphic"
+					/>
+				</div>
 			</div>
 		</calcite-tab>
-		<calcite-tab
+		<calcite-tab selected={activeTab === "disclaimer"}
 			><ul>
 				<li>
 					<b
@@ -70,14 +117,96 @@
 			</ul>
 		</calcite-tab>
 	</calcite-tabs>
+	<img 
+		slot="footer-start"
+		src="images/epa_logo.png"
+		style="height: 33px; display:inline-block; position:relative"
+	/>
 	<calcite-button
 		slot="footer-end"
-		on:click={() => modal.removeAttribute("open")}>OK</calcite-button
-	>
+		style="font-size: 16px"
+		on:click={() => modal?.removeAttribute("open")}>I agree</calcite-button>
 </calcite-dialog>
 
 <style>
+	calcite-button {
+		--calcite-button-background-color: white;
+		--calcite-button-text-color: black
+	}
+
 	calcite-dialog {
 		--calcite-dialog-scrim-background-color: rgba(83, 83, 83, 0.75);
+		--calcite-dialog-background-color: #162e51;
+		--calcite-dialog-footer-background-color: #162e51;
+		--calcite-dialog-heading-text-color: white;
+		--calcite-dialog-description-text-color: white;
+		color: white;
+		--calcite-dialog-header-action-text-color-press: white
+	}
+
+	calcite-tab,
+	calcite-tab p,
+	calcite-tab ul,
+	calcite-tab li,
+	calcite-tab b,
+	.disclaimer-link {
+		color: white;
+	}
+
+	.disclaimer-link {
+		background: none;
+		border: 0;
+		padding: 0;
+		font: inherit;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
+	.welcome-layout {
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
+		padding-left: 1.5rem;
+	}
+
+	.welcome-copy,
+	.welcome-image-wrap {
+		flex: 1 1 50%;
+	}
+	.splash-text {
+		font-size: 16px;
+		line-height: 1.25em;
+	}
+
+	.welcome-title {
+		display: block;
+		line-height: 1.25em;
+		font-size: 21px;
+		text-align: center;
+		transform: translateX(-15px);
+	}
+
+	.welcome-image-wrap {
+		display: flex;
+		justify-content: center;
+	}
+
+	.welcome-image {
+		max-width: 100%;
+		height: auto;
+	}
+
+	@media (max-width: 700px) {
+		.welcome-layout {
+			flex-direction: column;
+			text-align: center;
+		}
+	}
+
+	calcite-tab-title {
+		--calcite-color-focus: white;
+		--calcite-tab-text-color: white;
+		--calcite-color-text-1: white;
+		--calcite-internal-color-focus: white;
 	}
 </style>

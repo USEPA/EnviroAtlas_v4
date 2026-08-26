@@ -58,16 +58,13 @@ export const smaConfig = {
       90: "Woody Wetlands",
       95: "Emergent Herbaceous Wetlands",
     },
-    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/SMA_NLCD_ll/ImageServer',
+    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/CONUS_NLCD_10yr_intervals/ImageServer',
     OBJECTIDS: {
-      2001: 1,
-      2004: 2,
-      2006: 3,
-      2008: 4,
-      2011: 5,
-      2013: 6,
-      2016: 7,
-      2019: 8,
+      1985: 1,
+      1995: 2,
+      2005: 3,
+      2015: 4,
+      2025: 5
     },
     changeIndex: 9,
     floodplains: 10,
@@ -93,7 +90,10 @@ export const smaConfig = {
     layersUsed: ['National Land Cover Database'],
     layersUsedURL: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/NationalLandCover.pdf'],
     resolution: 30,
-    columnHeaders: ['Land Cover Type', 'Area (km2)', 'Percentage']
+    columnHeaders: ['Land Cover Type', 'Area (km2)', 'Percentage'],
+    classLabel: "Land Cover Type",
+    firstStatLabel: "Area (km2)",
+    secondStatLabel: "Percentage of Area"
   },
   "population-floodplains": {
     layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Supplemental/GDT_Pop/ImageServer',
@@ -140,7 +140,7 @@ export const smaConfig = {
     },
     layersUsed: ['Near-surface permafrost probability'],
     layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/ESN/NearSurfacePermafrostProbability.pdf'],
-    layer: 'https://awseastaging.epa.gov/arcgis/rest/services/Rasters/Permafrost_Probability_Near_the_Surface/ImageServer',
+    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Permafrost_Probability_Near_the_Surface/ImageServer',
     resolution: 30,
     columnHeaders: ['Near-surface permafrost probability', 'Area (km2)', 'Percentage'],
     colors: {
@@ -169,7 +169,7 @@ export const smaConfig = {
     },
     layersUsed: ['2020 Dasymetric Population'],
     layersUsedUrl: ['https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/Supplemental/Dasymetricallocationofpopulation2020.pdf'],
-    layer: 'https://awseastaging.epa.gov/arcgis/rest/services/Rasters/Dasymetric_2020_test/ImageServer',
+    layer: 'https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/Dasymetric_2020/ImageServer',
     resolution: 30,
     columnHeaders: ['2020 Dasymetric Population', 'Sum', 'Percentage'],
     colors: {
@@ -194,10 +194,10 @@ export const smaConfig = {
       }
     },
     "County": {
-      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Census_2020_DHC_Total_Population/FeatureServer/2',
+      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Boundaries_2023/FeatureServer/2',
       "minScale": '300000000',
       "name": "County",
-      "outfields": ['State', 'NAME'],
+      "outfields": ['NAME', 'STATE_NAME'],
       "outdesc": {
         'Geometry Type': 'US County',
         'County': "custom"//"results.NAME + ', ' + results.State"
@@ -215,12 +215,12 @@ export const smaConfig = {
       }
     },
     "Congressional District": {
-      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_118th_Congressional_Districts/FeatureServer/0',
+      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_119th_Congressional_Districts/FeatureServer/0',
       "minScale": "300000000",
-      "name": "118th Congressional Districts",
+      "name": "119th Congressional Districts",
       "outfields": ['DISTRICTID', 'NAME', 'PARTY', 'STATE_ABBR'],
       "outdesc": {
-        'Geometry Type': '118th US Congressional Districts',
+        'Geometry Type': '119th US Congressional Districts',
         'District': 'custom', //results.STATE_ABBR+results.DISTRICTID
         'Representative': "custom" //results.NAME + ' - ' +results.PARTY
       }
@@ -247,12 +247,5 @@ export const smaConfig = {
         'HUC-8 Name': "results.name"
       }
     }
-  },
-  stateLayer: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_States_Non_Generalized/FeatureServer/0',
-  countyLayer: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Counties/FeatureServer/0',
-  blockgroupLayer: 'https://ejscreen.epa.gov/arcgis/rest/services/ejscreen/census2020acs/MapServer/0',
-  districtLayer: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_118th_Congressional_Districts/FeatureServer/0',
-  districtVersion: '118th Congressional District',
-  "huc-12Layer": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/Watershed_Boundary_Dataset_HUC_12s/FeatureServer',
-  "huc-8Layer": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/Watershed_Boundary_Dataset_HUC_8s/FeatureServer'
+  }
 }

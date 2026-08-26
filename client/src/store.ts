@@ -1,5 +1,8 @@
 import { derived, writable } from "svelte/store";
 
+export const smaAnalysisInputs = writable('');
+export const smaAnalysisOutputs = writable('');
+
 // don't have to call this state; shared between components (App and AppShell)
 export const viewState = writable({
     view: null
@@ -27,6 +30,35 @@ export const activeWidget = writable({
 export const categoryFilter = writable('');
 
 export const totalMaps = writable(0);
+
+const normalizeText = (value: unknown): string => {
+    return String(value ?? '')
+        .toLowerCase()
+        .replace(/^"+|"+$/g, '')
+        .trim();
+};
+
+const parseTags = (tags: unknown): string[] => {
+    return normalizeText(tags)
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(Boolean);
+};
+
+const layerMatchesSearchTerm = (layer: any, term: string): boolean => {
+    const search = normalizeText(term);
+    if (!search) return true;
+
+    const name = normalizeText(layer?.name);
+    const description = normalizeText(layer?.description);
+    const tags = parseTags(layer?.tags);
+
+    return (
+        name.includes(search) ||
+        description.includes(search) ||
+        tags.some(tag => tag.includes(search))
+    );
+};
 
 // If we can rewrite things to call api instead of using store, then this is all unnecessary...
 
@@ -79,7 +111,8 @@ export const filteredNationalItems = derived(
                         return {...layers, ...((layers.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible);
-                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                    const visibleLayerCount = lyrObj.filter(layers => layers.isVisible).length;
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis, visLayerCount: visibleLayerCount}
                 });
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
                 return {...category, subtopic: subObj, isVisible: isCatVis}
@@ -92,7 +125,8 @@ export const filteredNationalItems = derived(
                         return {...layers, ...((layers.areaGeog.includes($geography)) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible) && subtopic[$categoryFilter];
-                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                    const visibleLayerCount = lyrObj.filter(layers => layers.isVisible).length;                    
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis, visLayerCount: visibleLayerCount}
                 });
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
                 return {...category, subtopic: subObj, isVisible: isCatVis}
@@ -102,10 +136,11 @@ export const filteredNationalItems = derived(
             return $nationalItems.map(category => {
                 const subObj = category.subtopic.map(subtopic => {
                     const lyrObj = subtopic.layers.map(layers => {
-                        return {...layers, ...((layers.areaGeog.includes($geography) && (layers.name.includes($searchTerm) || layers.tags.includes($searchTerm) || layers.description.includes($searchTerm))) ? {isVisible: true} : {isVisible: false})}
+                        return {...layers, ...((layers.areaGeog.includes($geography) && layerMatchesSearchTerm(layers, $searchTerm)) ? {isVisible: true} : {isVisible: false})}
                     });
                     const isSubVis = lyrObj.some(layers => layers.isVisible);
-                    return {...subtopic, layers: lyrObj, isVisible: isSubVis}
+                    const visibleLayerCount = lyrObj.filter(layers => layers.isVisible).length;
+                    return {...subtopic, layers: lyrObj, isVisible: isSubVis, visLayerCount: visibleLayerCount}
                 });
                 const isCatVis = subObj.some(subtopic => subtopic.isVisible);
                 return {...category, subtopic: subObj, isVisible: isCatVis}
@@ -142,3 +177,16 @@ export const totalVisibleMaps = derived([geography, filteredNationalItems], ([$g
 fetchData();
 
 },0); // Initial value
+
+// Alert variables
+type Alerts = {
+    mapAlert: HTMLCalciteAlertElement;
+    alertTitle: HTMLDivElement;
+    alertMessage: HTMLDivElement;
+}
+
+export const alerts = writable<Alerts>({
+    mapAlert: Object({}),
+    alertTitle: Object({}),
+    alertMessage: Object({})
+});

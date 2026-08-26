@@ -29,13 +29,22 @@
   import "@arcgis/map-components/components/arcgis-features";
   import "@arcgis/map-components/components/arcgis-legend";
   import "@arcgis/map-components/components/arcgis-area-measurement-2d";
+  import "@arcgis/map-components/components/arcgis-distance-measurement-2d";
+  import "@arcgis/map-components/components/arcgis-compass";
+  import "@arcgis/map-components/components/arcgis-elevation-profile";
+  import "@arcgis/map-components/components/arcgis-bookmarks";
 
   // Import components and store
   import { catalog, activeWidget } from "src/store.ts";
   // use npm published version now (in development used linked version via devLink utility
-  import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
+  // import AddData from "@usepa-ngst/calcite-components/AddData/index.svelte";
+  import AddData from "src/components/AddData/index.svelte";
   import DataCatalog from "src/components/DataCatalog/DataList.svelte";
   import Modal from "src/components/Modal.svelte";
+  import SummarizeMyAreaResults from "src/components/SummarizeMyAreaResults.svelte";
+  import Info from "src/components/Info.svelte";
+  import Alert from '../components/Alert.svelte';
+  import { openInfo } from "src/shared/utilities";
 
   let view;
   let bmgContainer;
@@ -43,12 +52,34 @@
   let fTableContainer;
   let leftActionBar;
   let map;
+  let shellPanelEnd;
+  let basemapsPanel;
+  let mapToolsPanel;
+  let layersPanel;
+  let expandRight;
+  let distance2d;
+  let distance2dDiv;
+  let area2d;
+  let area2dDiv;
+  let distanceAction;
+  let areaAction;
+  let clearAction;
+  let activeDimension = "2d";
+  let activeTool = null;
+  let lat;
+  let long;
 
   $: {
     if (view && !map) {
         view.addEventListener("arcgisViewReadyChange", () => {
             map = view.map;
-            console.log(view.extent)
+            view.view.on("pointer-move", function(event) {
+              const mapPoint = view.toMap({x: event.x, y: event.y});
+              if (mapPoint) {
+                lat = mapPoint.latitude.toFixed(6);
+                long = mapPoint.longitude.toFixed(6);
+              }
+            });
         });
     }
   }
@@ -76,6 +107,9 @@
     "time-series-viewer": "clock-forward", 
     "sma": "mosaic-method-sum"
   }
+
+  const elevProfile = [{type:"ground", title: "Metrics"}]
+
   async function setupPopup() {
     reactiveUtils.on(
       () => view,
@@ -84,12 +118,19 @@
         view.popup ={
           dockEnabled: true, 
           dockOptions: {
-            position: "top-right",
+            position: "top-left",
             breakpoint: false
+          },
+          viewModel: {
+            includeDefaultActions: false
           }
         }
       }
     );
+  }
+
+  function setTooltipOpt() {
+    this.tooltipOptions = {enabled:true}
   }
 
   function listItemCreatedFunction(e) {
@@ -114,11 +155,11 @@
             icon: "chevron-down",
             id: "dec-transparency",
           },
-          {
-            title: "Show table",
-            icon: "table",
-            id: "table",
-          },
+          // {
+          //   title: "Show table",
+          //   icon: "table",
+          //   id: "table",
+          // },
           {
             title: "Remove",
             icon: "trash",
@@ -132,6 +173,7 @@
   function layerListAction(e) {
     const id = e.detail.action.id;
     if (id === "trash") {
+      view.popup.close();
       const title = e.detail.item.layer.title;
       // remove tile layer and feature layer with same title
       const removals = e.detail.item.view.map.allLayers.filter(function(layer) {
@@ -176,7 +218,10 @@
    */
   const handleCatalogActionClick = ({ target }) => {
     handleExpandClick();
-    const nextDataCatalog = target.dataset.actionId;
+    let nextDataCatalog = target?.dataset.actionId;
+    if (!nextDataCatalog) {
+      nextDataCatalog = 'sma'
+    }
     if (nextDataCatalog !== $catalog.type) {
       document.querySelector(`#catalog-button-${$catalog.type}`).style.borderBottom ="none"
       document.querySelector(`#catalog-button-${nextDataCatalog}`).style.borderBottom ="3px solid #162e51";
@@ -188,37 +233,86 @@
   };
 
   const handleOtherActionBarClick = ({ target }) => {
-    // If there's one already active, close things.
-    if ($activeWidget.right) {
-      document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
-      document.querySelector(`[data-panel-id=${$activeWidget.right}]`).hidden = true;
-      document.querySelector(`[data-panel-id=${$activeWidget.right}]`).closed = true;
-      document.querySelector(`[component-id="shell-panel-end"]`).collapsed = true;
+    if ($activeWidget.right === null) {
+      $activeWidget.right = "layers"
     }
+    let targetAction = document.querySelector(`[data-action-id=${$activeWidget.right}]`);
+    let targetPanel = document.querySelector(`[data-panel-id=${$activeWidget.right}]`);
+    let targetFab = document.querySelector(`[id=${$activeWidget.right}-fab]`);
+    let targetShell = document.querySelector(`[component-id="shell-panel-end"]`);
 
+    if (target.id === 'expand-right') {
+      targetAction?.setAttribute("active", "");
+      targetPanel.hidden = !targetPanel.hidden;
+      targetPanel.removeAttribute("closed");
+      targetShell.collapsed = !targetShell.collapsed;
+      targetFab.hidden = !targetFab.hidden;
+      expandRight.hidden = !expandRight.hidden;
+      return
+    }
     // Figure out what was clicked
     const nextWidgetRight = target.dataset.actionId;
+    // If there's one already active, close things.
+    if ($activeWidget.right) {
+      if (nextWidgetRight === $activeWidget.right) {
+        document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = true;
+        targetPanel.hidden = !targetPanel.hidden;
+        targetPanel.removeAttribute("closed");
+        targetShell.collapsed = !targetShell.collapsed;
+        targetFab.hidden = !targetFab.hidden;
+        expandRight.hidden = !expandRight.hidden;
+      } else {
+        document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
+        document.querySelector(`[data-panel-id=${$activeWidget.right}]`).hidden = true;
+        document.querySelector(`[data-panel-id=${$activeWidget.right}]`).closed = true;
+        document.querySelector(`[component-id="shell-panel-end"]`).collapsed = true;
+        let fab = document.getElementById(`${$activeWidget.right}-fab`)
+        if (fab) {
+          fab.setAttribute("hidden", "");
+        }
+      }
+    }
+
     // If there's a change, open things, and update store value to what was clicked
-    if (nextWidgetRight !== $activeWidget.right) {
+    if (nextWidgetRight && nextWidgetRight !== $activeWidget.right) {
       document.querySelector(`[data-action-id=${nextWidgetRight}]`).active = true;
       document.querySelector(`[data-panel-id=${nextWidgetRight}]`).hidden = false;
       document.querySelector(`[data-panel-id=${nextWidgetRight}]`).closed = false;
       document.querySelector(`[component-id="shell-panel-end"]`).collapsed = false;
+      document.querySelector(`[id=${nextWidgetRight}-fab]`).hidden = false;
       $activeWidget.right = nextWidgetRight;
-    } else {
-      $activeWidget.right = null;
+      expandRight.hidden = true;
+    }
+
+    if ($activeWidget.right === 'sma-results') {
+      let smaTarget = document.querySelector(`[data-action-id='sma']`)
+      handleCatalogActionClick(smaTarget)
     }
   };
 
-  // const openModal = function () {
-  //   const button = document.getElementById("example-button");
-  //   const modal = document.getElementById("example-modal");
+  const handleRightFabClick = (e) => {
+    e.target.setAttribute("hidden", "");
+    const panel = e.target.id.split('-')[0];
+    if (panel === 'maptools') {
+      document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = true;
+      mapToolsPanel.removeAttribute("open");
+      mapToolsPanel.setAttribute("hidden", "");
+    } else if (panel === 'basemaps') {
+      document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = true;
+      basemapsPanel.removeAttribute("open");
+      basemapsPanel.setAttribute("hidden", "");
+    } else if (panel === 'layers') {
+      document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = true;
+      layersPanel.removeAttribute("open");
+      layersPanel.setAttribute("hidden", "");
+    }
 
-  //   button?.addEventListener("click", function () {
-  //     modal.open = !modal.open;
-  //     console.log(modal);
-  //   });
-  // };
+    shellPanelEnd.setAttribute("collapsed", "");
+    //document.querySelector(`[data-action-id=${$activeWidget.right}]`).active = false;
+    //$activeWidget.right = null;
+    expandRight.hidden = false;
+    console.log($activeWidget.right)
+  };
 
   export const closeShellElement = function (e) {
     const target = e.target;
@@ -226,13 +320,51 @@
     shellElement.collapsed = !shellElement.collapsed;
   };
   
+  function setActionStates() {
+    distanceAction.active = activeTool === "distance";
+    areaAction.active = activeTool === "area";
+  }
+
+  function clearAllMeasurements() {
+    distance2d.clear();
+    area2d.clear();
+
+    activeTool = null;
+    hideAllToolUIs();
+    setActionStates();
+  }
+
+  function hideAllToolUIs() {
+    distance2dDiv.hidden = true;
+    area2dDiv.hidden = true;
+  }
+
+  function startTool(toolName) {
+    const toolElements = {
+      "2d": {
+        distance: distance2dDiv,
+        area: area2dDiv,
+      },
+    };
+    activeTool = toolName;
+
+    const currentTools = toolElements[activeDimension];
+    const toolToShow = currentTools[toolName];
+    const toolToHide = currentTools[toolName === "distance" ? "area" : "distance"];
+
+    toolToHide.hidden = true;
+    toolToShow.hidden = false;
+    if (activeTool === "area") { area2d.start()}
+    if (activeTool === "distance") { distance2d.start()}
+
+    setActionStates();
+  }
 </script>
 
 <calcite-shell>
   <calcite-navigation id="header" slot="header">
     <calcite-navigation-logo
       slot="content-start"
-      heading="Interactive Map"
       thumbnail="/ea/client/images/logo.png"
       href="https://www.epa.gov/enviroatlas"
       target="_blank"
@@ -249,33 +381,29 @@
         {/each}
     </calcite-chip-group>
   </calcite-navigation>
-  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="4" 
+  <arcgis-map bind:this={view} basemap={basemap} center="-97, 38" zoom="5" ground="world-elevation"
     on:arcgisViewReadyChange={setupPopup}
     >
-    <arcgis-search 
-      position="top-right"
-   ></arcgis-search>
+    <arcgis-search
+      popupDisabled
+      slot="top-right"
+    ></arcgis-search>
     <arcgis-zoom 
-      position="top-right" 
-      layout="vertical" 
-      referenceElement={view}
-   ></arcgis-zoom>
+      slot="top-right" 
+      layout="vertical"
+    ></arcgis-zoom>
+    <arcgis-compass 
+      slot="top-right"
+    ></arcgis-compass>
     <arcgis-scale-bar
-      position="bottom-left"
+      slot="bottom-left"
       bar-style="line"
       unit="dual"
    ></arcgis-scale-bar>
-    <arcgis-coordinate-conversion
-      position="bottom-left"
-      mode="live"
-      orientation="auto"
-      hide-capture-button
-      hide-expand-button
-      hide-input-button
-      hide-settings-button
-      multiple-conversions-disabled
-      storage-disabled
-   ></arcgis-coordinate-conversion>
+    <div
+      slot="bottom-left"
+      id="lat-long"
+   >{long}°, {lat}°</div>
   </arcgis-map>
   <calcite-shell-panel
     component-id="shell-panel-start"
@@ -301,7 +429,7 @@
         icon={icon}
         active={action == $catalog.type}
         on:click={handleCatalogActionClick}
-        on:keypress={handleCatalogActionClick}
+        on:keydown={handleCatalogActionClick}
      ></calcite-action>
     {/each}
       <calcite-action
@@ -313,14 +441,18 @@
         icon="chevrons-right"
         text="open data catalog"
         on:click={handleExpandClick}
-        on:keypress={handleExpandClick}
+        on:keydown={handleExpandClick}
      ></calcite-action>
     </calcite-action-bar>
     <DataCatalog view={view}/>
   </calcite-shell-panel>
   <slot></slot>
   <Modal />
+  <Alert />
+  <Info />
   <calcite-shell-panel
+    bind:this={shellPanelEnd}
+    id="shell-panel-end"
     component-id="shell-panel-end"
     slot="panel-end"
     display-mode="docked"
@@ -328,14 +460,19 @@
     position='end'
     width-scale="m"
   >
-  <calcite-action-bar 
-    expand-disabled 
+  <calcite-action-bar
+    expand-disabled
     role="menu" 
     tabindex="-1" 
     slot="action-bar"
     on:click={handleOtherActionBarClick} 
-    on:keypress={handleOtherActionBarClick}
+    on:keydown={handleOtherActionBarClick}
   >
+    <calcite-action
+      data-action-id="sma-results"
+      icon="mosaic-method-sum"
+      text="Summarize My Area Results"
+    ></calcite-action>
     <calcite-action 
       data-action-id="layers" 
       icon="layers" 
@@ -345,23 +482,34 @@
       data-action-id="add-data" 
       icon="add-layer"
       text="Add Data"
-   ></calcite-action>
+    ></calcite-action>
+    <calcite-action
+      data-action-id="maptools"
+      icon="tools"
+      text="Other Map Tools"
+    ></calcite-action>
     <calcite-action
       data-action-id="basemaps"
       icon="basemap"
       text="Basemaps"
-   ></calcite-action>
+    ></calcite-action>
     <calcite-action
-      data-action-id="maptools"
-      icon="system-management"
-      text="Other Map Tools"
-   ></calcite-action>
+      bind:this={expandRight}
+      slot="actions-end"
+      tabindex="-1"
+      role="button"
+      id="expand-right"
+      icon="chevrons-left"
+    ></calcite-action>
   </calcite-action-bar>
   <calcite-panel
+    icon="layers"
+    class="right-panel"
     heading="Active Layer List"
     height-scale="l"
     data-panel-id="layers"
     hidden
+    bind:this={layersPanel}
   >
     <arcgis-layer-list
       dragEnabled
@@ -374,12 +522,24 @@
       on:arcgisTriggerAction={layerListAction}
    ></arcgis-layer-list>
   </calcite-panel>
+  <calcite-fab
+    role="button"
+    tabindex="-1"
+    icon="chevrons-right"
+    id="layers-fab"
+    hidden
+    on:click={handleRightFabClick}
+    on:keydown={handleRightFabClick}
+  ></calcite-fab>
   <calcite-panel
+    icon="basemap"
+    class="right-panel"
     heading="Basemaps"
     height-scale="l"
     data-panel-id="basemaps"
     hidden
     closed
+    bind:this={basemapsPanel}
   >
     <arcgis-basemap-gallery
       id="basemaps-container"
@@ -388,32 +548,78 @@
       source={portalBasemapsSource}
    ></arcgis-basemap-gallery>
   </calcite-panel>
-    <calcite-panel
+  <calcite-fab
+    role="button"
+    tabindex="-1"
+    icon="chevrons-right"
+    id="basemaps-fab"
+    hidden
+    on:click={handleRightFabClick}
+    on:keydown={handleRightFabClick}
+  ></calcite-fab>
+  <calcite-panel
+    icon="tools"
     heading="Other Map Tools"
     height-scale="l"
     data-panel-id="maptools"
     hidden
     closed
+    class="right-panel"
+    bind:this={mapToolsPanel}
   >
-    <calcite-block collapsible expanded heading="Sketch" label="Sketch">
-      <arcgis-sketch
-        position="manual"
+    <calcite-block collapsible heading="Location" label="Location" description="Place a point on the map to see its coordinates.">
+      <arcgis-coordinate-conversion
+        style="padding: 8px"
+        class="tool-coords"
+        mode="live"
+        orientation="auto"
         referenceElement={view}
-        layout="horizontal"
-     ></arcgis-sketch>
+        hideSettingsButton
+        expanded>
+      </arcgis-coordinate-conversion>
     </calcite-block>
-    <calcite-block collapsible expanded heading="Measure" label="Measure">
-      <arcgis-area-measurement-2d
-        referenceElement={view}
-     ></arcgis-area-measurement-2d>
+    <calcite-block collapsible heading="Measure" label="Measure" description="To measure distance or area, place the first point on the map.">
+      <calcite-action-bar id="toolbar" expand-disabled layout="horizontal">
+        <calcite-action bind:this={distanceAction} id="distanceAction" text="Distance" icon="measure" on:click={() => startTool("distance")}></calcite-action>
+        <calcite-action bind:this={areaAction} id="areaAction" text="Area" icon="polygon" on:click={() => startTool("area")}></calcite-action>
+        <calcite-action bind:this={clearAction} id="clearAction" text="Clear" icon="trash" on:click={clearAllMeasurements}></calcite-action>
+      </calcite-action-bar>
+      <div bind:this={distance2dDiv} hidden>
+        <arcgis-distance-measurement-2d
+          style="padding: 8px"
+          referenceElement={view}
+          id="distance2d"
+          bind:this={distance2d}
+        ></arcgis-distance-measurement-2d>
+        </div>
+        <div bind:this={area2dDiv} hidden>
+        <arcgis-area-measurement-2d
+          style="padding: 8px"
+          referenceElement={view}
+          id="area2d"
+          bind:this={area2d}
+        ></arcgis-area-measurement-2d>
+      </div>
     </calcite-block>
-    <calcite-block collapsible expanded heading="Legend" label="Legend">
-      <arcgis-legend
-        referenceElement={view}
-     ></arcgis-legend>
+    <calcite-block collapsible heading="Elevation Profile" label="Elevation Profile" description="Generate a 2D cross-section of terrain heights along a drawn line.">
+      <arcgis-elevation-profile style="width:420px; padding: 8px" profiles={elevProfile} referenceElement={view}>
+      </arcgis-elevation-profile>
+    </calcite-block>
+    <calcite-block collapsible heading="Bookmarks" label="Bookmarks" description="Instantly save and return to specific locations.">
+      <arcgis-bookmarks style="padding: 8px" drag-enabled show-add-bookmark-button show-edit-bookmark-button referenceElement={view}></arcgis-bookmarks>
     </calcite-block>
   </calcite-panel>
-  <AddData map={map} />
+  <calcite-fab
+    role="button"
+    tabindex="-1"
+    icon="chevrons-right"
+    id="maptools-fab"
+    hidden
+    on:click={handleRightFabClick}
+    on:keydown={handleRightFabClick}
+  ></calcite-fab>
+  <AddData view={view} />
+  <SummarizeMyAreaResults />
   </calcite-shell-panel>
   <calcite-shell-panel
     slot="panel-bottom"
@@ -431,6 +637,10 @@
 <style>
   calcite-panel.fTable {
     height: 500px
+  }
+
+  calcite-panel.right-panel {
+    --calcite-panel-header-background-color: #f7f7f7
   }
 
   calcite-shell-panel {
@@ -456,5 +666,27 @@
   #linkbtns:hover{
     --calcite-chip-text-color: rgb(236, 235, 235);
     --calcite-chip-background-color:#024f86;
+  }
+
+  calcite-fab {
+    place-content: center;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  calcite-block{
+    margin-block:0;
+    --calcite-internal-block-padding-block:0px;
+    --calcite-internal-block-padding-inline:0px;
+    --calcite-spacing-md: .5rem
+  }
+
+  #lat-long {
+    background-color:  color-mix(in srgb, var(--calcite-color-foreground-1) 50%, transparent);
+    color: #141414;
+    width: 180px;
+    font-weight: 600;
+    font-size: 11px;
+    text-align: center;
   }
 </style>

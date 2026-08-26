@@ -46,12 +46,7 @@ async function loadPath() {
     .logo {
         grid-area: logo;
     }
-    .name {
-        grid-area: name;
-        text-align:right;
-        padding-right:2em;
-    }
-
+    
     .banner {
         display: grid;
         gap: 0em;
@@ -59,14 +54,6 @@ async function loadPath() {
         grid-template-areas:
                 "logo name";
         align-items: center;
-    }
-
-    button.logout {
-        background: white;
-        color: #0066CC;
-        margin-left:.5em;
-        padding: 0em .35em .25em;
-
     }
 
     nav.main {

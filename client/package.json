@@ -11,21 +11,21 @@
     "devLink": "usepa-ngst-dev-link npmLink"
   },
   "dependencies": {
-    "@arcgis/core": "4.33.9",
-    "@arcgis/map-components": "^4.33.11",
-    "@esri/calcite-components": "3.3.0",
+    "@arcgis/core": "5.0.19",
+    "@arcgis/map-components": "5.0.19",
+    "@esri/calcite-components": "5.0.2",
     "@usepa-ngst/calcite-components": "^0.0.2",
     "@usepa-ngst/utilities": "^0.0.4",
-    "page": "^1.11.6",
-    "d3": "^7.8.5"
+    "d3": "^7.8.5",
+    "page": "^1.11.6"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.1",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
     "@types/node": "^22.10.5",
     "jsdom": "^26.0.0",
-    "svelte": "^5.0.0",
+    "svelte": "5.56.9",
     "vite": "^=5.4.21",
-    "vitest": "3.2.0"
+    "vitest": "3.2.7"
   }
 }
