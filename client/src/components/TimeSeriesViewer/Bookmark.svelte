@@ -33,6 +33,7 @@
 
 <calcite-popover
     placement="trailing-start"
+    auto-close
     overlay-positioning="fixed"
     scale="s"
     heading="Geography"
