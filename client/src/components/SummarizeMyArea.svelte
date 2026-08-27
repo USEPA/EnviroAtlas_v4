@@ -878,9 +878,10 @@
         let subtopic = await getEaData("/ea/api/subtopics", subtopicParams);
         subtopic = subtopic[0]
         let detailsParams = {
-            select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"agoID":1,"metadataID":1,"url":1}`)
+            select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"agoID":1,"metadataID":1,"url":1,"name":1}`)
         };
         let detailsObj = await getEaData(`/ea/api/layers/${layer.id}`, detailsParams);
+        console.log(subtopic, detailsObj)
         let findPopover = document.querySelector(`[reference-element="${popoverReferenceId}"]`);
         if (!findPopover) {
             mount(SubtopicDetails, {
