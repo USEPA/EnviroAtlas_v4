@@ -36,6 +36,10 @@
         }
     }
 
+    function isLyrVisible(layer) {
+        return layer.isVisible
+    }
+
     async function getSubtopicDetails () {
         // Use api to get detailsObj and pass to the SubtopicDetails component with subtopic 
         console.log(subtopic)
@@ -88,13 +92,13 @@
     }
 </script>
 
-{#if subtopic.isVisible}
+{#if subtopic.isVisible && subtopic.visLayerCount > 0}
 {#each Object.entries(dataTypeDict) as [dTypeLabel, dTypeValue] (dTypeLabel)}
     {#if subtopic.sourceType == dTypeValue}
 <calcite-list-item 
     id={subtopic.layers.length > 1 ? 'not-header-subtopic' : 'not-header'}
     style={subtopic.visLayerCount > 1 ? "margin-left: 10px" : ""}
-    label={subtopic.name} 
+    label={subtopic.visLayerCount > 1 ? subtopic.name : subtopic.layers.find(isLyrVisible)?.name} 
     description={dTypeLabel} 
     on:calciteListItemSelect={e=>e.stopPropagation()}
     >
@@ -105,8 +109,8 @@
             role="checkbox" 
             style="padding: 0 10px;"
             tabindex="0"
-            value={subtopic.layers[0].layerID}
-            name={subtopic.layers[0].name}
+            value={subtopic.layers.find(isLyrVisible)?.layerID}
+            name={subtopic.layers.find(isLyrVisible)?.name}
             on:calciteCheckboxChange={subtopicSelected}
         ></calcite-checkbox>
         {/if}

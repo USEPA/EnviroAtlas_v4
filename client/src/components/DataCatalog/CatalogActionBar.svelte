@@ -84,8 +84,7 @@
         timer = setTimeout(() => {
             if (searchInput.value.length > 2) {
                 $searchTerm = searchInput.value;
-                $categoryFilter = "";
-                // TODO: Need to clear category filter chips
+                $categoryFilter = ""; 
                 expandTopics();
             } else {
                 $searchTerm = "";
