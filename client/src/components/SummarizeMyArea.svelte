@@ -108,7 +108,7 @@
 
     const summaryUnitArray = [
         "County", 
-        "Congressional District", 
+        "119th Congressional District", 
         "HUC-8", "HUC-12", 
         "Draw Area Around Point", 
         "Draw Area Around Line", 
@@ -440,9 +440,9 @@
                         ", " +
                         geographyAttributes.STATE_NAME;
                     break;
-                case "Congressional District":
+                case "119th Congressional District":
                     geographyLabel =
-                        "Congressional District " +
+                        "119th Congressional District " +
                         geographyAttributes.STATE_ABBR +
                         geographyAttributes.DISTRICTID;
                     break;
@@ -674,38 +674,39 @@
             .find((indicator) => indicator.value === indicatorValue);
 
         const indicatorLabel = selectedIndicator?.name ?? indicatorValue;
-        inputTableData.push({ attribute: "Analysis", value: indicatorLabel });
+        //Remove to update SMAT Results Display
+        // inputTableData.push({ attribute: "Analysis", value: indicatorLabel });
 
-        let val = indicatorValue?.includes("nlcd") ? '<a target="_blank" style="text-decoration:none" href="' +
-                smaConfig["nlcd"].layersUsedURL +
-                '">' +
-                smaConfig["nlcd"].layersUsed +
-                "</a>" : '<a target="_blank" style="text-decoration:none" href="' +
-                smaConfig[indicatorValue].layersUsedURL +
-                '">' +
-                smaConfig[indicatorValue].layersUsed +
-                "</a>"
+        // let val = indicatorValue?.includes("nlcd") ? '<a target="_blank" style="text-decoration:none" href="' +
+        //         smaConfig["nlcd"].layersUsedURL +
+        //         '">' +
+        //         smaConfig["nlcd"].layersUsed +
+        //         "</a>" : '<a target="_blank" style="text-decoration:none" href="' +
+        //         smaConfig[indicatorValue].layersUsedURL +
+        //         '">' +
+        //         smaConfig[indicatorValue].layersUsed +
+        //         "</a>"
 
         inputTableData.push({
             attribute: "Source Data",
-            value: val,
+            value: indicatorLabel,
         });
 
         if (sumUnit == "Draw a Polygon" && geometryType == 'polygon') {
-            inputTableData.push({ attribute: 'Geometry Type', value: 'User provided area' });
+            inputTableData.push({ attribute: 'Geometry', value: 'User provided area' });
             if (bufferInput.value > 0) {
                 inputTableData.push({ attribute: 'Buffer', 'value': formatLargeNumber(bufferInput.value) + _getMetricString(pointMetric) });
                 //inputTableData.push({ attribute: 'Area inside buffer excluded', value: 'True' ? this.excludeInnerFeatureCheckbox.checked : 'False' });
             }
         } else if (sumUnit == "Draw Area Around Point" && geometryType == 'point') {
-            inputTableData.push({ attribute: 'Geometry Type', value: 'User provided point' });
+            inputTableData.push({ attribute: 'Geometry', value: 'User provided point' });
             const centroid = centroidOperator.execute(bufferGeometry);
             inputTableData.push({ attribute: 'Lat/Lon', value: centroid.latitude.toFixed(4) + ', ' +
                 centroid.longitude.toFixed(4)
             });
             inputTableData.push({ attribute: 'Buffer Radius', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
         } else if (sumUnit == "Draw Area Around Line" && geometryType == "polyline") {
-            inputTableData.push({ attribute: 'Geometry Type', value: 'User provided line' });
+            inputTableData.push({ attribute: 'Geometry', value: 'User provided line' });
             inputTableData.push({ attribute: 'Length', value: line + ' ' + _getMetricString(pointMetric) });
             inputTableData.push({ attribute: 'Buffer', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
         } else {
@@ -738,7 +739,7 @@
         });
 
         var headers = [
-            { head: "Input Paramaters", cl: "", d: "attribute" },
+            { head: " ", cl: "", d: "attribute" },
             { head: " ", cl: "", d: "value" },
         ];
         let table = _renderTable(headers, inputTableData);
