@@ -43,6 +43,7 @@
                     Summarize My Area Results
                 </div>
             </div>
+            <calcite-card>
             <div
                 id="gridded-map-input-table-wrapper"
                 bind:this={$smaAnalysisInputs}
@@ -53,6 +54,7 @@
                 bind:this={$smaAnalysisOutputs}
                 class="table-wrapper"
             ></div>
+            </calcite-card>
         </div>
     </calcite-block>
 </calcite-panel>
@@ -80,5 +82,36 @@
 
     calcite-panel.right-panel {
         --calcite-panel-header-background-color: #f7f7f7
+    }
+
+    .table-wrapper :global(table tr:nth-of-type(odd)) {
+        background-color: #f9f9f9;
+    }
+
+    .table-wrapper :global(table tr:nth-of-type(even)) {
+        background-color: #f0f0f0;
+    }
+
+    .table-wrapper :global(table) {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+
+    .table-wrapper :global(table td) {
+        border-bottom: 1px solid #d0d0d0;
+    }
+
+    #gridded-map-input-table-wrapper {
+        padding-bottom: 8px;
+        width: 100%
+    }
+
+    #gridded-map-input-table-wrapper :global(table) {
+        width: 100%;
+    }
+
+    #gridded-map-output-table-wrapper :global(th) {
+        padding: 4px 6px;
+        border-bottom: 1px solid #d0d0d0;
     }
 </style>
