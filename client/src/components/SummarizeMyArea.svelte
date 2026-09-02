@@ -31,13 +31,11 @@
     import * as geodesicBufferOperator from "@arcgis/core/geometry/operators/geodesicBufferOperator";
     import * as centroidOperator from "@arcgis/core/geometry/operators/centroidOperator";
     import Handles from "@arcgis/core/core/Handles";
-    import * as d3 from "d3";
 
     // Import store and configuration
     import {
         activeWidget,
-        smaAnalysisInputs,
-        smaAnalysisOutputs 
+        smaAnalysis 
     } from "src/store.ts";
     import { smaConfig } from "src/shared/smaConfig";
     import {
@@ -515,8 +513,6 @@
 
     async function calculate() {
         smaPanel.loading = true;
-        $smaAnalysisOutputs.innerHTML = "";
-        $smaAnalysisInputs.innerHTML = "";
         // loading image on button
         // conditionality on what is geo depending on sum unit (point/line/area)
         //default let geo=geometry (selected area)
@@ -609,9 +605,7 @@
                         },
                         { head: smaConfig[indicatorValue].secondStatLabel, cl: "", d: "perc" },
                     ];
-                    let table = _renderTable(headers, data);
-                    $smaAnalysisOutputs.append(table);
-                    _renderInputTable(area, line);
+                    _renderInputTable(area, line, headers, data);
                 }
                 break;
             case "nlcd-2025":
@@ -659,15 +653,13 @@
                         },
                         { head: indicatorValue?.includes("nlcd") ? smaConfig["nlcd"].secondStatLabel : smaConfig[indicatorValue].secondStatLabel, cl: "", d: "perc" },
                     ];
-                    let table = _renderTable(headers, data);
-                    $smaAnalysisOutputs.append(table);
-                    _renderInputTable(area, line);
+                    _renderInputTable(area, line, headers, data);
                 }
                 break;
         }   
     }
 
-    function _renderInputTable(area, line) {
+    function _renderInputTable(area, line, outputHeaders, outputData) {
         inputTableData = [];
         const selectedIndicator = indicatorsDict
             .flatMap((group) => group.subtopic)
@@ -738,14 +730,21 @@
             value: pretty_area + " " + _getMetricString(pointMetric) + "2",
         });
 
-        var headers = [
+        const inputHeaders = [
             { head: " ", cl: "", d: "attribute" },
             { head: " ", cl: "", d: "value" },
         ];
-        let table = _renderTable(headers, inputTableData);
-
-        $smaAnalysisInputs.append(table);
-        
+        $smaAnalysis = [
+            {
+                id: $smaAnalysis.length + 1,
+                inputHeaders,
+                inputData: inputTableData,
+                outputHeaders,
+                outputData,
+            },
+            ...$smaAnalysis
+        ];
+        console.log($smaAnalysis)
         smaPanel.loading = false;
         openRightPanel($activeWidget, "sma-results")
     }
@@ -791,45 +790,6 @@
             case "miles":
                 return "mi";
         }
-    }
-
-    function _renderTable(headers, data) {
-        let table_wrapper = d3.create("div").attr("class", "table-wrapper");
-
-        let table = table_wrapper.append("table");
-
-        // create table header
-        table
-            .append("thead")
-            .append("tr")
-            .selectAll("th")
-            .data(headers)
-            .enter()
-            .append("th")
-            .attr("class", (d) => d.cl)
-            .text((d) => d.head);
-
-        // create table body
-        table
-            .append("tbody")
-            .selectAll("tr")
-            .data(data)
-            .enter()
-            .append("tr")
-            .selectAll("td")
-            .data(function (row, i) {
-                let cells = [];
-                for (var ii = 0; ii < headers.length; ii++) {
-                    cells.push(row[headers[ii].d]);
-                }
-                return cells;
-            })
-            .enter()
-            .append("td")
-            .html(function (cell) {
-                return cell;
-            });
-        return table_wrapper.node();
     }
 
     function formatLargeNumber(number) {

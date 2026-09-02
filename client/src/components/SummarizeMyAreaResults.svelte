@@ -1,8 +1,8 @@
 <script>
     import {
-        smaAnalysisInputs,
-        smaAnalysisOutputs,
+        smaAnalysis
     } from "src/store.ts";
+    import SummarizeMyAreaResultsCard from "./SummarizeMyAreaResultsCard.svelte";
 
     let smaResultsPanel;
 
@@ -15,6 +15,10 @@
         let expandRight = document.getElementById("expand-right");
         expandRight.hidden = false;
     };
+
+    function handleClearResults() {
+        $smaAnalysis = [];
+    }
 </script>
 
 <calcite-panel
@@ -27,9 +31,18 @@
     closed
     class="right-panel"
 >
+    {#if $smaAnalysis.length > 0}
+    <calcite-action 
+        slot="header-actions-end" 
+        icon="reset"
+        text="Clear results"
+        text-enabled
+        on:click={handleClearResults}
+    ></calcite-action>
     <calcite-block>
         <div slot="content-start" class="widget-gridded-map profile-tab-node">
             <div style="margin-bottom:10px" id="gridded-map-title">
+                
                 <div>
                     <img
                         alt="https://www.epa.gov/enviroatlas"
@@ -38,25 +51,26 @@
                     />
                 </div>
                 <div
-                    style="display:block; margin:0 auto; text-align: center; font-size:18px; color:darkgray;"
+                    style="display:block; margin:0 auto; text-align: center; font-size:18px; color: #141414;"
                 >
                     Summarize My Area Results
                 </div>
             </div>
-            <calcite-card>
-            <div
-                id="gridded-map-input-table-wrapper"
-                bind:this={$smaAnalysisInputs}
-                class="table-wrapper"
-            ></div>
-            <div
-                id="gridded-map-output-table-wrapper"
-                bind:this={$smaAnalysisOutputs}
-                class="table-wrapper"
-            ></div>
-            </calcite-card>
+            {#each $smaAnalysis as a (a.id)}
+            <SummarizeMyAreaResultsCard
+                inputHeaders={a.inputHeaders}
+                inputData={a.inputData}
+                outputHeaders={a.outputHeaders}
+                outputData={a.outputData}
+            />
+            {/each}
         </div>
     </calcite-block>
+    {:else}
+    <calcite-notice style="margin-top:12px; width:387px" appearance="outline-fill" kind="info" open width="full" icon="information">
+        <div slot="message">There are currently no results to display.</div>
+    </calcite-notice>
+    {/if}
 </calcite-panel>
 <calcite-fab
     role="button"
@@ -70,10 +84,6 @@
 
 
 <style>
-    #gridded-map-output-table-wrapper {
-        text-align: right;
-    }
-
     calcite-fab {
         place-content: center;
         padding-top: 4px;
@@ -82,36 +92,5 @@
 
     calcite-panel.right-panel {
         --calcite-panel-header-background-color: #f7f7f7
-    }
-
-    .table-wrapper :global(table tr:nth-of-type(odd)) {
-        background-color: #f9f9f9;
-    }
-
-    .table-wrapper :global(table tr:nth-of-type(even)) {
-        background-color: #f0f0f0;
-    }
-
-    .table-wrapper :global(table) {
-        border-collapse: collapse;
-        border-spacing: 0;
-    }
-
-    .table-wrapper :global(table td) {
-        border-bottom: 1px solid #d0d0d0;
-    }
-
-    #gridded-map-input-table-wrapper {
-        padding-bottom: 8px;
-        width: 100%
-    }
-
-    #gridded-map-input-table-wrapper :global(table) {
-        width: 100%;
-    }
-
-    #gridded-map-output-table-wrapper :global(th) {
-        padding: 4px 6px;
-        border-bottom: 1px solid #d0d0d0;
     }
 </style>
