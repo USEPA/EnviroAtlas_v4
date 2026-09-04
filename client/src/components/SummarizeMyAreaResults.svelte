@@ -46,7 +46,7 @@
                 <div>
                     <img
                         alt="https://www.epa.gov/enviroatlas"
-                        src="images/horizontal_logo_grey.png"
+                        src="/ea/client/images/horizontal_logo_grey.png"
                         style="height: 33px; margin-top: 7px; display:inline-block; position:relative; left:50%; transform: translate(-50%); margin-bottom:-3px"
                     />
                 </div>

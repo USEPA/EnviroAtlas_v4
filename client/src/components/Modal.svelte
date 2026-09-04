@@ -43,20 +43,15 @@
 		</calcite-tab-nav>
 		<calcite-tab selected={activeTab === "welcome"}
 			><div class="welcome-layout">
-				<div class="welcome-copy">
+				<div class="welcome-copy" style="text-align:center">
 					<b class="welcome-title">Welcome to</b>
 					<b class="welcome-title">the EnviroAtlas Interactive Map!</b
 					>
 					<p class="splash-text">
-						This new beta version of the EnviroAtlas Interactive Map
-						is a discovery and analysis tool for data layers
-						relating to the benefits people receive from their
-						environment.
-					</p>
-					<p class="splash-text">
-						The data can help inform decisions related to
-						environmental management, human well-being, and the
-						economy.
+						This is a new version of the EnviroAtlas
+						Interactive Map, a discovery and analysis
+						tool for data layers relating to the benefits
+						people receive from their environment.
 					</p>
 					<p class="splash-text">
 						By using the EnviroAtlas Interactive Map, you
@@ -69,6 +64,16 @@
 							disclaimer</button
 						>.
 					</p>
+					<calcite-button
+						id="disclaim-button"
+						style="font-size: 16px; padding-bottom:8px"
+						on:click={() => modal?.removeAttribute("open")}>I agree</calcite-button>
+					<br>
+					<calcite-button
+						id="legacy-button"
+						style="font-size: 16px"
+						kind="brand"
+						on:click={() => window.open('https://enviroatlas.epa.gov/enviroatlas/interactivemap')}>Access Legacy Interactive Map</calcite-button>
 				</div>
 				<div class="welcome-image-wrap">
 					<img
@@ -122,14 +127,15 @@
 		src="/ea/client/images/epa_logo.png"
 		style="height: 33px; display:inline-block; position:relative"
 	/>
-	<calcite-button
-		slot="footer-end"
-		style="font-size: 16px"
-		on:click={() => modal?.removeAttribute("open")}>I agree</calcite-button>
 </calcite-dialog>
 
 <style>
-	calcite-button {
+	#legacy-button {
+		--calcite-button-text-color: black;
+		--calcite-button-background-color: #007ac2
+	}
+
+	#disclaim-button {
 		--calcite-button-background-color: white;
 		--calcite-button-text-color: black
 	}
