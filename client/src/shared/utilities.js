@@ -167,7 +167,7 @@ export function removeLayer(lyrName, view) {
         return layer.title === lyrName;
     });
     if (foundLyr.length > 0) {
-        view.popup?.close();
+        view.view?.closePopup?.();
         foundLyr.forEach((lyr) => {
             view.map.remove(lyr);
         });
