@@ -115,7 +115,7 @@
       () => view,
       "arcgisViewClick",
       async (event) => {
-        view.popup ={
+        view.view.popup ={
           dockEnabled: true, 
           dockOptions: {
             position: "top-left",
@@ -173,7 +173,7 @@
   function layerListAction(e) {
     const id = e.detail.action.id;
     if (id === "trash") {
-      view.popup.close();
+      view.view?.closePopup?.();
       const title = e.detail.item.layer.title;
       // remove tile layer and feature layer with same title
       const removals = e.detail.item.view.map.allLayers.filter(function(layer) {

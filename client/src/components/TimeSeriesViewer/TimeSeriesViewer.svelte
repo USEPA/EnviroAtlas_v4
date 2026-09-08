@@ -89,7 +89,7 @@
             {domains: "CONUS", value: "rcp26", label: "Global mean: ↑2.9±0.8°F (RCP 2.6)", d: 1},
             {domains: "CONUS", value: "rcp45", label: "Global mean: ↑4.3±1.0°F (RCP 4.5)", d: 2},
             {domains: "CONUS", value: "rcp60", label: "Global mean: ↑5.1±1.0°F (RCP 6.0)", d: 3},
-            {domains: "CONUS", value: "rcp85", label: "Global mean: ↑7.8±1.4°F (RCP 8.5)", d: 5}
+            //{domains: "CONUS", value: "rcp85", label: "Global mean: ↑7.8±1.4°F (RCP 8.5)", d: 5}
         ], description: "Shared Socioeconomic Pathways (SSPs) reflect global trends in human activities and changes in radiative forcing that result from changes in atmospheric greenhouse gases (GHGs) and aerosol concentrations. In the SSP labels (like SSP1-2.6), the first number refers to a defined socioeconomic pathway (trends in population, policy, and economic growth), and the second refers to an increase in radiative forcing (W/m2) relative to pre-industrial (1850-1900) average (PIA)."
     },
         { name: "Season", options: [
@@ -165,18 +165,18 @@
     ]
 
     const lcluPastOptions = [
-        { name: 'LC/LU Class', options: [
+        { name: 'Land Cover Class', options: [
             {domains: "CONUS", label: "All Classes", value: "all"},
             //{label: "Forest", value: "Forest"},
             //{label: "Change Forest (compared to 2024)", value: "Change Forest (compared to 2024)"},
-        ]},
+        ], description: 'Choose the land cover class or "All Classes".'},
         { name: 'Year', options: [
             {domains: "CONUS", label: "1985", value: "1985", d: 599},
             {domains: "CONUS", label: "1995", value: "1995", d: 598},
             {domains: "CONUS", label: "2005", value: "2005", d: 597},
             {domains: "CONUS", label: "2015", value: "2015", d: 596},
             {domains: "CONUS", label: "2025", value: "2025", d: 588},
-        ]},
+        ], description: "Choose year."},
     ]
 
     const cmaqPastOptions = [
@@ -1792,7 +1792,7 @@
 
     async function loadLcluPast(selections) {
         let lObject;
-        if (selections['LC/LU Class']['value'] = 'all') {
+        if (selections['Land Cover Class']['value'] = 'all') {
             let id = selections['Year']['d'];
             lObject = await getEALayerObject(id);
             openRightPanel($activeWidget, "layers");
@@ -1863,6 +1863,8 @@
             optionsObj = options.filter((opt => opt.name == option_name))[0]
         } else if (theme === 'cmaq') {
             optionsObj = cmaqPastOptions.filter((opt => opt.name == option_name))[0]
+        } else if (theme === 'lcluPast') {
+            optionsObj = lcluPastOptions.filter((opt => opt.name == option_name))[0]
         }
         console.log(optionsObj)
         let findPopover = document.querySelector(`[reference-element="${theme}-${optionsObj.name}-details-popover-button"]`);
@@ -1978,8 +1980,10 @@
                         <calcite-button 
                             appearance="transparent"
                             iconEnd="information"
-                            id="pop-proj-details-popover-button"
+                            id="lcluPast-{lcluPast.name}-details-popover-button"
                             class="info-button"
+                            on:click={() => openDetails('lcluPast', lcluPast.name)}
+                            
                     ></calcite-button>
                     </div>
                     {/each}

@@ -156,7 +156,7 @@ export const smaConfig = {
       9: "#234E8D",
       10: "#23318D"
     },
-    classLabel: "Land Cover Type",
+    classLabel: "Permafrost Probability",
     firstStatLabel: "Permafrost Area (km2)",
     secondStatLabel: "Percentage of Area"
   },
@@ -183,44 +183,44 @@ export const smaConfig = {
     secondStatLabel: "Area (km2)"
   },
   sum_units: {
-    "stateLayer": {
-      "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_States_Non_Generalized/FeatureServer/0',
-      "minScale": '300000000',
-      "name": 'State',
-      "outfields": ['STATE_NAME', 'POPULATION'],
-      "outdesc": {
-        'Geometry Type': 'US State',
-        'State': 'results.STATE_NAME'
-      }
-    },
+    // "stateLayer": {
+    //   "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_States_Non_Generalized/FeatureServer/0',
+    //   "minScale": '300000000',
+    //   "name": 'State',
+    //   "outfields": ['STATE_NAME', 'POPULATION'],
+    //   "outdesc": {
+    //     'Geometry': 'US State',
+    //     'State': 'results.STATE_NAME'
+    //   }
+    // },
     "County": {
       "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Boundaries_2023/FeatureServer/2',
       "minScale": '300000000',
       "name": "County",
       "outfields": ['NAME', 'STATE_NAME'],
       "outdesc": {
-        'Geometry Type': 'US County',
+        'Geometry': 'US County',
         'County': "custom"//"results.NAME + ', ' + results.State"
       }
     },
-    "blockgroupLayer": {
-      "url": 'https://ejscreen.epa.gov/arcgis/rest/services/ejscreen/census2020acs/MapServer/0',
-      "minScale": '2000000',
-      "name": "Blockgroup X",
-      "outfields": ['STCNTRBG', 'COUNTY', 'STATE', 'TOTALPOP'],
-      "outdesc": {
-        'Geometry Type': '2020 US Census Block Groups',
-        'Block Group ID': "results.STCNTRBG",
-        '2020 ACS Population': "results.TOTALPOP"
-      }
-    },
-    "Congressional District": {
+    // "blockgroupLayer": {
+    //   "url": 'https://ejscreen.epa.gov/arcgis/rest/services/ejscreen/census2020acs/MapServer/0',
+    //   "minScale": '2000000',
+    //   "name": "Blockgroup X",
+    //   "outfields": ['STCNTRBG', 'COUNTY', 'STATE', 'TOTALPOP'],
+    //   "outdesc": {
+    //     'Geometry': '2020 US Census Block Groups',
+    //     'Block Group ID': "results.STCNTRBG",
+    //     '2020 ACS Population': "results.TOTALPOP"
+    //   }
+    // },
+    "119th Congressional District": {
       "url": 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_119th_Congressional_Districts/FeatureServer/0',
       "minScale": "300000000",
       "name": "119th Congressional Districts",
       "outfields": ['DISTRICTID', 'NAME', 'PARTY', 'STATE_ABBR'],
       "outdesc": {
-        'Geometry Type': '119th US Congressional Districts',
+        'Geometry': '119th US Congressional Districts',
         'District': 'custom', //results.STATE_ABBR+results.DISTRICTID
         'Representative': "custom" //results.NAME + ' - ' +results.PARTY
       }
@@ -231,7 +231,7 @@ export const smaConfig = {
       "name": "HUC-12",
       "outfields": ['HUC12', 'Name'],
       "outdesc": {
-        'Geometry Type': 'Sub-watershed (HUC-12)',
+        'Geometry': 'HUC-12',
         'HUC-12 ID': "results.huc12",
         'HUC-12 Name': "results.name"
       }
@@ -242,7 +242,7 @@ export const smaConfig = {
       "name": "HUC-8",
       "outfields": ['HUC8', 'Name'],
       "outdesc": {
-        'Geometry Type': 'Subbasin (HUC-8)',
+        'Geometry': 'HUC-8',
         'HUC-8 ID': "results.huc8",
         'HUC-8 Name': "results.name"
       }

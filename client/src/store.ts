@@ -1,7 +1,6 @@
 import { derived, writable } from "svelte/store";
 
-export const smaAnalysisInputs = writable('');
-export const smaAnalysisOutputs = writable('');
+export const smaAnalysis = writable([]);
 
 // don't have to call this state; shared between components (App and AppShell)
 export const viewState = writable({
