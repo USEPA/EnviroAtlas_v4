@@ -45,9 +45,11 @@
     let climRefs = [];
     let cmaqRefs = [];
     let lcluPastRefs = [];
+    let popPastRefs = [];
     let climateNotify;
     let cmaqNotify;
     let lcluPastNotify;
+    let popPastNotify;
     let maxVal;
     let minVal;
     let timeSeriesDetailsTarget;
@@ -179,6 +181,13 @@
         ], description: "Choose year."},
     ]
 
+    const popPastOptions = [
+        { name: 'Year', options: [
+            {domains: "CONUS", label: "2010", value: "2010", d: 430},
+            {domains: "CONUS,Alaska,Hawaii,Puerto Rico,Virgin Islands", label: "2020", value: "2020", d: 518}
+        ], description: "Choose year."},
+    ]
+
     const cmaqPastOptions = [
         { name: 'Variable', options: [
             {domains: "CONUS", label: "Total Nitrogen Deposition", value: "Total Nitrogen Deposition",
@@ -253,6 +262,10 @@
         return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
     });
 
+    $: popPastOptions_filtered = popPastOptions.map(obj => {
+        return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
+    });
+
     $: popProjectedOptions_filtered = popProjectedOptions.map(obj => {
         return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
     });
@@ -269,7 +282,7 @@
      */
     function loadOCONUS(selections) {
         openRightPanel($activeWidget, "layers");
-        console.log('OCONUS selections: ', selections)
+        //console.log('OCONUS selections: ', selections)
         let fieldname = buildOconusField(selections);
         let oconusUrl = `https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/NEXGDDP_${selections['Scenario by 2100'].value}/FeatureServer/0`;
         let oLayerId = "NEXGDDP" + domain + selections['Scenario by 2100'].value + fieldname;
@@ -952,7 +965,7 @@
      */
     async function loadCONUS(selections) {
         openRightPanel($activeWidget, "layers") 
-        console.log('CONUS selections: ', selections)
+        //console.log('CONUS selections: ', selections)
         let selectedTitle = domain + ", " + selections['Scenario by 2100'].label + ", " + selections['Season'].label + " " + selections['Variable'].label + ", " + selections['Change Between Periods'].label
         let drawCheck = isLayerTitleInMap(selectedTitle, view);
         if (drawCheck) {
@@ -1031,7 +1044,7 @@
             layer.rasterFunction = tableFxn;
         
             view.map.add(layer)
-            console.log(layer)
+            //console.log(layer)
             view.whenLayerView(layer).then((layerView) => {
                 const multidimInfo = layer.multidimensionalInfo;
                     layerView.highlightOptions = {
@@ -1039,7 +1052,7 @@
                     haloOpacity: 0, 
                     fillOpacity: 0
                 }
-                console.log("layer: ", multidimInfo);
+                //console.log("layer: ", multidimInfo);
             });
         }
     }
@@ -1049,7 +1062,7 @@
      * @param minmax - array [min, max]
     */
     function buildAttributeTable(minmax, selections) {
-        console.log(minmax)
+        //console.log(minmax)
         const attributeTable = FeatureSet.fromJSON({
             displayFieldName: "",
             fields: [
@@ -1185,7 +1198,7 @@
                 }  
                 }
             )
-            console.log(attributeTable)
+            //console.log(attributeTable)
             return attributeTable
         }
         if (selections['Variable'].value == "PRin" || selections['Variable'].value == "PEin") {
@@ -1286,7 +1299,7 @@
                     }  
                     }
                 )
-                console.log(attributeTable)
+                //console.log(attributeTable)
                 return attributeTable
             } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0}
                 // max is the largest number, the min is -1 (7 total classes)
@@ -1364,7 +1377,7 @@
                     }  
                     }
                 )
-                console.log(attributeTable)
+                //console.log(attributeTable)
                 return attributeTable
             }
         } else if (selections['Variable'].value == "PRfr") {
@@ -1465,7 +1478,7 @@
                     }  
                     }
                 )
-                console.log(attributeTable)
+                //console.log(attributeTable)
                 return attributeTable
             } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0}
                 // max is the largest number, the min is -1 (7 total classes)
@@ -1543,7 +1556,7 @@
                     }  
                     }
                 )
-                console.log(attributeTable)
+                //console.log(attributeTable)
                 return attributeTable
             }
         } else if (selections['Variable'].value == "mxTF" || selections['Variable'].value == "miTF") {
@@ -1644,7 +1657,7 @@
                     }  
                     }
                 )
-                console.log(attributeTable)
+                //console.log(attributeTable)
                 return attributeTable
             } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0}
                 // max is the largest number, the min is -1 (7 total classes)
@@ -1722,7 +1735,7 @@
                     }  
                     }
                 )
-                console.log(attributeTable)
+                //console.log(attributeTable)
                 return attributeTable
             }
         }
@@ -1735,7 +1748,7 @@
      */
     function buildInputRanges(minmax, selections) {
         if (selections['Variable'].value == "PEfr") {
-            console.log(minmax)
+            //console.log(minmax)
             // breaks => (-1,-0.6,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.6,0.8,1,max)
             let a = [];
             a.push({range: [-1, -0.6], output: 0});
@@ -1769,7 +1782,7 @@
             } else if (minmax[0] >= 0 && minmax[1] > 0) { // when the max and min value is greater than 0
                 // max is the largest number, the min is -1 (7 total classes)
                 let largestVal = Math.ceil(minmax[1]);
-                console.log('largest value :', largestVal)
+                //console.log('largest value :', largestVal)
                 let smallestVal = -1;
                 let positiveBreakDiff = (largestVal / 5);
                 let a = [];
@@ -1785,14 +1798,14 @@
                 a.push({range: [Number((largestVal - positiveBreakDiff).toFixed(1)), Number(largestVal.toFixed(1))], output: 6});
                 return a
             } else {
-                console.log("don't fit")
+                //console.log("don't fit")
             }
         }
     };
 
     async function loadLcluPast(selections) {
         let lObject;
-        if (selections['Land Cover Class']['value'] = 'all') {
+        if (selections['Land Cover Class']['value'] === 'all') {
             let id = selections['Year']['d'];
             lObject = await getEALayerObject(id);
             openRightPanel($activeWidget, "layers");
@@ -1802,6 +1815,18 @@
             } else {
                 addLayer(lObject, view);
             }
+        }
+    }
+
+    async function loadpopPast(selections) {
+        let id = selections['Year']['d'];
+        const lObject = await getEALayerObject(id);
+        openRightPanel($activeWidget, "layers");
+        let drawCheck = isLayerTitleInMap(lObject.name, view);
+        if (drawCheck) {
+            addAlertMessage('', 'This layer is already in the map: ' + lObject.name, 'warning', 'Layer is already in the map');
+        } else {
+            addLayer(lObject, view);
         }
     }
 
@@ -1846,7 +1871,22 @@
                     lcluPastNotify.setAttribute("hidden", "")
                     return
                 }
-                console.log(theme)
+            case "popPast":
+                popPastRefs.forEach(elem => {
+                    let option = elem.placeholder;
+                    let value = elem.selectedItems[0]?.value;
+                    let label = elem.selectedItems[0]?.heading;
+                    let d = elem.selectedItems[0]?.metadata;
+                    selections[option] = {value: value, label: label, d: d}
+                });
+                if (hasValueUndefined(selections)) {
+                    popPastNotify.removeAttribute("hidden")
+                    return
+                } else {
+                    loadpopPast(selections)
+                    popPastNotify.setAttribute("hidden", "")
+                    return
+                }
         }
     }
 
@@ -1865,8 +1905,9 @@
             optionsObj = cmaqPastOptions.filter((opt => opt.name == option_name))[0]
         } else if (theme === 'lcluPast') {
             optionsObj = lcluPastOptions.filter((opt => opt.name == option_name))[0]
+        } else if (theme === 'popPast') {
+            optionsObj = popPastOptions.filter((opt => opt.name == option_name))[0]
         }
-        console.log(optionsObj)
         let findPopover = document.querySelector(`[reference-element="${theme}-${optionsObj.name}-details-popover-button"]`);
         if (!findPopover) {
             mount(TimeSeriesDetails, {
@@ -2040,6 +2081,7 @@
                 </calcite-list-item>
             </calcite-list-item>
             {/if}
+            {#if popPastOptions_filtered[0].options.length > 0}
             <calcite-list-item
                 id='Population (Past)'
                 label='Population (Past)'
@@ -2050,35 +2092,40 @@
                     on:calciteListItemSelect={e=>e.stopPropagation()}
                     description='US Population'
                     >
+                    {#each popPastOptions_filtered as popPast, p (popPast.name)}
                     <div slot="content-bottom" id="combobox-div">
                         <calcite-combobox
+                            bind:this={popPastRefs[p]}
                             id="climateVarSelect"
                             scale="m"
-                            placeholder="Year"
+                            placeholder={popPast.name}
                             selection-mode="single"
                             max-items="0"
                             overlay-positioning="fixed"
                         >
-                        {#each ['2010', '2020'] as o}
-                            <calcite-combobox-item value={o} heading={o} metadata={o}></calcite-combobox-item>
+                        {#each popPast.options as o}
+                            <calcite-combobox-item value={o.value} heading={o.label} metadata={o.d}></calcite-combobox-item>
                         {/each}
                         </calcite-combobox>
                         <calcite-button 
                             appearance="transparent"
                             iconEnd="information"
-                            id="pop-past-details-popover-button"
+                            id="popPast-{popPast.name}-details-popover-button"
                             class="info-button"
+                            on:click={() => openDetails('popPast', popPast.name)}
                     ></calcite-button>
                     </div>
+                    {/each}
                     <div slot="content-bottom">
-                        <calcite-notice hidden scale="s" open kind="danger" icon>
+                        <calcite-notice bind:this={popPastNotify} hidden scale="s" open kind="danger" icon>
                             <div slot="title">Incomplete selections</div>
                             <div slot="message">Please make selections.</div>
                         </calcite-notice>
-                        <calcite-button>Coming Soon!</calcite-button>
+                        <calcite-button on:click={() => getSelections('popPast')}>Add to map</calcite-button>
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
+            {/if}
             {#if popProjectedOptions_filtered[0].options.length > 0}
             <calcite-list-item
                 id='Population (Projected)'
