@@ -89,7 +89,7 @@
             {domains: "CONUS", value: "rcp26", label: "Global mean: ↑2.9±0.8°F (RCP 2.6)", d: 1},
             {domains: "CONUS", value: "rcp45", label: "Global mean: ↑4.3±1.0°F (RCP 4.5)", d: 2},
             {domains: "CONUS", value: "rcp60", label: "Global mean: ↑5.1±1.0°F (RCP 6.0)", d: 3},
-            {domains: "CONUS", value: "rcp85", label: "Global mean: ↑7.8±1.4°F (RCP 8.5)", d: 5}
+            //{domains: "CONUS", value: "rcp85", label: "Global mean: ↑7.8±1.4°F (RCP 8.5)", d: 5}
         ], description: "Shared Socioeconomic Pathways (SSPs) reflect global trends in human activities and changes in radiative forcing that result from changes in atmospheric greenhouse gases (GHGs) and aerosol concentrations. In the SSP labels (like SSP1-2.6), the first number refers to a defined socioeconomic pathway (trends in population, policy, and economic growth), and the second refers to an increase in radiative forcing (W/m2) relative to pre-industrial (1850-1900) average (PIA)."
     },
         { name: "Season", options: [
