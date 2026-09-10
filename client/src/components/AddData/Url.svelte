@@ -32,7 +32,7 @@
     }
 
     // Reads a URL and imports the layers available from the URL, if applicable
-    function processDataUrl(dataUrl) {
+    async function processDataUrl(dataUrl) {
         if (dataUrl === undefined || dataUrl === null || dataUrl.trim().length == 0) {
             urlPanel.loading = false;
             addAlertMessage('Data URL is invalid. ', 'Enter a valid URL.');
@@ -47,7 +47,7 @@
             return
         }
         
-        let drawCheck = isLayerUrlInMap(url, view);
+        let drawCheck = isLayerUrlInMap(dataUrl, view);
         if (drawCheck) {
             addAlertMessage(
                 "",
@@ -178,7 +178,8 @@
                     });
                 });
             } else if (isImageService(dataUrl) === true) {
-                let iLyr = addImageryLayer({"url": url}, view)
+                let iLyr = await addImageryLayer({"url": dataUrl}, view)
+                
                 view?.whenLayerView(iLyr).then((layerView) => {
                     // If loading, open the layer list.
                     if ($activeWidget.right !== "layers") {
@@ -204,6 +205,13 @@
                             "Failed to add layer to map: " + (e?.message ?? e)
                         ); 
                     });
+                }).catch((e) => {
+                    urlPanel.loading = false;
+                    console.error(e?.message ?? e);
+                    addAlertMessage(
+                        "Something went wrong. ",
+                        "Failed to add layer to map: " + (e?.message ?? e)
+                    );
                 });
             } else {
                 urlPanel.loading = false;

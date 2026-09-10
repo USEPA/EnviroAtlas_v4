@@ -1,12 +1,40 @@
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import TileLayer from "@arcgis/core/layers/TileLayer"
+import Color from "@arcgis/core/Color";
 import PopupTemplate from "@arcgis/core/PopupTemplate";
 import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
 import MapImageLayer from "@arcgis/core/layers/MapImageLayer";
 import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
+import RasterStretchRenderer from "@arcgis/core/renderers/RasterStretchRenderer.js";
+import MultipartColorRamp from "@arcgis/core/rest/support/MultipartColorRamp";
+import AlgorithmicColorRamp from "@arcgis/core/rest/support/AlgorithmicColorRamp";
 
 
 export let view;
+
+/**
+ * @param {Array<string | number[]>} palette
+ * @returns {MultipartColorRamp}
+ */
+export function createMultipartColorRamp(palette) {
+    if (!Array.isArray(palette)) {
+        throw new TypeError(`Color palette must be an array.`);
+    }
+
+    const colors = palette.map((color, index) => {
+        const parsedColor = typeof color === "string" ? Color.fromString(color) : new Color(color);
+        if (!parsedColor) {
+            throw new Error(`Invalid color at index ${index} in palette.`);
+        }
+        return parsedColor;
+    });
+
+    const colorRamps = colors.slice(0, -1).map((fromColor, index) => (
+        new AlgorithmicColorRamp({ fromColor, toColor: colors[index + 1] })
+    ));
+
+    return new MultipartColorRamp({ colorRamps });
+}
 
 export async function fetchData(url) {
   try {
@@ -70,13 +98,39 @@ export function addLayer(lObj, view, index) {
     }
     if (isImageService(lObj.url)) {
         if (lObj.renderer) {
-            console.log('render this!')
-            let rfRule = new RasterFunction({
-                functionName: lObj.renderer
-            })
-            addImageryLayer(lObj, view, rfRule, index)
+            if (lObj.renderer.includes("raster-stretch")) {
+                let paletteName = lObj.renderer.split(", ")[1];
+                const palettes = {
+                    Temps: [
+                        "rgba(88, 19, 252, 1)",
+                        "rgba(28, 194, 253, 1)",
+                        "rgba(125, 253, 148, 1)",
+                        "rgba(245, 201, 38, 1)",
+                        "rgba(255, 43, 24, 1)"
+                    ],
+                    Precip: [
+                        "rgba(219, 242, 227, 1)",
+                        "rgba(153, 185, 195, 1)",
+                        "rgba(111, 114, 178, 1)",
+                        "rgba(54, 65, 135, 1)"
+                    ]
+                };
+                const palette = palettes[paletteName];
+                const colorRamp = createMultipartColorRamp(palette);
+                let stretchRenderer = new RasterStretchRenderer({
+                    colorRamp, stretchType: "min-max" 
+                })
+                
+                addImageryLayer(lObj, view, null, index, stretchRenderer)
+            } else {
+                console.log('render this!')
+                let rfRule = new RasterFunction({
+                    functionName: lObj.renderer
+                })
+                addImageryLayer(lObj, view, rfRule, index, null)
+            }
         } else {
-            addImageryLayer(lObj, view, null, index)
+            addImageryLayer(lObj, view, null, index, null)
         }
     }
 };
@@ -266,13 +320,28 @@ export function addFeatureLayer(lObj, view) {
     view.map.add(copiedLayer);
 };
 
+async function getRastMinMax(imageUrl) {
+    const response = await fetch(`${imageUrl}?f=json`);
+    const data = await response.json();
+    
+    // Access statistics from the service metadata
+    const maxVal = data.maxValues[0]
+    const minVal = data.minValues[0]
+    if (maxVal && minVal) {
+        return {
+            min: minVal,
+            max: maxVal
+        };
+    }
+    throw new Error("Statistics not found in service metadata");
+}
+
 //TODO: options object?
-export function addImageryLayer(lObj, view, rfRule, index) {
+export async function addImageryLayer(lObj, view, rfRule, index, strRenderer) {
     let iLyr = new ImageryLayer({
         url: lObj.url,
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
-        //opacity: 0.6,
     }); 
     if (lObj.name) {
         iLyr.title = lObj.name
@@ -289,6 +358,13 @@ export function addImageryLayer(lObj, view, rfRule, index) {
     if (rfRule) {
         iLyr.rasterFunction = rfRule
     }
+    if (strRenderer) { 
+        const minmax = await getRastMinMax(lObj.url);
+        strRenderer.customStatistics = [minmax];
+        iLyr.renderer = strRenderer;
+        iLyr.rasterFunction = "None";
+        
+    }
     view.map.add(iLyr, index);
     view.whenLayerView(iLyr).then((layerView) => {
         layerView.highlightOptions = {
@@ -296,7 +372,7 @@ export function addImageryLayer(lObj, view, rfRule, index) {
             haloOpacity: 0, 
             fillOpacity: 0
         }
-    }) 
+    })
     return iLyr
 };
 
