@@ -101,24 +101,50 @@ export function addLayer(lObj, view, index) {
             if (lObj.renderer.includes("raster-stretch")) {
                 let paletteName = lObj.renderer.split(", ")[1];
                 const palettes = {
+                    AKTemps: [ //Alaska
+                        "rgba(54, 75, 154, 1)",
+                        "rgba(68, 110, 175, 1)",
+                        "rgba(78, 127, 185, 1)",
+                        "rgba(119, 174, 209, 1)",
+                        "rgba(196, 228, 236,1)",
+                        "rgba(237, 232, 191,1)",
+                        "rgba(252, 219, 143,1)",
+                        "rgba(253, 192, 114,1)"
+                    ],
+                    CONUSTemps: [
+                        "rgba(68, 110, 175, 1)",
+                        "rgba(78, 127, 185, 1)",
+                        "rgba(119, 174, 209, 1)",
+                        "rgba(196, 228, 236,1)",
+                        "rgba(237, 232, 191,1)",
+                        "rgba(252, 219, 143,1)",
+                        "rgba(253, 192, 114,1)",
+                        "rgba(223, 68, 48,1)",
+                        "rgba(165, 0, 38,1)"
+                    ],
                     Temps: [
-                        "rgba(88, 19, 252, 1)",
-                        "rgba(28, 194, 253, 1)",
-                        "rgba(125, 253, 148, 1)",
-                        "rgba(245, 201, 38, 1)",
-                        "rgba(255, 43, 24, 1)"
+                        "rgba(237, 232, 191,1)",
+                        "rgba(252, 219, 143,1)",
+                        "rgba(253, 192, 114,1)",
+                        "rgba(242, 116, 70,1)",
+                        "rgba(223, 68, 48,1)",
+                        "rgba(165, 0, 38,1)"
                     ],
                     Precip: [
-                        "rgba(219, 242, 227, 1)",
-                        "rgba(153, 185, 195, 1)",
-                        "rgba(111, 114, 178, 1)",
-                        "rgba(54, 65, 135, 1)"
+                        "rgba(185, 231, 248, 1)",
+                        "rgba(79, 208, 252, 1)",
+                        "rgba(0, 127, 216, 1)",
+                        "rgba(0, 42, 164, 1)",
+                        "rgba(0, 0, 139,1)",
+                        "rgba(238, 216, 234,1)",
+                        "rgba(175, 21, 137,1)",
+                        "rgba(102, 25, 138, 1)"
                     ]
                 };
                 const palette = palettes[paletteName];
                 const colorRamp = createMultipartColorRamp(palette);
                 let stretchRenderer = new RasterStretchRenderer({
-                    colorRamp, stretchType: "min-max" 
+                    colorRamp, stretchType: "percent-clip", useGamma: true, gamma: 1 
                 })
                 
                 addImageryLayer(lObj, view, null, index, stretchRenderer)
