@@ -1,12 +1,40 @@
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import TileLayer from "@arcgis/core/layers/TileLayer"
+import Color from "@arcgis/core/Color";
 import PopupTemplate from "@arcgis/core/PopupTemplate";
 import ImageryLayer from "@arcgis/core/layers/ImageryLayer";
 import MapImageLayer from "@arcgis/core/layers/MapImageLayer";
 import RasterFunction from "@arcgis/core/layers/support/RasterFunction";
+import RasterStretchRenderer from "@arcgis/core/renderers/RasterStretchRenderer.js";
+import MultipartColorRamp from "@arcgis/core/rest/support/MultipartColorRamp";
+import AlgorithmicColorRamp from "@arcgis/core/rest/support/AlgorithmicColorRamp";
 
 
 export let view;
+
+/**
+ * @param {Array<string | number[]>} palette
+ * @returns {MultipartColorRamp}
+ */
+export function createMultipartColorRamp(palette) {
+    if (!Array.isArray(palette)) {
+        throw new TypeError(`Color palette must be an array.`);
+    }
+
+    const colors = palette.map((color, index) => {
+        const parsedColor = typeof color === "string" ? Color.fromString(color) : new Color(color);
+        if (!parsedColor) {
+            throw new Error(`Invalid color at index ${index} in palette.`);
+        }
+        return parsedColor;
+    });
+
+    const colorRamps = colors.slice(0, -1).map((fromColor, index) => (
+        new AlgorithmicColorRamp({ fromColor, toColor: colors[index + 1] })
+    ));
+
+    return new MultipartColorRamp({ colorRamps });
+}
 
 export async function fetchData(url) {
   try {
@@ -70,13 +98,65 @@ export function addLayer(lObj, view, index) {
     }
     if (isImageService(lObj.url)) {
         if (lObj.renderer) {
-            console.log('render this!')
-            let rfRule = new RasterFunction({
-                functionName: lObj.renderer
-            })
-            addImageryLayer(lObj, view, rfRule, index)
+            if (lObj.renderer.includes("raster-stretch")) {
+                let paletteName = lObj.renderer.split(", ")[1];
+                const palettes = {
+                    AKTemps: [ //Alaska
+                        "rgba(54, 75, 154, 1)",
+                        "rgba(68, 110, 175, 1)",
+                        "rgba(78, 127, 185, 1)",
+                        "rgba(119, 174, 209, 1)",
+                        "rgba(196, 228, 236,1)",
+                        "rgba(237, 232, 191,1)",
+                        "rgba(252, 219, 143,1)",
+                        "rgba(253, 192, 114,1)"
+                    ],
+                    CONUSTemps: [
+                        "rgba(68, 110, 175, 1)",
+                        "rgba(78, 127, 185, 1)",
+                        "rgba(119, 174, 209, 1)",
+                        "rgba(196, 228, 236,1)",
+                        "rgba(237, 232, 191,1)",
+                        "rgba(252, 219, 143,1)",
+                        "rgba(253, 192, 114,1)",
+                        "rgba(223, 68, 48,1)",
+                        "rgba(165, 0, 38,1)"
+                    ],
+                    Temps: [
+                        "rgba(237, 232, 191,1)",
+                        "rgba(252, 219, 143,1)",
+                        "rgba(253, 192, 114,1)",
+                        "rgba(242, 116, 70,1)",
+                        "rgba(223, 68, 48,1)",
+                        "rgba(165, 0, 38,1)"
+                    ],
+                    Precip: [
+                        "rgba(185, 231, 248, 1)",
+                        "rgba(79, 208, 252, 1)",
+                        "rgba(0, 127, 216, 1)",
+                        "rgba(0, 42, 164, 1)",
+                        "rgba(0, 0, 139,1)",
+                        "rgba(238, 216, 234,1)",
+                        "rgba(175, 21, 137,1)",
+                        "rgba(102, 25, 138, 1)"
+                    ]
+                };
+                const palette = palettes[paletteName];
+                const colorRamp = createMultipartColorRamp(palette);
+                let stretchRenderer = new RasterStretchRenderer({
+                    colorRamp, stretchType: "percent-clip", useGamma: true, gamma: 1 
+                })
+                
+                addImageryLayer(lObj, view, null, index, stretchRenderer)
+            } else {
+                console.log('render this!')
+                let rfRule = new RasterFunction({
+                    functionName: lObj.renderer
+                })
+                addImageryLayer(lObj, view, rfRule, index, null)
+            }
         } else {
-            addImageryLayer(lObj, view, null, index)
+            addImageryLayer(lObj, view, null, index, null)
         }
     }
 };
@@ -266,13 +346,28 @@ export function addFeatureLayer(lObj, view) {
     view.map.add(copiedLayer);
 };
 
+async function getRastMinMax(imageUrl) {
+    const response = await fetch(`${imageUrl}?f=json`);
+    const data = await response.json();
+    
+    // Access statistics from the service metadata
+    const maxVal = data.maxValues[0]
+    const minVal = data.minValues[0]
+    if (maxVal && minVal) {
+        return {
+            min: minVal,
+            max: maxVal
+        };
+    }
+    throw new Error("Statistics not found in service metadata");
+}
+
 //TODO: options object?
-export function addImageryLayer(lObj, view, rfRule, index) {
+export async function addImageryLayer(lObj, view, rfRule, index, strRenderer) {
     let iLyr = new ImageryLayer({
         url: lObj.url,
         format: "lerc", // for possible client side rendering or pixelfilter
         popupEnabled: true,
-        //opacity: 0.6,
     }); 
     if (lObj.name) {
         iLyr.title = lObj.name
@@ -289,6 +384,13 @@ export function addImageryLayer(lObj, view, rfRule, index) {
     if (rfRule) {
         iLyr.rasterFunction = rfRule
     }
+    if (strRenderer) { 
+        const minmax = await getRastMinMax(lObj.url);
+        strRenderer.customStatistics = [minmax];
+        iLyr.renderer = strRenderer;
+        iLyr.rasterFunction = "None";
+        
+    }
     view.map.add(iLyr, index);
     view.whenLayerView(iLyr).then((layerView) => {
         layerView.highlightOptions = {
@@ -296,7 +398,7 @@ export function addImageryLayer(lObj, view, rfRule, index) {
             haloOpacity: 0, 
             fillOpacity: 0
         }
-    }) 
+    })
     return iLyr
 };
 
