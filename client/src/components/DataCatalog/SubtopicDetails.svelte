@@ -26,7 +26,10 @@
 
     export const openDataAccess = (d) => {
         console.log(d)
-        if (isStringNotEmpty(d.agoID)) {
+        if (isStringNotEmpty(d.HUBsearch)) {
+            window.open(d.HUBsearch)
+        }
+        else if (isStringNotEmpty(d.agoID)) {
             let url = "https://epa.maps.arcgis.com/home/item.html?id="
             window.open(url + d.agoID)
         } else {

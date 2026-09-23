@@ -46,7 +46,7 @@
         if (subtopic.layers.length < 2) {
             layerID = subtopic.layers[0].layerID
             let detailsParams = {
-                select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"agoID":1,"metadataID":1,"url":1}`)
+                select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"HUBsearch":1,"agoID":1,"metadataID":1,"url":1}`)
             };
             let detailsObj = await getEaData(`/ea/api/layers/${layerID}`, detailsParams);
             let findPopover = document.querySelector(`[reference-element="${subtopic.subTopicID}-details-popover-button"]`);
