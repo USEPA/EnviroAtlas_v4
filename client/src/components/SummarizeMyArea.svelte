@@ -45,7 +45,8 @@
         findLayersByTitle, 
         openRightPanel,
         openInfo, 
-        getEaData
+        getEaData,
+        logToGa
     } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import { mount } from 'svelte';
@@ -660,6 +661,11 @@
     }
 
     function _renderInputTable(area, line, outputHeaders, outputData) {
+        logToGa('button-click', {
+            "event-action": `ea-${indicatorValue}`,
+            "event-category": 'buttonClick',
+            "event-label": 'ea-smat'
+        });
         inputTableData = [];
         const selectedIndicator = indicatorsDict
             .flatMap((group) => group.subtopic)
