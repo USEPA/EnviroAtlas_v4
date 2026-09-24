@@ -45,7 +45,8 @@
         findLayersByTitle, 
         openRightPanel,
         openInfo, 
-        getEaData
+        getEaData,
+        logToGa
     } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import { mount } from 'svelte';
@@ -83,15 +84,15 @@
     const handles = new Handles();
     const indicatorsDict = [
         {topic: "Land Cover Type", subtopic: [
-            { name: "2025 National Land Cover Database (all classes)", value: "nlcd-2025",  
+            { name: "Land Cover - All Classes (2025)", value: "nlcd-2025",
             domains: "CONUS", id: 588, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
-            { name: "2015 National Land Cover Database (all classes)", value: "nlcd-2015",  
+            { name: "Land Cover - All Classes (2015)", value: "nlcd-2015",
             domains: "CONUS", id: 596, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
-            { name: "2005 National Land Cover Database (all classes)", value: "nlcd-2005",  
-            domains: "CONUS", id: 597, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
-            { name: "1995 National Land Cover Database (all classes)", value: "nlcd-1995",  
+            { name: "Land Cover - All Classes (2005)", value: "nlcd-2005",
+                domains: "CONUS", id: 597, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
+            { name: "Land Cover - All Classes (1995)", value: "nlcd-1995",
             domains: "CONUS", id: 598, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
-            { name: "1985 National Land Cover Database (all classes)", value: "nlcd-1985",  
+            { name: "Land Cover - All Classes (1985)", value: "nlcd-1985",
             domains: "CONUS", id: 599, topic: "Land Cover Type", dtype: "Non-summarized grid data"},
         ]},
         {topic: "Population", subtopic: [
@@ -660,6 +661,11 @@
     }
 
     function _renderInputTable(area, line, outputHeaders, outputData) {
+        logToGa('button-click', {
+            "event-action": `ea-${indicatorValue}`,
+            "event-category": 'buttonClick',
+            "event-label": 'ea-smat'
+        });
         inputTableData = [];
         const selectedIndicator = indicatorsDict
             .flatMap((group) => group.subtopic)
@@ -839,7 +845,7 @@
         let subtopic = await getEaData("/ea/api/subtopics", subtopicParams);
         subtopic = subtopic[0]
         let detailsParams = {
-            select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"agoID":1,"metadataID":1,"url":1,"name":1}`)
+            select: encodeURIComponent(`{"layerID":1,"description":1,"dfsLink":1,"HUBsearch":1,"agoID":1,"metadataID":1,"url":1,"name":1}`)
         };
         let detailsObj = await getEaData(`/ea/api/layers/${layer.id}`, detailsParams);
         console.log(subtopic, detailsObj)

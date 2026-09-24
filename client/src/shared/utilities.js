@@ -13,6 +13,20 @@ import AlgorithmicColorRamp from "@arcgis/core/rest/support/AlgorithmicColorRamp
 export let view;
 
 /**
+ * 
+ * @param {*} name 
+ * @param {*} parameters 
+ * @returns 
+ */
+export function logToGa(name, parameters = {}) {
+    if (!window.gtag) return;
+
+    gtag('event', name, {
+        ...parameters,
+    });
+}
+
+/**
  * @param {Array<string | number[]>} palette
  * @returns {MultipartColorRamp}
  */
