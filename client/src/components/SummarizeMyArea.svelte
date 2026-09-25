@@ -661,8 +661,9 @@
     }
 
     function _renderInputTable(area, line, outputHeaders, outputData) {
+        const clickID = `ea-${indicatorValue}`
         logToGa('element_click', {
-            id: `ea-${indicatorValue}`,
+            id: clickID,
         });
         inputTableData = [];
         const selectedIndicator = indicatorsDict
