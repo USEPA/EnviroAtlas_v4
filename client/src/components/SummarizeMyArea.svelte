@@ -661,10 +661,10 @@
     }
 
     function _renderInputTable(area, line, outputHeaders, outputData) {
-        const clickID = `ea-${indicatorValue}`
-        logToGa('element_click', {
-            id: clickID,
-        });
+        // const clickID = `ea-${indicatorValue}`
+        // logToGa('element_click', {
+        //     id: clickID,
+        // });
         inputTableData = [];
         const selectedIndicator = indicatorsDict
             .flatMap((group) => group.subtopic)
@@ -880,6 +880,7 @@
     overlayPositioning="fixed"
 >
     <calcite-button
+        id="ea-smat"
         tabindex="0"
         role="button"
         width="full"
@@ -977,7 +978,7 @@
                         tabindex="0"
                         value={indicator.value}
                         name={indicator.name}
-                        id={indicator.id}
+                        id="smat-{indicator.id}"
                         bind:this={indicator.element}
                         on:calciteCheckboxChange={() => updateIndicator(indicator.element)}
                     ></calcite-checkbox>
