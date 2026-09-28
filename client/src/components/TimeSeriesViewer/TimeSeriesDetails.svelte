@@ -2,7 +2,7 @@
     export let optionsObj;
     export let theme;
 
-    console.log(optionsObj)
+    // console.log(optionsObj)
 
     export const openFactSheet = (factSheetsnippet) => {
         let url = "https://enviroatlas.epa.gov/enviroatlas/DataFactSheets/pdf/";
@@ -23,7 +23,22 @@
         <calcite-flow-item>
             <calcite-panel heading={optionsObj.name}>
                 {#if optionsObj.description}
-                    <calcite-block description={optionsObj.description}></calcite-block>
+                    <calcite-block description={optionsObj.description}>
+                    {#if optionsObj.pdf}
+                        <calcite-action
+                            slot="actions-end"
+                            icon="file"
+                            round
+                            scale="s"
+                            text="Fact Sheet"
+                            textEnabled
+                            role="button"
+                            tabindex="0"
+                            on:click={() => openFactSheet(optionsObj.pdf)}
+                            on:keydown={() => openFactSheet(optionsObj.pdf)}
+                        ></calcite-action>
+                    {/if}
+                    </calcite-block>
                 {/if}
                 {#each optionsObj.options as o}
                 {#if o.info}

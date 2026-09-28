@@ -178,7 +178,7 @@
             {domains: "CONUS", label: "2005", value: "2005", d: 597},
             {domains: "CONUS", label: "2015", value: "2015", d: 596},
             {domains: "CONUS", label: "2025", value: "2025", d: 588},
-        ], description: "Choose year."},
+        ], description: "Choose year.", pdf: "mapapp/LandCoverCONUS_2026.pdf"},
     ]
 
     const popPastOptions = [
