@@ -70,7 +70,7 @@
     let pointMetric = "kilometers";
     let sketchGeometry = null;
     let sketchViewModel;
-    let bufferInput;
+    let bufferValue = 1;
     let inputTableData = [];
     let bufferGeometry;
     let geometryType;
@@ -143,9 +143,7 @@
         geometryType = value;
         clearSketch();
         sketchViewModel.create(geometryType);
-        if (geometryType == 'polygon') {
-            bufferInput.value = "0"
-        }
+        bufferValue = geometryType == 'polygon' ? 0 : 1;
     }
 
     function clearSketch() {
@@ -157,11 +155,11 @@
 
     function updateSketchGeometry() {
         console.log(geodesicBufferOperator.isLoaded());
-        console.log("buffer: ", bufferInput.value)
+        console.log("buffer: ", bufferValue)
         if (sketchGeometry) {
-            if (bufferInput.value > 0) {
+            if (bufferValue > 0) {
                 console.log(pointMetric)
-                bufferGeometry = geodesicBufferOperator.execute(sketchGeometry, bufferInput.value, {unit: "kilometers"});
+                bufferGeometry = geodesicBufferOperator.execute(sketchGeometry, bufferValue, {unit: "kilometers"});
                 if (bufferLayer.graphics.length === 0) {
                     bufferLayer.add(new Graphic({
                         geometry: bufferGeometry,
@@ -177,6 +175,10 @@
                 geometry = sketchGeometry
             }
         }
+    }
+
+    function updateBufferValue(event) {
+        bufferValue = Number(event.target.value);
     }
 
     const updateIndicator = (elem) => {
@@ -691,8 +693,8 @@
 
         if (sumUnit == "Draw a Polygon" && geometryType == 'polygon') {
             inputTableData.push({ attribute: 'Geometry', value: 'User provided area' });
-            if (bufferInput.value > 0) {
-                inputTableData.push({ attribute: 'Buffer', 'value': formatLargeNumber(bufferInput.value) + _getMetricString(pointMetric) });
+            if (bufferValue > 0) {
+                inputTableData.push({ attribute: 'Buffer', 'value': formatLargeNumber(bufferValue) + _getMetricString(pointMetric) });
                 //inputTableData.push({ attribute: 'Area inside buffer excluded', value: 'True' ? this.excludeInnerFeatureCheckbox.checked : 'False' });
             }
         } else if (sumUnit == "Draw Area Around Point" && geometryType == 'point') {
@@ -701,11 +703,11 @@
             inputTableData.push({ attribute: 'Lat/Lon', value: centroid.latitude.toFixed(4) + ', ' +
                 centroid.longitude.toFixed(4)
             });
-            inputTableData.push({ attribute: 'Buffer Radius', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
+            inputTableData.push({ attribute: 'Buffer Radius', value: formatLargeNumber(bufferValue) + ' ' + _getMetricString(pointMetric) });
         } else if (sumUnit == "Draw Area Around Line" && geometryType == "polyline") {
             inputTableData.push({ attribute: 'Geometry', value: 'User provided line' });
             inputTableData.push({ attribute: 'Length', value: line + ' ' + _getMetricString(pointMetric) });
-            inputTableData.push({ attribute: 'Buffer', value: formatLargeNumber(bufferInput.value) + ' ' + _getMetricString(pointMetric) });
+            inputTableData.push({ attribute: 'Buffer', value: formatLargeNumber(bufferValue) + ' ' + _getMetricString(pointMetric) });
         } else {
             let inputTableFields = smaConfig.sum_units[sumUnit].outdesc;
             for (const k in inputTableFields) {
@@ -919,10 +921,10 @@
                     min="0"
                     step="1"
                     scale="s"
-                    value="1"
+                    value={String(bufferValue)}
                     number-button-type="vertical"
-                    bind:this={bufferInput}
                     alignment="end"
+                    on:calciteInputNumberInput={updateBufferValue}
                 ></calcite-input-number>
             </calcite-label>
             <calcite-button

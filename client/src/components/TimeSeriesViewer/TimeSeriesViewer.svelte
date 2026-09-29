@@ -128,7 +128,7 @@
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF3", label: "2025–2054 to 2070–2099",
                 info: "Near-term future (2025–2054) to end-of-century (2070–2099)", d: 5
             }
-        ], description: "Climate change variables were computed using 30–year periods: recent history (1976–2005), near-term future (2025–2054), mid-century (2045–2074), and end-of-century (2070–2099). Climate change variables are expressed as a change between different periods:"
+        ], description: "Climate change variables were computed using 30–year periods: a reference period (1976–2005), near-term future (2025–2054), mid-century (2045–2074), and end-of-century (2070–2099). Climate change variables are expressed as a change between different periods:"
     }];
 
     const popProjectedOptions = [
