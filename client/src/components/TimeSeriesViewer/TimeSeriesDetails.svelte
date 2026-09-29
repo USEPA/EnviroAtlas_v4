@@ -48,8 +48,13 @@
             {#if o.info}
             <calcite-card>
                 <span slot="description">
-                    <h3 style="margin:0;line-height:1.1em">{o.label}</h3>
-                    <p style="margin-top:5px;margin-bottom:0;font-size:12px;line-height:1.1em">{o.info}</p>
+                    {#if o.label===o.info}
+                        <h3 style="margin:0;line-height:1.1em">{o.label}</h3>
+                    {:else}
+                        <h3 style="margin:0;line-height:1.1em">{o.label}</h3>
+                        <p style="margin-top:5px;margin-bottom:0;font-size:12px;line-height:1.1em">{o.info}</p>
+                    {/if}
+
                 </span>
                     {#if o.pdf}
                     <div slot="footer-end">
