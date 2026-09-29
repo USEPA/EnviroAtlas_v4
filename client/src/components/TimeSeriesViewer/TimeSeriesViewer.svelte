@@ -171,14 +171,14 @@
             {domains: "CONUS", label: "All Classes", value: "all"},
             //{label: "Forest", value: "Forest"},
             //{label: "Change Forest (compared to 2024)", value: "Change Forest (compared to 2024)"},
-        ], description: 'Choose the land cover class or "All Classes".'},
+        ], description: 'Choose the land cover class or "All Classes".', pdf: "mapapp/LandCoverCONUS_2026.pdf"},
         { name: 'Year', options: [
             {domains: "CONUS", label: "1985", value: "1985", d: 599},
             {domains: "CONUS", label: "1995", value: "1995", d: 598},
             {domains: "CONUS", label: "2005", value: "2005", d: 597},
             {domains: "CONUS", label: "2015", value: "2015", d: 596},
             {domains: "CONUS", label: "2025", value: "2025", d: 588},
-        ], description: "Choose year.", pdf: "mapapp/LandCoverCONUS_2026.pdf"},
+        ], description: "Choose year."}
     ]
 
     const popPastOptions = [

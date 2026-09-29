@@ -61,7 +61,7 @@
                 {/each}
             </span>
         {#if detailsObj}
-            <span slot="content-top">
+        <span slot="content-top">
             {#if detailsObj.name}
             <h4 style="margin:0;line-height:1.1em">{detailsObj.name}</h4>
             {:else if subtopic.name}
@@ -69,7 +69,7 @@
             {/if}
             <p style="margin-top:5px;margin-bottom:0;font-size:12px;line-height:1.1em">{detailsObj.description}</p>
         </span>    
-        <div slot="footer-end">
+        <div slot="footer-start">
             <calcite-button
                 icon-start="file"
                 label="{subtopic.layerID}-pdf"
