@@ -385,13 +385,11 @@ export async function addImageryLayer(lObj, view, rfRule, index, strRenderer) {
     }); 
     if (lObj.name) {
         iLyr.title = lObj.name
-        if (!lObj.name.includes("Summarize My Area") && !lObj.popup) {
+        if (!lObj.popup) {
             iLyr.popupTemplate = { content: '<b>' + lObj.name + '</b><br/>' + "{Raster.ServicePixelValue.Raw}" }
-        } else if (!lObj.name.includes("Summarize My Area") && lObj.popup) {
+        } else if (lObj.popup) {
             iLyr.popupTemplate = buildFSPopupTemp(lObj)
-        } else {
-            iLyr.popupEnabled = false
-        }
+        } 
     } else {
         iLyr.popupTemplate = { content: "{Raster.ServicePixelValue.Raw}" }
     }

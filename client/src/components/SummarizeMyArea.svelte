@@ -214,6 +214,7 @@
 
     // Add the appropriate raster to the map
     async function _initIndicatorLayer(indicator, id) {
+        console.log(id);
         removeIndicator();
 
         // Make mosaic rule work for land cover and land cover change variables
@@ -235,7 +236,8 @@
             case "nlcd-2005":
             case "nlcd-1995":
             case "nlcd-1985":
-                lObject = await getEALayerObject(id);
+                let idNumber = id.split('-')[1]
+                lObject = await getEALayerObject(idNumber);
                 let match = indicator.match(/^nlcd-(\d{4})$/);
                 const nlcdYear = match ? Number(match[1]) : null;
                 lObject.name =
