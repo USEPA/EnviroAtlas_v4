@@ -128,7 +128,7 @@
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF3", label: "2025–2054 to 2070–2099",
                 info: "Near-term future (2025–2054) to end-of-century (2070–2099)", d: 5
             }
-        ], description: "Climate change variables were computed using 30–year periods: recent history (1976–2005), near-term future (2025–2054), mid-century (2045–2074), and end-of-century (2070–2099). Climate change variables are expressed as a change between different periods:"
+        ], description: "Climate change variables were computed using 30–year periods: a reference period (1976–2005), near-term future (2025–2054), mid-century (2045–2074), and end-of-century (2070–2099). Climate change variables are expressed as a change between different periods:"
     }];
 
     const popProjectedOptions = [
@@ -168,7 +168,7 @@
 
     const lcluPastOptions = [
         { name: 'Land Cover Class', options: [
-            {domains: "CONUS", label: "All Classes", value: "all"},
+            {domains: "CONUS", label: "All Classes", value: "all", pdf: "mapapp/LandCoverCONUS_2026.pdf", info:"All Classes"},
             //{label: "Forest", value: "Forest"},
             //{label: "Change Forest (compared to 2024)", value: "Change Forest (compared to 2024)"},
         ], description: 'Choose the land cover class or "All Classes".'},
@@ -178,7 +178,7 @@
             {domains: "CONUS", label: "2005", value: "2005", d: 597},
             {domains: "CONUS", label: "2015", value: "2015", d: 596},
             {domains: "CONUS", label: "2025", value: "2025", d: 588},
-        ], description: "Choose year.", pdf: "mapapp/LandCoverCONUS_2026.pdf"},
+        ], description: "Choose year."}
     ]
 
     const popPastOptions = [
