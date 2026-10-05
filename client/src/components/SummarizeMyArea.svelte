@@ -775,8 +775,10 @@
             return results;
         } catch (err) {
             console.log(err);
-            if (!err.details && err.details.messages[0] === 'The requested image exceeds the size limit.') {
+            if (err.details.messages[0] === 'The requested image exceeds the size limit.') {
                 messages = smaConfig.sizeError;
+            } else if (err.details.messages[0]) {
+                messages = err.details.messages[0]
             } else {
                 messages = smaConfig.genericError;
             }

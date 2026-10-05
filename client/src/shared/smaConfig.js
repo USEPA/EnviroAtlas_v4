@@ -6,7 +6,7 @@ export const smaConfig = {
   attributeHeader: "Attribute",
   valueHeader: "Value",
   areaOfSelectionHeader: "Area of Selection",
-  sizeError: "The area you have selected is too large, please try again with a smaller selection.",
+  sizeError: "Warning: The Summary Unit is too large, choose a smaller area.",
   tooSmallError: "The area you have selected is too small, please try again with a larger selection.",
   genericError: "Something went wrong, please re-select an area on the map to try again",
   zoomServiceMsg: "Zoom in to see summary unit features",
