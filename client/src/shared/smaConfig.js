@@ -10,6 +10,7 @@ export const smaConfig = {
   tooSmallError: "The area you have selected is too small, please try again with a larger selection.",
   genericError: "Something went wrong, please re-select an area on the map to try again",
   zoomServiceMsg: "Zoom in to see summary unit features",
+  zoomToDrawMsg: "Zoom in to draw summary unit features",
   inputTableHeaderCol1: {
     area: "Draw Type",
     point: "Draw Type",

@@ -310,6 +310,19 @@
 
         if (sumUnit == "Draw a Polygon" || sumUnit == "Draw Area Around Point" || sumUnit == "Draw Area Around Line") {
             _initSketchTool();
+            //zoom in to same level of huc12/8 visibility
+            view.goTo({zoom: 7});
+            const zoomHandle = reactiveUtils.watch(
+                () => [view.stationary, view.zoom],
+                ([stationary, zoom]) => {
+                    if(stationary && zoom < 7){
+                        messages = smaConfig['zoomToDrawMsg'];
+                    } else if (stationary && zoom > 6){
+                        messages = null
+                    }
+                }
+            );
+            handles.add(zoomHandle)
         } else {
             // Get unitMinScale, url, outfields from the smaConfig
             let unitMinScale = smaConfig.sum_units[`${sumUnit}`].minScale;
