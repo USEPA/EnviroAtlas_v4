@@ -62,6 +62,7 @@
                 inputData={a.inputData}
                 outputHeaders={a.outputHeaders}
                 outputData={a.outputData}
+                pixelCount={a.pixelCount}
             />
             {/each}
         </div>

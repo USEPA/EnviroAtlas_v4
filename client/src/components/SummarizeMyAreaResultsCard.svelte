@@ -6,6 +6,7 @@
     export let inputData = [];
     export let outputHeaders = [];
     export let outputData = [];
+    export let pixelCount;
 
     let inputTableContainer;
     let outputTableContainer;
@@ -55,6 +56,13 @@
         class="table-wrapper"
         bind:this={outputTableContainer}
     ></div>
+    {#if pixelCount <= 25}
+        <calcite-notice style="padding-top:4px" open icon="exclamation-mark-triangle" kind="danger">
+                <div slot="message">
+                    Warning: The Summary Unit is smaller than 25 pixels. Smaller area reduces accuracy.
+                </div>
+        </calcite-notice>
+    {/if}
 </calcite-card>
 
 <style>

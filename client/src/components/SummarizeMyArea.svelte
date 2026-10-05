@@ -46,7 +46,6 @@
         openRightPanel,
         openInfo, 
         getEaData,
-        logToGa
     } from "src/shared/utilities.js";
     import SubtopicDetails from "src/components/DataCatalog/SubtopicDetails.svelte";
     import { mount } from 'svelte';
@@ -78,6 +77,7 @@
     let smaPanel;
     let detailsMountTarget;
     let detailsObj = {};
+    let pixelCount;
 
     $: isDisabled = !indicatorValue || !geometry;
 
@@ -594,6 +594,7 @@
                 //console.log(results)
                 if (results) {
                     const totalCount = results.data.statistics[0].count;
+                    pixelCount = totalCount;
                     area = (totalCount * (pixel_size * pixel_size)) / 1000000;
                     let pretty_area = Math.round(area * 10) / 10
                     let totalPop = Math.round(results.data.statistics[0].sum);
@@ -635,6 +636,7 @@
                 //console.log(results)
                 if (results) {
                     const totalCount = results.data.statistics[0].count;
+                    pixelCount = totalCount;
                     area = (totalCount * (pixel_size * pixel_size)) / 1000000;
                     let pResults = {};
                     results.data.histograms[0].counts.forEach(
@@ -763,6 +765,7 @@
                 inputData: inputTableData,
                 outputHeaders,
                 outputData,
+                pixelCount
             },
             ...$smaAnalysis
         ];
