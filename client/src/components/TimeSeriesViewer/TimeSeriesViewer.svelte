@@ -114,13 +114,13 @@
         ]}, 
         { name: "Change Between Periods", options: [ 
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF1", label: "1976–2005 to 2025–2054", 
-                info: "Recent history (1976–2005) to near-term future (2025–2054)", d: 1
+                info: "Reference period (1976–2005) to near-term future (2025–2054)", d: 1
             },  
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF2", label: "1976–2005 to 2045–2074",
-                info: "Recent history (1976–2005) to mid-century (2045–2074)", d: 2
+                info: "Reference period (1976–2005) to mid-century (2045–2074)", d: 2
             },
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "HF3", label: "1976–2005 to 2070–2099",
-                info: "Recent history (1976–2005) to end-of-century (2070–2099)", d: 3
+                info: "Reference period (1976–2005) to end-of-century (2070–2099)", d: 3
             },
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "FF2", label: "2025–2054 to 2045–2074",
                 info: "Near-term future (2025–2054) to mid-century (2045–2074)", d: 4
