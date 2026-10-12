@@ -192,45 +192,51 @@
         { name: 'Variable', options: [
             {domains: "CONUS", label: "Total Nitrogen Deposition", value: "Total Nitrogen Deposition",
                 pdf: "Supplemental/Total_Nitrogen_Deposition_CMAQ.pdf",
-                info: "This dataset portrays the 3-year annual average of total nitrogen deposition, for chosen period."
+                info: "This dataset portrays the 3-year annual average of total nitrogen deposition, for chosen period.",
+                d: "TOTDEP_N"
             },
             {domains: "CONUS", label: "Total Sulfur Deposition", value: "Total Sulfur Deposition",
                 pdf: "Supplemental/Total_Sulfur_Deposition_CMAQ.pdf",
-                info: "This dataset portrays the 3-year annual of total sulfur deposition kilograms per hectare per year, for chosen period."
+                info: "This dataset portrays the 3-year annual of total sulfur deposition kilograms per hectare per year, for chosen period.",
+                d: "TOTDEP_S"
             },
             {domains: "CONUS", label: "Ambient Sulfur Dioxide (SO2)", value: "Ambient Sulfur Dioxide (SO2)",
                 pdf: "Supplemental/SO2_CMAQ.pdf",
-                info: "This dataset portrays the 3-year average ambient concentration of sulfur dioxide (SO2) for chosen season and period."
+                info: "This dataset portrays the 3-year average ambient concentration of sulfur dioxide (SO2) for chosen season and period.",
+                d: "SO2"
             },
             {domains: "CONUS", label: "Tropospheric Ozone (O3)", value: "Tropospheric Ozone (O3)",
                 pdf: "Supplemental/Tropospheric_Ozone_CMAQ.pdf",
-                info: "This dataset portrays the 3-year average ambient ozone concentration for chosen season and period, expressed as the maximum daily 8-hour average (MDA8) in parts per billion by volume (ppbV)."
+                info: "This dataset portrays the 3-year average ambient ozone concentration for chosen season and period, expressed as the maximum daily 8-hour average (MDA8) in parts per billion by volume (ppbV).",
+                d: "O3"
             },
             {domains: "CONUS", label: "Particulate Matter (PM2.5)", value: "Particulate Matter (PM2.5)",
                 pdf: "Supplemental/PM2.5_CMAQ.pdf",
-                info: "This dataset portrays the 3-year average ambient concentration of fine particulate matter with a diameter of 2.5 micrometers (µm) or smaller (PM2.5) for chosen season and period."
+                info: "This dataset portrays the 3-year average ambient concentration of fine particulate matter with a diameter of 2.5 micrometers (µm) or smaller (PM2.5) for chosen season and period.",
+                d: "PM25"
             },
             {domains: "CONUS", label: "Particulate Matter (PM10)", value: "Particulate Matter (PM10)",
                 pdf: "Supplemental/PM10_CMAQ.pdf",
-                info: "This dataset portrays the 3-year average ambient concentration of coarse particulate matter with a diameter between 2.5 and 10 micrometers (µm) (PM10) for chosen season and period."
+                info: "This dataset portrays the 3-year average ambient concentration of coarse particulate matter with a diameter between 2.5 and 10 micrometers (µm) (PM10) for chosen season and period.",
+                d: "PM10"
             }
         ]},
         { name: 'Season', options: [
-            {domains: "CONUS", value: "A", label: "Annual", info: "January through December of the same calendar year"},
-            {domains: "CONUS", value: "M", label: "Spring", info: "March, April, May"},
-            {domains: "CONUS", value: "J", label: "Summer", info: "June, July, August"},
-            {domains: "CONUS", value: "S", label: "Fall", info: "September, October, November"},
-            {domains: "CONUS", value: "D", label: "Winter", info: "December of previous year, January, February"},
+            {domains: "CONUS", value: "A", label: "Annual", info: "January through December of the same calendar year", d: 1},
+            {domains: "CONUS", value: "M", label: "Spring", info: "March, April, May", d: 2},
+            {domains: "CONUS", value: "J", label: "Summer", info: "June, July, August", d: 3},
+            {domains: "CONUS", value: "S", label: "Fall", info: "September, October, November", d: 4},
+            {domains: "CONUS", value: "D", label: "Winter", info: "December of previous year, January, February", d: 5},
             {domains: "CONUS", value: "Ozone Season (for tropospheric ozone only)", label: "Ozone Season (for tropospheric ozone only)",
-                info: "April, May, June, July, August, September"
+                info: "April, May, June, July, August, September", d: 1
             }
         ]},
         { name: 'Period', options: [
-            {domains: "CONUS", label: "2005–2007", value: "2005–2007"},
-            {domains: "CONUS", label: "2008–2010", value: "2008–2010"},
-            {domains: "CONUS", label: "2011–2013", value: "2011–2013"},
-            {domains: "CONUS", label: "2014–2016", value: "2014–2016"},
-            {domains: "CONUS", label: "2017–2019", value: "2017–2019"}
+            {domains: "CONUS", label: "2005–2007", value: "2005–2007", d: 1},
+            {domains: "CONUS", label: "2008–2010", value: "2008–2010", d: 2},
+            {domains: "CONUS", label: "2011–2013", value: "2011–2013", d: 3},
+            {domains: "CONUS", label: "2014–2016", value: "2014–2016", d: 4},
+            {domains: "CONUS", label: "2017–2019", value: "2017–2019", d: 5}
         ], description: "Choose 3-yr period."},
     ]
 
@@ -1836,7 +1842,7 @@
      * If selections are missing, opens a calcite-notify component.
      * If not, runs the appropriate load function. 
      */
-    function getSelections(theme) {
+    async function getSelections(theme) {
         let selections = {}
         switch (theme) {
             case "clim":
@@ -1887,7 +1893,101 @@
                     popPastNotify.setAttribute("hidden", "")
                     return
                 }
-        }
+            case "cmaq":
+                cmaqRefs.forEach(elem => {
+                    let option = elem.placeholder;
+                    let value = elem.selectedItems[0]?.value;
+                    let label = elem.selectedItems[0]?.heading;
+                    let d = elem.selectedItems[0]?.metadata;
+                    selections[option] = {value: value, label: label, d: d}
+                });
+                console.log(selections)
+                openRightPanel($activeWidget, "layers") 
+                //console.log('CONUS selections: ', selections)
+                let selectedTitle = domain + ", " + selections['Period'].label + ", " + selections['Season'].label + " " + selections['Variable'].label
+                let drawCheck = isLayerTitleInMap(selectedTitle, view);
+                if (drawCheck) {
+                    addAlertMessage('', 'This layer is already in the map: ' + selectedTitle, 'warning', 'Layer is already in the map');
+                } else {
+                    const mdURL = "https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/CMAQ/ImageServer"
+                    let mosaicRule = new MosaicRule();
+                    mosaicRule.multidimensionalDefinition = [];
+                    mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
+                        variableName: selections['Variable'].d,
+                        dimensionName: "scenario",
+                        values: [selections['Period'].d], 
+                        isSlice: true
+                    }));
+                    mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
+                        variableName: selections['Variable'].d,
+                        dimensionName: "season",
+                        values: [selections['Season'].d], 
+                        isSlice: true
+                    }));
+
+                    const layer = new ImageryLayer({
+                        url: mdURL,
+                        format: "lerc",
+                        mosaicRule,
+                        title: selectedTitle,
+                        popupTemplate: {
+                            title: `${selectedTitle} value: {Raster.ServicePixelValue.Raw}`,
+                            fieldInfos: [
+                                {
+                                    fieldName: "Raster.ServicePixelValue.Raw",
+                                    format: {
+                                        places: 2,
+                                        digitSeparator: true,
+                                    },
+                                },
+                            ],
+                        },
+                    });
+                
+                    //get stats on the image slice by finding OBJECTID of the single raster
+                    // const idQuery = new Query({
+                    //     where: `season=${selections['Season'].d} AND period=${selections['Change Between Periods'].d} AND scenario=${selections['Scenario by 2100'].d} AND variable='${selections['Variable'].d}'`
+                    // })
+                    // const minmax = await layer.queryObjectIds(idQuery).then((imageLyr) => {
+                    //     let imageId = imageLyr[0]
+                    //     let infoUrl = mdURL + `/${imageId}/info?f=json`
+                    //     return fetchData(infoUrl)
+                    // }).then(sliceInfo => {
+                    //     let minmax = sliceInfo.statistics[0].slice(0,2)
+                    //     return minmax
+                    // })
+
+                    // let rangeMaps = buildInputRanges(minmax, selections);
+                    // let attributeTable = buildAttributeTable(minmax, selections);
+
+                    // const remap = rasterFunctionUtils.remap({
+                    //     rangeMaps
+                    // });
+
+                    // const int = rasterFunctionUtils.int({
+                    //     raster: remap,
+                    // })
+
+                    // const tableFxn = rasterFunctionUtils.table({
+                    //     attributeTable,
+                    //     raster: int
+                    // });
+
+                    // layer.rasterFunction = tableFxn;
+                
+                    view.map.add(layer)
+                    //console.log(layer)
+                    view.whenLayerView(layer).then((layerView) => {
+                        const multidimInfo = layer.multidimensionalInfo;
+                            layerView.highlightOptions = {
+                            color: [0,0,0,0],
+                            haloOpacity: 0, 
+                            fillOpacity: 0
+                        }
+                        //console.log("layer: ", multidimInfo);
+                    });
+                }
+            }
     }
 
     /**
@@ -1970,7 +2070,7 @@
                             overlay-positioning="fixed"
                         >
                         {#each cmaqPast.options as o}
-                            <calcite-combobox-item value={o.value} heading={o.label}></calcite-combobox-item>
+                            <calcite-combobox-item value={o.value} heading={o.label} metadata={o.d}></calcite-combobox-item>
                         {/each}
                         </calcite-combobox>
                         <calcite-button 
@@ -1987,7 +2087,7 @@
                             <div slot="title">Incomplete selections</div>
                             <div slot="message">Please make selections.</div>
                         </calcite-notice>
-                        <calcite-button>Coming Soon!</calcite-button>
+                        <calcite-button on:click={() => getSelections('cmaq')}>Add to map</calcite-button>
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
