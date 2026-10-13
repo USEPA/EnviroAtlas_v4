@@ -192,32 +192,32 @@
         { name: 'Variable', options: [
             {domains: "CONUS", label: "Total Nitrogen Deposition", value: "Total Nitrogen Deposition",
                 pdf: "Supplemental/Total_Nitrogen_Deposition_CMAQ.pdf",
-                info: "This dataset portrays the 3-year annual average of total nitrogen deposition, for chosen period.",
+                info: "This dataset portrays the 3-year annual average of total nitrogen deposition in kilograms per hectare per year, for the chosen period.",
                 d: "TOTDEP_N"
             },
             {domains: "CONUS", label: "Total Sulfur Deposition", value: "Total Sulfur Deposition",
                 pdf: "Supplemental/Total_Sulfur_Deposition_CMAQ.pdf",
-                info: "This dataset portrays the 3-year annual of total sulfur deposition kilograms per hectare per year, for chosen period.",
+                info: "This dataset portrays the 3-year annual average of total sulfur deposition in kilograms per hectare per year, for the chosen period.",
                 d: "TOTDEP_S"
             },
             {domains: "CONUS", label: "Ambient Sulfur Dioxide (SO2)", value: "Ambient Sulfur Dioxide (SO2)",
                 pdf: "Supplemental/SO2_CMAQ.pdf",
-                info: "This dataset portrays the 3-year average ambient concentration of sulfur dioxide (SO2) for chosen season and period.",
+                info: "This dataset portrays the 3-year average ambient concentration of sulfur dioxide (SO2) in parts per billion by volume (ppbV) for the chosen season and period.",
                 d: "SO2"
             },
             {domains: "CONUS", label: "Tropospheric Ozone (O3)", value: "Tropospheric Ozone (O3)",
                 pdf: "Supplemental/Tropospheric_Ozone_CMAQ.pdf",
-                info: "This dataset portrays the 3-year average ambient ozone concentration for chosen season and period, expressed as the maximum daily 8-hour average (MDA8) in parts per billion by volume (ppbV).",
+                info: "This dataset portrays the 3-year average ambient ozone concentration for the chosen season and period, expressed as the maximum daily 8-hour average (MDA8) in parts per million (ppm).",
                 d: "O3"
             },
             {domains: "CONUS", label: "Particulate Matter (PM2.5)", value: "Particulate Matter (PM2.5)",
                 pdf: "Supplemental/PM2.5_CMAQ.pdf",
-                info: "This dataset portrays the 3-year average ambient concentration of fine particulate matter with a diameter of 2.5 micrometers (µm) or smaller (PM2.5) for chosen season and period.",
+                info: "This dataset portrays the 3-year average ambient concentration of fine particulate matter with a diameter of 2.5 micrometers (µm) or smaller (PM2.5) in micrograms per cubic meter (µg/m3) for the chosen season and period.",
                 d: "PM25"
             },
             {domains: "CONUS", label: "Particulate Matter (PM10)", value: "Particulate Matter (PM10)",
                 pdf: "Supplemental/PM10_CMAQ.pdf",
-                info: "This dataset portrays the 3-year average ambient concentration of coarse particulate matter with a diameter between 2.5 and 10 micrometers (µm) (PM10) for chosen season and period.",
+                info: "This dataset portrays the 3-year average ambient concentration of coarse particulate matter with a diameter between 2.5 and 10 micrometers (µm) (PM10) in micrograms per cubic meter (µg/m3) for the chosen season and period.",
                 d: "PM10"
             }
         ]},
@@ -1945,17 +1945,17 @@
                     });
                 
                     //get stats on the image slice by finding OBJECTID of the single raster
-                    // const idQuery = new Query({
-                    //     where: `season=${selections['Season'].d} AND period=${selections['Change Between Periods'].d} AND scenario=${selections['Scenario by 2100'].d} AND variable='${selections['Variable'].d}'`
-                    // })
-                    // const minmax = await layer.queryObjectIds(idQuery).then((imageLyr) => {
-                    //     let imageId = imageLyr[0]
-                    //     let infoUrl = mdURL + `/${imageId}/info?f=json`
-                    //     return fetchData(infoUrl)
-                    // }).then(sliceInfo => {
-                    //     let minmax = sliceInfo.statistics[0].slice(0,2)
-                    //     return minmax
-                    // })
+                    const idQuery = new Query({
+                        where: `season=${selections['Season'].d} AND period=${selections['Period'].d} AND variable='${selections['Variable'].d}'`
+                    })
+                    const minmax = await layer.queryObjectIds(idQuery).then((imageLyr) => {
+                        let imageId = imageLyr[0]
+                        let infoUrl = mdURL + `/${imageId}/info?f=json`
+                        return fetchData(infoUrl)
+                    }).then(sliceInfo => {
+                        let minmax = sliceInfo.statistics[0].slice(0,2)
+                        return minmax
+                    })
 
                     // let rangeMaps = buildInputRanges(minmax, selections);
                     // let attributeTable = buildAttributeTable(minmax, selections);
