@@ -153,7 +153,15 @@ export function addLayer(lObj, view, index) {
                         "rgba(238, 216, 234,1)",
                         "rgba(175, 21, 137,1)",
                         "rgba(102, 25, 138, 1)"
-                    ]
+                    ],
+                    TOTDEP_N: [
+                        "rgba(254, 229, 217, 1)", 
+                        "rgba(252, 174, 145, 1)", 
+                        "rgba(251, 106, 74, 1)", 
+                        "rgba(222, 45, 38, 1)", 
+                        "rgba(165, 15, 21, 1)"
+                    ],
+                    //TODO: add other cmaq variable ramps
                 };
                 const palette = palettes[paletteName];
                 const colorRamp = createMultipartColorRamp(palette);

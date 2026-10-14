@@ -16,7 +16,8 @@
         fetchData,
         isLayerTitleInMap,
         addLayer,
-        getEALayerObject
+        getEALayerObject,
+        createMultipartColorRamp
     } from "src/shared/utilities.js";
     import { activeWidget } from "src/store.ts";
     import TimeSeriesDetails from "src/components/TimeSeriesViewer/TimeSeriesDetails.svelte";
@@ -36,6 +37,7 @@
     import Query from "@arcgis/core/rest/support/Query";
     import FeatureSet from "@arcgis/core/rest/support/FeatureSet.js";
     import * as rasterFunctionUtils from "@arcgis/core/layers/support/rasterFunctionUtils.js";
+    import RasterStretchRenderer from "@arcgis/core/renderers/RasterStretchRenderer.js";
     import { mount } from "svelte";
     import { addAlertMessage } from 'src/shared/addLayers.ts';
 
@@ -188,6 +190,7 @@
         ], description: "Choose year."},
     ]
 
+    //TODO: Apply conditionality to seasons available for each variable
     const cmaqPastOptions = [
         { name: 'Variable', options: [
             {domains: "CONUS", label: "Total Nitrogen Deposition", value: "Total Nitrogen Deposition",
@@ -1946,35 +1949,47 @@
                 
                     //get stats on the image slice by finding OBJECTID of the single raster
                     const idQuery = new Query({
-                        where: `season=${selections['Season'].d} AND period=${selections['Period'].d} AND variable='${selections['Variable'].d}'`
+                        where: `Seasons=${selections['Season'].d} AND Year=${selections['Period'].d} AND Variable='${selections['Variable'].d}'`
                     })
+                    console.log(idQuery)
                     const minmax = await layer.queryObjectIds(idQuery).then((imageLyr) => {
                         let imageId = imageLyr[0]
+                        console.log(imageId)
                         let infoUrl = mdURL + `/${imageId}/info?f=json`
                         return fetchData(infoUrl)
                     }).then(sliceInfo => {
                         let minmax = sliceInfo.statistics[0].slice(0,2)
                         return minmax
                     })
+                    console.log(minmax)
 
-                    // let rangeMaps = buildInputRanges(minmax, selections);
-                    // let attributeTable = buildAttributeTable(minmax, selections);
+                    //TODO: streamline this with utilities
+                    let paletteName = "TOTDEP_N"
 
-                    // const remap = rasterFunctionUtils.remap({
-                    //     rangeMaps
-                    // });
+                    const palettes = {
+                        TOTDEP_N: [
+                            "rgba(254, 229, 217, 1)", 
+                            "rgba(252, 174, 145, 1)", 
+                            "rgba(251, 106, 74, 1)", 
+                            "rgba(222, 45, 38, 1)", 
+                            "rgba(165, 15, 21, 1)"
+                        ]
+                    };
+                    const palette = palettes[paletteName];
+                    const colorRamp = createMultipartColorRamp(palette);
+                    let stretchRenderer = new RasterStretchRenderer({
+                        colorRamp, stretchType: "percent-clip", useGamma: true, gamma: 1 
+                    })
 
-                    // const int = rasterFunctionUtils.int({
-                    //     raster: remap,
-                    // })
-
-                    // const tableFxn = rasterFunctionUtils.table({
-                    //     attributeTable,
-                    //     raster: int
-                    // });
-
-                    // layer.rasterFunction = tableFxn;
-                
+                    console.log(minmax)
+                    stretchRenderer.customStatistics = [{
+                        min: minmax[0],
+                        max: minmax[1]
+                    }];
+                    layer.renderer = stretchRenderer;
+                    layer.rasterFunction = "None";
+                        
+                    //TODO: fix the legend max min that appears in map app
                     view.map.add(layer)
                     //console.log(layer)
                     view.whenLayerView(layer).then((layerView) => {
@@ -1984,7 +1999,7 @@
                             haloOpacity: 0, 
                             fillOpacity: 0
                         }
-                        //console.log("layer: ", multidimInfo);
+                        console.log(layer)
                     });
                 }
             }
