@@ -54,6 +54,8 @@
     let popPastNotify;
     let maxVal;
     let minVal;
+    let cmaqVariable = '';
+    let cmaqSeason = '';
     let timeSeriesDetailsTarget;
     const options = [ 
         { name: "Variable", options: [ 
@@ -190,7 +192,6 @@
         ], description: "Choose year."},
     ]
 
-    //TODO: Apply conditionality to seasons available for each variable
     const cmaqPastOptions = [
         { name: 'Variable', options: [
             {domains: "CONUS", label: "Total Nitrogen Deposition", value: "Total Nitrogen Deposition",
@@ -225,12 +226,12 @@
             }
         ]},
         { name: 'Season', options: [
-            {domains: "CONUS", value: "A", label: "Annual", info: "January through December of the same calendar year", d: 1},
-            {domains: "CONUS", value: "M", label: "Spring", info: "March, April, May", d: 2},
-            {domains: "CONUS", value: "J", label: "Summer", info: "June, July, August", d: 3},
-            {domains: "CONUS", value: "S", label: "Fall", info: "September, October, November", d: 4},
-            {domains: "CONUS", value: "D", label: "Winter", info: "December of previous year, January, February", d: 5},
-            {domains: "CONUS", value: "Ozone Season (for tropospheric ozone only)", label: "Ozone Season (for tropospheric ozone only)",
+            {domains: "CONUS", variable: "TOTDEP_N,TOTDEP_S,SO2,O3,PM25,PM10", value: "A", label: "Annual", info: "January through December of the same calendar year", d: 1},
+            {domains: "CONUS", variable: "SO2,O3,PM25,PM10", value: "M", label: "Spring", info: "March, April, May", d: 2},
+            {domains: "CONUS", variable: "SO2,O3,PM25,PM10", value: "J", label: "Summer", info: "June, July, August", d: 3},
+            {domains: "CONUS", variable: "SO2,O3,PM25,PM10", value: "S", label: "Fall", info: "September, October, November", d: 4},
+            {domains: "CONUS", variable: "SO2,O3,PM25,PM10", value: "D", label: "Winter", info: "December of previous year, January, February", d: 5},
+            {domains: "CONUS", variable: "O3", value: "Ozone Season (for O3 only)", label: "Ozone Season (for O3 only)",
                 info: "April, May, June, July, August, September", d: 1
             }
         ]},
@@ -260,8 +261,49 @@
     });
 
     $: cmaqPastOptions_filtered = cmaqPastOptions.map(obj => {
-        return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
+        const optionsForGeography = obj.options.filter(opt => opt.domains.includes(geography));
+        let filteredOptions = optionsForGeography;
+
+        if (obj.name === 'Season' && cmaqVariable) {
+            filteredOptions = optionsForGeography.filter(opt =>
+                'variable' in opt && opt.variable.split(',').includes(cmaqVariable)
+            );
+        } else if (obj.name === 'Variable' && cmaqSeason) {
+            const selectedSeason = cmaqPastOptions[1].options.find(option => option.value === cmaqSeason);
+            filteredOptions = selectedSeason && 'variable' in selectedSeason
+                ? optionsForGeography.filter(opt => selectedSeason.variable.split(',').includes(String(opt.d)))
+                : optionsForGeography;
+        }
+
+        return {...obj, options: filteredOptions}
     });
+
+    function filterCmaqSeasons() {
+        cmaqVariable = cmaqRefs[0]?.selectedItems[0]?.metadata ?? '';
+        const seasonSelect = cmaqRefs[1];
+        const availableSeasons = cmaqPastOptions[1].options.filter(option =>
+            'variable' in option && option.variable.split(',').includes(cmaqVariable)
+        );
+
+        if (seasonSelect?.selectedItems[0] && !availableSeasons.some(option => option.value === seasonSelect.selectedItems[0].value)) {
+            cmaqSeason = '';
+            seasonSelect.clearSelection();
+        }
+    }
+
+    function filterCmaqVariables() {
+        cmaqSeason = cmaqRefs[1]?.selectedItems[0]?.value ?? '';
+        const variableSelect = cmaqRefs[0];
+        const selectedSeason = cmaqPastOptions[1].options.find(option => option.value === cmaqSeason);
+        const availableVariables = selectedSeason && 'variable' in selectedSeason
+            ? selectedSeason.variable.split(',')
+            : [];
+
+        if (variableSelect?.selectedItems[0] && !availableVariables.includes(variableSelect.selectedItems[0].metadata)) {
+            cmaqVariable = '';
+            variableSelect.clearSelection();
+        }
+    }
 
     $: lcluPastOptions_filtered = lcluPastOptions.map(obj => {
         return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
@@ -1961,11 +2003,9 @@
                         let minmax = sliceInfo.statistics[0].slice(0,2)
                         return minmax
                     })
-                    console.log(minmax)
 
                     //TODO: streamline this with utilities
-                    let paletteName = "TOTDEP_N"
-
+                    let paletteName = selections['Variable'].d
                     const palettes = {
                         TOTDEP_N: [
                             "rgba(254, 229, 217, 1)", 
@@ -1973,15 +2013,59 @@
                             "rgba(251, 106, 74, 1)", 
                             "rgba(222, 45, 38, 1)", 
                             "rgba(165, 15, 21, 1)"
+                        ],
+                        TOTDEP_S: [
+                            "rgba(255, 215, 190, 1)",
+                            "rgba(204, 163, 145, 1)",
+                            "rgba(153, 111, 99, 1)",
+                            "rgba(109, 80, 72, 1)",
+                            "rgba(64, 49, 45, 1)"
+                        ],
+                        O3: [
+                            "rgba(247, 251, 255, 1)", 
+                            "rgba(222, 235, 247, 1)", 
+                            "rgba(198, 219, 239, 1)", 
+                            "rgba(158, 202, 225, 1)", 
+                            "rgba(107, 174, 214, 1)", 
+                            "rgba(66, 146, 198, 1)", 
+                            "rgba(33, 113, 181, 1)", 
+                            "rgba(8, 69, 148, 1)"
+                        ],
+                        SO2: [
+                            "rgba(255, 255, 204, 1)",
+                            "rgba(217, 240, 163, 1)",
+                            "rgba(173, 221, 142, 1)",
+                            "rgba(120, 198, 121, 1)",
+                            "rgba(65, 171, 93, 1)",
+                            "rgba(35, 132, 67, 1)",
+                            "rgba(0, 90, 50, 1)"
+                        ],
+                        PM25: [
+                            "rgba(241, 238, 246, 1)",
+                            "rgba(212, 185, 218, 1)",
+                            "rgba(201, 148, 199, 1)",
+                            "rgba(223, 101, 176, 1)",
+                            "rgba(231, 41, 138, 1)",
+                            "rgba(206, 18, 86, 1)",
+                            "rgba(145, 0, 63, 1)"
+                        ],
+                        PM10: [
+                            "rgba(242, 240, 247, 1)",
+                            "rgba(218, 218, 235, 1)",
+                            "rgba(188, 189, 220, 1)",
+                            "rgba(158, 154, 200, 1)",
+                            "rgba(128, 125, 186, 1)",
+                            "rgba(106, 81, 163, 1)",
+                            "rgba(74, 20, 134, 1)"
                         ]
+
                     };
                     const palette = palettes[paletteName];
                     const colorRamp = createMultipartColorRamp(palette);
                     let stretchRenderer = new RasterStretchRenderer({
-                        colorRamp, stretchType: "percent-clip", useGamma: true, gamma: 1 
+                        colorRamp, stretchType: "percent-clip", useGamma: true, gamma: 2
                     })
 
-                    console.log(minmax)
                     stretchRenderer.customStatistics = [{
                         min: minmax[0],
                         max: minmax[1]
@@ -1989,9 +2073,7 @@
                     layer.renderer = stretchRenderer;
                     layer.rasterFunction = "None";
                         
-                    //TODO: fix the legend max min that appears in map app
                     view.map.add(layer)
-                    //console.log(layer)
                     view.whenLayerView(layer).then((layerView) => {
                         const multidimInfo = layer.multidimensionalInfo;
                             layerView.highlightOptions = {
@@ -1999,7 +2081,6 @@
                             haloOpacity: 0, 
                             fillOpacity: 0
                         }
-                        console.log(layer)
                     });
                 }
             }
@@ -2083,6 +2164,11 @@
                             selection-mode="single"
                             max-items="0"
                             overlay-positioning="fixed"
+                            on:calciteComboboxChange={cmaqPast.name === 'Variable'
+                                ? filterCmaqSeasons
+                                : cmaqPast.name === 'Season'
+                                    ? filterCmaqVariables
+                                    : undefined}
                         >
                         {#each cmaqPast.options as o}
                             <calcite-combobox-item value={o.value} heading={o.label} metadata={o.d}></calcite-combobox-item>
