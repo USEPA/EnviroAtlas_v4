@@ -1,6 +1,4 @@
 <script>
-    //TODO: en-dash for minuses in legend...add labels
-
     // Import calcite components
     import "@esri/calcite-components/dist/components/calcite-panel";
     import "@esri/calcite-components/dist/components/calcite-button";
@@ -1946,9 +1944,7 @@
                     let d = elem.selectedItems[0]?.metadata;
                     selections[option] = {value: value, label: label, d: d}
                 });
-                console.log(selections)
                 openRightPanel($activeWidget, "layers") 
-                //console.log('CONUS selections: ', selections)
                 let selectedTitle = domain + ", " + selections['Period'].label + ", " + selections['Season'].label + " " + selections['Variable'].label
                 let drawCheck = isLayerTitleInMap(selectedTitle, view);
                 if (drawCheck) {
