@@ -52,9 +52,10 @@
     let popPastNotify;
     let maxVal;
     let minVal;
-    let cmaqVariable = '';
-    let cmaqSeason = '';
+    let cmaqVariable;
+    let cmaqSeason;
     let timeSeriesDetailsTarget;
+    let isAddingToMap = false;
     const options = [ 
         { name: "Variable", options: [ 
             {domains: "CONUS,Alaska,AmericanSamoa,Guam,Hawaii,Puerto Rico,Virgin Islands", value: "PRin", label: "Change in Precipitation (in)",
@@ -192,35 +193,41 @@
 
     const cmaqPastOptions = [
         { name: 'Variable', options: [
-            {domains: "CONUS", label: "Total Nitrogen Deposition", value: "Total Nitrogen Deposition",
+            {domains: "CONUS", label: "Total Nitrogen Deposition", value: "TOTDEP_N",
                 pdf: "Supplemental/Total_Nitrogen_Deposition_CMAQ.pdf",
                 info: "This dataset portrays the 3-year annual average of total nitrogen deposition in kilograms per hectare per year, for the chosen period.",
-                d: "TOTDEP_N"
+                d: "TOTDEP_N",
+                seasons: "A"
             },
-            {domains: "CONUS", label: "Total Sulfur Deposition", value: "Total Sulfur Deposition",
+            {domains: "CONUS", label: "Total Sulfur Deposition", value: "TOTDEP_S",
                 pdf: "Supplemental/Total_Sulfur_Deposition_CMAQ.pdf",
                 info: "This dataset portrays the 3-year annual average of total sulfur deposition in kilograms per hectare per year, for the chosen period.",
-                d: "TOTDEP_S"
+                d: "TOTDEP_S",
+                seasons: "A"
             },
-            {domains: "CONUS", label: "Ambient Sulfur Dioxide (SO2)", value: "Ambient Sulfur Dioxide (SO2)",
+            {domains: "CONUS", label: "Ambient Sulfur Dioxide (SO2)", value: "SO2",
                 pdf: "Supplemental/SO2_CMAQ.pdf",
                 info: "This dataset portrays the 3-year average ambient concentration of sulfur dioxide (SO2) in parts per billion by volume (ppbV) for the chosen season and period.",
-                d: "SO2"
+                d: "SO2",
+                seasons: "A,M,J,S,D"
             },
-            {domains: "CONUS", label: "Tropospheric Ozone (O3)", value: "Tropospheric Ozone (O3)",
+            {domains: "CONUS", label: "Tropospheric Ozone (O3)", value: "O3",
                 pdf: "Supplemental/Tropospheric_Ozone_CMAQ.pdf",
                 info: "This dataset portrays the 3-year average ambient ozone concentration for the chosen season and period, expressed as the maximum daily 8-hour average (MDA8) in parts per million (ppm).",
-                d: "O3"
+                d: "O3",
+                seasons: "A,M,J,S,D,O"
             },
-            {domains: "CONUS", label: "Particulate Matter (PM2.5)", value: "Particulate Matter (PM2.5)",
+            {domains: "CONUS", label: "Particulate Matter (PM2.5)", value: "PM25",
                 pdf: "Supplemental/PM2.5_CMAQ.pdf",
                 info: "This dataset portrays the 3-year average ambient concentration of fine particulate matter with a diameter of 2.5 micrometers (µm) or smaller (PM2.5) in micrograms per cubic meter (µg/m3) for the chosen season and period.",
-                d: "PM25"
+                d: "PM25",
+                seasons: "A,M,J,S,D"
             },
-            {domains: "CONUS", label: "Particulate Matter (PM10)", value: "Particulate Matter (PM10)",
+            {domains: "CONUS", label: "Particulate Matter (PM10)", value: "PM10",
                 pdf: "Supplemental/PM10_CMAQ.pdf",
                 info: "This dataset portrays the 3-year average ambient concentration of coarse particulate matter with a diameter between 2.5 and 10 micrometers (µm) (PM10) in micrograms per cubic meter (µg/m3) for the chosen season and period.",
-                d: "PM10"
+                d: "PM10",
+                seasons: "A,M,J,S,D"
             }
         ]},
         { name: 'Season', options: [
@@ -229,7 +236,7 @@
             {domains: "CONUS", variable: "SO2,O3,PM25,PM10", value: "J", label: "Summer", info: "June, July, August", d: 3},
             {domains: "CONUS", variable: "SO2,O3,PM25,PM10", value: "S", label: "Fall", info: "September, October, November", d: 4},
             {domains: "CONUS", variable: "SO2,O3,PM25,PM10", value: "D", label: "Winter", info: "December of previous year, January, February", d: 5},
-            {domains: "CONUS", variable: "O3", value: "Ozone Season (for O3 only)", label: "Ozone Season (for O3 only)",
+            {domains: "CONUS", variable: "O3", value: "O", label: "Ozone Season (for O3 only)",
                 info: "April, May, June, July, August, September", d: 1
             }
         ]},
@@ -261,47 +268,14 @@
     $: cmaqPastOptions_filtered = cmaqPastOptions.map(obj => {
         const optionsForGeography = obj.options.filter(opt => opt.domains.includes(geography));
         let filteredOptions = optionsForGeography;
-
-        if (obj.name === 'Season' && cmaqVariable) {
-            filteredOptions = optionsForGeography.filter(opt =>
-                'variable' in opt && opt.variable.split(',').includes(cmaqVariable)
-            );
-        } else if (obj.name === 'Variable' && cmaqSeason) {
-            const selectedSeason = cmaqPastOptions[1].options.find(option => option.value === cmaqSeason);
-            filteredOptions = selectedSeason && 'variable' in selectedSeason
-                ? optionsForGeography.filter(opt => selectedSeason.variable.split(',').includes(String(opt.d)))
-                : optionsForGeography;
+        if (cmaqVariable && obj.name === "Season") {
+            filteredOptions = optionsForGeography.filter(opt => opt.variable.split(",").includes(cmaqVariable))
         }
-
+        if (cmaqSeason && obj.name === "Variable") {
+            filteredOptions = optionsForGeography.filter(opt => opt.seasons.split(",").includes(cmaqSeason))
+        }
         return {...obj, options: filteredOptions}
     });
-
-    function filterCmaqSeasons() {
-        cmaqVariable = cmaqRefs[0]?.selectedItems[0]?.metadata ?? '';
-        const seasonSelect = cmaqRefs[1];
-        const availableSeasons = cmaqPastOptions[1].options.filter(option =>
-            'variable' in option && option.variable.split(',').includes(cmaqVariable)
-        );
-
-        if (seasonSelect?.selectedItems[0] && !availableSeasons.some(option => option.value === seasonSelect.selectedItems[0].value)) {
-            cmaqSeason = '';
-            seasonSelect.clearSelection();
-        }
-    }
-
-    function filterCmaqVariables() {
-        cmaqSeason = cmaqRefs[1]?.selectedItems[0]?.value ?? '';
-        const variableSelect = cmaqRefs[0];
-        const selectedSeason = cmaqPastOptions[1].options.find(option => option.value === cmaqSeason);
-        const availableVariables = selectedSeason && 'variable' in selectedSeason
-            ? selectedSeason.variable.split(',')
-            : [];
-
-        if (variableSelect?.selectedItems[0] && !availableVariables.includes(variableSelect.selectedItems[0].metadata)) {
-            cmaqVariable = '';
-            variableSelect.clearSelection();
-        }
-    }
 
     $: lcluPastOptions_filtered = lcluPastOptions.map(obj => {
         return {...obj, options: obj.options.filter(opt => opt.domains.includes(geography))}
@@ -1900,7 +1874,7 @@
                     climateNotify.removeAttribute("hidden")
                     return
                 } else {
-                    (domain != "CONUS") ? loadOCONUS(selections) : loadCONUS(selections)
+                    await ((domain != "CONUS") ? loadOCONUS(selections) : loadCONUS(selections))
                     climateNotify.setAttribute("hidden", "")
                     return
                 }
@@ -1916,7 +1890,7 @@
                     lcluPastNotify.removeAttribute("hidden")
                     return
                 } else {
-                    loadLcluPast(selections)
+                    await loadLcluPast(selections)
                     lcluPastNotify.setAttribute("hidden", "")
                     return
                 }
@@ -1932,11 +1906,14 @@
                     popPastNotify.removeAttribute("hidden")
                     return
                 } else {
-                    loadpopPast(selections)
+                    await loadpopPast(selections)
                     popPastNotify.setAttribute("hidden", "")
                     return
                 }
             case "cmaq":
+                let url;
+                let units;
+                let decimals;
                 cmaqRefs.forEach(elem => {
                     let option = elem.placeholder;
                     let value = elem.selectedItems[0]?.value;
@@ -1944,62 +1921,90 @@
                     let d = elem.selectedItems[0]?.metadata;
                     selections[option] = {value: value, label: label, d: d}
                 });
-                openRightPanel($activeWidget, "layers") 
-                let selectedTitle = domain + ", " + selections['Period'].label + ", " + selections['Season'].label + " " + selections['Variable'].label
+                openRightPanel($activeWidget, "layers");
+                let variableSelect = selections['Variable'].d;
+                switch (variableSelect) {
+                    case "TOTDEP_N":
+                        url = "https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/CMAQ_TOTDEP_N_3_Year_Averages_2005_to_2019/ImageServer";
+                        units = "kg/ha/year";
+                        decimals = 2;
+                        break
+                    case "TOTDEP_S":
+                        url = "https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/CMAQ_TOTDEP_S_3_Year_Averages_2005_to_2019/ImageServer";
+                        units = "kg/ha/year";
+                        decimals = 2;
+                        break
+                    case "O3":
+                        url = "https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/CMAQ_Ozone_3_Year_Averages_2005_to_2019/ImageServer";
+                        units = "ppm";
+                        decimals = 3
+                        break
+                    case "PM10":
+                        url = "https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/CMAQ_PM10_3_Year_Averages_2005_to_2019/ImageServer";
+                        units = "µg/m3";
+                        decimals = 2;
+                        break
+                    case "PM25":
+                        url = "https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/CMAQ_PM25_3_Year_Averages_2005_to_2019/ImageServer";
+                        units = "µg/m3";
+                        decimals = 2;
+                        break
+                    case "SO2":
+                        url = "https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/CMAQ_SO2_3_Year_Averages_2005_to_2019/ImageServer";
+                        units = "ppbv";
+                        decimals = 2;
+                        break
+                }
+                let selectedTitle = "3-Year Average " + selections['Variable'].label + " (" + units + ") for " + selections['Season'].label + " " + selections['Period'].label + " for " + domain;
                 let drawCheck = isLayerTitleInMap(selectedTitle, view);
                 if (drawCheck) {
                     addAlertMessage('', 'This layer is already in the map: ' + selectedTitle, 'warning', 'Layer is already in the map');
                 } else {
-                    const mdURL = "https://enviroatlas.epa.gov/arcgis/rest/services/Rasters/CMAQ/ImageServer"
-                    let mosaicRule = new MosaicRule();
-                    mosaicRule.multidimensionalDefinition = [];
-                    mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
-                        variableName: selections['Variable'].d,
-                        dimensionName: "scenario",
-                        values: [selections['Period'].d], 
-                        isSlice: true
-                    }));
-                    mosaicRule.multidimensionalDefinition.push(new DimensionalDefinition({
-                        variableName: selections['Variable'].d,
-                        dimensionName: "season",
-                        values: [selections['Season'].d], 
-                        isSlice: true
-                    }));
-
                     const layer = new ImageryLayer({
-                        url: mdURL,
+                        url,
                         format: "lerc",
-                        mosaicRule,
                         title: selectedTitle,
                         popupTemplate: {
-                            title: `${selectedTitle} value: {Raster.ServicePixelValue.Raw}`,
+                            title: `${selectedTitle}`,
                             fieldInfos: [
                                 {
                                     fieldName: "Raster.ServicePixelValue.Raw",
                                     format: {
-                                        places: 2,
+                                        places: decimals,
                                         digitSeparator: true,
                                     },
                                 },
                             ],
+                            content: `{Raster.ServicePixelValue.Raw} ${units}`
                         },
                     });
                 
                     //get stats on the image slice by finding OBJECTID of the single raster
                     const idQuery = new Query({
-                        where: `Seasons=${selections['Season'].d} AND Year=${selections['Period'].d} AND Variable='${selections['Variable'].d}'`
+                        where: `Seasons=${selections['Season'].d} AND Year=${selections['Period'].d}'`
                     })
-                    console.log(idQuery)
                     const minmax = await layer.queryObjectIds(idQuery).then((imageLyr) => {
                         let imageId = imageLyr[0]
                         console.log(imageId)
-                        let infoUrl = mdURL + `/${imageId}/info?f=json`
+                        let infoUrl = url + `/${imageId}/info?f=json`
                         return fetchData(infoUrl)
                     }).then(sliceInfo => {
                         let minmax = sliceInfo.statistics[0].slice(0,2)
                         return minmax
                     })
 
+                    const imageId = await layer.queryObjectIds(idQuery).then((imageLyr) => {
+                        let imageId = imageLyr[0]
+                        return imageId
+                    })
+                    // {}
+                    let mosaicRule = new MosaicRule({
+                        "ascending":true,
+                        "lockRasterIds":[imageId],
+                        "method":"lock-raster",
+                        "operation":"first",
+                    });
+                    layer.mosaicRule = mosaicRule;
                     //TODO: streamline this with utilities
                     let paletteName = selections['Variable'].d
                     const palettes = {
@@ -2082,6 +2087,15 @@
             }
     }
 
+    async function handleAddToMap(theme) {
+        isAddingToMap = true;
+        try {
+            await getSelections(theme);
+        } finally {
+            isAddingToMap = false;
+        }
+    }
+
     /**
      * Filters options constant into an options object for the selected info button.
      * Instantiates a TimeSeriesDetails.svelte component with the options object prop. 
@@ -2123,6 +2137,7 @@
 <calcite-panel
     data-testid="time-series-viewer"
     data-panel-id="time-series-viewer"   
+    loading={isAddingToMap}
     open
     hidden
 >
@@ -2154,19 +2169,22 @@
                     <div slot="content-bottom" id="combobox-div">
                         <calcite-combobox
                             bind:this={cmaqRefs[q]}
-                            id="cmaqVarSelect"
+                            id="cmaq-{cmaqPast.name}-select"
                             scale="m"
                             placeholder={cmaqPast.name}
                             selection-mode="single"
                             max-items="0"
                             overlay-positioning="fixed"
-                            on:calciteComboboxChange={cmaqPast.name === 'Variable'
-                                ? filterCmaqSeasons
-                                : cmaqPast.name === 'Season'
-                                    ? filterCmaqVariables
-                                    : undefined}
+                            on:calciteComboboxChange={(event) => {
+                                const combobox = event.currentTarget;
+                                if (combobox.id === "cmaq-Variable-select") {
+                                    cmaqVariable = combobox.selectedItems[0]?.value
+                                } else if (combobox.id === "cmaq-Season-select") {
+                                    cmaqSeason = combobox.selectedItems[0]?.value
+                                }
+                            }}
                         >
-                        {#each cmaqPast.options as o}
+                        {#each cmaqPast.options as o (o.value)}
                             <calcite-combobox-item value={o.value} heading={o.label} metadata={o.d}></calcite-combobox-item>
                         {/each}
                         </calcite-combobox>
@@ -2184,7 +2202,7 @@
                             <div slot="title">Incomplete selections</div>
                             <div slot="message">Please make selections.</div>
                         </calcite-notice>
-                        <calcite-button on:click={() => getSelections('cmaq')}>Add to map</calcite-button>
+                        <calcite-button on:click={() => handleAddToMap('cmaq')}>Add to map</calcite-button>
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
@@ -2230,7 +2248,7 @@
                             <div slot="title">Incomplete selections</div>
                             <div slot="message">Please make selections.</div>
                         </calcite-notice>
-                        <calcite-button on:click={() => getSelections('lcluPast')}>Add to map</calcite-button>
+                        <calcite-button on:click={() => handleAddToMap('lcluPast')}>Add to map</calcite-button>
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
@@ -2318,7 +2336,7 @@
                             <div slot="title">Incomplete selections</div>
                             <div slot="message">Please make selections.</div>
                         </calcite-notice>
-                        <calcite-button on:click={() => getSelections('popPast')}>Add to map</calcite-button>
+                        <calcite-button on:click={() => handleAddToMap('popPast')}>Add to map</calcite-button>
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
@@ -2405,7 +2423,7 @@
                             <div slot="title">Incomplete selections</div>
                             <div slot="message">Please make selections.</div>
                         </calcite-notice>
-                        <calcite-button on:click={() => getSelections('clim')}>Add to map</calcite-button>
+                        <calcite-button on:click={() => handleAddToMap('clim')}>Add to map</calcite-button>
                     </div>
                 </calcite-list-item>
             </calcite-list-item>
