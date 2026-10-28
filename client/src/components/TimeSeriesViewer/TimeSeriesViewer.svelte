@@ -1955,17 +1955,16 @@
                         decimals = 2;
                         break
                 }
-                let selectedTitle = "3-Year Average " + selections['Variable'].label + " (" + units + ") for " + selections['Season'].label + " " + selections['Period'].label + " for " + domain;
+                let selectedTitle = "3-Year Average " + selections['Variable'].label + " (" + units + ") for " + selections['Season'].label + ", " + selections['Period'].label + " for " + domain;
                 let drawCheck = isLayerTitleInMap(selectedTitle, view);
                 if (drawCheck) {
                     addAlertMessage('', 'This layer is already in the map: ' + selectedTitle, 'warning', 'Layer is already in the map');
                 } else {
                     const layer = new ImageryLayer({
                         url,
-                        format: "lerc",
+                        format: "jpg",
                         title: selectedTitle,
                         popupTemplate: {
-                            title: `${selectedTitle}`,
                             fieldInfos: [
                                 {
                                     fieldName: "Raster.ServicePixelValue.Raw",
@@ -1975,7 +1974,7 @@
                                     },
                                 },
                             ],
-                            content: `{Raster.ServicePixelValue.Raw} ${units}`
+                            content: `<b> ${selectedTitle} </b><br/> {Raster.ServicePixelValue.Raw} ${units}`
                         },
                     });
                 
