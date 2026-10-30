@@ -237,7 +237,7 @@
             {domains: "CONUS", variable: "SO2,O3,PM25,PM10", value: "S", label: "Fall", info: "September, October, November", d: 4},
             {domains: "CONUS", variable: "SO2,O3,PM25,PM10", value: "D", label: "Winter", info: "December of previous year, January, February", d: 5},
             {domains: "CONUS", variable: "O3", value: "O", label: "Ozone Season (for O3 only)",
-                info: "April, May, June, July, August, September", d: 1
+                info: "April, May, June, July, August, September", d: 6
             }
         ]},
         { name: 'Period', options: [
