@@ -1962,7 +1962,7 @@
                 } else {
                     const layer = new ImageryLayer({
                         url,
-                        format: "jpg",
+                        format: "lerc",
                         title: selectedTitle,
                         popupTemplate: {
                             fieldInfos: [
@@ -2063,9 +2063,13 @@
                     const palette = palettes[paletteName];
                     const colorRamp = createMultipartColorRamp(palette);
                     let stretchRenderer = new RasterStretchRenderer({
-                        colorRamp, stretchType: "percent-clip", useGamma: true, gamma: 2
+                        colorRamp, 
+                        stretchType: "percent-clip", 
+                        useGamma: true, 
+                        gamma: 1
                     })
 
+                    //TODO: round the stats for SO2, PM25, PM10 to 2 decimals
                     stretchRenderer.customStatistics = [{
                         min: minmax[0],
                         max: minmax[1]
